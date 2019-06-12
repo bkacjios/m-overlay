@@ -31,11 +31,6 @@ local TYPE_FLOAT = 5
 local TYPE_POINTER = 6
 local TYPE_DATA = 7
 
-local MEM_GET = 0
-local MEM_SET = 1
-local MEM_UPDATE = 2
-local MEM_WATCH = 3
-
 -- Allow us to do things such as watcher.players.name without having to do watcher.named.player.name
 setmetatable(watcher, {__index = watcher.named})
 
@@ -161,20 +156,6 @@ end
 
 function watcher.readType(type, address)
 	return watcher.process[READ_TYPES[type]](watcher.process, address)
-end
-
-function watcher.readFrameSync()
-	repeat
-		-- Read all watcher updates until there is a new frame
-		-- This syncs the framerate with the game!
-	until watcher.read()
-	network.flushServer()
-end
-
-function watcher.readFrameAsync()
-	if watcher.read() then
-		network.flushServer()
-	end
 end
 
 function watcher.isReady()

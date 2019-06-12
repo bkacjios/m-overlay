@@ -188,7 +188,7 @@ function MEMORY:findprocess(name)
 
 	repeat
 		if string(pe32.szExeFile) == name then
-			self.process_handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_VM_WRITE + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID);
+			self.process_handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID);
 			break
 		end
 	until kernel.Process32Next(processes, pe32) == 0

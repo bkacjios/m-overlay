@@ -11,7 +11,7 @@ local newImage = graphics.newImage
 function love.load()
 	love.window.setTitle("M'Overlay - Waiting for Dolphin.exe..")
 	watcher.init()
-	graphics.setBackgroundColor(0, 0, 0, 0)
+	graphics.setBackgroundColor(0, 0, 0, 0) -- Transparent background for OBS
 end
 
 local BUTTONS = {
@@ -30,7 +30,7 @@ local BUTTONS = {
 }
 
 function love.update(dt)
-	watcher.update("Dolphin.exe")
+	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 end
 
 local mask_shader = love.graphics.newShader[[
@@ -143,7 +143,7 @@ function love.draw()
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.MASK, 24 + (42 * x), 21 + (42 * y), 0, 128, 128, 0, 0)
 			graphics.setShader()
 		end, "replace", 1)
-		graphics.setStencilTest("equal", 0)
+		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 24, 64, 0, 128, 128)
 		graphics.setStencilTest()
 
@@ -159,37 +159,59 @@ function love.draw()
 
 		graphics.setColor(255, 255, 255, 255)
 
-		-- Draw L Analog
+		-- Draw L
 
-		graphics.setLineStyle("rough")
-		love.graphics.setLineWidth(2)
+		graphics.setLineStyle("smooth")
+		love.graphics.setLineWidth(3)
 
-		graphics.rectangle("line", 24 + 14, 32, 100, 8)
-		graphics.line(24 + 14 + 92, 32, 24 + 14 + 92, 40)
+		graphics.stencil(function()
+			-- Create a rounded rectangle mask
+			graphics.rectangle("fill", 24 + 14, 32, 100, 12, 6, 6)
+		end, "replace", 1)
+		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
+			-- L Analog
+			graphics.rectangle("fill", 24 + 14, 32, 88 * controller.analog.float.l, 12)
 
-		graphics.rectangle("fill", 24 + 14, 32, 92 * controller.analog.float.l, 8)
+	 		-- L Button
+			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
+				graphics.rectangle("fill", 24 + 14 + 88, 32, 12, 12)
+			end
+		graphics.setStencilTest()
 
-		if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-			graphics.rectangle("fill", 24 + 14 + 92, 32, 8, 8)
-		end
+		-- Draw outline
+		graphics.rectangle("line", 24 + 14, 32, 100, 12, 6, 6)
+		-- Draw segment for button press
+		graphics.line(24 + 14 + 88, 32, 24 + 14 + 88, 43)
 
-		-- Draw R Analog
+		-- Draw R
 
-		graphics.rectangle("line", 48 + 128 + 14, 32, 100, 8)
-		graphics.line(48 + 128 + 14 + 8, 32, 48 + 128 + 14 + 8, 40)
+		graphics.stencil(function()
+			-- Create a rounded rectangle mask
+			graphics.rectangle("fill", 48 + 128 + 14, 32, 100, 12, 6, 6)
+		end, "replace", 1)
+		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
+			-- R Analog
+			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - controller.analog.float.r)), 32, 88 * controller.analog.float.r, 12)
 
-		graphics.rectangle("fill", 48 + 128 + 14 + 8 + (92 * (1 - controller.analog.float.r)), 32, 92 * controller.analog.float.r, 8)
+			-- R Button
+			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
+				graphics.rectangle("fill", 48 + 128 + 14, 32, 12, 12)
+			end
+		graphics.setStencilTest()
 
-		if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-			graphics.rectangle("fill", 48 + 128 + 14, 32, 8, 8)
-		end
+		-- Draw outline
+		graphics.rectangle("line", 48 + 128 + 14, 32, 100, 12, 6, 6)
+		-- Draw segment for button press
+		graphics.line(48 + 128 + 14 + 12, 32, 48 + 128 + 14 + 12, 43)
+
+		-- Draw buttons
 
 		for button, flag in pairs(BUTTONS) do
 			local texture = BUTTON_TEXTURES[button]
 			if texture then
 				local pos = texture.POSITION
 				graphics.setColor(texture.COLOR)
-				if bit.band(controller.buttons.pressed, flag) == flag then
+				if bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
 					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
 				else
 					graphics.easyDraw(texture.OUTLINE, pos.x, pos.y, 0, 128, 128)
