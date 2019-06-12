@@ -1,15 +1,15 @@
 # m-overlay
 
-![Image of M'Overlay](https://i.imgur.com/2kWnYXz.png)
+![Image of M'Overlay](https://i.imgur.com/oJS0tg7.png)
 
 ### Usage
 
 This program hooks into Dolphin and reads from memory to show a players inputs. This could be an alternative to Nintendo-Spy for those who don't have the technical prowess of setting up an Arduino.
 
-Currently this program will only work on Melee v1.02 (NTSC), but should work any ANY version of dolphin.
+Currently this program will only work on Melee v1.02 (NTSC), but should work on any ANY version of dolphin.
 
 To use with OBS, add a "Game Capture" source and use "capture specific window" "[M'Overlay.exe]"
-Be sure to check "Allow Transparency"
+and be sure to check "Allow Transparency"
 
 ### Why?
 
