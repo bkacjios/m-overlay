@@ -1,5 +1,3 @@
-require("smash.enums")
-
 local map = {}
 
 -- 804B302C = PAL

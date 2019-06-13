@@ -1,15 +1,14 @@
-package.path = package.path .. ";modules/?.lua;modules/?/init.lua"
 love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";modules/?.lua;modules/?/init.lua")
 
-local watcher = require("memory.watcher")
-require("love2d")
+require("util.love2d")
 
-local timer = love.timer
+local watcher = require("memory.watcher")
+
 local graphics = love.graphics
 local newImage = graphics.newImage
 
 function love.load()
-	love.window.setTitle("M'Overlay - Waiting for Dolphin.exe..")
+	love.window.setTitle("M'Overlay - Waiting for Dolphin.exe")
 	watcher.init()
 	graphics.setBackgroundColor(0, 0, 0, 0) -- Transparent background for OBS
 end
@@ -113,7 +112,7 @@ local MAX_PORTS = 4
 local PORT = 0
 
 function love.gameLoaded()
-	love.window.setTitle(string.format("M'Overlay - Player %d", PORT + 1))
+	love.window.setTitle(string.format("M'Overlay - Port %d", PORT + 1))
 end
 
 function love.wheelmoved(x, y)
