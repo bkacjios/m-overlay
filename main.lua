@@ -192,9 +192,7 @@ function love.wheelmoved(x, y)
 	love.gameLoaded()
 end
 
-function love.draw()	
-	gui.render()
-
+function love.draw()
 	local controller = watcher.controller[PORT + 1]
 
 	if controller and controller.plugged ~= 0xFF then
@@ -213,10 +211,7 @@ function love.draw()
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		love.graphics.push()
-			graphics.transform(0, 0, 1, 0, 0, 1)
-			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.STICK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0, 0.0, 0.0)
-		love.graphics.pop()
+		graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.STICK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0, 0.0, 0.0)
 
 		-- Draw C-Stick
 
