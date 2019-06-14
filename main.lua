@@ -1,6 +1,7 @@
-love.filesystem.setRequirePath(love.filesystem.getRequirePath() .. ";modules/?.lua;modules/?/init.lua")
+love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
 
 require("util.love2d")
+require("util.color")
 
 local watcher = require("memory.watcher")
 
@@ -32,6 +33,26 @@ function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 end
 
+
+local MAX_PORTS = 4
+local PORT = 0
+
+function love.gameLoaded()
+	love.window.setTitle(string.format("M'Overlay - Port %d", PORT + 1))
+end
+
+function love.wheelmoved(x, y)
+	if not watcher.isReady() then return end
+
+	if y > 0 then
+		PORT = PORT - 1
+	elseif y < 0 then
+		PORT = PORT + 1
+	end
+	PORT = PORT % MAX_PORTS
+	love.gameLoaded()
+end
+
 local mask_shader = love.graphics.newShader[[
 	vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
 		if (Texel(texture, texture_coords).rgb == vec3(0.0)) {
@@ -43,6 +64,50 @@ local mask_shader = love.graphics.newShader[[
 ]]
 
 local BUTTON_TEXTURES = {
+	DPAD = {
+		GATE = newImage("textures/buttons/d-pad-gate.png"),
+		POSITION = {
+			x = 100,
+			y = 128,
+		},
+	},
+
+	DPAD_LEFT = {
+		PRESSED = newImage("textures/buttons/d-pad-pressed-left.png"),
+
+		POSITION = {
+			x = 108,
+			y = 144,
+		},
+	},
+
+	DPAD_RIGHT = {
+		PRESSED = newImage("textures/buttons/d-pad-pressed-right.png"),
+
+		POSITION = {
+			x = 108,
+			y = 144,
+		},
+	},
+
+	DPAD_UP = {
+		PRESSED = newImage("textures/buttons/d-pad-pressed-up.png"),
+
+		POSITION = {
+			x = 108,
+			y = 144,
+		},
+	},
+
+	DPAD_DOWN = {
+		PRESSED = newImage("textures/buttons/d-pad-pressed-down.png"),
+
+		POSITION = {
+			x = 108,
+			y = 144,
+		},
+	},
+
 	JOYSTICK = {
 		GATE = newImage("textures/buttons/joystick-gate.png"),
 		MASK = newImage("textures/buttons/joystick-mask.png"),
@@ -127,7 +192,9 @@ function love.wheelmoved(x, y)
 	love.gameLoaded()
 end
 
-function love.draw()
+function love.draw()	
+	gui.render()
+
 	local controller = watcher.controller[PORT + 1]
 
 	if controller and controller.plugged ~= 0xFF then
@@ -139,22 +206,25 @@ function love.draw()
 
 		graphics.stencil(function()
 			graphics.setShader(mask_shader)
-			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.MASK, 24 + (42 * x), 21 + (42 * y), 0, 128, 128, 0, 0)
+			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.MASK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0)
 			graphics.setShader()
 		end, "replace", 1)
 		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
-			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 24, 64, 0, 128, 128)
+			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.STICK, 24 + (42 * x), 21 + (42 * y), 0, 128, 128, 0, 0)
+		love.graphics.push()
+			graphics.transform(0, 0, 1, 0, 0, 1)
+			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.STICK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0, 0.0, 0.0)
+		love.graphics.pop()
 
 		-- Draw C-Stick
 
 		local x, y = controller.cstick.x, 1 - controller.cstick.y
 
 		graphics.setColor(255, 235, 0, 255)
-		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 64, 0, 128, 128)
-		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.STICK, 48 + 128 + (32 * x), 32 + (32 * y), 0, 128, 128, 0, 0)
+		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
+		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.STICK, 48 + 128 + (32 * x), 20 + (32 * y), 0, 128, 128, 0, 0)
 
 		graphics.setColor(255, 255, 255, 255)
 
@@ -165,54 +235,56 @@ function love.draw()
 
 		graphics.stencil(function()
 			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 24 + 14, 32, 100, 12, 6, 6)
+			graphics.rectangle("fill", 24 + 14, 16, 100, 12, 6, 6)
 		end, "replace", 1)
 		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 			-- L Analog
-			graphics.rectangle("fill", 24 + 14, 32, 88 * controller.analog.float.l, 12)
+			graphics.rectangle("fill", 24 + 14, 16, 88 * controller.analog.float.l, 12)
 
 	 		-- L Button
 			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-				graphics.rectangle("fill", 24 + 14 + 88, 32, 12, 12)
+				graphics.rectangle("fill", 24 + 14 + 88, 16, 12, 12)
 			end
 		graphics.setStencilTest()
 
 		-- Draw outline
-		graphics.rectangle("line", 24 + 14, 32, 100, 12, 6, 6)
+		graphics.rectangle("line", 24 + 14, 16, 100, 12, 6, 6)
 		-- Draw segment for button press
-		graphics.line(24 + 14 + 88, 32, 24 + 14 + 88, 43)
+		graphics.line(24 + 14 + 88, 16, 24 + 14 + 88, 16 + 12)
 
 		-- Draw R
 
 		graphics.stencil(function()
 			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 48 + 128 + 14, 32, 100, 12, 6, 6)
+			graphics.rectangle("fill", 48 + 128 + 14, 16, 100, 12, 6, 6)
 		end, "replace", 1)
 		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 			-- R Analog
-			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - controller.analog.float.r)), 32, 88 * controller.analog.float.r, 12)
+			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - controller.analog.float.r)), 16, 88 * controller.analog.float.r, 12)
 
 			-- R Button
 			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-				graphics.rectangle("fill", 48 + 128 + 14, 32, 12, 12)
+				graphics.rectangle("fill", 48 + 128 + 14, 16, 12, 12)
 			end
 		graphics.setStencilTest()
 
 		-- Draw outline
-		graphics.rectangle("line", 48 + 128 + 14, 32, 100, 12, 6, 6)
+		graphics.rectangle("line", 48 + 128 + 14, 16, 100, 12, 6, 6)
 		-- Draw segment for button press
-		graphics.line(48 + 128 + 14 + 12, 32, 48 + 128 + 14 + 12, 43)
+		graphics.line(48 + 128 + 14 + 12, 16, 48 + 128 + 14 + 12, 16 + 12)
 
 		-- Draw buttons
+
+		graphics.easyDraw(BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
 
 		for button, flag in pairs(BUTTONS) do
 			local texture = BUTTON_TEXTURES[button]
 			if texture then
 				local pos = texture.POSITION
 				graphics.setColor(texture.COLOR)
-				if bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
+				if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
 					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
-				else
+				elseif texture.OUTLINE then
 					graphics.easyDraw(texture.OUTLINE, pos.x, pos.y, 0, 128, 128)
 				end
 			end

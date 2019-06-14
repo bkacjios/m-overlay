@@ -1,4 +1,5 @@
 local ffi = require("ffi")
+local log = require("log")
 
 local format = string.format
 
@@ -243,7 +244,7 @@ function MEMORY:findGamecubeRAMOffset()
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
 				if band(flags, lshift(1, 0)) == 1 then -- Check if the Valid flag is set
 					self.dolphin_base_addr = cast("ULONG_PTR", info.BaseAddress)
-					print(format("Gamecube memory found %08X", tonumber(self.dolphin_base_addr)))
+					log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
 					return true
 				end
 			end
@@ -260,7 +261,6 @@ local function read(mem, addr, output, size)
 	if success and read[0] == size then
 		return true
 	else
-		print("Failed to read memory..")
 		mem:close()
 		return false
 	end

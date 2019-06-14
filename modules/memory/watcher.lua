@@ -1,7 +1,6 @@
 local bit = require("bit")
 local log = require("log")
 local memory = require("memory.windows")
-require("smash.enums")
 
 local watcher = {
 	debug = false,
@@ -166,16 +165,16 @@ function watcher.update(exe)
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
 		love.window.setTitle("M'Overlay - Waiting for Dolphin.exe..")
-		print("Exit", exe)
+		log.info("closed: %s", exe)
 	end
 
 	if watcher.process:findprocess(exe) then
-		print("Found", exe)
+		log.info("hooked: %s", exe)
 		love.window.setTitle("M'Overlay - Dolphin.exe hooked")
 	end
 
 	if not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-		print("Initializing RAM watcher", exe)
+		log.info("watching ram: %s", exe)
 		watcher.init()
 		love.gameLoaded()
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
