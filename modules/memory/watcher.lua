@@ -12,14 +12,9 @@ local watcher = {
 	watching_ptr_addr = {},
 	pointer_loc = {},
 	named = {},
-	synced = 0,
 	map = require("memory.melee"), -- The map of the game we want to use!
 	no_debug = {}
 }
-
-function watcher.isSynced()
-	return watcher.synced >= 2
-end
 
 local TYPE_NULL = 0
 local TYPE_BOOL = 1
@@ -76,7 +71,6 @@ function watcher.shutdown()
 	watcher.watching_ptr_addr = {}
 
 	watcher.named = {}
-	watcher.synced = 0
 end
 
 -- Creates or updates a tree of values for easy indexing

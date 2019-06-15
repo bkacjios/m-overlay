@@ -29,3 +29,40 @@ function love.graphics.easyDraw(obj, x, y, rotation, width, height, originX, ori
 	local scaledH = height / objH
 	love.graphics.draw(obj, x, y, r, scaledW, scaledH, objW * originX, objH * originY, ...)
 end
+
+--applies a transformation that maps 
+--  0,0 => ox, oy
+--  1,0 => xx, xy
+--  0,1 => yx, yy
+-- via love.graphics.translate, .rotate and .scale
+
+local sqrt = math.sqrt
+local atan2 = math.atan2
+local acos = math.acos
+local tan = math.tan
+local cos = math.cos
+local sin = math.sin
+
+function love.graphics.transform(ox, oy, xx, xy, yx, yy)
+	local ex, ey, fx,fy = xx - ox, xy - oy, yx - ox, yy - oy
+
+	if ex * fy < ey * fx then
+		ex, ey, fx, fy = fx, fy, ex, ey
+	end
+
+	local e, f = sqrt(ex * ex + ey * ey), sqrt(fx * fx + fy * fy)
+
+	ex, ey = ex / e, ey / e
+	fx, fy = fx / f, fy / f
+
+	local desiredOrientation = atan2(ey + fy, ex + fx)
+	local desiredAngle = acos(ex * fx + ey * fy) / 2
+	local z = tan(desiredAngle)
+	local distortion = sqrt((1 + z * z) / 2)
+
+	graphics.translate(ox, oy)
+	graphics.rotate(desiredOrientation)
+	graphics.scale(1, z)
+	graphics.rotate(-math.pi / 4)
+	graphics.scale(e / distortion, f / distortion)
+end
