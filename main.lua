@@ -1,7 +1,6 @@
 love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
 
 require("util.love2d")
-require("util.color")
 
 local watcher = require("memory.watcher")
 
@@ -31,26 +30,6 @@ local BUTTONS = {
 
 function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
-end
-
-
-local MAX_PORTS = 4
-local PORT = 0
-
-function love.gameLoaded()
-	love.window.setTitle(string.format("M'Overlay - Port %d", PORT + 1))
-end
-
-function love.wheelmoved(x, y)
-	if not watcher.isReady() then return end
-
-	if y > 0 then
-		PORT = PORT - 1
-	elseif y < 0 then
-		PORT = PORT + 1
-	end
-	PORT = PORT % MAX_PORTS
-	love.gameLoaded()
 end
 
 local mask_shader = love.graphics.newShader[[
