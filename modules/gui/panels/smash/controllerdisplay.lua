@@ -18,6 +18,7 @@ local BUTTONS = {
 	START		= 0x1000,
 }
 
+local timer = love.timer
 local graphics = love.graphics
 local MASK_SHADER = graphics.newShader[[
 	vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
@@ -30,6 +31,8 @@ local MASK_SHADER = graphics.newShader[[
 ]]
 
 local newImage = graphics.newImage
+local newFont = graphics.newFont
+local format = string.format
 
 local BUTTON_TEXTURES = {
 	DPAD = {
@@ -42,7 +45,6 @@ local BUTTON_TEXTURES = {
 
 	DPAD_LEFT = {
 		PRESSED = newImage("textures/buttons/d-pad-pressed-left.png"),
-
 		POSITION = {
 			x = 108,
 			y = 144,
@@ -51,7 +53,6 @@ local BUTTON_TEXTURES = {
 
 	DPAD_RIGHT = {
 		PRESSED = newImage("textures/buttons/d-pad-pressed-right.png"),
-
 		POSITION = {
 			x = 108,
 			y = 144,
@@ -60,7 +61,6 @@ local BUTTON_TEXTURES = {
 
 	DPAD_UP = {
 		PRESSED = newImage("textures/buttons/d-pad-pressed-up.png"),
-
 		POSITION = {
 			x = 108,
 			y = 144,
@@ -69,7 +69,6 @@ local BUTTON_TEXTURES = {
 
 	DPAD_DOWN = {
 		PRESSED = newImage("textures/buttons/d-pad-pressed-down.png"),
-
 		POSITION = {
 			x = 108,
 			y = 144,
@@ -143,8 +142,35 @@ local BUTTON_TEXTURES = {
 
 local MAX_PORTS = 4
 
+local state = require("smash.states")
+
 function PANEL:Initialize()
 	self:super()
+
+	self.m_pFont = newFont("fonts/Rodin-Bokutoh-Pro-UB.ttf", 16)
+
+	self.m_bEnabled = false
+	self.m_iPort = -1
+	self.m_iActions = 0
+
+	watcher.hook("match.finished", "Actions - Reset", function(finished)
+		if finished == 0 then
+			print("starting APM counter")
+			self.m_bEnabled = true
+			self:ResetAPM()
+		else
+			print("stopping APM counter")
+			self.m_bEnabled = false
+		end
+	end)
+
+	watcher.hook("player.*.*.action_state", "Actions - Counter", function(port, entityType, state_id)
+		if port == self:GetPort() and not state.isNatural(state_id) then
+			local player = watcher.player[port][entityType]
+			print(string.format("[%04X] %s", state_id, state.translateChar(player.character, state_id)))
+			self:UpdateAPM(entityType, state_id)
+		end
+	end)
 end
 
 function PANEL:SetPort(port)
@@ -155,11 +181,30 @@ function PANEL:GetPort()
 	return self.m_iPort
 end
 
+function PANEL:ResetAPM()
+	self.m_iActions = 0
+end
+
+function PANEL:UpdateAPM(entityType, state)
+	if not self.m_bEnabled then return end
+	self.m_iActions = self.m_iActions + 1
+end
+
 function PANEL:Paint(w, h)
 	local controller = watcher.controller[self.m_iPort]
 
 	if controller and controller.plugged ~= 0xFF then
 		-- Draw Joystick
+
+		local time = watcher.match.frame / 60
+
+		graphics.setFont(self.m_pFont)
+
+		if time < 60 then
+			graphics.print(format("APM: %d", self.m_iActions), 8, h - 24)
+		else
+			graphics.print(format("APM: %d", self.m_iActions / time * 60), 8, h - 24)
+		end
 
 		local x, y = controller.joystick.x, 1 - controller.joystick.y
 

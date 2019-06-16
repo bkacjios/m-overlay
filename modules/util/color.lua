@@ -6,25 +6,31 @@ local COLOR = {}
 COLOR.__index = COLOR
 
 function color(r, g, b, a)
-	return setmetatable({
-		r = math.min(tonumber(r or 255), 255),
-		g = math.min(tonumber(g or 255), 255),
-		b = math.min(tonumber(b or 255), 255),
-		a = math.min(tonumber(a or 255), 255)
-	}, COLOR)
-end
-
-function colorFromHex(hex) -- Creates a color using a Hex value, 0xFFFFFF
-	return color(
-		bit.band(bit.rshift(hex, 16), 0xFF), -- Red
-		bit.band(bit.rshift(hex, 8), 0xFF), -- Green
-		bit.band(bit.rshift(hex, 0), 0xFF) -- Blue
-		-- Would normally have alpha here, but Lua doesn't like big numbers :(
-	)
+	if type(r) == "string" then
+		local c = {}
+		local i = 1
+		for hex in r:gmatch("%x%x") do
+			c[i] = (tonumber(hex, 16) or 0)
+			i = i + 1
+		end
+		return setmetatable({
+			r = math.min(c[1] or 0, 255),
+			g = math.min(c[2] or 0, 255),
+			b = math.min(c[3] or 0, 255),
+			a = math.min(c[4] or 255, 255)
+		}, COLOR)
+	else
+		return setmetatable({
+			r = math.min(tonumber(r or 255), 255),
+			g = math.min(tonumber(g or 255), 255),
+			b = math.min(tonumber(b or 255), 255),
+			a = math.min(tonumber(a or 255), 255)
+		}, COLOR)
+	end
 end
 
 function COLOR:__tostring()
-	return string.format("color[%i, %i, %i, %i][#%X]", self.r, self.g, self.b, self.a, self:Hex())
+	return string.format("color[%i, %i, %i, %i][#%06X]", self.r, self.g, self.b, self.a, self:hex())
 end
 
 function COLOR:__add(col)
@@ -39,11 +45,11 @@ function COLOR:__eq(col)
 	return self.r == col.r and self.g == col.g and self.b == col.b and self.a == col.a
 end
 
-function COLOR:Vector()
-	return Vector(col.r / 255, col.g / 255, col.b / 255)
+function COLOR:vector()
+	return vector(col.r / 255, col.g / 255, col.b / 255)
 end
 
-function COLOR:FadeTo(col, frac)
+function COLOR:fadeTo(col, frac)
 	local faded = color(255, 255, 255)
 	faded.r = (self.r * (1 - frac)) + col.r * frac
 	faded.g = (self.g * (1 - frac)) + col.g * frac
@@ -52,12 +58,12 @@ function COLOR:FadeTo(col, frac)
 	return faded
 end
 
-function COLOR:Hex()
+function COLOR:hex()
 	if type(self) == "number" then return self end
 	return bit.lshift(self.r, 16) + bit.lshift(self.g, 8) + bit.lshift(self.b, 0)
 end
 
-function COLOR:Distance(col)
+function COLOR:distance(col)
 	local r = self.r - col.r
 	local g = self.g - col.g
 	local b = self.b - col.b
@@ -65,8 +71,8 @@ function COLOR:Distance(col)
 end
 
 color_blank = color(0, 0, 0, 0)
-color_white = color(255, 255, 255) -- Use better color object
-color_black = color(0, 0, 0) -- Use better color object
+color_white = color(255, 255, 255)
+color_black = color(0, 0, 0)
 color_red = color(237, 28, 36)
 color_green = color(34, 177, 76)
 color_blue = color(0, 162, 232)

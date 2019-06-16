@@ -2,13 +2,17 @@ local bit = require("bit")
 local log = require("log")
 local memory = require("memory.windows")
 
+require("extensions.string")
+
 local watcher = {
 	debug = false,
 	process = memory.init(),
 	hooks = {},
+	wildcard_hooks = {},
 	values_memory = {},
 	values_pointer = {},
 	watching_addr = {},
+	watching_str_addr = {},
 	watching_ptr_addr = {},
 	pointer_loc = {},
 	named = {},
@@ -54,10 +58,10 @@ function watcher.init()
 			for offset, struct in pairs(info.struct) do
 				watcher.watching_ptr_addr[address][offset] = TYPE_NAME[struct.type]
 				local name = ("%s.%s"):format(info.name, struct.name)
-				watcher.setTableValue(name, 0)
+				watcher.setTableValue(name, math.huge)
 			end
 		else
-			watcher.values_memory[address] = 0
+			watcher.values_memory[address] = math.huge
 			watcher.watching_addr[address] = TYPE_NAME[info.type]
 			watcher.setTableValue(info.name, watcher.values_memory[address])
 		end
@@ -97,8 +101,15 @@ function watcher.setTableValue(path, value)
 end
 
 function watcher.hook(name, desc, callback)
-	watcher.hooks[name] = watcher.hooks[name] or {}
-	watcher.hooks[name][desc] = callback
+	if string.find(name, "*", 1, true) then
+		-- Convert '*' into capture patterns
+		local pattern = '^' .. name:escapePattern():gsub("%%%*", "([^.]-)") .. '$'
+		watcher.wildcard_hooks[pattern] = watcher.wildcard_hooks[pattern] or {}
+		watcher.wildcard_hooks[pattern][desc] = callback
+	else
+		watcher.hooks[name] = watcher.hooks[name] or {}
+		watcher.hooks[name][desc] = callback
+	end
 end
 
 local args = {}
@@ -118,25 +129,22 @@ function watcher.hookRun(name, ...)
 	local varargs = {...}
 
 	-- Allow for wildcard hooks
-	for hookName, hooks in pairs(watcher.hooks) do
-		if string.find(hookName, "*", 1, true) then
-			local pattern = '^' .. hookName:escapePattern():gsub("%%%*", "([^.]-)") .. '$'
-			if string.find(name, pattern) then
-				args = {}
-				matches = {name:match(pattern)}
+	for pattern, hooks in pairs(watcher.wildcard_hooks) do
+		if string.find(name, pattern) then
+			args = {}
+			matches = {name:match(pattern)}
 
-				for k, match in ipairs(matches) do
-					table.insert(args, tonumber(match) or match)
-				end
-				for k, arg in ipairs(varargs) do
-					table.insert(args, arg)
-				end
+			for k, match in ipairs(matches) do
+				table.insert(args, tonumber(match) or match)
+			end
+			for k, arg in ipairs(varargs) do
+				table.insert(args, arg)
+			end
 
-				for desc, callback in pairs(hooks) do
-					local succ, err = xpcall(callback, debug.traceback, unpack(args))
-					if not succ then
-						log.error("watcher hook error: %s (%s)", desc, err)
-					end
+			for desc, callback in pairs(hooks) do
+				local succ, err = xpcall(callback, debug.traceback, unpack(args))
+				if not succ then
+					log.error("watcher hook error: %s (%s)", desc, err)
 				end
 			end
 		end
