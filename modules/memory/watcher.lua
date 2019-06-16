@@ -119,7 +119,13 @@ function watcher.hookRun(name, ...)
 	-- Normal hooks
 	if watcher.hooks[name] then
 		for desc, callback in pairs(watcher.hooks[name]) do
-			local succ, err = xpcall(callback, debug.traceback, ...)
+			local succ, err
+			if type(desc) == "table" then
+				-- Assume a table is an object, so call it as so
+				succ, err = xpcall(callback, debug.traceback, desc, ...)
+			else
+				succ, err = xpcall(callback, debug.traceback, ...)
+			end
 			if not succ then
 				log.error("watcher hook error: %s (%s)", desc, err)
 			end
@@ -142,9 +148,15 @@ function watcher.hookRun(name, ...)
 			end
 
 			for desc, callback in pairs(hooks) do
-				local succ, err = xpcall(callback, debug.traceback, unpack(args))
+				local succ, err
+				if type(desc) == "table" then
+					-- Assume a table is an object, so call it as so
+					succ, err = xpcall(callback, debug.traceback, desc, unpack(args))
+				else
+					succ, err = xpcall(callback, debug.traceback, unpack(args))
+				end
 				if not succ then
-					log.error("watcher hook error: %s (%s)", desc, err)
+					log.error("watcher wildcard hook error: %s (%s)", desc, err)
 				end
 			end
 		end

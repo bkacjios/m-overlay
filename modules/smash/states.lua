@@ -93,6 +93,25 @@ local reactions = {
 	[0x0ED] = "clink",						-- ReboundStop
 	[0x0EE] = "clink recoil",				-- Rebound
 
+	-- Character being thrown
+	[0x0EF] = "forward thrown",				-- ThrownF
+	[0x0F0] = "back thrown",				-- ThrownB
+	[0x0F1] = "up thrown",					-- ThrownHi
+	[0x0F2] = "down thrown", 				-- ThrownLw
+	[0x0F3] = "down thrown",				-- ThrownLwWomen
+
+	[0x0DF] = "pull into grab from air",	-- CapturePulledHi
+	[0x0E0] = "hold air",					-- CaptureWaitHi
+	[0x0E1] = "hold air damage",			-- CaptureDamageHi
+	[0x0E2] = "pulled into grab",			-- CapturePulledLw
+	[0x0E3] = "hold ground",				-- CaptureWaitLw
+	[0x0E4] = "hold damage",				-- CaptureDamageLw
+
+	[0x0E5] = "release from grab",			-- CaptureCut
+	[0x0E6] = "jump from grab",				-- CaptureJump
+	[0x0E7] = "grab neck",					-- CaptureNeck
+	[0x0E8] = "grab foot",					-- CaptureFoot
+
 	[0x010F] = "forward thrown",			-- ThrownFF
 	[0x0110] = "backward thrown",			-- ThrownFB
 	[0x0111] = "up thrown",					-- ThrownFHi
@@ -103,12 +122,20 @@ local reactions = {
 	[0x144] = "spawn end",					-- EntryEnd
 }
 
-function state.isNatural(id)
-	return reactions[id] ~= nil
+function state.isAction(id)
+	return reactions[id] == nil
 end
 
 local character_states = {
 	[CHARACTER_INTERNAL.CPTFALCON] = {
+		[0x155] = "falcon unknown 1",
+		[0x156] = "falcon unknown 2",
+		[0x157] = "falcon unknown 3",
+		[0x158] = "falcon unknown 4",
+		[0x159] = "falcon unknown 5",
+		[0x15A] = "falcon unknown 6",
+		[0x15B] = "falcon unknown 7",
+
 		[0x15B] = "falcon punch",
 		[0x15C] = "aerial falcon punch",
 		[0x15D] = "raptor boost",
@@ -123,6 +150,14 @@ local character_states = {
 		[0x168] = "aerial falcon kick", -- (finish)
 	},
 	[CHARACTER_INTERNAL.GANONDORF] = {
+		[0x155] = "ganon unknown 1",
+		[0x156] = "ganon unknown 2",
+		[0x157] = "ganon unknown 3",
+		[0x158] = "ganon unknown 4",
+		[0x159] = "ganon unknown 5",
+		[0x15A] = "ganon unknown 6",
+		[0x15B] = "ganon unknown 7",
+
 		[0x15B] = "warlock punch",
 		[0x15C] = "aerial warlock punch",
 		[0x15D] = "gerudo dragon",
@@ -137,6 +172,9 @@ local character_states = {
 		[0x168] = "aerial wizards foot", -- (finish)
 	},
 	[CHARACTER_INTERNAL.MARIO] = {
+		[0x155] = "mario unknown 1",
+		[0x156] = "mario unknown 2",
+
 		[0x157] = "fireball",
 		[0x158] = "aerial fireball",
 		[0x159] = "cape",
@@ -147,25 +185,34 @@ local character_states = {
 		[0x15E] = "aerial spin punch",
 	},
 	[CHARACTER_INTERNAL.BOWSER] = {
-		[0x155] = "fire breath", -- (start)
+		[0x155] = "fire breath start", -- (start)
 		[0x156] = "fire breath",
-		[0x157] = "fire breath", -- (finish)
+		[0x157] = "fire breath finish", -- (finish)
 
-		[0x15B] = "koopa klaw",
+		[0x158] = "aerial fire breath start", -- (start)
+		[0x159] = "aerial fire breath",
+		[0x15A] = "aerial fire breath finish", -- (finish)
 
-		[0x15C] = "koopa klaw", -- (start)
-		[0x15E] = "koopa bite",
-		[0x15F] = "koopa klaw throw",
-		[0x160] = "koopa klaw throw", -- Started in air??
-		[0x161] = "koopa klaw", -- (start)
-		[0x162] = "koopa klaw",
+		[0x15B] = "koopa klaw swipe",
+		[0x15C] = "koopa klaw grab",
+		[0x15D] = "koopa klaw bite",
+		[0x15E] = "koopa klaw hold",
+		[0x15F] = "koopa klaw throw headbutt",
+		[0x160] = "koopa klaw throw backwards",
+
+		[0x161] = "aerial koopa klaw swipe",
+		[0x162] = "aerial koopa klaw grab",
+		[0x163] = "aerial koopa klaw bite",
+		[0x164] = "aerial koopa klaw hold",
+		[0x165] = "aerial koopa klaw throw headbutt",
+		[0x166] = "aerial koopa klaw throw backwards",
 
 		[0x167] = "whirling fortress",
 		[0x168] = "aerial whirling fortress",
 
-		[0x169] = "bowser bomb", -- (start)
+		[0x169] = "bowser bomb start", -- (start)
 		[0x16A] = "bowser bomb",
-		[0x16B] = "bowser bomb", -- (finish)
+		[0x16B] = "bowser bomb end", -- (finish)
 	},
 	[CHARACTER_INTERNAL.LUIGI] = {
 		[0x155] = "fireball",
@@ -173,10 +220,8 @@ local character_states = {
 
 		[0x157] = "diving headbutt windup",
 		[0x158] = "diving headbutt charge",
-
-		[0x159] = "unknown luigi special move (somehow releated to diving headbutt!)",
-
-		[0x15A] = "diving headbutt finish",
+		[0x159] = "diving headbutt fly", -- Grounded "flying" (I think this isn't possible, but who knows!)
+		[0x15A] = "diving headbutt fall",
 		[0x15B] = "diving headbutt launch",
 		[0x15C] = "diving headbutt misfire",
 
@@ -184,44 +229,65 @@ local character_states = {
 		[0x15E] = "aerial diving headbutt charge",
 		[0x15F] = "aerial diving headbutt fly",
 		[0x160] = "aerial diving headbutt fall",
-
 		[0x161] = "aerial diving headbutt launch",
 		[0x162] = "areial diving headbutt misfire",
+
 		[0x163] = "coin uppercut",
 		[0x164] = "aerial coin uppercut",
 		[0x165] = "spin punch",
 		[0x166] = "aerial spin punch",
 	},
 	[CHARACTER_INTERNAL.PEACH] = {
-		[0x155] = "hover", -- (start)
-		[0x156] = "hover", -- (finish)
-		[0x157] = "hover", -- (timeout)
+		[0x155] = "hover start", -- (start)
+		[0x156] = "hover finish", -- (finish)
+		[0x157] = "hover timeout", -- (timeout)
+
+		[0x158] = "peach unknown 1",
+		[0x159] = "peach unknown 2",
+
 		[0x160] = "pull turnip",
 		[0x161] = "aerial pull turnip", -- I think this isn't possible..
+
 		[0x162] = "peach bomber windup", -- (start)
-		[0x163] = "peach bomber", -- (finish)
+		[0x163] = "peach bomber finish", -- (finish)
 		[0x164] = "peach bomber explosion", -- (finish)
+
 		[0x165] = "aerial peach bomber windup", -- (start)
-		[0x166] = "aerial peach bomber", -- (finish)
+		[0x166] = "aerial peach bomber finish", -- (finish)
 		[0x167] = "aerial peach bomber explosion", -- (bounce back)
-		[0x168] = "peach bomber",
-		[0x169] = "parasol",
-		[0x16B] = "aerial parasol",
+		[0x168] = "aerial peach bomber fly",
+
+		[0x169] = "parasol jump",
+		[0x16B] = "aerial parasol jump",
+
+		[0x16C] = "peach unknown 3",
+
 		[0x16D] = "toad",
 		[0x16E] = "toad recoil",
 		[0x16F] = "aerial toad",
 		[0x170] = "aerial toad recoil",
-		[0x171] = "parasol open", -- (start)
-		[0x172] = "parasol open", -- (finish)
+
+		[0x171] = "parasol open start", -- (start)
+		[0x172] = "parasol open finish", -- (finish)
 	},
 	[CHARACTER_INTERNAL.YOSHI] = {
+		[0x155] = "egg shield windup",				-- GuardOn
+		[0x156] = "egg shield",						-- Guard
+		[0x157] = "egg unshield",					-- GuardOff
+		[0x158] = "egg shield off",					-- GuardSetOff
+		[0x159] = "egg shield reflect",				-- GuardReflect
+
 		[0x15A] = "tongue",
-		[0x15B] = "tongue grabbed",
-		[0x15D] = "egg",
+		[0x15B] = "tongue grab",
+		[0x15D] = "lay egg",
+
 		[0x15F] = "aerial tongue",
 		[0x160] = "aerial tongue grab",
-		--[0x161] = "aerial egg lay 2",
+		[0x161] = "aerial lay egg",
 		[0x162] = "aerial tongue pull",
+
+		[0x163] = "yoshi unknown 1",
+		[0x164] = "yoshi unknown 2",
 
 		[0x165] = "egg roll accelerate", -- (accelerate)
 		[0x166] = "egg roll turn", -- (turn)
@@ -230,25 +296,48 @@ local character_states = {
 		[0x169] = "egg roll airborn", -- (airborn)
 		[0x16A] = "egg roll collide", -- (collision)
 
-		[0x16C] = "egg",
-		[0x16D] = "aerial egg",
+		[0x16B] = "yoshi unknown 3",
+
+		[0x16C] = "throw egg",
+		[0x16D] = "aerial throw egg",
 		[0x16E] = "yoshi bomb jump", -- (jump)
-		[0x16F] = "yoshi bomb", -- (finish)
-		[0x170] = "yoshi bomb",
+		[0x16F] = "yoshi bomb slam", -- (finish)
+		[0x170] = "yoshi bomb fall",
 	},
 	[CHARACTER_INTERNAL.DK] = {
+		[0x155] = "DK unknown 1",
+		[0x156] = "DK unknown 2",
+		[0x157] = "DK unknown 3",
+		[0x158] = "DK unknown 4",
+		[0x159] = "DK unknown 5",
+		[0x160] = "DK unknown 6",
+		[0x161] = "DK unknown 7",
+		[0x162] = "DK unknown 8",
+		[0x163] = "DK unknown 9",
+		[0x164] = "DK unknown 10",
+		[0x165] = "DK unknown 11",
+		[0x166] = "DK unknown 12",
+		[0x167] = "DK unknown 13",
+		[0x168] = "DK unknown 14",
+		[0x169] = "DK unknown 15",
+		[0x170] = "DK unknown 16",
+
 		[0x171] = "giant punch start", -- (start)
 		[0x172] = "giant punch charge", -- (charge)
 		[0x174] = "giant punch release",
 		[0x175] = "giant PUNCH", -- (fully charged)
+
 		[0x176] = "aerial giant punch start", -- (start)
 		[0x177] = "aerial giant punch charge", -- (charge)
 		[0x179] = "aerial giant punch",
 		[0x17A] = "aerial giant PUNCH", -- (fully charged)
+
 		[0x17B] = "headbutt",
 		[0x17C] = "aerial headbutt",
+
 		[0x17D] = "spinning kong",
 		[0x17E] = "aerial spinning kong",
+
 		[0x17F] = "hand slap start", -- (start)
 		[0x180] = "hand slap",
 		[0x181] = "hand slap end", -- (finish)
@@ -326,10 +415,13 @@ local character_states = {
 	[CHARACTER_INTERNAL.DRMARIO] = {
 		[0x157] = "vitamin",
 		[0x158] = "aerial vitamin",
+
 		[0x159] = "super sheet",
 		[0x15A] = "aerial super sheet",
+
 		[0x15B] = "super jump punch",
 		[0x15C] = "aerial super jump punch",
+
 		[0x15D] = "Dr. Tornado",
 		[0x15E] = "aerial Dr. Tornado",
 	},
@@ -338,10 +430,12 @@ local character_states = {
 		[0x15D] = "PK flash charge", -- (charge)
 		[0x15E] = "PK flash explosion", -- (explode)
 		[0x15F] = "PK flash end", -- (finish)
+
 		[0x160] = "aerial PK flash windup", -- (start)
 		[0x161] = "aerial PK flash charge", -- (charge)
 		[0x162] = "aerial PK flash explosion", -- (explode)
 		[0x163] = "aerial PK flash end", -- (finish)
+
 		[0x164] = "PK fire",
 		[0x165] = "aerial PK fire",
 
@@ -405,47 +499,60 @@ local character_states = {
 		[0x158] = "jump 4",
 		[0x159] = "jump 5",
 
+		[0x160] = "kirby unknown 1",
+
 		[0x161] = "open mouth", -- (start)
 		[0x162] = "inhale",
 		[0x163] = "close mouth", -- (finish)
 		[0x164] = "pull in", -- (sucked in player)
 
-		[0x166] = "swallow", -- (fully swallowed player)
+		[0x165] = "kirby unknown 2",
 
+		[0x166] = "swallow", -- (fully swallowed player)
 		[0x167] = "swallow stop", -- (sucked in player now walking)
 		[0x168] = "swallow start walk", -- (started to walk while holding a swallowed player)
 		[0x169] = "swallow walking", -- (walking while holding a swallowed player)
 		[0x16A] = "swallow slow", -- (slowing down to a stop while holding a swallowed player)
 		[0x16B] = "swallow turn", -- (turned around while holding a swallowed player)
 
-		[0x16C] = "inhal jump windup", -- (start)
-		[0x16D] = "inhal jump",
-		[0x16E] = "inhal land", -- (finish)
+		[0x16C] = "inhale jump windup", -- (start)
+		[0x16D] = "inhale jump",
+		[0x16E] = "inhale land", -- (finish)
 
 		[0x16F] = "gain power", -- (spit out and gained their power)
+		[0x170] = "areial gain power",
 
 		[0x171] = "spit out", -- (spit out with star animation)
+		[0x172] = "areial spit out",
 
 		[0x173] = "aerial open mouth", -- (start)
 		[0x174] = "aerial inhale",
 		[0x175] = "aerial close mouth", -- (finish)
 
-		[0x176] = "aerial pull in", -- (sucked in player)
+		[0x176] = "aerial suck in", -- (sucked in player)
+		[0x165] = "kirby unknown 3",
 		[0x178] = "aerial inhale", -- (fully swallowed player)
 		[0x179] = "aerial gain power", -- (spit out and gained their power)
 		[0x17A] = "aerial inhale release", -- (spit out and gained their power)
 
+		[0x17B] = "kirby unknown 4",
+
 		[0x17C] = "aerial spit out", -- (spit out with star animation)
+
+		[0x17D] = "kirby unknown 5",
 
 		[0x17F] = "hammer",
 		[0x180] = "aerial hammer",
 
 		[0x181] = "final cutter windup", -- (start)
+		[0x182] = "final cutter jump",
+		[0x183] = "final cutter fall",
 		[0x184] = "final cutter slam", -- (finish)
 
 		[0x185] = "aerial final cutter windup", -- (start)
-		[0x186] = "final cutter jump", -- (fall?)
-		[0x187] = "aerial final cutter jump", -- (fall?)
+		[0x186] = "aerial final cutter jump", -- (fall?)
+		[0x187] = "aerial final cutter fall", -- (fall?)
+		[0x188] = "aerial final cutter slam",
 
 		[0x189] = "stone", -- (start)
 		[0x18A] = "stone fall", -- (fall)
@@ -476,12 +583,16 @@ local character_states = {
 		[0x19C] = "aerial samus charge shot",
 
 		-- Yoshi
-		[0x19D] = "tongue",
-		[0x19E] = "tongue grab",
-		[0x1A0] = "egg",
-		[0x1A2] = "aerial tongue",
-		[0x1A3] = "aerial tongue grab",
-		[0x1A5] = "aerial egg",
+		[0x19D] = "yoshi tongue",
+		[0x19E] = "yoshi tongue grab",
+		[0x19F] = "kirby/yoshi unknown egg 1",
+		[0x1A0] = "lay egg",
+		[0x1A1] = "kirby/yoshi unknown egg 2",
+		[0x1A2] = "aerial yoshi tongue",
+		[0x1A3] = "aerial yoshi tongue grab",
+		[0x1A4] = "kirby/yoshi unknown egg 4",
+		[0x1A5] = "aerial yoshi lay egg",
+		[0x1A6] = "kirby/yoshi unknown egg 5",
 
 		-- Fox
 		[0x1A7] = "fox pull gun",
@@ -645,6 +756,7 @@ local character_states = {
 		[0x219] = "aerial roy flare blade max power",
 	},
 	[CHARACTER_INTERNAL.SAMUS] = {
+		[0x155] = "samus unknown 1",
 		[0x156] = "bomb jump",
 		[0x157] = "pull gun",
 		[0x158] = "charging shot",
@@ -664,17 +776,22 @@ local character_states = {
 	[CHARACTER_INTERNAL.ZELDA] = {
 		[0x155] = "Nayru's love",
 		[0x156] = "aerial Nayru's love",
+
 		[0x157] = "Din's fire ready",
 		[0x158] = "Din's fire end",
 		[0x159] = "Din's fire explosion",
+
 		[0x15A] = "aerial Din's fire ready",
 		[0x15B] = "aerial Din's fire end",
 		[0x15C] = "aerial Din's fire explosion",
 
 		[0x15D] = "Farore's wind cast",
+		[0x15E] = "Farore's wind",
+		[0x15F] = "Farore's wind end",
+
 		[0x160] = "aerial Farore's wind cast",
-		[0x161] = "Farore's wind",
-		[0x162] = "Farore's wind end",
+		[0x161] = "aerial Farore's wind",
+		[0x162] = "aerial Farore's wind end",
 
 		[0x163] = "transform sheik",
 		[0x164] = "awaken",
@@ -686,6 +803,7 @@ local character_states = {
 		[0x156] = "sheik needles charge",
 		[0x157] = "sheik needles stop",
 		[0x158] = "sheik needles",
+
 		[0x159] = "aerial sheik needles ready",
 		[0x15A] = "aerial sheik needles charge",
 		[0x15B] = "aerial sheik needles stop",
@@ -694,15 +812,18 @@ local character_states = {
 		[0x15D] = "whip cast",
 		[0x15E] = "whip",
 		[0x15F] = "whip end",
+
 		[0x160] = "aerial whip cast",
 		[0x161] = "aerial whip",
 		[0x162] = "aerial whip end",
 
 		[0x163] = "vanish cast",
+		[0x164] = "vanish",
+		[0x165] = "vanish end",
 
 		[0x166] = "aerial vanish cast",
-		[0x167] = "vanish",
-		[0x168] = "vanish end",
+		[0x167] = "aerial vanish",
+		[0x168] = "aerial vanish end",
 
 		[0x169] = "transform zelda",
 		[0x16A] = "awaken",
@@ -710,16 +831,25 @@ local character_states = {
 		[0x16C] = "aerial awaken",
 	},
 	[CHARACTER_INTERNAL.LINK] = {
+		[0x155] = "forward smash (link)",
+		[0x156] = "link unknown 1",
+		[0x157] = "link unknown 2",
+
 		[0x158] = "bow ready",
 		[0x159] = "bow fully charge",
 		[0x15A] = "bow shot",
+
 		[0x15B] = "aerial bow ready",
 		[0x15C] = "aerial bow fully charge",
 		[0x15D] = "aerial bow shot",
+
 		[0x15E] = "boomerang",
 		[0x15F] = "boomerang catch",
+		[0x160] = "boomerang empty handed",
+
 		[0x161] = "aerial boomerang",
 		[0x162] = "aerial boomerang catch",
+		[0x163] = "aerial boomerang empty handed",
 
 		[0x164] = "hero spin",
 		[0x165] = "aerial hero spin",
@@ -728,16 +858,25 @@ local character_states = {
 		[0x167] = "aerial bomb pull",
 	},
 	[CHARACTER_INTERNAL.YOUNGLINK] = {
+		[0x155] = "forward smash (younglink)",
+		[0x156] = "younglink unknown 1",
+		[0x157] = "younglink unknown 2",
+
 		[0x158] = "bow ready",
 		[0x159] = "bow fully charge",
 		[0x15A] = "bow shot",
+
 		[0x15B] = "aerial bow ready",
 		[0x15C] = "aerial bow fully charge",
 		[0x15D] = "aerial bow shot",
+
 		[0x15E] = "boomerang",
 		[0x15F] = "boomerang catch",
+		[0x160] = "boomerang empty handed",
+
 		[0x161] = "aerial boomerang",
 		[0x162] = "aerial boomerang catch",
+		[0x163] = "aerialboomerang empty handed",
 
 		[0x164] = "hero spin",
 		[0x165] = "aerial hero spin",
@@ -827,7 +966,7 @@ local character_states = {
 		[0x15C] = "rollout windup",
 		[0x15D] = "rollout charge",
 		[0x15E] = "rollout release",
-		[0x16F] = "rollout turn",
+		[0x15F] = "rollout turn",
 		[0x160] = "rollout skid stop",
 		[0x161] = "rollout accelerate",
 
@@ -848,6 +987,10 @@ local character_states = {
 		[0x16D] = "sing",
 		[0x16E] = "aerial sing",
 
+		[0x170] = "jigglypuff unknown 1",
+		[0x171] = "jigglypuff unknown 2",
+		[0x172] = "jigglypuff unknown 3",
+
 		[0x173] = "rest",
 		[0x174] = "aerial rest",
 	},
@@ -855,7 +998,7 @@ local character_states = {
 		[0x155] = "shadow ball prepare",
 		[0x156] = "shadow ball ready",
 		[0x157] = "shadow ball charge",
-		[0x159] = "shadow ball stop",
+		[0x158] = "shadow ball stop",
 		[0x159] = "shadow ball release",
 
 		[0x15A] = "aerial shadow ball prepare",
@@ -879,6 +1022,20 @@ local character_states = {
 		[0x168] = "aerial disable",
 	},
 	[CHARACTER_INTERNAL.MRGAMEWATCH] = {
+		[0x155] = "jab 1",
+		[0x156] = "jab 2",
+		[0x157] = "jab 3",
+		[0x158] = "jab finish",
+		[0x159] = "game&watch unknown 1",
+		[0x159] = "down tilt (G&W)",
+		[0x15A] = "forward smash (G&W)",
+		[0x15B] = "neutral air (G&W)",
+		[0x15C] = "foward air (G&W)",
+		[0x15D] = "up air (G&W)",
+		[0x15E] = "landing neutral air (G&W)",
+		[0x15F] = "landing foward air (G&W)",
+		[0x160] = "landing up air (G&W)",
+
 		[0x161] = "bacon",
 		[0x162] = "aerial bacon",
 
@@ -1090,16 +1247,16 @@ local player_states = {
 	[0x05C] = "light item pickup",			-- LightGet
 	[0x05D] = "heavy item pickup",			-- HeavyGet
 
-	[0x05E] = "throw item forward",
+	[0x05E] = "throw item forward",			-- LightThrowF
 	[0x05F] = "throw item backward",		-- LightThrowB
-	[0x060] = "throw item high",			-- LightThrowHi
-	[0x061]	= "throw item low",				-- LightThrowLw
-	[0x062]	= "throw item dash",			-- LightThrowDash
+	[0x060] = "throw item up",				-- LightThrowHi
+	[0x061]	= "throw item down",			-- LightThrowLw
+	[0x062]	= "throw item dash throw",		-- LightThrowDash
 	[0x063]	= "drop item",					-- LightThrowDrop
-	[0x064]	= "areial throw item forward",			-- LightThrowAirF
-	[0x065]	= "areial throw item backward",		-- LightThrowAirB
-	[0x066]	= "areial throw item up",				-- LightThrowAirHi
-	[0x067]	= "areial throw item down",			-- LightThrowAirLw
+	[0x064]	= "areial throw item forward",	-- LightThrowAirF
+	[0x065]	= "areial throw item backward",	-- LightThrowAirB
+	[0x066]	= "areial throw item up",		-- LightThrowAirHi
+	[0x067]	= "areial throw item down",		-- LightThrowAirLw
 	[0x068]	= "throw heavy item forward",	-- HeavyThrowF
 	[0x069]	= "throw heavy item backward",	-- HeavyThrowB
 	[0x06A]	= "throw heavy item up",		-- HeavyThrowHi
@@ -1263,7 +1420,7 @@ local player_states = {
 	[0x0F2] = "down thrown", 				-- ThrownLw
 	[0x0F3] = "down thrown",				-- ThrownLwWomen
 
-	[0x0F4] = "drop",						-- Pass
+	[0x0F4] = "platform drop",				-- Pass
 
 	[0x0F5] = "teeter start",				-- Ottotto
 	[0x0F6] = "teetering",					-- OttottoWait
@@ -1286,8 +1443,9 @@ local player_states = {
 	[0x106]	= "ledge fast jump",			-- CliffJumpQuick1
 	[0x107]	= "ledge fast jump",			-- CliffJumpQuick2
 
-	[0x108]	= "Appeal R",					-- AppealR
-	[0x109]	= "Appeal L",					-- AppealL
+	-- Taunting
+	[0x108]	= "taunt left face",			-- AppealR
+	[0x109]	= "taunt right face",			-- AppealL
 
 	-- DK Grab stuff
 	[0x10A] = "shouldered",					-- ShoulderedWait
@@ -1296,14 +1454,145 @@ local player_states = {
 	[0x10D] = "shouldered dash",			-- ShoulderedWalkFast
 	[0x10E] = "Shouldered turn",			-- ShoulderedTurn
 
+	-- Being thrown
 	[0x10F] = "forward thrown",				-- ThrownFF
 	[0x110] = "backward thrown",			-- ThrownFB
 	[0x111] = "up thrown",					-- ThrownFHi
 	[0x112] = "down thrown",				-- ThrownFLw
 
+	[0x113] = "grabbed by cpt. falcon",		-- CaptureCaptain
+
+	[0x114] = "grabbed by yoshi",			-- CaptureYoshi
+	[0x115] = "yoshi egg",					-- YoshiEgg
+
+	[0x116] = "grabbed by bowser",			-- CaptureKoopa
+	[0x117] = "hit by bowser while grabbed",-- CaptureDamageKoopa
+	[0x118] = "held by bowser",				-- CaptureWaitKoopa
+	[0x119] = "forward thrown by bowser",	-- ThrownKoopaF
+	[0x11A] = "backwards thrown by bowser",	-- ThrownKoopaB
+	[0x11B] = "areial grabbed by bowser",	-- CaptureKoopaAir
+	[0x11C] = "areial hit by bowser while grabbed", -- CaptureDamageKoopaAir
+	[0x11D] = "areial held by bowser", -- CaptureWaitKoopaAir
+	[0x11E] = "areial ", -- ThrownKoopaAirF
+	[0x11F] = "areial ", -- ThrownKoopaAirB
+
+	[0x120] = "", -- CaptureKirby
+	[0x121] = "", -- CaptureWaitKirby
+	[0x122] = "", -- ThrownKirbyStar
+	[0x123] = "", -- ThrownCopyStar
+	[0x124] = "", -- ThrownKirby
+
+	[0x125] = "barrel idle",				-- BarrelWait
+
+	[0x126] = "burried",					-- Bury
+	[0x127] = "burried idle",				-- BuryWait
+	[0x128] = "burried jump",				-- BuryJump
+
+	[0x129] = "fall asleep",				-- DamageSong
+	[0x12A] = "sleeping",					-- DamageSongWait
+	[0x12B] = "wake up",					-- DamageSongRv
+	[0x12C] = "damaged by bind",			-- DamageBind
+
+	[0x12D] = "", -- CaptureMewtwo
+	[0x12E] = "", -- CaptureMewtwoAir
+	[0x12F] = "", -- ThrownMewtwo
+	[0x130] = "", -- ThrownMewtwoAir
+
+	[0x131] = "warp star jump",					-- WarpStarJump
+	[0x132] = "warp star fall",					-- WarpStarFall
+
+	[0x133] = "hammer idle",					-- HammerWait
+	[0x134] = "hammer walk",					-- HammerWalk
+	[0x135] = "hammer turn",					-- HammerTurn
+	[0x136] = "hammer knee bend",				-- HammerKneeBend
+	[0x137] = "hammer fall",					-- HammerFall
+	[0x138] = "hammer jump",					-- HammerJump
+	[0x139] = "hammer landing",					-- HammerLanding
+
+	[0x13A] = "giant mushroom start",			-- KinokoGiantStart
+	[0x13B] = "areial giant mushroom start",	-- KinokoGiantStartAir
+	[0x13C] = "giant mushroom end",				-- KinokoGiantEnd
+	[0x13D] = "areial giant mushroom end",		-- KinokoGiantEndAir
+	[0x13E] = "mini mushroom start",			-- KinokoSmallStart
+	[0x13F] = "areial mini mushroom start",		-- KinokoSmallStartAir
+	[0x140] = "mini mushroom end",				-- KinokoSmallEnd
+	[0x141] = "areial mini mushroom end",		-- KinokoSmallEndAir
+
 	[0x142] = "spawn start",				-- Entry
-	[0x143]	= "Spawn fade in",				-- EntryStart
+	[0x143]	= "Spawn drop in",				-- EntryStart
 	[0x144] = "spawn end",					-- EntryEnd
+
+	[0x145] = "", -- DamageIce
+	[0x146] = "", -- DamageIceJump
+
+	[0x147] = "", -- CaptureMasterhand
+	[0x148] = "", -- CapturedamageMasterhand
+	[0x149] = "", -- CapturewaitMasterhand
+	[0x14A] = "", -- ThrownMasterhand
+
+	[0x14B] = "", -- CaptureKirbyYoshi
+	[0x14C] = "", -- KirbyYoshiEgg
+	[0x14D] = "", -- CaptureLeadead
+	[0x14E] = "", -- CaptureLikelike
+
+	[0x14F] = "", -- DownReflect
+
+	[0x150] = "", -- CaptureCrazyhand
+	[0x151] = "", -- CapturedamageCrazyhand
+	[0x152] = "", -- CapturewaitCrazyhand
+	[0x153] = "", -- ThrownCrazyhand
+
+	[0x154] = "barrel cannon wait", -- BarrelCannonWait
+
+	[0x155] = "wait 1", -- Wait1
+	[0x156] = "wait 2", -- Wait2
+	[0x157] = "wait 3", -- Wait3
+	[0x158] = "wait 4", -- Wait4
+	[0x159] = "wait item", -- WaitItem
+
+	[0x15A] = "crouch wait 1", -- SquatWait1
+	[0x15B] = "crouch wait 2", -- SquatWait2
+	[0x15C] = "crouch wait with item", -- SquatWaitItem
+
+	[0x15D] = "shield damaged", -- GuardDamage
+
+	[0x15E] = "", -- EscapeN
+	[0x15F] = "", -- AttackS4Hold
+	[0x160] = "", -- HeavyWalk1
+	[0x161] = "", -- HeavyWalk2
+	[0x162] = "", -- ItemHammerWait
+	[0x163] = "", -- ItemHammerMove
+	[0x164] = "", -- ItemBlind
+	[0x165] = "", -- DamageElec
+	[0x166] = "stunned start", -- FuraSleepStart
+	[0x167] = "stunned", -- FuraSleepLoop
+	[0x168] = "stunned end", -- FuraSleepEnd
+	[0x169] = "", -- WallDamage
+	[0x16A] = "ledge hold", -- CliffWait1
+	[0x16B] = "ledge hold", -- CliffWait2
+
+	[0x16C] = "", -- SlipDown
+	[0x16D] = "", -- Slip
+	[0x16E] = "", -- SlipTurn
+	[0x16F] = "", -- SlipDash
+	[0x170] = "", -- SlipWait
+	[0x171] = "", -- SlipStand
+	[0x172] = "", -- SlipAttack
+	[0x173] = "", -- SlipEscapeF
+	[0x174] = "", -- SlipEscapeB
+
+	[0x175] = "taunt special", -- AppealS
+
+	[0x176] = "struggle", -- Zitabata
+
+	[0x177] = "", -- CaptureKoopaHit
+	[0x178] = "", -- ThrownKoopaEndF
+	[0x179] = "", -- ThrownKoopaEndB
+	[0x17A] = "", -- CaptureKoopaAirHit
+	[0x17B] = "", -- ThrownKoopaAirEndF
+	[0x17C] = "", -- ThrownKoopaAirEndB
+	[0x17D] = "", -- ThrownKirbyDrinkSShot
+	[0x17E] = "", -- ThrownKirbySpitSShot
 }
 
 function state.translate(id)

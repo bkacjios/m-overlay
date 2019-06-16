@@ -147,30 +147,14 @@ local state = require("smash.states")
 function PANEL:Initialize()
 	self:super()
 
-	self.m_pFont = newFont("fonts/Rodin-Bokutoh-Pro-UB.ttf", 16)
+	self.m_pFont = newFont("fonts/A-OTF-FolkPro-Bold.otf", 16)
 
 	self.m_bEnabled = false
 	self.m_iPort = -1
 	self.m_iActions = 0
 
-	watcher.hook("match.finished", "Actions - Reset", function(finished)
-		if finished == 0 then
-			print("starting APM counter")
-			self.m_bEnabled = true
-			self:ResetAPM()
-		else
-			print("stopping APM counter")
-			self.m_bEnabled = false
-		end
-	end)
-
-	watcher.hook("player.*.*.action_state", "Actions - Counter", function(port, entityType, state_id)
-		if port == self:GetPort() and not state.isNatural(state_id) then
-			local player = watcher.player[port][entityType]
-			print(string.format("[%04X] %s", state_id, state.translateChar(player.character, state_id)))
-			self:UpdateAPM(entityType, state_id)
-		end
-	end)
+	watcher.hook("match.finished", self, self.ResetAPM)
+	watcher.hook("player.*.*.action_state", self, self.UpdateAPM)
 end
 
 function PANEL:SetPort(port)
@@ -181,13 +165,25 @@ function PANEL:GetPort()
 	return self.m_iPort
 end
 
-function PANEL:ResetAPM()
-	self.m_iActions = 0
+function PANEL:ResetAPM(finished)
+	if finished == 0 then
+		print("starting APM counter")
+		self.m_iActions = 0
+		self.m_bEnabled = true
+	else
+		print("stopping APM counter")
+		self.m_bEnabled = false
+	end
 end
 
-function PANEL:UpdateAPM(entityType, state)
-	if not self.m_bEnabled then return end
-	self.m_iActions = self.m_iActions + 1
+function PANEL:UpdateAPM(port, entityType, state_id)
+	if port == self:GetPort() and state.isAction(state_id) then
+		local player = watcher.player[port][entityType]
+		print(string.format("[%04X] %s", state_id, state.translateChar(player.character, state_id)))
+		
+		if not self.m_bEnabled then return end
+		self.m_iActions = self.m_iActions + 1
+	end
 end
 
 function PANEL:Paint(w, h)
@@ -200,11 +196,11 @@ function PANEL:Paint(w, h)
 
 		graphics.setFont(self.m_pFont)
 
-		if time < 60 then
+		--[[if time < 60 then
 			graphics.print(format("APM: %d", self.m_iActions), 8, h - 24)
-		else
+		else]]
 			graphics.print(format("APM: %d", self.m_iActions / time * 60), 8, h - 24)
-		end
+		--end
 
 		local x, y = controller.joystick.x, 1 - controller.joystick.y
 
