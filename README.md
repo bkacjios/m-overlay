@@ -1,6 +1,6 @@
 # m-overlay
 
-![Image of M'Overlay](https://giant.gfycat.com/HandmadeBeautifulLamb.gif)
+![Image of M'Overlay](https://giant.gfycat.com/GraciousAlarmingAntbear.gif)
 
 ### Usage
 
