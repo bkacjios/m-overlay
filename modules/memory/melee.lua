@@ -156,6 +156,8 @@ for id, address in ipairs(player_static_addresses) do
 				[0x60 + 0x0084] = { type = "float", name = "velocity.y" },
 				[0x60 + 0x0088] = { type = "float", name = "velocity.z" },
 
+				--[0x60 + 0x04B8] = { type = "float", name = "color.r" },
+
 				[0x60 + 0x0610] = { type = "byte", name = "subcolor.r" },
 				[0x60 + 0x0611] = { type = "byte", name = "subcolor.g" },
 				[0x60 + 0x0612] = { type = "byte", name = "subcolor.b" },

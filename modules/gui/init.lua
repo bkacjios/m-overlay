@@ -166,11 +166,12 @@ end
 function gui.mousePressed(x, y, but)
 	local panel = gui.getHoveredPanel()
 	gui.setFocusedPanel(panel)
-	local x,y = panel:WorldToLocal(x,y)
-	if not panel:OnMousePressed(x, y, but) then
+	local lx, ly = panel:WorldToLocal(x,y)
+	if not panel:OnMousePressed(lx, ly, but) then
 		local parent = panel:GetParent()
 		while parent do
-			if parent:OnMousePressed(x, y, but) then break end
+			lx, ly = parent:WorldToLocal(x, y)
+			if parent:OnMousePressed(lx, ly, but) then break end
 			parent = parent:GetParent()
 		end
 	end
@@ -178,8 +179,15 @@ end
 
 function gui.mouseReleased(x, y, but)
 	local panel = gui.getFocusedPanel()
-	local x,y = panel:WorldToLocal(x,y)
-	panel:OnMouseReleased(x, y, but)
+	local lx, ly = panel:WorldToLocal(x,y)
+	if not panel:OnMouseReleased(x, y, but) then
+		local parent = panel:GetParent()
+		while parent do
+			lx, ly = parent:WorldToLocal(x, y)
+			if parent:OnMouseReleased(lx, ly, but) then break end
+			parent = parent:GetParent()
+		end
+	end
 end
 
 function gui.mouseWheeled(x, y)
@@ -241,7 +249,7 @@ function gui.init()
 	gui.m_pObjectList:Dock(DOCK_LEFT)
 	gui.m_pObjectList:SetVisible(false)
 
-	gui.m_pSceneDisplay = gui.m_pWorldPanel:Add("Panel")
+	gui.m_pSceneDisplay = gui.m_pWorldPanel:Add("ScenesPanel")
 	gui.m_pSceneDisplay:DockMargin(0, 0, 0, 0)
 	gui.m_pSceneDisplay:DockPadding(0, 0, 0, 0)
 	gui.m_pSceneDisplay:SetBGColor(color_blank)

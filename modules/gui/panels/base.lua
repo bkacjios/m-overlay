@@ -135,6 +135,10 @@ function PANEL:CallSelfAndParents(func, ...)
 end
 
 function PANEL:Remove()
+	local parent = self:GetParent()
+	if parent then
+		parent:OnChildRemoved(self)
+	end
 	self:SetParent()
 	for _,child in ipairs(self.m_tChildren) do
 		child:Remove()
@@ -199,10 +203,10 @@ function PANEL:GetFamily(family)
 	local family = family or {}
 	
 	local children = self.m_tChildren
-	family[ self ] = children
+	family[self] = children
 	
 	for _,child in ipairs(children) do
-		child:GetFamily(family[ self ])
+		child:GetFamily(family[self])
 	end
 	
 	return family
@@ -213,7 +217,7 @@ function PANEL:SizeToScreen()
 end
 
 function PANEL:SizeToChildren(doWidth, doHeight)
-	local w,h = 0,0
+	local w,h = 0, 0
 	local padding = self:GetDockPadding()
 	w = padding.left + padding.right
 	h = padding.top + padding.bottom
@@ -222,20 +226,21 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 
 	for _,child in ipairs(self.m_tChildren) do
 		if child:IsVisible() then
+			local x, y = child:GetPos()
 			local margin = child:GetDockMargin()
 			local cw, ch = child:GetSize()
-			cw = cw + margin.left + margin.right
-			ch = ch + margin.top + margin.bottom
+
+			-- Position + size + margins = maximum bounds
+			cw = x + cw + margin.left + margin.right
+			ch = y + ch + margin.top + margin.bottom
+
+			-- Update the largest widths and heights
 			if cw > lw then lw = cw end
 			if ch > lh then lh = ch end
 		end
 	end
-	if doWidth then
-		self:SetWide(w + lw)
-	end
-	if doHeight then
-		self:SetTall(h + lh)
-	end
+	if doWidth then self:SetWide(w + lw) end
+	if doHeight then self:SetTall(h + lh) end
 end
 
 function PANEL:Add(class)
@@ -331,11 +336,12 @@ function PANEL:Render()
 	
 	local parent = self:GetParent()
 	
-	-- Use the current panel position + size for the scissor
+	-- Start the scissor position and size with our own values
 	local sx, sy = x, y
 	local sw, sh = w, h
 	
 	while parent do
+		-- If we have a parent, fit the scissor to fit inside their bounds
 		local px, py = parent:LocalToScreen(0, 0)
 		local pw, ph = parent:GetSize()
 		sx = math.max(sx, px)
@@ -345,22 +351,24 @@ function PANEL:Render()
 		parent = parent:GetParent()
 	end
 
-	graphics.push()
-		graphics.setScissor(sx, sy, sw, sh)
-			graphics.translate(x, y)
-				graphics.setColor(255, 255, 255, 255)
+	graphics.push() -- Push the current graphics state
+		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
+				graphics.setColor(255, 255, 255, 255) -- Default draw color to white
 					self:Paint(w, h)
 				graphics.setColor(255, 255, 255, 255)
 			graphics.translate(0, 0)
 		graphics.setScissor()
-	graphics.pop()
+	graphics.pop() -- Reset the graphics state to what it was
 
 	-- Order by ZPos
+	-- smallest to largest, so recently added panels are drawn last, thus, ontop of older panels
 	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos < b.m_iZPos end)
 	for _,child in ipairs(self.m_tChildren) do
 		child:Render()
 	end
 
+	-- Debug the scissor rect
 	--[[graphics.setColor(255, 0, 0, 25)
 	graphics.rectangle("fill", sx, sy, sw, sh)]]
 end
@@ -377,40 +385,32 @@ function PANEL:ValidateLayout()
 	end
 end
 
-function PANEL:Center()
-	local parent = self:GetParent()
-
-	local w, h = self:GetSize()
-	local pw, ph = graphics.getPixelDimensions()
-	if parent then
-		pw, ph = parent:GetSize()
-	end
-	
-	self:SetPos((pw / 2) - (w / 2), (ph / 2) - (h / 2))
-end
-
-function PANEL:CenterVertical()
+function PANEL:Center(vertical, horizontal)
 	local parent = self:GetParent()	
 
 	local w, h = self:GetSize()
-	local pw, ph = graphics.getPixelDimensions()
+	local pw, ph = graphics.getPixelDimensions() -- Default to window size if no parent
 	if parent then
 		pw, ph = parent:GetSize()
 	end
-	
-	self:SetPos(self:GetX(), (ph / 2) - (h / 2))
+
+	-- If both vertical and horizontal aren't set, center to both?
+	local all = not vertical and not horizontal
+
+	if vertical or all then
+		self:SetY((ph / 2) - (h / 2))
+	end
+	if horizontal or all then
+		self:SetX((pw / 2) - (w / 2))
+	end
+end
+
+function PANEL:CenterVertical()
+	self:Center(true, false)
 end
 
 function PANEL:CenterHorizontal()
-	local parent = self:GetParent()
-
-	local w, h = self:GetSize()
-	local pw, ph = graphics.getPixelDimensions()
-	if parent then
-		pw, ph = parent:GetSize()
-	end
-	
-	self:SetPos((pw / 2) - (w / 2), self:GetY())
+	self:Center(false, true)
 end
 
 function PANEL:DockLayout()
@@ -473,9 +473,13 @@ function PANEL:DockLayout()
 	end
 end
 
+function PANEL:GiveFocus()
+	gui.setFocusedPanel(self)
+end
+
 function PANEL:MakePopup()
 	self:BringToFront()
-	gui.setFocusedPanel(self)
+	self:GiveFocus()
 end
 
 function PANEL:HasFocus(recursive)
@@ -497,7 +501,7 @@ function PANEL:GetHoveredPanel(x, y)
 	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos > b.m_iZPos end) -- The higher up ZPos panel should be first
 	local panel = nil
 	for _,child in ipairs(self.m_tChildren) do
-		if child:IsVisible() and child.m_bFocusable and child:IsWorldPointInside(x, y) then
+		if child:IsVisible() and child:IsFocusable() and child:IsWorldPointInside(x, y) then
 			panel = child:GetHoveredPanel(x, y)
 			break
 		end
@@ -554,6 +558,10 @@ function PANEL:OnMouseWheeled(x, y)
 end
 
 function PANEL:OnChildAdded(panel)
+	-- Override
+end
+
+function PANEL:OnChildRemoved(panel)
 	-- Override
 end
 

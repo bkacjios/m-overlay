@@ -146,6 +146,9 @@ local state = require("smash.states")
 
 function PANEL:Initialize()
 	self:super()
+	
+	self:DockPadding(0,0,0,0)
+	self:DockMargin(0,0,0,0)
 
 	self.m_pFont = newFont("fonts/A-OTF-FolkPro-Bold.otf", 16)
 
@@ -177,8 +180,9 @@ function PANEL:ResetAPM(finished)
 end
 
 function PANEL:UpdateAPM(port, entityType, state_id)
-	if port == self:GetPort() and state.isAction(state_id) then
-		local player = watcher.player[port][entityType]
+	local player = watcher.player[port][entityType]
+
+	if player and port == self:GetPort() and (state.isAction(state_id) or state.isCharacterAction(player.character, state_id)) then
 		print(string.format("[%04X] %s", state_id, state.translateChar(player.character, state_id)))
 		
 		if not self.m_bEnabled then return end

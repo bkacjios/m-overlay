@@ -57,13 +57,11 @@ function love.mousereleased(x, y, but)
 	gui.mouseReleased(x, y, but)
 end
 
-function love.gameLoaded()
-end
-
 function love.wheelmoved(x, y)
 	gui.mouseWheeled(x, y)
+end
 
-	if not watcher.isReady() then return end
+function love.gameLoaded()
 end
 
 function love.draw()	

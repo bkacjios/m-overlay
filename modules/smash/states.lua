@@ -112,19 +112,151 @@ local reactions = {
 	[0x0E7] = "grab neck",					-- CaptureNeck
 	[0x0E8] = "grab foot",					-- CaptureFoot
 
-	[0x010F] = "forward thrown",			-- ThrownFF
-	[0x0110] = "backward thrown",			-- ThrownFB
-	[0x0111] = "up thrown",					-- ThrownFHi
-	[0x0112] = "down thrown",				-- ThrownFLw
+	-- DK Grab stuff
+	[0x10A] = "shouldered",					-- ShoulderedWait
+	[0x10B] = "shouldered walk",			-- ShoulderedWalkSlow
+	[0x10C] = "shouldered run",				-- ShoulderedWalkMiddle
+	[0x10D] = "shouldered dash",			-- ShoulderedWalkFast
+	[0x10E] = "Shouldered turn",			-- ShoulderedTurn
 
-	[0x142] = "spawn start",				-- Entry
-	[0x143]	= "Spawn fade in",				-- EntryStart
-	[0x144] = "spawn end",					-- EntryEnd
+	-- Being thrown
+	[0x10F] = "forward thrown",				-- ThrownFF
+	[0x110] = "backward thrown",			-- ThrownFB
+	[0x111] = "up thrown",					-- ThrownFHi
+	[0x112] = "down thrown",				-- ThrownFLw
+
+	[0x113] = "grabbed by cpt. falcon",		-- CaptureCaptain
+
+	[0x114] = "grabbed by yoshi",			-- CaptureYoshi
+	[0x115] = "yoshi egg",					-- YoshiEgg
+
+	[0x116] = "grabbed by bowser",			-- CaptureKoopa
+	[0x117] = "hit by bowser while grabbed",-- CaptureDamageKoopa
+	[0x118] = "held by bowser",				-- CaptureWaitKoopa
+	[0x119] = "forward thrown by bowser",	-- ThrownKoopaF
+	[0x11A] = "backwards thrown by bowser",	-- ThrownKoopaB
+	[0x11B] = "areial grabbed by bowser",	-- CaptureKoopaAir
+	[0x11C] = "areial hit by bowser while grabbed", -- CaptureDamageKoopaAir
+	[0x11D] = "areial held by bowser",		-- CaptureWaitKoopaAir
+	[0x11E] = "areial thrown forward by bowser",	-- ThrownKoopaAirF
+	[0x11F] = "areial thrown backwards by bowser",	-- ThrownKoopaAirB
+
+	[0x120] = "inhaled by kirby",			-- CaptureKirby
+	[0x121] = "held by kirby",				-- CaptureWaitKirby
+	[0x122] = "spat out as star", 			-- ThrownKirbyStar
+	[0x123] = "kirby stole ability",		-- ThrownCopyStar
+	[0x124] = "spat out",					-- ThrownKirby
+
+	[0x125] = "barrel idle",				-- BarrelWait
+
+	[0x126] = "burried",					-- Bury
+	[0x127] = "burried idle",				-- BuryWait
+	[0x128] = "burried jump",				-- BuryJump
+
+	[0x129] = "fall asleep",				-- DamageSong
+	[0x12A] = "sleeping",					-- DamageSongWait
+	[0x12B] = "wake up",					-- DamageSongRv
+
+	[0x12C] = "damaged by bind",			-- DamageBind
+
+	[0x12D] = "grabbed by mewtwo",			-- CaptureMewtwo
+	[0x12E] = "areial grabbed by mewtwo",	-- CaptureMewtwoAir
+	[0x12F] = "thrown by mewtwo",			-- ThrownMewtwo
+	[0x130] = "areial thrown by mewtwo",	-- ThrownMewtwoAir
+
+	[0x131] = "warp star jump",					-- WarpStarJump
+	[0x132] = "warp star fall",					-- WarpStarFall
+
+	[0x133] = "hammer idle",					-- HammerWait
+	[0x137] = "hammer fall",					-- HammerFall
+	[0x139] = "hammer landing",					-- HammerLanding
+
+	[0x13A] = "giant mushroom start",			-- KinokoGiantStart
+	[0x13B] = "areial giant mushroom start",	-- KinokoGiantStartAir
+	[0x13C] = "giant mushroom end",				-- KinokoGiantEnd
+	[0x13D] = "areial giant mushroom end",		-- KinokoGiantEndAir
+	[0x13E] = "mini mushroom start",			-- KinokoSmallStart
+	[0x13F] = "areial mini mushroom start",		-- KinokoSmallStartAir
+	[0x140] = "mini mushroom end",				-- KinokoSmallEnd
+	[0x141] = "areial mini mushroom end",		-- KinokoSmallEndAir
+
+	[0x142] = "spawn start",					-- Entry
+	[0x143]	= "Spawn drop in",					-- EntryStart
+	[0x144] = "spawn end",						-- EntryEnd
+
+	[0x145] = "damaged by ice",					-- DamageIce
+	[0x146] = "damaged and launced by ice",		-- DamageIceJump
+
+	[0x147] = "grabbed by master hand",		-- CaptureMasterhand
+	[0x148] = "squeezed by master hand",	-- CapturedamageMasterhand
+	[0x149] = "held by master hand",		-- CapturewaitMasterhand
+	[0x14A] = "thrown by master hand",		-- ThrownMasterhand
+
+	[0x14B] = "grabbed by kirby",			-- CaptureKirbyYoshi
+	[0x14C] = "KirbyYoshiEgg",				-- KirbyYoshiEgg
+	[0x14D] = "grabbed by redead",			-- CaptureLeadead
+	[0x14E] = "grabbed by likelike",		-- CaptureLikelike
+
+	[0x14F] = "DownReflect",				-- DownReflect
+
+	[0x150] = "grabbed by crazy hand",		-- CaptureCrazyhand
+	[0x151] = "squeezed by crazy hand",		-- CapturedamageCrazyhand
+	[0x152] = "held by crazy hand",			-- CapturewaitCrazyhand
+	[0x153] = "thrown by crazy hand",		-- ThrownCrazyhand
+
+	[0x154] = "barrel cannon wait",			-- BarrelCannonWait
+
+	[0x155] = "wait 1",		-- Wait1
+	[0x156] = "wait 2",		-- Wait2
+	[0x157] = "wait 3",		-- Wait3
+	[0x158] = "wait 4",		-- Wait4
+	[0x159] = "wait item",	-- WaitItem
+
+	[0x15A] = "crouch wait 1",			-- SquatWait1
+	[0x15B] = "crouch wait 2",			-- SquatWait2
+	[0x15C] = "crouch wait with item",	-- SquatWaitItem
+
+	[0x15D] = "shield damaged",			-- GuardDamage
+
+	[0x15E] = "EscapeN",				-- EscapeN
+
+	[0x15F] = "AttackS4Hold",			-- AttackS4Hold
+
+	[0x160] = "heavy walk",				-- HeavyWalk1
+	[0x161] = "heavy walk",				-- HeavyWalk2
+
+	[0x162] = "ItemHammerWait",			-- ItemHammerWait
+
+	[0x164] = "invisible",				-- ItemBlind
+
+	[0x165] = "damaged by electricity",	-- DamageElec
+
+	[0x166] = "stunned start",			-- FuraSleepStart
+	[0x167] = "stunned",				-- FuraSleepLoop
+	[0x168] = "stunned end",			-- FuraSleepEnd
+
+	[0x169] = "wall damage",			-- WallDamage
+
+	[0x16A] = "ledge hold",				-- CliffWait1
+	[0x16B] = "ledge hold",				-- CliffWait2
+
+	[0x16C] = "slip fall down",			-- SlipDown
+	[0x16D] = "slip",					-- Slip
+	[0x170] = "slip idle",				-- SlipWait
+	[0x171] = "slip stand up",			-- SlipStand
+
+	[0x176] = "struggle", -- Zitabata
+
+	[0x177] = "hit by bowser while grabbed",	-- CaptureKoopaHit
+	[0x178] = "thrown forward by bowser",		-- ThrownKoopaEndF
+	[0x179] = "thrown backward by bowser",		-- ThrownKoopaEndB
+	[0x17A] = "hit by bowser while grabbed",	-- CaptureKoopaAirHit
+	[0x17B] = "thrown forward by bowser",		-- ThrownKoopaAirEndF
+	[0x17C] = "thrown backward by bowser",		-- ThrownKoopaAirEndB
+
+	[0x17D] = "ThrownKirbyDrinkSShot",			-- ThrownKirbyDrinkSShot
+	[0x17E] = "ThrownKirbySpitSShot",			-- ThrownKirbySpitSShot
 }
-
-function state.isAction(id)
-	return reactions[id] == nil
-end
 
 local character_states = {
 	[CHARACTER_INTERNAL.CPTFALCON] = {
@@ -1162,23 +1294,28 @@ local player_states = {
 	[0x009] = "dead (up, fall)",			-- DeadUpFallIce
 	[0x00A] = "dead (up, fall, hit camera)",-- DeadUpFallHitCameraIce
 	[0x00B] = "dead (sleep)",				-- Sleep
+
 	[0x00C] = "spawning",					-- Rebirth
 	[0x00D] = "spawn platform",				-- RebirthWait
 	[0x00E] = "wait",						-- Wait
+
 	[0x00F] = "walk slow",					-- WalkSlow
 	[0x010] = "walk",						-- WalkMiddle
 	[0x011] = "walk fast",					-- WalkFast
 	[0x012] = "turn",						-- Turn
 	[0x013] = "turn fast",					-- TurnRun
 	[0x014] = "dash",						-- Dash
+
 	[0x015] = "run",						-- run
 	[0x016] = "run direct",					-- RunDirect
 	[0x017] = "run brake",					-- RunBrake
+
 	[0x018] = "jump bend knee",				-- KneeBend
 	[0x019] = "jump forward",				-- JumpF
 	[0x01A] = "jump backward",				-- JumpB
 	[0x01B] = "jump areial forward",		-- JumpAerialF
 	[0x01C] = "jump areial backward",		-- JumpAerialB
+
 	[0x01D] = "fall",						-- Fall
 	[0x01E] = "fall forward",				-- FallF
 	[0x01F] = "fall backward",				-- FallB
@@ -1189,11 +1326,14 @@ local player_states = {
 	[0x024] = "fall special forward",		-- FallSpecialF
 	[0x025] = "fall special backward",		-- FallSpecialB
 	[0x026] = "fall damage",				-- DamageFall
+
 	[0x027] = "crouch",						-- Squat
 	[0x028] = "courching",					-- SquatWait
 	[0x029] = "stand up",					-- SquatRv
+
 	[0x02A] = "landing",					-- Landing
 	[0x02B] = "landing fall special",		-- LandingFallSpecial
+
 	[0x02C] = "jab 1",						-- Attack11
 	[0x02D] = "jab 2",						-- Attack12
 	[0x02E] = "jab 3",						-- Attack13
@@ -1220,11 +1360,13 @@ local player_states = {
 	[0x043] = "back air",					-- AttackAirB
 	[0x044] = "up air",						-- AttackAirHi
 	[0x045] = "down air",					-- AttackAirLw
+
 	[0x046] = "landing neutral air",		-- LandingAirN
 	[0x047] = "landing forward air",		-- LandingAirF
 	[0x048] = "landing back air",			-- LandingAirB
 	[0x049] = "landing air high",			-- LandingAirHi
 	[0x04A] = "landing air low",			-- LandingAirLw
+
 	[0x04B] = "damage high 1",				-- DamageHi1
 	[0x04C] = "damage high 2",				-- DamageHi2
 	[0x04D] = "damage high 3",				-- DamageHi3
@@ -1257,10 +1399,12 @@ local player_states = {
 	[0x065]	= "areial throw item backward",	-- LightThrowAirB
 	[0x066]	= "areial throw item up",		-- LightThrowAirHi
 	[0x067]	= "areial throw item down",		-- LightThrowAirLw
+
 	[0x068]	= "throw heavy item forward",	-- HeavyThrowF
 	[0x069]	= "throw heavy item backward",	-- HeavyThrowB
 	[0x06A]	= "throw heavy item up",		-- HeavyThrowHi
 	[0x06B]	= "throw heavy item down",		-- HeavyThrowLw
+
 	[0x06C]	= "throw light item forward",	-- LightThrowF4
 	[0x06D]	= "throw light item backward",	-- LightThrowB4
 	[0x06E]	= "throw light item up",		-- LightThrowHi4
@@ -1269,38 +1413,47 @@ local player_states = {
 	[0x071]	= "areial throw light item backward",	-- LightThrowAirB4
 	[0x072]	= "areial throw light item up",		-- LightThrowAirHi4
 	[0x073]	= "areial throw light item down",		-- LightThrowAirLw4
+
 	[0x074]	= "throw heavy item forward",	-- HeavyThrowF4
 	[0x075]	= "throw heavy item backward",	-- HeavyThrowB4
 	[0x076]	= "throw heavy item up",		-- HeavyThrowHi4
 	[0x077]	= "throw heavy item down",		-- HeavyThrowLw4
+
 	[0x078]	= "sword swing 1",				-- SwordSwing1
 	[0x079]	= "sword swing 2",				-- SwordSwing3
 	[0x07A]	= "sword swing 3",				-- SwordSwing4
 	[0x07B]	= "sword swing dash",			-- SwordSwingDash
+
 	[0x07C]	= "bat swing 1",				-- BatSwing1
 	[0x07D]	= "bat swing 2",				-- BatSwing3
 	[0x07E]	= "bat swing 3",				-- BatSwing4
 	[0x07F]	= "bat swing dash",				-- BatSwingDash
+
 	[0x080]	= "parasol swing 1",			-- ParasolSwing1
 	[0x081]	= "parasol swing 2",			-- ParasolSwing3
 	[0x082]	= "parasol swing 3",			-- ParasolSwing4
 	[0x083]	= "parasol swing dash",			-- ParasolSwingDash
+
 	[0x084]	= "fan swing 1",				-- HarisenSwing1
 	[0x085]	= "fan swing 2",				-- HarisenSwing3
 	[0x086]	= "fan swing 3",				-- HarisenSwing4
 	[0x087]	= "fan swing dash",				-- HarisenSwingDash
+
 	[0x088]	= "star rod swing 1",			-- StarRodSwing1
 	[0x089]	= "star rod swing 2",			-- StarRodSwing3
 	[0x08A]	= "star rod swing 3",			-- StarRodSwing4
 	[0x08B]	= "star rod swing dash",		-- StarRodSwingDash
+
 	[0x08C]	= "lip-stick swing 1",			-- LipStickSwing1
 	[0x08D]	= "lip-stick swing 2",			-- LipStickSwing3
 	[0x08E]	= "lip-stick swing 3",			-- LipStickSwing4
 	[0x08F]	= "lip-stick swing dash",		-- LipStickSwingDash
+
 	[0x090]	= "parasol open",				-- ItemParasolOpen
 	[0x091]	= "parasol fall",				-- ItemParasolFall
 	[0x092]	= "parasol special",			-- ItemParasolFallSpecial
 	[0x093]	= "parasol damage fall",		-- ItemParasolDamageFall
+
 	[0x094] = "gun shoot",					-- LGunShoot
 	[0x095] = "aerial gun shoot",			-- LGunShootAir
 	[0x096] = "empty gun shoot",			-- LGunShootEmpty
@@ -1409,9 +1562,9 @@ local player_states = {
 	[0x0EB] = "spot dodge",					-- Escape
 	[0x0EC] = "air dodge",					-- EscapeAir
 
-	-- When moves "clink"
-	[0x0ED] = "clink",						-- ReboundStop
-	[0x0EE] = "clink recoil",				-- Rebound
+	-- When moves "clank"
+	[0x0ED] = "clank",						-- ReboundStop
+	[0x0EE] = "clank recoil",				-- Rebound
 
 	-- Character being thrown
 	[0x0EF] = "forward thrown",				-- ThrownF
@@ -1430,6 +1583,7 @@ local player_states = {
 	[0x0F9] = "wall stop",					-- StopWall
 	[0x0FA]	= "ceiling stop",				-- StopCeil
 	[0x0FB]	= "miss foot",					-- MissFoot
+
 	[0x0FC]	= "ledge grab",					-- CliffCatch
 	[0x0FD]	= "ledge hold",					-- CliffWait
 	[0x0FE]	= "ledge climb slow",			-- CliffClimbSlow
@@ -1472,15 +1626,15 @@ local player_states = {
 	[0x11A] = "backwards thrown by bowser",	-- ThrownKoopaB
 	[0x11B] = "areial grabbed by bowser",	-- CaptureKoopaAir
 	[0x11C] = "areial hit by bowser while grabbed", -- CaptureDamageKoopaAir
-	[0x11D] = "areial held by bowser", -- CaptureWaitKoopaAir
-	[0x11E] = "areial ", -- ThrownKoopaAirF
-	[0x11F] = "areial ", -- ThrownKoopaAirB
+	[0x11D] = "areial held by bowser",		-- CaptureWaitKoopaAir
+	[0x11E] = "areial thrown forward by bowser",	-- ThrownKoopaAirF
+	[0x11F] = "areial thrown backwards by bowser",	-- ThrownKoopaAirB
 
-	[0x120] = "", -- CaptureKirby
-	[0x121] = "", -- CaptureWaitKirby
-	[0x122] = "", -- ThrownKirbyStar
-	[0x123] = "", -- ThrownCopyStar
-	[0x124] = "", -- ThrownKirby
+	[0x120] = "inhaled by kirby",			-- CaptureKirby
+	[0x121] = "held by kirby",				-- CaptureWaitKirby
+	[0x122] = "spat out as star", 			-- ThrownKirbyStar
+	[0x123] = "kirby stole ability",		-- ThrownCopyStar
+	[0x124] = "spat out",					-- ThrownKirby
 
 	[0x125] = "barrel idle",				-- BarrelWait
 
@@ -1493,10 +1647,10 @@ local player_states = {
 	[0x12B] = "wake up",					-- DamageSongRv
 	[0x12C] = "damaged by bind",			-- DamageBind
 
-	[0x12D] = "", -- CaptureMewtwo
-	[0x12E] = "", -- CaptureMewtwoAir
-	[0x12F] = "", -- ThrownMewtwo
-	[0x130] = "", -- ThrownMewtwoAir
+	[0x12D] = "grabbed by mewtwo",			-- CaptureMewtwo
+	[0x12E] = "areial grabbed by mewtwo",	-- CaptureMewtwoAir
+	[0x12F] = "thrown by mewtwo",			-- ThrownMewtwo
+	[0x130] = "areial thrown by mewtwo",	-- ThrownMewtwoAir
 
 	[0x131] = "warp star jump",					-- WarpStarJump
 	[0x132] = "warp star fall",					-- WarpStarFall
@@ -1518,81 +1672,90 @@ local player_states = {
 	[0x140] = "mini mushroom end",				-- KinokoSmallEnd
 	[0x141] = "areial mini mushroom end",		-- KinokoSmallEndAir
 
-	[0x142] = "spawn start",				-- Entry
-	[0x143]	= "Spawn drop in",				-- EntryStart
-	[0x144] = "spawn end",					-- EntryEnd
+	[0x142] = "spawn start",					-- Entry
+	[0x143]	= "Spawn drop in",					-- EntryStart
+	[0x144] = "spawn end",						-- EntryEnd
 
-	[0x145] = "", -- DamageIce
-	[0x146] = "", -- DamageIceJump
+	[0x145] = "damaged by ice",					-- DamageIce
+	[0x146] = "damaged and launced by ice",		-- DamageIceJump
 
-	[0x147] = "", -- CaptureMasterhand
-	[0x148] = "", -- CapturedamageMasterhand
-	[0x149] = "", -- CapturewaitMasterhand
-	[0x14A] = "", -- ThrownMasterhand
+	[0x147] = "grabbed by master hand",		-- CaptureMasterhand
+	[0x148] = "squeezed by master hand",	-- CapturedamageMasterhand
+	[0x149] = "held by master hand",		-- CapturewaitMasterhand
+	[0x14A] = "thrown by master hand",		-- ThrownMasterhand
 
-	[0x14B] = "", -- CaptureKirbyYoshi
-	[0x14C] = "", -- KirbyYoshiEgg
-	[0x14D] = "", -- CaptureLeadead
-	[0x14E] = "", -- CaptureLikelike
+	[0x14B] = "grabbed by kirby",			-- CaptureKirbyYoshi
+	[0x14C] = "KirbyYoshiEgg",				-- KirbyYoshiEgg
+	[0x14D] = "grabbed by redead",			-- CaptureLeadead
+	[0x14E] = "grabbed by likelike",		-- CaptureLikelike
 
-	[0x14F] = "", -- DownReflect
+	[0x14F] = "down reflect?",				-- DownReflect
 
-	[0x150] = "", -- CaptureCrazyhand
-	[0x151] = "", -- CapturedamageCrazyhand
-	[0x152] = "", -- CapturewaitCrazyhand
-	[0x153] = "", -- ThrownCrazyhand
+	[0x150] = "grabbed by crazy hand",		-- CaptureCrazyhand
+	[0x151] = "squeezed by crazy hand",		-- CapturedamageCrazyhand
+	[0x152] = "held by crazy hand",			-- CapturewaitCrazyhand
+	[0x153] = "thrown by crazy hand",		-- ThrownCrazyhand
 
-	[0x154] = "barrel cannon wait", -- BarrelCannonWait
+	[0x154] = "barrel cannon wait",			-- BarrelCannonWait
 
-	[0x155] = "wait 1", -- Wait1
-	[0x156] = "wait 2", -- Wait2
-	[0x157] = "wait 3", -- Wait3
-	[0x158] = "wait 4", -- Wait4
-	[0x159] = "wait item", -- WaitItem
+	[0x155] = "wait 1",		-- Wait1
+	[0x156] = "wait 2",		-- Wait2
+	[0x157] = "wait 3",		-- Wait3
+	[0x158] = "wait 4",		-- Wait4
+	[0x159] = "wait item",	-- WaitItem
 
-	[0x15A] = "crouch wait 1", -- SquatWait1
-	[0x15B] = "crouch wait 2", -- SquatWait2
-	[0x15C] = "crouch wait with item", -- SquatWaitItem
+	[0x15A] = "crouch wait 1",			-- SquatWait1
+	[0x15B] = "crouch wait 2",			-- SquatWait2
+	[0x15C] = "crouch wait with item",	-- SquatWaitItem
 
-	[0x15D] = "shield damaged", -- GuardDamage
+	[0x15D] = "shield damaged",			-- GuardDamage
 
-	[0x15E] = "", -- EscapeN
-	[0x15F] = "", -- AttackS4Hold
-	[0x160] = "", -- HeavyWalk1
-	[0x161] = "", -- HeavyWalk2
-	[0x162] = "", -- ItemHammerWait
-	[0x163] = "", -- ItemHammerMove
-	[0x164] = "", -- ItemBlind
-	[0x165] = "", -- DamageElec
-	[0x166] = "stunned start", -- FuraSleepStart
-	[0x167] = "stunned", -- FuraSleepLoop
-	[0x168] = "stunned end", -- FuraSleepEnd
-	[0x169] = "", -- WallDamage
-	[0x16A] = "ledge hold", -- CliffWait1
-	[0x16B] = "ledge hold", -- CliffWait2
+	[0x15E] = "escape from grab?",		-- EscapeN
 
-	[0x16C] = "", -- SlipDown
-	[0x16D] = "", -- Slip
-	[0x16E] = "", -- SlipTurn
-	[0x16F] = "", -- SlipDash
-	[0x170] = "", -- SlipWait
-	[0x171] = "", -- SlipStand
-	[0x172] = "", -- SlipAttack
-	[0x173] = "", -- SlipEscapeF
-	[0x174] = "", -- SlipEscapeB
+	[0x15F] = "AttackS4Hold",			-- AttackS4Hold
+
+	[0x160] = "heavy walk",				-- HeavyWalk1
+	[0x161] = "heavy walk",				-- HeavyWalk2
+
+	[0x162] = "hammer wait?",			-- ItemHammerWait
+	[0x163] = "hammer move?",			-- ItemHammerMove
+
+	[0x164] = "invisible",				-- ItemBlind
+
+	[0x165] = "damaged by electricity",	-- DamageElec
+
+	[0x166] = "stunned start",			-- FuraSleepStart
+	[0x167] = "stunned",				-- FuraSleepLoop
+	[0x168] = "stunned end",			-- FuraSleepEnd
+
+	[0x169] = "wall damage",			-- WallDamage
+
+	[0x16A] = "ledge hold",				-- CliffWait1
+	[0x16B] = "ledge hold",				-- CliffWait2
+
+	[0x16C] = "slip fall down",			-- SlipDown
+	[0x16D] = "slip",					-- Slip
+	[0x16E] = "slip turn",				-- SlipTurn
+	[0x16F] = "slip dash",				-- SlipDash
+	[0x170] = "slip idle",				-- SlipWait
+	[0x171] = "slip stand up",			-- SlipStand
+	[0x172] = "slip attack",			-- SlipAttack
+	[0x173] = "slip roll forward",		-- SlipEscapeF
+	[0x174] = "slip roll backward",		-- SlipEscapeB
 
 	[0x175] = "taunt special", -- AppealS
 
 	[0x176] = "struggle", -- Zitabata
 
-	[0x177] = "", -- CaptureKoopaHit
-	[0x178] = "", -- ThrownKoopaEndF
-	[0x179] = "", -- ThrownKoopaEndB
-	[0x17A] = "", -- CaptureKoopaAirHit
-	[0x17B] = "", -- ThrownKoopaAirEndF
-	[0x17C] = "", -- ThrownKoopaAirEndB
-	[0x17D] = "", -- ThrownKirbyDrinkSShot
-	[0x17E] = "", -- ThrownKirbySpitSShot
+	[0x177] = "hit by bowser while grabbed",	-- CaptureKoopaHit
+	[0x178] = "thrown forward by bowser",		-- ThrownKoopaEndF
+	[0x179] = "thrown backward by bowser",		-- ThrownKoopaEndB
+	[0x17A] = "hit by bowser while grabbed",	-- CaptureKoopaAirHit
+	[0x17B] = "thrown forward by bowser",		-- ThrownKoopaAirEndF
+	[0x17C] = "thrown backward by bowser",		-- ThrownKoopaAirEndB
+
+	[0x17D] = "ThrownKirbyDrinkSShot",			-- ThrownKirbyDrinkSShot
+	[0x17E] = "ThrownKirbySpitSShot",			-- ThrownKirbySpitSShot
 }
 
 function state.translate(id)
@@ -1601,6 +1764,14 @@ end
 
 function state.translateChar(char, id)
 	return character_states[char] and character_states[char][id] or player_states[id] or "unknown state"
+end
+
+function state.isAction(id)
+	return reactions[id] == nil
+end
+
+function state.isCharacterAction(char, id)
+	return character_states[char] and character_states[char][id]
 end
 
 return state

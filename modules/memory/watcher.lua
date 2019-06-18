@@ -17,7 +17,6 @@ local watcher = {
 	pointer_loc = {},
 	named = {},
 	map = require("memory.melee"), -- The map of the game we want to use!
-	no_debug = {}
 }
 
 local TYPE_NULL = 0
@@ -58,10 +57,10 @@ function watcher.init()
 			for offset, struct in pairs(info.struct) do
 				watcher.watching_ptr_addr[address][offset] = TYPE_NAME[struct.type]
 				local name = ("%s.%s"):format(info.name, struct.name)
-				watcher.setTableValue(name, math.huge)
+				watcher.setTableValue(name, 0)
 			end
 		else
-			watcher.values_memory[address] = math.huge
+			watcher.values_memory[address] = 0
 			watcher.watching_addr[address] = TYPE_NAME[info.type]
 			watcher.setTableValue(info.name, watcher.values_memory[address])
 		end
