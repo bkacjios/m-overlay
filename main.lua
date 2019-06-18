@@ -3,6 +3,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 require("util.love2d")
 
 local watcher = require("memory.watcher")
+local perspective = require("perspective")
 
 local graphics = love.graphics
 local newImage = graphics.newImage
@@ -32,7 +33,7 @@ function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 end
 
-local mask_shader = love.graphics.newShader[[
+local MASK_SHADER = love.graphics.newShader[[
 	vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
 		if (Texel(texture, texture_coords).rgb == vec3(0.0)) {
 			// a discarded pixel wont be applied as the stencil.
@@ -171,6 +172,49 @@ function love.wheelmoved(x, y)
 	love.gameLoaded()
 end
 
+local vertices = {
+	{
+		0, 0,
+		0, 0,
+		1, 1, 1,
+	},
+	{
+		128, 0,
+		1, 0,
+		1, 1, 1
+	},
+	{
+		128, 128,
+		1, 1,
+		1, 1, 1
+	},
+	{
+		0, 128,
+		0, 1,
+		1, 1, 1
+	},
+}
+
+local canvas = graphics.newCanvas(128, 128)
+
+function drawPerspectiveCanvas(canvas, texture, vertices, near, far)
+	--graphics.push()
+	graphics.setCanvas(canvas)
+		graphics.clear()
+
+		vertices[1][1] = far -- x
+		vertices[1][2] = near -- y
+
+		vertices[2][1] = 128 - far -- x
+		vertices[2][2] = near -- y
+
+		perspective.on()
+		perspective.quad(texture, vertices[1], vertices[2], vertices[3], vertices[4])
+		perspective.off()
+	graphics.setCanvas()
+	--graphics.pop()
+end
+
 function love.draw()
 	local controller = watcher.controller[PORT + 1]
 
@@ -179,26 +223,42 @@ function love.draw()
 
 		local x, y = controller.joystick.x, 1 - controller.joystick.y
 
+		local angle = math.atan2(controller.joystick.x, controller.joystick.y)
+		local mag = math.sqrt(controller.joystick.x ^ 2 + controller.joystick.y ^ 2)
+
+		local far = mag * 15
+		local near = mag * 20
+
 		graphics.setColor(255, 255, 255, 255)
 
+		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.JOYSTICK.MASK, vertices, near, far)
 		graphics.stencil(function()
-			graphics.setShader(mask_shader)
-			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.MASK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0)
+			graphics.setShader(MASK_SHADER)
+			graphics.easyDraw(canvas, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 128, 128, 0.5, 0.5)
 			graphics.setShader()
 		end, "replace", 1)
 		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.STICK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0, 0.0, 0.0)
+		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.JOYSTICK.STICK, vertices, near, far)
+		graphics.easyDraw(canvas, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 128, 128, 0.5, 0.5)
 
 		-- Draw C-Stick
 
 		local x, y = controller.cstick.x, 1 - controller.cstick.y
 
+		local angle = math.atan2(controller.cstick.x, controller.cstick.y)
+		local mag = math.sqrt(controller.cstick.x ^ 2 + controller.cstick.y ^ 2)
+
+		local far = mag * 12
+		local near = mag * 16
+
 		graphics.setColor(255, 235, 0, 255)
 		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
-		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.STICK, 48 + 128 + (32 * x), 20 + (32 * y), 0, 128, 128, 0, 0)
+
+		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.CSTICK.STICK, vertices, near, far)
+		graphics.easyDraw(canvas, 64 + 48 + 128 + (32 * x), 64 + 20 + (32 * y), angle, 128, 128, 0.5, 0.5)
 
 		graphics.setColor(255, 255, 255, 255)
 

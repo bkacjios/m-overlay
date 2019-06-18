@@ -27,5 +27,5 @@ function love.graphics.easyDraw(obj, x, y, rotation, width, height, originX, ori
 
 	local scaledW = width / objW
 	local scaledH = height / objH
-	love.graphics.draw(obj, x, y, r, scaledW, scaledH, objW * originX, objH * originY, ...)
+	love.graphics.draw(obj, x, y, rotation, scaledW, scaledH, objW * originX, objH * originY, ...)
 end
