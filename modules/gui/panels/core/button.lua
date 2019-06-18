@@ -4,7 +4,7 @@ function PANEL:Initialize()
 	self.m_bDrawLabel = true
 	self.m_bEnabled = true
 	self:SetText("Button")
-	gui.SkinHook("Init", "Button", self)
+	gui.skinHook("Init", "Button", self)
 end
 
 function PANEL:SetLabelEnabled(b)
@@ -12,7 +12,7 @@ function PANEL:SetLabelEnabled(b)
 end
 
 function PANEL:Paint(w, h)
-	gui.SkinHook("Paint", "Button", self, w, h)
+	gui.skinHook("Paint", "Button", self, w, h)
 	if self.m_bDrawLabel then
 		self:super("Paint", w, h)
 	end

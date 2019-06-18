@@ -202,7 +202,7 @@ local match_info = 0x8046B6A0
 local match_info_struct = {
 	[0x0008] = { type = "byte", name = "match.winner" },
 	[0x000D] = { type = "byte", name = "match.last_player_death" },
-	[0x000E] = { type = "byte", name = "match.finished", debug = true },
+	[0x000E] = { type = "byte", name = "match.finished", init = -1 },
 
 	[0x0024] = { type = "int", name = "match.frame" },
 	[0x0028] = { type = "int", name = "match.timer.seconds" },

@@ -1,6 +1,7 @@
 local PANEL = {}
 
 local watcher = require("memory.watcher")
+local perspective = require("perspective")
 
 local BUTTONS = {
 	NONE		= 0x0000,
@@ -190,51 +191,108 @@ function PANEL:UpdateAPM(port, entityType, state_id)
 	end
 end
 
+local vertices = {
+	{
+		0, 0,
+		0, 0,
+		1, 1, 1,
+	},
+	{
+		128, 0,
+		1, 0,
+		1, 1, 1
+	},
+	{
+		128, 128,
+		1, 1,
+		1, 1, 1
+	},
+	{
+		0, 128,
+		0, 1,
+		1, 1, 1
+	},
+}
+
+local canvas = graphics.newCanvas(128, 128)
+
+function drawPerspectiveCanvas(canvas, texture, vertices, near, far)
+	--graphics.push()
+	graphics.setCanvas(canvas)
+		graphics.clear()
+
+		vertices[1][1] = far -- x
+		vertices[1][2] = near -- y
+
+		vertices[2][1] = 128 - far -- x
+		vertices[2][2] = near -- y
+
+		perspective.on()
+		perspective.quad(texture, vertices[1], vertices[2], vertices[3], vertices[4])
+		perspective.off()
+	graphics.setCanvas()
+	--graphics.pop()
+end
+
 function PANEL:Paint(w, h)
 	local controller = watcher.controller[self.m_iPort]
 
 	if controller and controller.plugged ~= 0xFF then
-		-- Draw Joystick
+
+		-- Draw APM
 
 		local time = watcher.match.frame / 60
 
 		graphics.setFont(self.m_pFont)
+		graphics.print(format("APM: %d", self.m_iActions / time * 60), 8, h - 24)
 
-		--[[if time < 60 then
-			graphics.print(format("APM: %d", self.m_iActions), 8, h - 24)
-		else]]
-			graphics.print(format("APM: %d", self.m_iActions / time * 60), 8, h - 24)
-		--end
+		-- Draw Joystick
 
 		local x, y = controller.joystick.x, 1 - controller.joystick.y
 
+		local angle = math.atan2(controller.joystick.x, controller.joystick.y)
+		local mag = math.sqrt(controller.joystick.x ^ 2 + controller.joystick.y ^ 2)
+
+		local far = mag * 15
+		local near = mag * 20
+
 		graphics.setColor(255, 255, 255, 255)
 
+		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.JOYSTICK.MASK, vertices, near, far)
 		graphics.stencil(function()
 			graphics.setShader(MASK_SHADER)
-			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.MASK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0)
+			graphics.easyDraw(canvas, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 128, 128, 0.5, 0.5)
 			graphics.setShader()
 		end, "replace", 1)
 		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.BACKGROUND, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.STICK, 22 + (40 * x), 12 + (40 * y), 0, 128, 128, 0, 0, 0.0, 0.0)
+		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.JOYSTICK.STICK, vertices, near, far)
+		graphics.easyDraw(canvas, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 128, 128, 0.5, 0.5)
 
 		-- Draw C-Stick
 
 		local x, y = controller.cstick.x, 1 - controller.cstick.y
 
+		local angle = math.atan2(controller.cstick.x, controller.cstick.y)
+		local mag = math.sqrt(controller.cstick.x ^ 2 + controller.cstick.y ^ 2)
+
+		local far = mag * 12
+		local near = mag * 16
+
 		graphics.setColor(255, 235, 0, 255)
 		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.BACKGROUND, 48 + 128, 52, 0, 128, 128)
-		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.STICK, 48 + 128 + (32 * x), 20 + (32 * y), 0, 128, 128, 0, 0)
+
+		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.CSTICK.STICK, vertices, near, far)
+		graphics.easyDraw(canvas, 64 + 48 + 128 + (32 * x), 64 + 20 + (32 * y), angle, 128, 128, 0.5, 0.5)
 
 		graphics.setColor(255, 255, 255, 255)
 
 		-- Draw L
 
 		graphics.setLineStyle("smooth")
-		love.graphics.setLineWidth(3)
+		graphics.setLineWidth(3)
 
 		graphics.stencil(function()
 			-- Create a rounded rectangle mask

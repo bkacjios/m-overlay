@@ -17,7 +17,7 @@ function PANEL:Initialize()
 end
 
 --[[function PANEL:Paint(w, h)
-	gui.SkinHook("Paint", "Dropdown", self, w, h)
+	gui.skinHook("Paint", "Dropdown", self, w, h)
 end]]
 
 function PANEL:AddOption(str, default)

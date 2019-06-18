@@ -13,7 +13,7 @@ function PANEL:Initialize()
 	
 	self.m_pClose = self:Add("Button")
 	self.m_pClose:SetText("x")
-	gui.SkinHook("Init", "ExitButton", self.m_pClose)
+	gui.skinHook("Init", "ExitButton", self.m_pClose)
 	
 	self.m_pClose.OnClick = function(this, but)
 		self:Remove()
@@ -33,7 +33,7 @@ function PANEL:PerformLayout()
 end
 
 function PANEL:Paint(w, h)
-	gui.SkinHook("Paint", "Frame", self, w, h)
+	gui.skinHook("Paint", "Frame", self, w, h)
 end
 
 function PANEL:OnMousePressed(x, y, but)

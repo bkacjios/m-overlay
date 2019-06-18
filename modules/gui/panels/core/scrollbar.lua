@@ -122,7 +122,7 @@ function PANEL:GetOffset()
 end
 
 function PANEL:Paint(w, h)
-	gui.SkinHook("Paint", "Panel", self, w, h)
+	gui.skinHook("Paint", "Panel", self, w, h)
 end
 
 function PANEL:OnMousePressed(x, y, but)

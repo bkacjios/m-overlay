@@ -26,7 +26,7 @@ function PANEL:Initialize()
 end
 
 function PANEL:Paint(w, h)
-	gui.SkinHook("Paint", "FocusPanel", self, w, h)
+	gui.skinHook("Paint", "FocusPanel", self, w, h)
 	self:super("Paint", w, h) -- Paint our label
 end
 
