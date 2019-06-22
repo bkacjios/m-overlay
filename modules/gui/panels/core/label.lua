@@ -1,11 +1,9 @@
-local PANEL = {}
-
 function PANEL:Initialize()
 	self:super()
 	
 	self.m_sText = "Label"
-	self.m_cTextColor = Color(0, 0, 0)
-	self.m_pFont = love.graphics.newFont("resource/fonts/VeraMono.ttf", 12)
+	self.m_cTextColor = color(0, 0, 0)
+	self.m_pFont = love.graphics.newFont("fonts/A-OTF-FolkPro-Regular.otf", 12)
 	self.m_bWrapped = false
 	self.m_bFocusable = false
 	self.m_sAlignment = "center"

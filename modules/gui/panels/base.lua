@@ -77,8 +77,15 @@ function PANEL:BringToFront()
 end
 
 function PANEL:Dock(i)
-	self.m_iDock = i
-	self:InvalidateLayout()
+	if i then
+		self.m_iDock = i
+		self:InvalidateLayout()
+	end
+	return self.m_iDock
+end
+
+function PANEL:GetDock()
+	return self.m_iDock
 end
 
 function PANEL:DockMargin(left, top, right, bottom)

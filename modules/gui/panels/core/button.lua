@@ -1,5 +1,6 @@
 function PANEL:Initialize()
 	self:super()
+
 	self.m_bFocusable = true
 	self.m_bDrawLabel = true
 	self.m_bEnabled = true

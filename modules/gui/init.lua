@@ -217,27 +217,11 @@ function gui.tick(dt)
 	gui.m_pWorldPanel:CallAll("Think", dt)
 end
 
-local lfs = love.filesystem
-
-local function loadFilesWithGUIEnv(folder)
-	for i, path in ipairs(lfs.getDirectoryItems(folder)) do
-		local file = string.format("%s/%s", folder, path)
-
-		if lfs.getInfo(file, "file") then
-			local chunk, err = lfs.load(file)
-			if err then
-				return error(err)
-			end
-			setfenv(chunk, require("gui.env"))
-			chunk()
-		end
-	end
-end
-
 function gui.init()
 	gui.loadSkins("modules/gui/skins")
 	gui.loadClasses("modules/gui/panels/core")
 	gui.loadClasses("modules/gui/panels/smash")
+	class.init() -- Initialize all classes, sets inheritance
 
 	gui.m_pWorldPanel = gui.create("Panel")
 	gui.m_pWorldPanel:DockMargin(0, 0, 0, 0)
@@ -259,13 +243,36 @@ function gui.init()
 	gui.m_pSceneManager:Dock(DOCK_FILL)
 end
 
-function gui.loadSkins(folder)
-	loadFilesWithGUIEnv(folder)
-end
+do
+	local lfs = love.filesystem
 
-function gui.loadClasses(folder)
-	require("gui.panels.base")
-	loadFilesWithGUIEnv(folder)
+	local function loadFilesWithGUIEnv(folder)
+		for i, path in ipairs(lfs.getDirectoryItems(folder)) do
+			local file = string.format("%s/%s", folder, path)
+
+			if lfs.getInfo(file, "file") then
+				local chunk, err = lfs.load(file)
+				if err then
+					return error(err)
+				end
+				local env = require("gui.env")
+				-- Reset these
+				env.PANEL = {}
+				env.SKIN = {}
+				setfenv(chunk, env)
+				chunk()
+			end
+		end
+	end
+
+	function gui.loadSkins(folder)
+		loadFilesWithGUIEnv(folder)
+	end
+
+	function gui.loadClasses(folder)
+		require("gui.panels.base")
+		loadFilesWithGUIEnv(folder)
+	end
 end
 
 return gui

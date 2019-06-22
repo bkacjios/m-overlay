@@ -95,7 +95,9 @@ local function encode_table(val, pretty, stack, scope)
 		end
 		stack[val] = nil
 		if pretty then
-			return "{\n" .. string.rep("\t", scope) .. table.concat(res, ",\n" .. string.rep("\t", scope)) .. "\n" .. string.rep("\t", scope-1) .. "}"
+			local tabs = string.rep("\t", scope)
+			local tabs_end = string.rep("\t", scope-1)
+			return "{\n" .. tabs .. table.concat(res, ",\n" .. tabs) .. "\n" .. tabs_end .. "}"
 		else
 			return "{" .. table.concat(res, ",") .. "}"
 		end

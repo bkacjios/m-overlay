@@ -49,6 +49,7 @@ end
 
 function PANEL:Think(dt)
 	if not self.m_pGrabbed or not self.m_bHolding then return end
+	if self.m_pGrabbed:GetDock() ~= 0 then return end -- Can't move docked objects
 
 	local mx, my = self:WorldToLocal(love.mouse.getPosition())
 	local gx, gy = self.m_tGrabbedOffset.x, self.m_tGrabbedOffset.y
@@ -56,7 +57,7 @@ function PANEL:Think(dt)
 	self.m_pGrabbed:SetPos(mx - gx, my - gy)
 end
 
-gui.register("ScenePanel", PANEL, "Panel")
+gui.register("SceneDisplay", PANEL, "Panel")
 
 
 local PANEL = {}
@@ -75,14 +76,20 @@ function PANEL:Initialize()
 	self.m_pObjectList:Dock(DOCK_LEFT)
 	self.m_pObjectList:SetVisible(false)
 
-	self.m_pSceneDisplay = self:Add("ScenePanel")
+	self.m_pSceneDisplay = self:Add("SceneDisplay")
 	self.m_pSceneDisplay:Dock(DOCK_FILL)
 
 	self.m_bEditable = true
 end
 
 function PANEL:AddToScene(name)
-	return self.m_pSceneDisplay:Add(name)
+	local panel = self.m_pSceneDisplay:Add(name)
+
+	local but = self.m_pObjectList:Add("Label")
+	but:Dock(DOCK_TOP)
+	but:SetText(name)
+
+	return panel
 end
 
 function PANEL:SetEditorMode(b)
