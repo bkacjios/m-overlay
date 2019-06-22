@@ -71,6 +71,13 @@ local env = {
 	PANEL = {},
 	SKIN = {},
 	gui = require("gui"),
+
+	DOCK_NONE = DOCK_NONE,
+	DOCK_TOP = DOCK_TOP,
+	DOCK_LEFT = DOCK_LEFT,
+	DOCK_BOTTOM = DOCK_BOTTOM,
+	DOCK_RIGHT = DOCK_RIGHT,
+	DOCK_FILL = DOCK_FILL,
 }
 env._G = env
 

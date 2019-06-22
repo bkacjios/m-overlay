@@ -1,5 +1,3 @@
---[[ module for Love2D v. 0.10.2 ]]--
-
 local glsl=love.graphics.newShader[[
 //Made by xXxMoNkEyMaNxXx
 
@@ -16,7 +14,6 @@ extern vec2 rep = vec2( 1,1 );
 
 //vertex shader --unmodified
 #ifdef VERTEX
-
 vec4 position( mat4 transform_projection, vec4 vertex_position )
 {
 	return transform_projection * vertex_position;
@@ -132,7 +129,13 @@ vec4 effect( vec4 color, Image unused, vec2 texture_coords, vec2 screen_coords )
 		uv = vec2( intersect(v4,-H,A,normalize(screen - A))/intersect(v4,-H,v2,-A1), intersect(v4,H,B,normalize(screen - B))/intersect(v4,H,v2,-B1) );
 	}
 
-	return Texel( img, mod( uv*rep+vec2(p0.x-1, p0.y), (1,1) ) )*color;
+	vec4 pixel = Texel( img, mod( uv*rep+vec2(p0.x-1, p0.y), (1,1) ) ) * color;
+	
+	if (pixel.rgb == vec3(0.0)) {
+		// a discarded pixel wont be applied on the stencil.
+		discard;
+	}
+	return pixel;
 }
 #endif
 ]]

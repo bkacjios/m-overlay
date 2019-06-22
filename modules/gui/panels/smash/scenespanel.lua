@@ -6,7 +6,8 @@ function PANEL:Initialize()
 	self:DockPadding(0,0,0,0)
 	self:DockMargin(0,0,0,0)
 
-	self.m_bEditable = true
+	self:SetBGColor(color_blank)
+	self:SetBorderColor(color_blank)
 
 	self.m_pGrabbed = nil
 	self.m_bHolding = false
@@ -24,8 +25,12 @@ function PANEL:Paint(w, h)
 	end
 end
 
+function PANEL:GetEditorMode()
+	return self:GetParent():GetEditorMode()
+end
+
 function PANEL:OnMousePressed(x, y, but)
-	if not gui.isInEditorMode() or but ~= 1 or not self.m_bEditable then return end
+	if not gui.isInEditorMode() or but ~= 1 or not self:GetEditorMode() then return end
 	x, y = self:LocalToWorld(x, y)
 	local grabbed = self:GetHoveredPanel(x, y)
 	if grabbed == self then self.m_pGrabbed = nil return true end
@@ -38,7 +43,7 @@ function PANEL:OnMousePressed(x, y, but)
 end
 
 function PANEL:OnMouseReleased(x, y, but)
-	if but ~= 1 or not self.m_bEditable then return end
+	if but ~= 1 or not self:GetEditorMode() then return end
 	self.m_bHolding = false
 end
 
@@ -51,4 +56,60 @@ function PANEL:Think(dt)
 	self.m_pGrabbed:SetPos(mx - gx, my - gy)
 end
 
-gui.register("ScenesPanel", PANEL, "Panel")
+gui.register("ScenePanel", PANEL, "Panel")
+
+
+local PANEL = {}
+
+function PANEL:Initialize()
+	self:super()
+
+	self:DockPadding(0,0,0,0)
+	self:DockMargin(0,0,0,0)
+
+	self:SetBGColor(color_blank)
+	self:SetBorderColor(color_blank)
+
+	self.m_pObjectList = self:Add("Panel")
+	self.m_pObjectList:SetWidth(128 + 32)
+	self.m_pObjectList:Dock(DOCK_LEFT)
+	self.m_pObjectList:SetVisible(false)
+
+	self.m_pSceneDisplay = self:Add("ScenePanel")
+	self.m_pSceneDisplay:Dock(DOCK_FILL)
+
+	self.m_bEditable = true
+end
+
+function PANEL:AddToScene(name)
+	return self.m_pSceneDisplay:Add(name)
+end
+
+function PANEL:SetEditorMode(b)
+	self.m_bEditable = b
+	self.m_pObjectList:SetVisible(b)
+	if b then
+		self:SetBGColor(color(240, 240, 240))
+		self.m_pSceneDisplay:DockMargin(4, 4, 4, 4)
+		self.m_pSceneDisplay:SetBGColor(color_black)
+	else
+		self:SetBGColor(color_blank)
+		self.m_pSceneDisplay:DockMargin(0, 0, 0, 0)
+		self.m_pSceneDisplay:SetBGColor(color_blank)
+	end
+	self:InvalidateLayout()
+end
+
+function PANEL:GetEditorMode()
+	return self.m_bEditable
+end
+
+function PANEL:GetObjectList()
+	return self.m_pObjectList
+end
+
+function PANEL:GetDisplay()
+	return self.m_pSceneDisplay
+end
+
+gui.register("SceneEditor", PANEL, "Panel")

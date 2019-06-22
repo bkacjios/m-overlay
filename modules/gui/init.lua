@@ -2,12 +2,18 @@ local gui = {
 	m_tRegisteredSkins = {},
 	m_pWorldPanel = nil,
 	m_pTaskBar = nil,
-	m_pObjectList = nil,
-	m_pSceneDisplay = nil,
+	m_pSceneManager = nil,
 	m_pFocusedPanel = nil,
 	m_strSkin = "default",
 	m_bEditorMode = false,
 }
+
+DOCK_NONE = 0
+DOCK_TOP = 1
+DOCK_LEFT = 2
+DOCK_BOTTOM = 4
+DOCK_RIGHT = 8
+DOCK_FILL = 16
 
 local json = require("serializer.json")
 local class = require("class")
@@ -28,9 +34,19 @@ end
 
 function gui.saveSceneLayout(file)
 	local layout = {}
-	for k, child in ipairs(self.m_pSceneDisplay:GetChildren()) do
+	for k, child in ipairs(gui.m_pSceneManager:GetDisplay():GetChildren()) do
 		layout[k] = child:GetConfig()
 	end
+
+	local data = json.encode(layout, true)
+
+	assert(love.filesystem.write(file, data, #data))
+
+	--[[local f, err = io.open(file, "w")
+	assert(f, err)
+
+	f:write(data)
+	f:close()]]
 end
 
 function gui.loadSceneLayout(file)
@@ -41,7 +57,7 @@ function gui.resize(w, h)
 	gui.getWorldPanel():SizeToScreen()
 	gui.getWorldPanel():InvalidateLayout()
 
-	--gui.m_pSceneDisplay:SizeToScreen()
+	--gui.m_pSceneManager:SizeToScreen()
 	--gui.m_pWorldPanel:InvalidateLayout()
 end
 
@@ -55,8 +71,12 @@ end
 
 function gui.create(name, parent)
 	local obj = class.new(name)
-	obj:SetParent(parent or gui.m_pSceneDisplay)
+	obj:SetParent(parent or gui.m_pWorldPanel)
 	return obj
+end
+
+function gui.createScenePanel(name)
+	return gui.m_pSceneManager:AddToScene(name)
 end
 
 function gui.setSkin(str)
@@ -83,11 +103,7 @@ function gui.getWorldPanel()
 end
 
 function gui.getScenePanel()
-	return gui.m_pSceneDisplay
-end
-
-function gui.getObjectPanel()
-	return gui.m_pObjectList
+	return gui.m_pSceneManager
 end
 
 function gui.joyPressed(joy, but)
@@ -108,28 +124,23 @@ function gui.toggleEditorMode()
 	local world = gui.getWorldPanel()
 	local scene = gui.getScenePanel()
 	local taskbar = gui.getTaskBar()
-	local objects = gui.getObjectPanel()
 
-	local w, h = scene:GetSize()
+	local w, h = scene:GetDisplay():GetSize()
 	local ow, oh, flags = love.window.getMode()
 
 	taskbar:SetVisible(gui.isInEditorMode())
-	objects:SetVisible(gui.isInEditorMode())
+
+	scene:SetEditorMode(gui.m_bEditorMode)
 
 	if gui.m_bEditorMode then
-		scene:DockMargin(4, 4, 4, 4)
-		scene:SetBGColor(color_black)
-		world:SetBGColor(color(240, 240, 240))
-
 		w = w + 8
 		h = h + 8 + taskbar:GetHeight()
 
 		flags.resizable = true
-		flags.minwidth = 512 + 8 + objects:GetWidth()
+		flags.minwidth = 512 + 8 + scene:GetObjectList():GetWidth()
 		flags.minheight = 256 + 8 + taskbar:GetHeight()
 	else
-		scene:DockMargin(0, 0, 0, 0)
-		scene:SetBGColor(color_blank)
+		scene:SetEditorMode(false)
 		world:SetBGColor(color_blank)
 
 		flags.minwidth = 512
@@ -244,19 +255,8 @@ function gui.init()
 	gui.m_pTaskBar:Dock(DOCK_TOP)
 	gui.m_pTaskBar:SetVisible(false)
 
-	gui.m_pObjectList = gui.m_pWorldPanel:Add("Panel")
-	gui.m_pObjectList:SetWidth(128 + 32)
-	gui.m_pObjectList:Dock(DOCK_LEFT)
-	gui.m_pObjectList:SetVisible(false)
-
-	gui.m_pSceneDisplay = gui.m_pWorldPanel:Add("ScenesPanel")
-	gui.m_pSceneDisplay:DockMargin(0, 0, 0, 0)
-	gui.m_pSceneDisplay:DockPadding(0, 0, 0, 0)
-	gui.m_pSceneDisplay:SetBGColor(color_blank)
-	gui.m_pSceneDisplay:SetBorderColor(color_blank)
-
-	gui.m_pSceneDisplay:SetBGColor(color_blank)
-	gui.m_pSceneDisplay:Dock(DOCK_FILL)
+	gui.m_pSceneManager = gui.m_pWorldPanel:Add("SceneEditor")
+	gui.m_pSceneManager:Dock(DOCK_FILL)
 end
 
 function gui.loadSkins(folder)

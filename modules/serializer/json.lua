@@ -56,16 +56,17 @@ local function encode_nil(val)
 end
 
 
-local function encode_table(val, stack)
+local function encode_table(val, pretty, stack, scope)
 	local res = {}
 	stack = stack or {}
+	scope = scope or 0
 
 	-- Circular reference?
 	if stack[val] then error("circular reference") end
 
 	stack[val] = true
 
-	  if rawget(val, 1) ~= nil or next(val) == nil then
+	if rawget(val, 1) ~= nil or next(val) == nil then
 		-- Treat as array -- check keys are valid and it is not sparse
 		local n = 0
 		for k in pairs(val) do
@@ -79,7 +80,7 @@ local function encode_table(val, stack)
 		end
 		-- Encode
 		for i, v in ipairs(val) do
-			table.insert(res, encode(v, stack))
+			table.insert(res, encode(v, pretty, stack, scope + 1))
 		end
 		stack[val] = nil
 		return "[" .. table.concat(res, ",") .. "]"
@@ -90,10 +91,14 @@ local function encode_table(val, stack)
 			if type(k) ~= "string" then
 				error("invalid table: mixed or invalid key types")
 			end
-			table.insert(res, encode(k, stack) .. ":" .. encode(v, stack))
+			table.insert(res, encode(k, pretty, stack, scope + 1) .. ":" .. encode(v, pretty, stack, scope + 1))
 		end
 		stack[val] = nil
-		return "{" .. table.concat(res, ",") .. "}"
+		if pretty then
+			return "{\n" .. string.rep("\t", scope) .. table.concat(res, ",\n" .. string.rep("\t", scope)) .. "\n" .. string.rep("\t", scope-1) .. "}"
+		else
+			return "{" .. table.concat(res, ",") .. "}"
+		end
 	end
 end
 
@@ -121,18 +126,18 @@ local type_func_map = {
 }
 
 
-encode = function(val, stack)
+encode = function(val, pretty, stack, scope)
 	local t = type(val)
 	local f = type_func_map[t]
 	if f then
-		return f(val, stack)
+		return f(val, pretty, stack, scope)
 	end
 	error("unexpected type '" .. t .. "'")
 end
 
 
-function json.encode(val)
-	return ( encode(val) )
+function json.encode(val, pretty)
+	return encode(val, pretty)
 end
 
 

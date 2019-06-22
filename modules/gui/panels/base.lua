@@ -1,12 +1,5 @@
 local gui = require("gui")
 
-DOCK_NONE = 0
-DOCK_TOP = 1
-DOCK_LEFT = 2
-DOCK_BOTTOM = 4
-DOCK_RIGHT = 8
-DOCK_FILL = 16
-
 local PANEL = {}
 
 local graphics = love.graphics
@@ -39,7 +32,7 @@ end
 function PANEL:GetConfig()
 	return {
 		classname = self:GetClassName(),
-		{
+		config = {
 			pos = { self:GetPos() },
 			size = { self:GetSize() },
 			zpos = self:GetZPos(),

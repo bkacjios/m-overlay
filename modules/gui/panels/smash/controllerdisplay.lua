@@ -2,6 +2,7 @@ local PANEL = {}
 
 local watcher = require("memory.watcher")
 local perspective = require("perspective")
+local state = require("smash.states")
 
 local BUTTONS = {
 	NONE		= 0x0000,
@@ -21,16 +22,6 @@ local BUTTONS = {
 
 local timer = love.timer
 local graphics = love.graphics
-local MASK_SHADER = graphics.newShader[[
-	vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-		if (Texel(texture, texture_coords).rgb == vec3(0.0)) {
-			// a discarded pixel wont be applied as the stencil.
-			discard;
-		}
-		return vec4(1.0);
-	}
-]]
-
 local newImage = graphics.newImage
 local newFont = graphics.newFont
 local format = string.format
@@ -143,8 +134,6 @@ local BUTTON_TEXTURES = {
 
 local MAX_PORTS = 4
 
-local state = require("smash.states")
-
 function PANEL:Initialize()
 	self:super()
 	
@@ -214,24 +203,32 @@ local vertices = {
 	},
 }
 
-local canvas = graphics.newCanvas(128, 128)
+local rotated_vertices = {}
 
-function drawPerspectiveCanvas(canvas, texture, vertices, near, far)
-	--graphics.push()
-	graphics.setCanvas(canvas)
-		graphics.clear()
+local function transformVertices(vertices, x, y, angle, ox, oy)
+	if #vertices ~= #rotated_vertices then
+		rotated_vertices = {}
+	end
 
-		vertices[1][1] = far -- x
-		vertices[1][2] = near -- y
+	local c = math.cos(angle)
+	local s = math.sin(angle)
 
-		vertices[2][1] = 128 - far -- x
-		vertices[2][2] = near -- y
+	for i=1, #vertices do
+		-- Create or use vertex cache
+		rotated_vertices[i] = rotated_vertices[i] or {}
 
-		perspective.on()
-		perspective.quad(texture, vertices[1], vertices[2], vertices[3], vertices[4])
-		perspective.off()
-	graphics.setCanvas()
-	--graphics.pop()
+		-- Copy and rotate X and Y vertex points
+		rotated_vertices[i][1] = x + (vertices[i][1] - ox) * c - (vertices[i][2] - oy) * s
+		rotated_vertices[i][2] = y + (vertices[i][1] - ox) * s + (vertices[i][2] - oy) * c
+
+		-- Copy other vertex settings
+		rotated_vertices[i][3] = vertices[i][3]
+		rotated_vertices[i][4] = vertices[i][4]
+		rotated_vertices[i][5] = vertices[i][5]
+		rotated_vertices[i][6] = vertices[i][6]
+	end
+
+	return rotated_vertices
 end
 
 function PANEL:Paint(w, h)
@@ -256,20 +253,28 @@ function PANEL:Paint(w, h)
 		local far = mag * 15
 		local near = mag * 20
 
+		-- Make the rectangle look like its fading into the horizon
+		vertices[1][1] = far		-- x
+		vertices[1][2] = near		-- y
+		vertices[2][1] = 128 - far	-- x
+		vertices[2][2] = near		-- y
+
+		local rotated = transformVertices(vertices, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 64, 64)
+
 		graphics.setColor(255, 255, 255, 255)
 
-		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.JOYSTICK.MASK, vertices, near, far)
 		graphics.stencil(function()
-			graphics.setShader(MASK_SHADER)
-			graphics.easyDraw(canvas, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 128, 128, 0.5, 0.5)
-			graphics.setShader()
+			perspective.on()
+			perspective.quad(BUTTON_TEXTURES.JOYSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
+			perspective.off()
 		end, "replace", 1)
 		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.BACKGROUND, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.JOYSTICK.STICK, vertices, near, far)
-		graphics.easyDraw(canvas, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 128, 128, 0.5, 0.5)
+		perspective.on()
+		perspective.quad(BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
+		perspective.off()
 
 		-- Draw C-Stick
 
@@ -281,11 +286,20 @@ function PANEL:Paint(w, h)
 		local far = mag * 12
 		local near = mag * 16
 
+		-- Make the rectangle look like its fading into the horizon
+		vertices[1][1] = far		-- x
+		vertices[1][2] = near		-- y
+		vertices[2][1] = 128 - far	-- x
+		vertices[2][2] = near -- y
+
+		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * x), 64 + 20 + (32 * y), angle, 64, 64)
+
 		graphics.setColor(255, 235, 0, 255)
 		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.BACKGROUND, 48 + 128, 52, 0, 128, 128)
 
-		drawPerspectiveCanvas(canvas, BUTTON_TEXTURES.CSTICK.STICK, vertices, near, far)
-		graphics.easyDraw(canvas, 64 + 48 + 128 + (32 * x), 64 + 20 + (32 * y), angle, 128, 128, 0.5, 0.5)
+		perspective.on()
+		perspective.quad(BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
+		perspective.off()
 
 		graphics.setColor(255, 255, 255, 255)
 

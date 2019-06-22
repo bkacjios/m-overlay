@@ -15,9 +15,11 @@ function love.load()
 	gui.init()
 	watcher.init()
 
-	local display = gui.create("ControllerDisplay")
+	local display = gui.createScenePanel("ControllerDisplay")
 	display:SetPort(1)
 	display:Dock(DOCK_FILL)
+
+	gui.saveSceneLayout("test.txt")
 end
 
 function love.update(dt)
