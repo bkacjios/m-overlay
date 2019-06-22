@@ -11,6 +11,8 @@ Currently this program will only work on Melee v1.02 (NTSC), but should work on 
 To use with OBS, add a "Game Capture" source and use "capture specific window" "[M'Overlay.exe]"
 and be sure to check "Allow Transparency"
 
+You can change display ports by using the scrollwheel.
+
 ### Why?
 
 This is the start of a bigger project to make a fully customizable stream overlay. I plan on making a fully customizable overlay system to show different elements of the game, like percents, stocks, game time, an off camera minimap (like Smash Ultimate), APM meters, controller inputs, and much more. The plan is to have a plugin system for people to script their own overlay elements.
