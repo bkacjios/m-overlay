@@ -6,6 +6,8 @@ local graphics = love.graphics
 
 function PANEL:Initialize()
 	self.m_tChildren = {}
+	self.m_iWorldPosX = 0
+	self.m_iWorldPosY = 0
 	self.m_iPosX = 0
 	self.m_iPosY = 0
 	self.m_iWidth = 42
@@ -77,11 +79,8 @@ function PANEL:BringToFront()
 end
 
 function PANEL:Dock(i)
-	if i then
-		self.m_iDock = i
-		self:InvalidateLayout()
-	end
-	return self.m_iDock
+	self.m_iDock = i
+	self:InvalidateLayout()
 end
 
 function PANEL:GetDock()
@@ -109,6 +108,52 @@ end
 function PANEL:GetDockPadding()
 	return self.m_tDockPadding
 end
+
+function PANEL:GetWidthPlusMargin()
+	local margins = self:GetDockMargin()
+	return margins.left + margins.right + self:GetWidth()
+end
+
+function PANEL:GetHeightPlusMargin()
+	local margins = self:GetDockMargin()
+	return margins.top + margins.bottom + self:GetHeight()
+end
+
+function PANEL:GetSizePlusMargin()
+	local w, h = self:GetWidthPlusMargin(), self:GetHeightPlusMargin()
+
+	--[[for _,child in ipairs(self.m_tChildren) do
+		if child:IsVisible() then
+			margins = child:GetDockMargin()
+			padding = child:GetDockPadding()
+			w = w + margins.left + margins.right + padding.left + padding.right
+			h = h + margins.top + margins.bottom + padding.top + padding.bottom
+		end
+	end]]
+
+	return w, h
+end
+
+--[[function PANEL:GetSpaceAround(panel)
+	local margins = panel:GetDockMargin()
+	local padding = panel:GetDockPadding()
+
+	local w = margins.left + margins.right + padding.left + padding.right
+	local h = margins.top + margins.bottom + padding.top + padding.bottom
+
+	for _,child in ipairs(self.m_tChildren) do
+		if child ~= panel and child:IsVisible() then
+			local margins = child:GetDockMargin()
+			local padding = child:GetDockPadding()
+			w = w + margins.left + margins.right + padding.left + padding.right + child:GetWidth()
+			h = h + margins.top + margins.bottom + padding.top + padding.bottom + child:GetHeight()
+		end
+	end
+
+	local width, height = self:GetSize()
+
+	return w, h
+end]]
 
 function PANEL:SetZPos(i)
 	self.m_iZPos = i
@@ -255,6 +300,14 @@ function PANEL:GetPos()
 	return self.m_iPosX, self.m_iPosY
 end
 
+function PANEL:SetWorldPos(x, y)
+	self.m_iWorldPosX, self.m_iWorldPosY = x, y
+end
+
+function PANEL:GetWorldPos()
+	return self.m_iWorldPosX, self.m_iWorldPosY
+end
+
 function PANEL:LocalToWorld(x, y)
 	local sx, sy = self:GetPos()
 	x = x + sx
@@ -297,6 +350,7 @@ end
 
 function PANEL:SetSize(w, h)
 	self.m_iWidth, self.m_iHeight = w, h
+	self:OnResize(w, h)
 end
 
 function PANEL:GetSize()
@@ -355,6 +409,7 @@ function PANEL:Render()
 		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
 				graphics.setColor(255, 255, 255, 255) -- Default draw color to white
+					self:SetWorldPos(x, y)
 					self:Paint(w, h)
 				graphics.setColor(255, 255, 255, 255)
 			graphics.translate(0, 0)
@@ -497,11 +552,11 @@ function PANEL:IsHovered()
 	return gui.getHoveredPanel() == self
 end
 
-function PANEL:GetHoveredPanel(x, y)
+function PANEL:GetHoveredPanel(x, y, ignore)
 	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos > b.m_iZPos end) -- The higher up ZPos panel should be first
 	local panel = nil
 	for _,child in ipairs(self.m_tChildren) do
-		if child:IsVisible() and child:IsFocusable() and child:IsWorldPointInside(x, y) then
+		if child:IsVisible() and child:IsFocusable() and child:IsWorldPointInside(x, y) and ((ignore and child ~= ignore) or not ignore) then
 			panel = child:GetHoveredPanel(x, y)
 			break
 		end
@@ -513,27 +568,35 @@ end
 -- PANEL OVERRIDE DEFAULTS
 
 function PANEL:PerformLayout()
-	-- Override
+	-- Called when we are Validating the layout.
+	-- Good for manually positioning child panels.
 end
 
 function PANEL:Paint(w, h)
-	-- Override
+	-- Called every frame, when we are drawing the panel to the screen.
+	-- Used to draw custom things within the panel.
+end
+
+function PANEL:OnResize(w, h)
+	-- Called when the size of the panel has changed.
+	-- Good for manually positioning child panels, like in PerformLayout.
 end
 
 function PANEL:OnFocusChanged(b)
-	-- Override
+	-- Called when the panels focus has either been gained or lost
 end
 
 function PANEL:OnKeyPressed(key, hex)
-	-- Override
+	-- Called when the panel is focused, and a keyboard key has been pressed
 end
 
 function PANEL:OnKeyReleased(key)
-	-- Override
+	-- Called when the panel is focused, and a keyboard key has been released
 end
 
 function PANEL:OnTextInput(text)
-	-- Override
+	-- Called when the panel is focused.
+	-- Good for a text input panel.
 end
 
 function PANEL:OnJoyPressed(joy, but)
@@ -544,29 +607,97 @@ function PANEL:OnJoyReleased(joy, but)
 	-- Override
 end
 
-function PANEL:OnMousePressed(x, y, but)
-	-- Override
+function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
+	--[[
+	Called when when the mouse has been moved.
+
+	number x
+		The mouse position on the x-axis.
+	number y
+		The mouse position on the y-axis.
+	number dx
+		The amount moved along the x-axis since the last time love.mousemoved was called.
+	number dy
+		The amount moved along the y-axis since the last time love.mousemoved was called.
+
+	Returning true will stop the event from going up the family tree
+	Child->Parent->Parent->Parent->etc, etc..
+	]]
+	
+	return false
 end
 
-function PANEL:OnMouseReleased(x, y, but)
-	-- Override
+function PANEL:OnMousePressed(x, y, button, istouch, presses)
+	--[[
+	Called when a mouse press event has been made.
+
+	number x
+		The mouse position on the x-axis.
+	number y
+		The mouse position on the y-axis.
+	number dx
+		The amount moved along the x-axis since the last time love.mousemoved was called.
+	number dy
+		The amount moved along the y-axis since the last time love.mousemoved was called.
+
+	Returning true will stop the event from going up the family tree
+	Child->Parent->Parent->Parent->etc, etc..
+	]]
+	
+	return false
+end
+
+function PANEL:OnMouseReleased(x, y, button, istouch, presses)
+	--[[
+	Called when a mouse release event has been made.
+
+	number x
+		The mouse position on the x-axis.
+	number y
+		The mouse position on the y-axis.
+	number dx
+		The amount moved along the x-axis since the last time love.mousemoved was called.
+	number dy
+		The amount moved along the y-axis since the last time love.mousemoved was called.
+
+	Returning true will stop the event from going up the family tree
+	Child->Parent->Parent->Parent->etc, etc..
+	]]
+	
+	return false
 end
 
 function PANEL:OnMouseWheeled(x, y)
-	-- Override
-	return false -- Returning false will pass the wheel event to its parent
+	--[[
+	Called when the scrollwheel has been turned.
+
+	number x
+		Amount of horizontal mouse wheel movement. Positive values indicate movement to the right.
+	number y
+		Amount of vertical mouse wheel movement. Positive values indicate upward movement.
+
+	See an example in..
+	gui/panels/core/scrollpanel.lua 
+	&
+	gui/panels/core/scrollbar.lua 
+
+	Returning true will stop the event from going up the family tree
+	Child->Parent->Parent->Parent->etc, etc..
+    ]]
+
+	return false
 end
 
 function PANEL:OnChildAdded(panel)
-	-- Override
+	-- Called when a panel has been added
 end
 
 function PANEL:OnChildRemoved(panel)
-	-- Override
+	-- Called when a panel has been removed
 end
 
 function PANEL:Think(dt)
-	-- Override
+	-- Called every frame
 end
 
 gui.register("Base", PANEL)

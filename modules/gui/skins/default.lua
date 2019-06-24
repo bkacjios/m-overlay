@@ -32,6 +32,9 @@ end
 function SKIN:PaintPanel(panel, w, h)
 	love.graphics.setColor(unpackcolor(panel:GetBGColor()))
 	love.graphics.rectangle("fill", 0, 0, w, h)
+
+	love.graphics.setLineStyle("rough")
+	love.graphics.setLineWidth(1)
 	
 	love.graphics.setColor(unpackcolor(panel:GetBorderColor()))
 	love.graphics.rectangle("line", 0, 0, w, h)
@@ -40,6 +43,9 @@ end
 function SKIN:PaintFocusPanel(panel, w, h)
 	love.graphics.setColor(unpackcolor(panel:GetBGColor()))
 	love.graphics.rectangle("fill", 0, 0, w, h)
+
+	love.graphics.setLineStyle("rough")
+	love.graphics.setLineWidth(1)
 
 	if panel:HasFocus() then
 		love.graphics.setColor(unpackcolor(self.PanelFocused))
@@ -96,6 +102,9 @@ function SKIN:PaintButton(panel, w, h)
 
 	love.graphics.setColor(unpackcolor(color))
 	love.graphics.rectangle("fill", 0, 0, w, h)
+
+	love.graphics.setLineStyle("rough")
+	love.graphics.setLineWidth(1)
 	
 	--[[love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.rectangle("line", 0, 1, w, h - 2)]]
@@ -110,6 +119,9 @@ function SKIN:PaintFrame(panel, w, h)
 	
 	love.graphics.setColor(unpackcolor(panel:HasFocus(true) and self.FrameFocusedControlBar or self.FrameControlBar))
 	love.graphics.rectangle("fill", 0, 0, w, 32)
+
+	love.graphics.setLineStyle("rough")
+	love.graphics.setLineWidth(1)
 	
 	--[[love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.rectangle("line", 0, 1, w, h - 2)]]
@@ -121,6 +133,10 @@ end
 function SKIN:PaintTextEntry(panel, w, h)
 	love.graphics.setColor(unpackcolor(self.TextEntryBackground))
 	love.graphics.rectangle("fill", 0, 0, w, h)
+
+	love.graphics.setLineStyle("rough")
+	love.graphics.setLineWidth(1)
+
 	if panel:HasFocus() then
 		love.graphics.setColor(unpackcolor(self.TextEntryFocused))
 		love.graphics.rectangle("line", 0, 0, w, h)

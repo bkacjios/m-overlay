@@ -189,7 +189,6 @@ function watcher.update(exe)
 	if not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
 		log.info("watching ram: %s", exe)
 		watcher.init()
-		love.gameLoaded()
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
 		watcher.checkmemoryvalues()
 	end

@@ -1,7 +1,6 @@
 local gui = {
 	m_tRegisteredSkins = {},
 	m_pWorldPanel = nil,
-	m_pTaskBar = nil,
 	m_pSceneManager = nil,
 	m_pFocusedPanel = nil,
 	m_strSkin = "default",
@@ -94,8 +93,8 @@ function gui.skinHook(hook, class, panel, ...)
 	skin[hook .. class](skin, panel, ...)
 end
 
-function gui.getTaskBar()
-	return gui.m_pTaskBar
+function gui.getInfoBar()
+	return gui.m_pInfoBar
 end
 
 function gui.getWorldPanel()
@@ -123,29 +122,21 @@ function gui.toggleEditorMode()
 
 	local world = gui.getWorldPanel()
 	local scene = gui.getScenePanel()
-	local taskbar = gui.getTaskBar()
 
 	local w, h = scene:GetDisplay():GetSize()
 	local ow, oh, flags = love.window.getMode()
 
-	taskbar:SetVisible(gui.isInEditorMode())
-
 	scene:SetEditorMode(gui.m_bEditorMode)
 
 	if gui.m_bEditorMode then
-		w = w + 8
-		h = h + 8 + taskbar:GetHeight()
-
+		local uw, uh = scene:GetUnusableSpace()
 		flags.resizable = true
-		flags.minwidth = 512 + 8 + scene:GetObjectList():GetWidth()
-		flags.minheight = 256 + 8 + taskbar:GetHeight()
+		flags.minwidth = 512 + uw
+		flags.minheight = 256 + uh
 	else
-		scene:SetEditorMode(false)
-		world:SetBGColor(color_blank)
-
+		flags.resizable = false
 		flags.minwidth = 512
 		flags.minheight = 256
-		flags.resizable = false
 	end
 
 	love.window.setMode(w, h, flags)
@@ -174,28 +165,41 @@ function gui.render()
 	end
 end
 
-function gui.mousePressed(x, y, but)
-	local panel = gui.getHoveredPanel()
-	gui.setFocusedPanel(panel)
+function gui.mouseMoved(x, y, dx, dy, istouch)
+	local panel = gui.getFocusedPanel()
 	local lx, ly = panel:WorldToLocal(x,y)
-	if not panel:OnMousePressed(lx, ly, but) then
+	if not panel:OnMouseMoved(lx, ly, dx, dy, istouch) then
 		local parent = panel:GetParent()
 		while parent do
 			lx, ly = parent:WorldToLocal(x, y)
-			if parent:OnMousePressed(lx, ly, but) then break end
+			if parent:OnMouseMoved(lx, ly, dx, dy, istouch) then break end
 			parent = parent:GetParent()
 		end
 	end
 end
 
-function gui.mouseReleased(x, y, but)
-	local panel = gui.getFocusedPanel()
-	local lx, ly = panel:WorldToLocal(x,y)
-	if not panel:OnMouseReleased(x, y, but) then
+function gui.mousePressed(x, y, button, istouch, presses)
+	local panel = gui.getHoveredPanel()
+	gui.setFocusedPanel(panel)
+	local lx, ly = panel:WorldToLocal(x, y)
+	if not panel:OnMousePressed(lx, ly, button, istouch, presses) then
 		local parent = panel:GetParent()
 		while parent do
 			lx, ly = parent:WorldToLocal(x, y)
-			if parent:OnMouseReleased(lx, ly, but) then break end
+			if parent:OnMousePressed(lx, ly, button, istouch, presses) then break end
+			parent = parent:GetParent()
+		end
+	end
+end
+
+function gui.mouseReleased(x, y, button, istouch, presses)
+	local panel = gui.getFocusedPanel()
+	local lx, ly = panel:WorldToLocal(x,y)
+	if not panel:OnMouseReleased(lx, ly, button, istouch, presses) then
+		local parent = panel:GetParent()
+		while parent do
+			lx, ly = parent:WorldToLocal(x, y)
+			if parent:OnMouseReleased(lx, ly, button, istouch, presses) then break end
 			parent = parent:GetParent()
 		end
 	end
@@ -217,6 +221,10 @@ function gui.tick(dt)
 	gui.m_pWorldPanel:CallAll("Think", dt)
 end
 
+function gui.shutdown()
+	-- TODO: Save layout of SceneDisplay GUI
+end
+
 function gui.init()
 	gui.loadSkins("modules/gui/skins")
 	gui.loadClasses("modules/gui/panels/core")
@@ -231,13 +239,6 @@ function gui.init()
 	gui.m_pWorldPanel:SizeToScreen()
 
 	gui.m_pFocusedPanel = gui.m_pWorldPanel
-
-	gui.m_pTaskBar = gui.m_pWorldPanel:Add("Panel")
-	gui.m_pTaskBar:DockMargin(0, 0, 0, 0)
-	gui.m_pTaskBar:DockPadding(0, 0, 0, 0)
-	gui.m_pTaskBar:SetBGColor(color(200, 200, 200))
-	gui.m_pTaskBar:Dock(DOCK_TOP)
-	gui.m_pTaskBar:SetVisible(false)
 
 	gui.m_pSceneManager = gui.m_pWorldPanel:Add("SceneEditor")
 	gui.m_pSceneManager:Dock(DOCK_FILL)

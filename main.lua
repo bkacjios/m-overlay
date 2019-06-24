@@ -17,7 +17,6 @@ function love.load()
 
 	local display = gui.createScenePanel("ControllerDisplay")
 	display:SetPort(1)
-	display:Dock(DOCK_FILL)
 
 	gui.saveSceneLayout("test.txt")
 end
@@ -51,23 +50,28 @@ function love.textinput(text)
 	gui.textInput(text)
 end
 
-function love.mousepressed(x, y, but)
-	gui.mousePressed(x, y, but)
+function love.mousemoved(x, y, dx, dy, istouch)
+	gui.mouseMoved(x, y, dx, dy, istouch)
 end
 
-function love.mousereleased(x, y, but)
-	gui.mouseReleased(x, y, but)
+function love.mousepressed(x, y, button, istouch, presses)
+	gui.mousePressed(x, y, button, istouch, presses)
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+	gui.mouseReleased(x, y, button, istouch, presses)
 end
 
 function love.wheelmoved(x, y)
 	gui.mouseWheeled(x, y)
 end
 
-function love.gameLoaded()
-end
-
 function love.draw()	
 	gui.render()
+end
+
+function love.quit()
+	gui.shutdown()
 end
 
 local FPS_LIMIT = 60
@@ -117,9 +121,6 @@ function love.run()
 			love.timer.sleep(1 / FPS_LIMIT- frame_time)
 		end
 	end
-end
-
-function love.quit()
 end
 
 local utf8 = require("utf8")

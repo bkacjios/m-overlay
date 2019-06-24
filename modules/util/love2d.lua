@@ -1,16 +1,16 @@
-love.graphics.oldSetColor = love.graphics.setColor
-
 local graphics = love.graphics
+
+local setColor = graphics.setColor
 
 -- Love2D changed color values to be 0-1
 -- Allow 0-255 values again..
-function love.graphics.setColor(r,g,b,a)
+function graphics.setColor(r,g,b,a)
 	if type(r) == "table" then
 		a, b, g, r = r[4] or 255, r[3] or 255, r[2] or 255, r[1] or 255
 	else
 		r, g, b, a = r or 255, g or 255, b or 255, a or 255
 	end
-	graphics.oldSetColor(r/255,g/255,b/255,a/255)
+	setColor(r/255,g/255,b/255,a/255)
 end
 
 -- Draw an image using width and height in pixels
@@ -65,4 +65,24 @@ function graphics.transform(ox, oy, xx, xy, yx, yy)
 	graphics.rotate(-math.pi/4)
 	graphics.scale(e/distortion,f/distortion)
 
+end
+
+local drawRecrtangle = graphics.rectangle
+
+-- Draw a rectangle to fit INSIDE the width and height
+function graphics.rectangle(mode, x, y, w, h, ...)
+	local lw = graphics.getLineWidth()
+	if mode == "line" then
+		x = x + math.ceil(lw/2)
+		y = y + math.floor(lw/2)
+		w = w - lw
+		h = h - lw
+	end
+	drawRecrtangle(mode, x, y, w, h, ...)
+end
+
+-- Draw a rectangle to fit AROUND the width and height
+function graphics.outlineRectangle(x, y, w, h, ...)
+	local lw = graphics.getLineWidth()
+	graphics.rectangle("line", x - lw, y - lw, w + lw*2, h + lw*2)
 end

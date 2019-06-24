@@ -136,6 +136,8 @@ local MAX_PORTS = 4
 
 function PANEL:Initialize()
 	self:super()
+
+	self:SetSize(512, 256)
 	
 	self:DockPadding(0,0,0,0)
 	self:DockMargin(0,0,0,0)
@@ -264,7 +266,7 @@ function PANEL:Paint(w, h)
 		graphics.setColor(255, 255, 255, 255)
 
 		graphics.stencil(function()
-			perspective.on()
+			perspective.on(self:GetWorldPos())
 			perspective.quad(BUTTON_TEXTURES.JOYSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
 			perspective.off()
 		end, "replace", 1)
@@ -272,7 +274,7 @@ function PANEL:Paint(w, h)
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.BACKGROUND, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		perspective.on()
+		perspective.on(self:GetWorldPos())
 		perspective.quad(BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
 		perspective.off()
 
@@ -290,14 +292,14 @@ function PANEL:Paint(w, h)
 		vertices[1][1] = far		-- x
 		vertices[1][2] = near		-- y
 		vertices[2][1] = 128 - far	-- x
-		vertices[2][2] = near -- y
+		vertices[2][2] = near		-- y
 
 		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * x), 64 + 20 + (32 * y), angle, 64, 64)
 
 		graphics.setColor(255, 235, 0, 255)
 		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.BACKGROUND, 48 + 128, 52, 0, 128, 128)
 
-		perspective.on()
+		perspective.on(self:GetWorldPos())
 		perspective.quad(BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
 		perspective.off()
 

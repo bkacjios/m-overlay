@@ -1,4 +1,4 @@
-local glsl=love.graphics.newShader[[
+local shader = love.graphics.newShader[[
 //Made by xXxMoNkEyMaNxXx
 
 extern Image img;
@@ -11,6 +11,7 @@ vec2 v4 = vv[3];
 
 extern vec2 p0 = vec2( 0,0 );
 extern vec2 rep = vec2( 1,1 );
+extern vec2 translate = vec2(0, 0);
 
 //vertex shader --unmodified
 #ifdef VERTEX
@@ -40,8 +41,9 @@ vec4 effect( vec4 color, Image unused, vec2 texture_coords, vec2 screen_coords )
 	//screen transformations
 
     	//position
-    	vec2 positionData = vec2( TransformMatrix[3][0], TransformMatrix[3][1] );
-		vec2 screenA = (screen_coords-positionData);
+    	//vec2 positionData = vec2( TransformMatrix[3][0], TransformMatrix[3][1] );
+    	//vec2 positionData = vec2(translate.x, 24 );
+		vec2 screenA = (screen_coords-translate);
 
 		//rotation
 		float rotX = -TransformMatrix[1][0];
@@ -140,15 +142,16 @@ vec4 effect( vec4 color, Image unused, vec2 texture_coords, vec2 screen_coords )
 #endif
 ]]
 
-local gl_send = glsl.send
-local q = love.graphics.polygon
+local send = shader.send
+local polygon = love.graphics.polygon
 local setShader = love.graphics.setShader
 
 module(...)
 
 --turn shader on before drawing any quads
-function on()
-	setShader( glsl )
+function on(x, y)
+	setShader(shader)
+	send(shader, "translate", {x or 0, y or 0})
 end
 
 --turn off when done
@@ -158,21 +161,21 @@ end
 
 --origin: set at which position texture starts --format ( x,y )
 --size: set how many times is repeated from origin point --format ( x,y )
-function tex( origin, size )
+function tex(origin, size)
 	--predefined as ( 0,0 )
-	gl_send( glsl, "p0", origin )
+	send(shader, "p0", origin)
 	--predefined as ( 1,1 )
-	gl_send( glsl, "rep", size )
+	send(shader, "rep", size)
 end
 
 --draw quad
 --vertices in clockwise order --format ( x,y )
 --top-left of texture is "v1", top-right is "v2"
-function quad( img, v1,v2,v3,v4 )
+function quad(img, v1,v2,v3,v4)
 	--set texture
-	gl_send( glsl, "img", img )
+	send(shader, "img", img)
 	--send vertices to calculate perspective
-	gl_send( glsl, "vv", v2,v3,v4,v1,v1 )
+	send(shader, "vv", v2,v3,v4,v1,v1)
 	--generate mesh to draw into
-	q( "fill", v1[1],v1[2],v2[1],v2[2],v3[1],v3[2],v4[1],v4[2] );
+	polygon("fill", v1[1],v1[2],v2[1],v2[2],v3[1],v3[2],v4[1],v4[2])
 end
