@@ -18,6 +18,12 @@ function love.load()
 	local display = gui.createScenePanel("ControllerDisplay")
 	display:SetPort(1)
 
+	local test = gui.createScenePanel("Label")
+	test:SetFont("fonts/A-OTF-FolkPro-Heavy.otf")
+	test:SetBGColor(color_white)
+	test:SetText("THIS IS A TEST OVERLAY ELEMENT")
+	test:SizeToText()
+
 	gui.saveSceneLayout("test.txt")
 end
 
