@@ -4,6 +4,8 @@ local watcher = require("memory.watcher")
 local perspective = require("perspective")
 local state = require("smash.states")
 
+require("extensions.math")
+
 local BUTTONS = {
 	NONE		= 0x0000,
 	DPAD_LEFT	= 0x0001,
@@ -25,6 +27,8 @@ local graphics = love.graphics
 local newImage = graphics.newImage
 local newFont = graphics.newFont
 local format = string.format
+
+local DISCONNECTED = newImage("textures/buttons/disconnected.png")
 
 local BUTTON_TEXTURES = {
 	DPAD = {
@@ -236,9 +240,19 @@ end
 function PANEL:Paint(w, h)
 	local controller = watcher.controller[self.m_iPort]
 
-	if controller and controller.plugged ~= 0xFF then
+	if controller then
+
+		-- Draw connection status
+
+		if controller.plugged == 0xFF then
+			local t = timer.getTime()
+			graphics.setColor(hsl(360, 1, 0.5, math.sinlerp(0.25, 1, t*4)))
+			graphics.easyDraw(DISCONNECTED, w - 8 - 42, h - 8 - 42, 0, 32, 32)
+		end
 
 		-- Draw APM
+
+		graphics.setColor(255, 255, 255, 255)
 
 		local time = watcher.match.frame / 60
 
@@ -262,8 +276,6 @@ function PANEL:Paint(w, h)
 		vertices[2][2] = near		-- y
 
 		local rotated = transformVertices(vertices, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 64, 64)
-
-		graphics.setColor(255, 255, 255, 255)
 
 		graphics.stencil(function()
 			perspective.on(self:GetWorldPos())

@@ -1,15 +1,27 @@
-function table.shuffle(tbl)
-	for i = #tbl, 2, -1 do
-		local j = math.random(i)
-		tbl[i], tbl[j] = tbl[j], tbl[i] 
+function table.merge(a,b)
+	for k,v in pairs(b) do
+		if not a[k] then a[k]=v end
 	end
-	return tbl
+	return a
 end
 
-function table.merge(first, second)
-	for k,v in pairs(second) do
-		first[k] = v
+function table.clone(a)
+	local ret = {}
+	for k,v in pairs(a) do
+		ret[k] = type(v) == "table" and table.clone(v) or v
 	end
+	return ret
+end
+
+local function reversedipairsiter(t, i)
+    i = i - 1
+    if i ~= 0 then
+        return i, t[i]
+    end
+end
+
+function reversedipairs(t)
+    return reversedipairsiter, t, #t + 1
 end
 
 function table.hasValue(tbl, val)
@@ -19,42 +31,66 @@ function table.hasValue(tbl, val)
 	return false
 end
 
-function table.val_to_str(v)
-	if "string" == type(v) then
-		v = string.gsub(v, "\n", "\\n" )
-		if string.match(string.gsub(v,"[^'\"]",""), '^"+$') then
-			return "'" .. v .. "'"
-		end
-		return '"' .. string.gsub(v,'"', '\\"' ) .. '"'
-	else
-		return "table" == type(v) and table.tostring(v) or tostring( v )
-	end
-end
-
-function table.key_to_str(k)
-	if "string" == type(k) and string.match(k, "^[_%a][_%a%d]*$") then
-		return k
-	else
-		return "[" .. table.val_to_str(k) .. "]"
-	end
-end
-
-function table.print(tbl, indent, done)
-	done = done or {[tbl] = true}
-	indent = indent or 1
-
-	for k, v in pairs(tbl) do
-		local tabs = string.rep("\t", indent)
-		if (type(v) == "table" and not done[v]) then
-			print(tabs .. table.key_to_str(k) .. " = {")
-			done[v] = true
-			table.print(v, indent + 1, done)
-			print(tabs .. "}")
+do
+	local function val_to_str(v, stack, scope)
+		if type(v) == "string" then
+			v = string.gsub(v, "\n", "\\n" )
+			if string.match(string.gsub(v,"[^'\"]",""), '^"+$') then
+				return "'" .. v .. "'"
+			end
+			return '"' .. string.gsub(v,'"', '\\"' ) .. '"'
 		else
-			print(tabs .. table.key_to_str(k) .. " = " .. table.val_to_str(v))
+			return type(v) == "table" and table.tostring(v, stack, scope) or tostring(v)
 		end
 	end
+
+	local function key_to_str(k, stack, scope)
+		if type(k) == "string" and string.match(k, "^[_%a][_%a%d]*$") then
+			return k
+		else
+			return "[" .. val_to_str(k, stack, scope) .. "]"
+		end
+	end
+
+	function table.tostring(tbl, stack, scope)
+		stack = stack or {}
+		scope = scope or 0
+
+		if stack[tbl] then return error("circular reference") end
+
+		stack[tbl] = true
+		scope = scope + 1
+
+		local result = "{\n"
+
+		for k, v in pairs(tbl) do
+			local tabs = string.rep("\t", scope)
+			if type(v) == "table" then
+				result = result .. tabs .. key_to_str(k, stack, scope) .. " = " .. table.tostring(v, stack, scope) .. "\n"
+			else
+				result = result .. tabs .. key_to_str(k, stack, scope) .. " = " .. val_to_str(v, stack, scope) .. "\n"
+			end
+		end
+
+		scope = scope - 1
+		stack[tbl] = nil
+
+		return result .. string.rep("\t", scope) .. "}"
+	end
 end
+
+--[[local test = {
+	1, 2, 5,
+	["Kappa 1 2 3 \n lul"] = true,
+	data = {
+		1337.84239,
+		test = {
+			7, 8, "NINE"
+		}
+	}
+}
+
+print(table.tostring(love))]]
 
 function table.copy(object)
 	local lookup_table = {}
@@ -173,7 +209,7 @@ function table.random(tbl)
 	return tbl[math.random(1, #tbl)]
 end
 
-function table.random2(tbl)
+function table.randomkeyvalue(tbl)
 	local keys = {}
 	for k,v in pairs(tbl) do
 		table.insert(keys, k)

@@ -1,5 +1,7 @@
 local gui = require("gui")
 
+require("extensions.table")
+
 local PANEL = {}
 
 local graphics = love.graphics
@@ -563,17 +565,26 @@ function PANEL:IsHovered()
 	return gui.getHoveredPanel() == self
 end
 
-function PANEL:GetHoveredPanel(x, y, ignore)
-	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos > b.m_iZPos end) -- The higher up ZPos panel should be first
+function PANEL:GetHoveredChild(x, y, ignore)
 	local panel = nil
-	for _,child in ipairs(self.m_tChildren) do
+	for _,child in reversedipairs(self.m_tChildren) do
 		if child:IsVisible() and child:IsFocusable() and child:IsWorldPointInside(x, y) and ((ignore and child ~= ignore) or not ignore) then
 			panel = child:GetHoveredPanel(x, y)
 			break
 		end
 	end
-	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos < b.m_iZPos end) -- Reset
-	return panel or self
+	return panel
+end
+
+function PANEL:GetHoveredPanel(x, y, ignore)
+	local panel = self
+	for _,child in reversedipairs(self.m_tChildren) do
+		if child:IsVisible() and child:IsFocusable() and child:IsWorldPointInside(x, y) and ((ignore and child ~= ignore) or not ignore) then
+			panel = child:GetHoveredPanel(x, y)
+			break
+		end
+	end
+	return panel
 end
 
 -- PANEL OVERRIDE DEFAULTS

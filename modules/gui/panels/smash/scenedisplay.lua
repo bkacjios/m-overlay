@@ -66,11 +66,11 @@ function PANEL:OnMousePressed(x, y, button, istouch, presses)
 
 	-- Select an object if we don't have one already, or we clicked outside of the bounds of previous selection
 	if not self.m_pSelected or not self.m_pSelected:IsWorldPointInside(x, y) then
-		self.m_pSelected = self:GetHoveredPanel(x, y)
+		self.m_pSelected = self:GetHoveredChild(x, y)
 	end
 
 	-- Ignore the SceneDisplay object, and allow the MousePressed event to continue on
-	if self.m_pSelected == self then return true end
+	if not self.m_pSelected then return true end
 
 	-- Set that we are grabbing a panel
 	self.m_pGrabbed = self.m_pSelected
@@ -95,10 +95,7 @@ function PANEL:OnMouseReleased(x, y, but)
 
 		-- Get the panel we are hoving over, and ignore what we already have selected
 		-- May have to change this to Z-Position, as there could be more than 1 object in the background
-		local hovered = self:GetHoveredPanel(x, y, self.m_pSelected)
-
-		-- Set that we are grabbing a panel
-		self.m_pSelected = hovered ~= self and hovered or nil
+		self.m_pSelected = self:GetHoveredChild(x, y, self.m_pSelected) or self.m_pSelected
 	end
 	
 	-- We are no longer grabbing the panel
@@ -110,7 +107,7 @@ function PANEL:OnMouseMoved(mx, my, dx, dy, istouch)
 	local lx, ly = self:LocalToWorld(mx, my)
 
 	-- Ignore selection to select and mark panels behind it as hovered over
-	self.m_pHovered = self:GetHoveredPanel(lx, ly, self.m_pSelected)
+	self.m_pHovered = self:GetHoveredChild(lx, ly, self.m_pSelected)
 
 	-- Stop if nothing is grabbed or the grabbed object is docked
 	if not self.m_pGrabbed or self.m_pGrabbed:GetDock() ~= 0 then return end

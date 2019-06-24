@@ -55,6 +55,7 @@ local env = {
 
 	unpackcolor = unpackcolor,
 	color = color,
+	hsl = hsl,
 
 	color_blank = color_blank,
 	color_white = color_white,

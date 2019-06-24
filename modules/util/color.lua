@@ -5,30 +5,6 @@ end
 local COLOR = {}
 COLOR.__index = COLOR
 
-function color(r, g, b, a)
-	if type(r) == "string" then
-		local c = {}
-		local i = 1
-		for hex in r:gmatch("%x%x") do
-			c[i] = (tonumber(hex, 16) or 0)
-			i = i + 1
-		end
-		return setmetatable({
-			r = math.min(c[1] or 0, 255),
-			g = math.min(c[2] or 0, 255),
-			b = math.min(c[3] or 0, 255),
-			a = math.min(c[4] or 255, 255)
-		}, COLOR)
-	else
-		return setmetatable({
-			r = math.min(tonumber(r or 255), 255),
-			g = math.min(tonumber(g or 255), 255),
-			b = math.min(tonumber(b or 255), 255),
-			a = math.min(tonumber(a or 255), 255)
-		}, COLOR)
-	end
-end
-
 function COLOR:__tostring()
 	return string.format("color[%i, %i, %i, %i][#%06X]", self.r, self.g, self.b, self.a, self:hex())
 end
@@ -68,6 +44,56 @@ function COLOR:distance(col)
 	local g = self.g - col.g
 	local b = self.b - col.b
 	return r * r + g * g + b * b
+end
+
+function color(r, g, b, a)
+	if type(r) == "string" then
+		local c = {}
+		local i = 1
+		for hex in r:gmatch("%x%x") do
+			c[i] = (tonumber(hex, 16) or 0) -- Convert hex to byte value
+			i = i + 1
+		end
+		return setmetatable({
+			r = math.min(c[1] or 0, 255),
+			g = math.min(c[2] or 0, 255),
+			b = math.min(c[3] or 0, 255),
+			a = math.min(c[4] or 255, 255)
+		}, COLOR)
+	else
+		return setmetatable({
+			r = math.min(tonumber(r or 255), 255),
+			g = math.min(tonumber(g or 255), 255),
+			b = math.min(tonumber(b or 255), 255),
+			a = math.min(tonumber(a or 255), 255)
+		}, COLOR)
+	end
+end
+
+function hsl(h, s, l, a)
+	s = s or 1
+	l = l or 0.5
+	a = a or 1
+
+	if s == 0 then return color(l*255, l*255, l*255, a*255) end
+
+	h = h / 360 * 6
+	s = math.min(math.max(0, s), 1)
+	l = math.min(math.max(0, l), 1)
+
+	local c = (1-math.abs(2*l-1))*s
+	local x = (1-math.abs(h%2-1))*c
+	local m,r,g,b = (l-0.5*c), 0,0,0
+
+	if h < 1		then r,g,b = c,x,0
+	elseif h < 2	then r,g,b = x,c,0
+	elseif h < 3	then r,g,b = 0,c,x
+	elseif h < 4	then r,g,b = 0,x,c
+	elseif h < 5	then r,g,b = x,0,c
+	else				 r,g,b = c,0,x
+	end
+
+	return color((r+m)*255, (g+m)*255, (b+m)*255, a*255)
 end
 
 color_blank = color(0, 0, 0, 0)
