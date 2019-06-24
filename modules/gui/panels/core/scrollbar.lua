@@ -3,7 +3,7 @@ local PANEL = {}
 function PANEL:OnMousePressed(x, y, but)
 	self.m_bPressed = true
 	self:GetParent():Grip(self)
-	self:SetBGColor(Color(240, 240, 240, 255))
+	self:SetBGColor(color(240, 240, 240, 255))
 	return true
 end
 
@@ -97,7 +97,7 @@ end
 function PANEL:SetScroll(scrll)
 	if not self.m_bEnabled then self.m_iScroll = 0 return end
 
-	self.m_iScroll = math.Clamp(scrll, 0, self.m_iCanvasSize)
+	self.m_iScroll = math.clamp(scrll, 0, self.m_iCanvasSize)
 	
 	self:InvalidateLayout()
 	

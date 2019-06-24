@@ -13,7 +13,7 @@ function PANEL:Initialize()
 	self:SetBGColor(color_blank)
 	self:SetBorderColor(color_blank)
 
-	self.m_pTaskBar = self:Add("Panel")
+	self.m_pTaskBar = self:Add("SceneTaskBar")
 	self.m_pTaskBar:DockMargin(0, 0, 0, 0)
 	self.m_pTaskBar:SetBGColor(color(200, 200, 200))
 	self.m_pTaskBar:Dock(DOCK_TOP)
@@ -27,7 +27,7 @@ function PANEL:Initialize()
 
 	-- Object list when in editor mode
 	-- TODO: Make a new class for this, maybe a list panel
-	self.m_pObjectList = self:Add("Panel")
+	self.m_pObjectList = self:Add("ScrollPanel")
 	self.m_pObjectList:DockMargin(4, 4, 0, 4)
 	self.m_pObjectList:SetWidth(128 + 32)
 
@@ -52,7 +52,8 @@ function PANEL:AddToScene(name)
 	panel:SetFocusable(true)
 
 	-- Add a matching button to our object list, for ordering/removing/settings and stuff?
-	local but = self.m_pObjectList:Add("Button") -- TODO: Make a new class for this, maybe a list panel
+	local but = self.m_pObjectList:AddItem("Button") -- TODO: Make a new class for this, maybe a list panel
+	but:DockMargin(0, 0, 0, 0)
 	but:Dock(DOCK_TOP)
 	but:SetText(name)
 

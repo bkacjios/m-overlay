@@ -23,7 +23,14 @@ function PANEL:Initialize()
 	self.m_tGrabbedOffset = { x = 0, y = 0 }
 end
 
-function PANEL:PaintOverlay(w, h)
+function PANEL:PrePaint(w, h)
+end
+
+function PANEL:Paint(w, h)
+	self:super("Paint", w, h)
+end
+
+function PANEL:PostPaint(w, h)
 	-- Only draw selection in editor mode and if we have a grabbed panel
 	if self:IsInEditorMode() then
 

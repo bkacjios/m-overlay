@@ -5,7 +5,8 @@ function PANEL:Initialize()
 	self:DockPadding(0,0,0,0)
 
 	self.m_pCanvas = self:Add("Panel")	
-	self.m_pCanvas:SetBGColor(Color(200, 200, 200))
+	self.m_pCanvas:SetBGColor(color_blank)
+	self.m_pCanvas:SetBorderColor(color_blank)
 	
 	-- Create the scroll bar
 	self.m_pVBar = self:Add("ScrollBar")
@@ -13,15 +14,11 @@ function PANEL:Initialize()
 	self.m_pVBar:Dock(DOCK_RIGHT)
 end
 
-function PANEL:Paint(w,h)
-end
-
 function PANEL:AddItem(class)
 	return self.m_pCanvas:Add(class)
 end
 
 function PANEL:OnChildAdded(child)
-	--self:AddItem(child)
 end
 
 function PANEL:SizeToContents()

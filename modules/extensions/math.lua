@@ -7,10 +7,29 @@ function math.gcd(m, n)
 end
 
 do
+	local min = math.min
+	local max = math.max
+
+	function math.clamp(num, min, max)
+		assert(min <= max, "invalid clamp range") -- optional: debug message
+		if num < min then
+			num = min
+		elseif num > max then
+			num = max
+		end
+		return num
+	end
+end
+
+do
 	local pow = math.pow
 	local floor = math.floor
 
-	function math.round(num, palces)
+	function math.round(num)
+		return num + 0.5 - (num + 0.5) % 1
+	end
+
+	function math.roundplaces(num, palces)
 		local mult = pow(10, (palces or 0))
 		return floor(num * mult + 0.5) / mult
 	end

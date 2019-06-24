@@ -114,11 +114,13 @@ function PANEL:GetDockPadding()
 end
 
 function PANEL:GetWidthPlusMargin()
+	if not self:IsVisible() then return 0 end
 	local margins = self:GetDockMargin()
 	return margins.left + margins.right + self:GetWidth()
 end
 
 function PANEL:GetHeightPlusMargin()
+	if not self:IsVisible() then return 0 end
 	local margins = self:GetDockMargin()
 	return margins.top + margins.bottom + self:GetHeight()
 end
@@ -412,33 +414,36 @@ function PANEL:Render()
 	graphics.push() -- Push the current graphics state
 		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
-				graphics.setColor(255, 255, 255, 255) -- Default draw color to white
-					self:SetWorldPos(x, y)
-					self:Paint(w, h)
+
+				self:SetWorldPos(x, y)
+
 				graphics.setColor(255, 255, 255, 255)
-			graphics.translate(0, 0)
+				self:PrePaint(w, h)
+				graphics.setColor(255, 255, 255, 255)
+				self:Paint(w, h)
+
+			graphics.origin()
+
+			-- recently added panels are drawn last, thus, ontop of older panels
+			for _,child in ipairs(self.m_tChildren) do
+				child:Render()
+			end
+
+			graphics.translate(x, y)
+
+				graphics.setColor(255, 255, 255, 255)
+				self:PostPaint(w, h)
+
+			graphics.origin()
 		graphics.setScissor()
+
 	graphics.pop() -- Reset the graphics state to what it was
 
-	-- Order by ZPos
-	-- smallest to largest, so recently added panels are drawn last, thus, ontop of older panels
-	for _,child in ipairs(self.m_tChildren) do
-		child:Render()
+	if self.m_bDebug then
+		-- Debug the scissor rect
+		graphics.setColor(255, 0, 0, 15)
+		graphics.rectangle("fill", sx, sy, sw, sh)
 	end
-
-	graphics.push() -- Push the current graphics state
-		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
-			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
-				graphics.setColor(255, 255, 255, 255) -- Default draw color to white
-					self:PaintOverlay(w, h)
-				graphics.setColor(255, 255, 255, 255)
-			graphics.translate(0, 0)
-		graphics.setScissor()
-	graphics.pop() -- Reset the graphics state to what it was
-
-	-- Debug the scissor rect
-	--[[graphics.setColor(255, 0, 0, 25)
-	graphics.rectangle("fill", sx, sy, sw, sh)]]
 end
 
 function PANEL:ValidateLayout()
@@ -594,14 +599,15 @@ function PANEL:PerformLayout()
 	-- Good for manually positioning child panels.
 end
 
+function PANEL:PrePaint(w, h)
+end
+
 function PANEL:Paint(w, h)
 	-- Called every frame, when we are drawing the panel to the screen.
 	-- Used to draw custom things within the panel.
 end
 
-function PANEL:PaintOverlay(w, h)
-	-- Called every frame, after all the child objects have been rendered.
-	-- Useful for drawing overtop of child panels.
+function PANEL:PostPaint(w, h)
 end
 
 function PANEL:OnResize(w, h)

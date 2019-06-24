@@ -26,6 +26,11 @@ function love.load()
 	test:SetText("THIS IS A TEST OVERLAY ELEMENT")
 	test:SizeToText()
 
+	local test = gui.createScenePanel("Label")
+	test:SetBGColor(color_white)
+	test:SetText("Hello world!")
+	test:SizeToText()
+
 	gui.saveSceneLayout("test.txt")
 end
 

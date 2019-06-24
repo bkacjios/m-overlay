@@ -80,6 +80,7 @@ function SKIN:PaintScrollBarGrip(panel, w, h)
 end
 
 function SKIN:InitButton(panel)
+	panel:SetBorderColor(self.PanelBorder)
 	panel:SetPressedColor(self.ButtonPressed)
 	panel:SetHoveredColor(self.ButtonHover)
 end

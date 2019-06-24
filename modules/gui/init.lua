@@ -118,25 +118,30 @@ function gui.isInEditorMode()
 end
 
 function gui.toggleEditorMode()
+	-- Toggle editor mode
 	gui.m_bEditorMode = not gui.m_bEditorMode
 
 	local world = gui.getWorldPanel()
 	local scene = gui.getScenePanel()
 
+	-- Get the size of the display canvas
 	local w, h = scene:GetDisplay():GetSize()
+
+	-- Get the original window size and flags
 	local ow, oh, flags = love.window.getMode()
 
 	scene:SetEditorMode(gui.m_bEditorMode)
 
+	local uw, uh = scene:GetUnusableSpace()
+
+	-- Resize min/max bounds and toggle resizing
+	flags.resizable = gui.m_bEditorMode
 	if gui.m_bEditorMode then
-		local uw, uh = scene:GetUnusableSpace()
-		flags.resizable = true
-		flags.minwidth = 512 + uw
-		flags.minheight = 256 + uh
+		flags.minwidth = w + uw
+		flags.minheight = h + uh
 	else
-		flags.resizable = false
-		flags.minwidth = 512
-		flags.minheight = 256
+		flags.minwidth = w
+		flags.minheight = h
 	end
 
 	love.window.setMode(w, h, flags)
@@ -206,7 +211,7 @@ function gui.mouseReleased(x, y, button, istouch, presses)
 end
 
 function gui.mouseWheeled(x, y)
-	local panel = gui.getFocusedPanel()
+	local panel = gui.getHoveredPanel()
 	if not panel:OnMouseWheeled(x, y) then
 		local parent = panel:GetParent()
 		while parent do
