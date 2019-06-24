@@ -1,7 +1,5 @@
 local PANEL = {}
 
-local timer = love.timer
-
 function PANEL:Initialize()
 	-- Initialize values within Panel:Initialize()
 	self:super()
@@ -17,25 +15,40 @@ function PANEL:Initialize()
 
 	-- Member values
 	self.m_iSnapThreshold = 6
+	self.m_pHovered = nil
 	self.m_pGrabbed = nil
-	self.m_bHolding = false
+	self.m_pSelected = nil
+	self.m_bDragged = false
+	self.m_bDidDrag = false
 	self.m_tGrabbedOffset = { x = 0, y = 0 }
 end
 
-function PANEL:Paint(w, h)
-	-- Draw Panel stuff
-	self:super("Paint", w, h)
-
+function PANEL:PaintOverlay(w, h)
 	-- Only draw selection in editor mode and if we have a grabbed panel
-	if gui.isInEditorMode() and self.m_pGrabbed then
-		local x, y = self.m_pGrabbed:GetPos()
-		local w, h = self.m_pGrabbed:GetSize()
+	if self:IsInEditorMode() then
 
-		-- Draw a red selection outline
-		love.graphics.setLineStyle("rough")
-		love.graphics.setLineWidth(3)
-		love.graphics.setColor(255, 0, 0, 255)
-		love.graphics.outlineRectangle(x, y, w, h)
+		-- Only draw hovered selection if we are not currently grabbing something
+		if not self.m_pGrabbed and self.m_pHovered and self.m_pHovered ~= self then
+			local x, y = self.m_pHovered:GetPos()
+			local w, h = self.m_pHovered:GetSize()
+
+			-- Draw a blue selection for objects we are hovering
+			graphics.setLineStyle("rough")
+			graphics.setLineWidth(3)
+			graphics.setColor(color_blue)
+			graphics.rectangle("line", x, y, w, h)
+		end
+
+		if self.m_pSelected then
+			local x, y = self.m_pSelected:GetPos()
+			local w, h = self.m_pSelected:GetSize()
+
+			-- Draw a red selection for objects we have selected
+			graphics.setLineStyle("rough")
+			graphics.setLineWidth(3)
+			graphics.setColor(color_red)
+			graphics.rectangle("line", x, y, w, h)
+		end
 	end
 end
 
@@ -51,24 +64,22 @@ function PANEL:OnMousePressed(x, y, button, istouch, presses)
 	-- Convert x and y coordinates to global screen values
 	x, y = self:LocalToWorld(x, y)
 
-	-- Get the panel we are hoving over, and ignore what we have selected if we double click
-	local grabbed = self:GetHoveredPanel(x, y, presses >= 2 and self.m_pGrabbed or nil)
+	-- Select an object if we don't have one already, or we clicked outside of the bounds of previous selection
+	if not self.m_pSelected or not self.m_pSelected:IsWorldPointInside(x, y) then
+		self.m_pSelected = self:GetHoveredPanel(x, y)
+	end
 
 	-- Ignore the SceneDisplay object, and allow the MousePressed event to continue on
-	if grabbed == self then self.m_pGrabbed = nil return true end
+	if self.m_pSelected == self then return true end
 
 	-- Set that we are grabbing a panel
-	self.m_pGrabbed = grabbed
-	self.m_bHolding = true
+	self.m_pGrabbed = self.m_pSelected
+
+	-- We started a new click, turn off the drag flag
+	self.m_bDidDrag = false
 
 	-- Translate mouse position back to local position within the SceneDisplay
 	x, y = self.m_pGrabbed:WorldToLocal(x, y)
-
-	-- Give our grabbed object focus
-	self.m_pGrabbed:GiveFocus()
-
-	-- Bring it in front of all other panels? (TODO: Use object list for ordering)
-	self.m_pGrabbed:BringToFront()
 
 	self.m_tGrabbedOffset = { x = x, y = y }
 	return true -- Stop the mouse event from going up the parent list
@@ -77,19 +88,38 @@ end
 function PANEL:OnMouseReleased(x, y, but)
 	-- Stop if the button isn't a left click or we're not in editor mode
 	if but ~= 1 or not self:IsInEditorMode() then return end
+
+	-- If we didn't drag anything...
+	if not self.m_bDidDrag then
+		x, y = self:LocalToWorld(x, y)
+
+		-- Get the panel we are hoving over, and ignore what we already have selected
+		-- May have to change this to Z-Position, as there could be more than 1 object in the background
+		local hovered = self:GetHoveredPanel(x, y, self.m_pSelected)
+
+		-- Set that we are grabbing a panel
+		self.m_pSelected = hovered ~= self and hovered or nil
+	end
 	
 	-- We are no longer grabbing the panel
-	self.m_bHolding = false
+	self.m_pGrabbed = nil
 end
 
 function PANEL:OnMouseMoved(mx, my, dx, dy, istouch)
-	local grabbed = self.m_pGrabbed
+	-- Translate mouse position to screenspace
+	local lx, ly = self:LocalToWorld(mx, my)
 
-	if not grabbed or not self.m_bHolding then return end
-	--if self.m_pGrabbed:GetDock() ~= 0 then return end -- Can't move docked objects
+	-- Ignore selection to select and mark panels behind it as hovered over
+	self.m_pHovered = self:GetHoveredPanel(lx, ly, self.m_pSelected)
+
+	-- Stop if nothing is grabbed or the grabbed object is docked
+	if not self.m_pGrabbed or self.m_pGrabbed:GetDock() ~= 0 then return end
+
+	-- Flag that we moved the mouse while grabbing an object
+	self.m_bDidDrag = true
 
 	-- Get the size of the grabbed object
-	local w, h = grabbed:GetSize()
+	local w, h = self.m_pGrabbed:GetSize()
 
 	-- Get the size of the scene display
 	local pw, ph = self:GetSize()
@@ -99,38 +129,80 @@ function PANEL:OnMouseMoved(mx, my, dx, dy, istouch)
 	-- Get the offset of the mouse
 	local gx, gy = self.m_tGrabbedOffset.x, self.m_tGrabbedOffset.y
 
-	-- Translate back to the x,y values ( Could probably just use grabbed:GetPos() ? )
+	-- Translate mouse position to panels position
 	local x, y = mx - gx, my - gy
 
-	-- Edge snapping on x axis
+	-- Position plus size
+	local xw, yh = x + w, y + h
+
+	-- Edge snapping on display edges
+
+	-- Edge snap on x axis
 	if x <= t and x >= -t then
-		-- Snap to left
+		-- Snap to left of the screen
 		x = 0
-	elseif x + w <= pw + t and x + w >= pw - t then
-		-- Snap to right
+	elseif xw <= pw + t and xw >= pw - t then
+		-- Snap to right of the screen
 		x = pw - w
 	end
 
-	-- Edge snapp on y axis
+	-- Edge snap on y axis
 	if y <= t and y >= -t then
-		-- Snap to top
+		-- Snap to top of the screen
 		y = 0
-	elseif y + h <= ph + t and y + h >= ph - t then
-		-- Snap top bottom
+	elseif yh <= ph + t and yh >= ph - t then
+		-- Snap to bottom of the screen
 		y = ph - h
 	end
 
-	-- TODO: Edge snapping on other objects
+	-- Edge snapping on other objects
 
 	for k, child in ipairs(self:GetChildren()) do
 		-- Ignore what we are grabbing
-		if child ~= grabbed then
+		if child ~= self.m_pGrabbed then
+			-- Get child size
+			cw, ch = child:GetSize()
 
+			-- Get child position
+			local cx, cy = child:GetPos()
+
+			-- Position plus size
+			local cxw, cyh = cx + cw, cy + ch
+			
+			-- Edge snapping on x axis
+			if x <= cx + t and x >= cx - t then
+				-- Snap left edge of panel to left edge of other panel
+				x = cx
+			elseif x <= cxw + t and x >= cxw - t then
+				-- Snap left edge of panel to right edge of other panel
+				x = cxw
+			elseif xw <= cx + t and xw >= cx - t then
+				-- Snap right edge of panel to left edge of other panel
+				x = cx - w
+			elseif xw <= cxw + t and xw >= cxw - t then
+				-- Snap right edge of panel to right edge of other panel
+				x = cxw - w
+			end
+
+			-- Edge snapping on y axis
+			if y <= cy + t and y >= cy - t then
+				-- Snap top edge of panel to top edge of other panel
+				y = cy
+			elseif y <= cyh + t and y >= cyh - t then
+				-- Snap top edge of panel to bottom edge of other panel
+				y = cyh
+			elseif yh <= cy + t and yh >= cy - t then
+				-- Snap bottom edge of panel to top edge of other panel
+				y = cy - h
+			elseif yh <= cyh + t and yh >= cyh - t then
+				-- Snap bottom edge of panel to bottom edge of other panel
+				y = cyh - h
+			end
 		end
 	end
 	
 	-- Finally set our snapped position
-	grabbed:SetPos(x, y)
+	self.m_pGrabbed:SetPos(x, y)
 end
 
 gui.register("SceneDisplay", PANEL, "Panel")

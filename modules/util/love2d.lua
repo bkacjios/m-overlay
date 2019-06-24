@@ -6,7 +6,7 @@ local setColor = graphics.setColor
 -- Allow 0-255 values again..
 function graphics.setColor(r,g,b,a)
 	if type(r) == "table" then
-		a, b, g, r = r[4] or 255, r[3] or 255, r[2] or 255, r[1] or 255
+		r, g, b, a = r.r, r.g, r.b, r.a
 	else
 		r, g, b, a = r or 255, g or 255, b or 255, a or 255
 	end
@@ -67,22 +67,25 @@ function graphics.transform(ox, oy, xx, xy, yx, yy)
 
 end
 
-local drawRecrtangle = graphics.rectangle
-
--- Draw a rectangle to fit INSIDE the width and height
-function graphics.rectangle(mode, x, y, w, h, ...)
+function graphics.innerRectangle(x, y, w, h, ...)
 	local lw = graphics.getLineWidth()
-	if mode == "line" then
-		x = x + math.ceil(lw/2)
-		y = y + math.floor(lw/2)
-		w = w - lw
-		h = h - lw
-	end
-	drawRecrtangle(mode, x, y, w, h, ...)
+
+	x = x + math.ceil(lw/2)
+	y = y + math.floor(lw/2)
+	w = w - lw
+	h = h - lw
+
+	graphics.rectangle("line", x, y, w, h, ...)
 end
 
 -- Draw a rectangle to fit AROUND the width and height
 function graphics.outlineRectangle(x, y, w, h, ...)
 	local lw = graphics.getLineWidth()
-	graphics.rectangle("line", x - lw, y - lw, w + lw*2, h + lw*2)
+
+	x = x + math.ceil(lw/2)	 - lw
+	y = y + math.floor(lw/2) - lw
+	w = w + lw * 2
+	h = h + lw * 2
+
+	graphics.rectangle("line", x, y, w, h, ...)
 end

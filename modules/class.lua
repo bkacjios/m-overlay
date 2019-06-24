@@ -8,7 +8,6 @@ local constructor_method = "Initialize"
 local OBJECT = {
 	__index = function(self, key)
 		local self_index = rawget(self, key)
-
 		if self_index then
 			return self_index
 		end
@@ -16,6 +15,11 @@ local OBJECT = {
 		local meta_index = rawget(getmetatable(self), key)
 		if meta_index then
 			return meta_index
+		end
+
+		local accessors = rawget(self, "__accessors")
+		if accessors and accessors[key] then
+			return accessors[key]
 		end
 
 		local base = rawget(self, "__baseclass")
@@ -36,9 +40,20 @@ local OBJECT = {
 		if base[call] == nil then
 			return error(string.format("method '%s' is nil", call))
 		end
+
 		self.__superscope = self.__superscope + 1
 		base[call](self, ...)
 		self.__superscope = self.__superscope - 1
+	end,
+
+	MakeAccessor = function(self, name, internal, default)
+		self.__accessors[internal] = default
+		
+		if type(default) == "boolean" then
+			self["Is" .. name] = function(this) return this.__accessors[internal] end
+		end
+		self["Get" .. name] = function(this) return this.__accessors[internal] end
+		self["Set" .. name] = function(this, value) this.__accessors[internal] = value end
 	end,
 
 	getSuperClass = function(self)
@@ -55,6 +70,7 @@ function class.new(name, ...)
 		local base = class.classes[name]
 		local obj = setmetatable(table.copy(base), OBJECT)
 		obj.__superscope = 1
+		obj.__accessors = {}
 		if obj[constructor_method] then
 			obj[constructor_method](obj, ...)
 		end

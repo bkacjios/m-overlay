@@ -67,6 +67,14 @@ local env = {
 	color_hotpink = color_hotpink,
 	color_orange = color_orange,
 
+	-- QOL Stuff
+
+	graphics = love.graphics,
+	timer = love.timer,
+	audio = love.audio,
+	filesystem = love.filesystem,
+	window = love.window,
+
 	-- Incase someone forgets to define these
 	PANEL = {},
 	SKIN = {},

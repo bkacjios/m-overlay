@@ -41,19 +41,15 @@ function PANEL:Initialize()
 	-- FILL so the panel will stretch and fit inside our window
 	self.m_pSceneDisplay:Dock(DOCK_FILL)
 
-	-- Test panel for testing drag
-	local l = self:AddToScene("Panel")
-	--l:SetText("Test")
-	--l:SetTextColor(color_white)
-
 	-- Member values
-	self.m_bEditable = true
+	self.m_bEditable = false
 end
 
 -- Special method to add a new element to our scene
 function PANEL:AddToScene(name)
 	-- Add the panel we want to add
 	local panel = self.m_pSceneDisplay:Add(name)
+	panel:SetFocusable(true)
 
 	-- Add a matching button to our object list, for ordering/removing/settings and stuff?
 	local but = self.m_pObjectList:Add("Button") -- TODO: Make a new class for this, maybe a list panel

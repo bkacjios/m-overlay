@@ -83,15 +83,25 @@ local function encode_table(val, pretty, stack, scope)
 			table.insert(res, encode(v, pretty, stack, scope + 1))
 		end
 		stack[val] = nil
-		return "[" .. table.concat(res, ",") .. "]"
 
+		if pretty then
+			local tabs = string.rep("\t", scope)
+			local tabs_end = string.rep("\t", scope-1)
+			if #res > 0 then
+				return "[\n" .. tabs .. table.concat(res, ",\n" .. tabs) .. "\n" .. tabs_end .. "]"
+			else
+				return "[]"
+			end
+		else
+			return "[" .. table.concat(res, ",") .. "]"
+		end
 	else
 		-- Treat as an object
 		for k, v in pairs(val) do
 			if type(k) ~= "string" then
 				error("invalid table: mixed or invalid key types")
 			end
-			table.insert(res, encode(k, pretty, stack, scope + 1) .. ":" .. encode(v, pretty, stack, scope + 1))
+			table.insert(res, encode(k, pretty, stack, scope + 1) .. (pretty and ": " or ":") .. encode(v, pretty, stack, scope + 1))
 		end
 		stack[val] = nil
 		if pretty then

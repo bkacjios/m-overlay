@@ -38,6 +38,8 @@ function PANEL:GetConfig()
 			pos = { self:GetPos() },
 			size = { self:GetSize() },
 			zpos = self:GetZPos(),
+			visible = self:IsVisible(),
+			accessors = self.__accessors,
 			dock = {
 				mode = self.m_iDock,
 				margins = self.m_tDockMargins,
@@ -418,10 +420,19 @@ function PANEL:Render()
 
 	-- Order by ZPos
 	-- smallest to largest, so recently added panels are drawn last, thus, ontop of older panels
-	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos < b.m_iZPos end)
 	for _,child in ipairs(self.m_tChildren) do
 		child:Render()
 	end
+
+	graphics.push() -- Push the current graphics state
+		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
+				graphics.setColor(255, 255, 255, 255) -- Default draw color to white
+					self:PaintOverlay(w, h)
+				graphics.setColor(255, 255, 255, 255)
+			graphics.translate(0, 0)
+		graphics.setScissor()
+	graphics.pop() -- Reset the graphics state to what it was
 
 	-- Debug the scissor rect
 	--[[graphics.setColor(255, 0, 0, 25)
@@ -575,6 +586,11 @@ end
 function PANEL:Paint(w, h)
 	-- Called every frame, when we are drawing the panel to the screen.
 	-- Used to draw custom things within the panel.
+end
+
+function PANEL:PaintOverlay(w, h)
+	-- Called every frame, after all the child objects have been rendered.
+	-- Useful for drawing overtop of child panels.
 end
 
 function PANEL:OnResize(w, h)

@@ -79,7 +79,7 @@ local BUTTON_TEXTURES = {
 	A = {
 		OUTLINE = newImage("textures/buttons/a-outline.png"),
 		PRESSED = newImage("textures/buttons/a-pressed.png"),
-		COLOR = {0, 225, 150, 255},
+		COLOR = color(0, 225, 150, 255),
 		POSITION = {
 			x = 12 + 64 + 256,
 			y = 64
@@ -88,7 +88,7 @@ local BUTTON_TEXTURES = {
 	B = {
 		OUTLINE = newImage("textures/buttons/b-outline.png"),
 		PRESSED = newImage("textures/buttons/b-pressed.png"),
-		COLOR = {230, 0, 0, 255},
+		COLOR = color(230, 0, 0, 255),
 		POSITION = {
 			x = 16 + 256,
 			y = 108
@@ -97,7 +97,7 @@ local BUTTON_TEXTURES = {
 	X = {
 		OUTLINE = newImage("textures/buttons/x-outline.png"),
 		PRESSED = newImage("textures/buttons/x-pressed.png"),
-		COLOR = {255, 255, 255, 255},
+		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 138 + 256,
 			y = 48
@@ -106,7 +106,7 @@ local BUTTON_TEXTURES = {
 	Y = {
 		OUTLINE = newImage("textures/buttons/y-outline.png"),
 		PRESSED = newImage("textures/buttons/y-pressed.png"),
-		COLOR = {255, 255, 255, 255},
+		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 60 + 256,
 			y = 0
@@ -115,7 +115,7 @@ local BUTTON_TEXTURES = {
 	Z = {
 		OUTLINE = newImage("textures/buttons/z-outline.png"),
 		PRESSED = newImage("textures/buttons/z-pressed.png"),
-		COLOR = {165, 75, 165, 255},
+		COLOR = color(165, 75, 165, 255),
 		POSITION = {
 			x = 128 + 256,
 			y = -16
@@ -124,7 +124,7 @@ local BUTTON_TEXTURES = {
 	START = {
 		OUTLINE = newImage("textures/buttons/start-outline.png"),
 		PRESSED = newImage("textures/buttons/start-pressed.png"),
-		COLOR = {255, 255, 255, 255},
+		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 256,
 			y = 42
@@ -369,4 +369,4 @@ function PANEL:Paint(w, h)
 	end
 end
 
-gui.register("ControllerDisplay", PANEL, "Panel")
+gui.register("ControllerDisplay", PANEL, "Base")
