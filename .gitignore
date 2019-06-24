@@ -1,0 +1,4 @@
+*.love
+*.zip
+build/
+releases/
