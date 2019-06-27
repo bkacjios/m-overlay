@@ -1,6 +1,8 @@
 -- This is the environment used when loading our custon Panel classes
 -- We don't really care if we're using unsafe functions to escape from the environment
 
+require("smash.enums")
+
 local env = {
 	arg = arg,
 
@@ -80,6 +82,22 @@ local env = {
 	PANEL = {},
 	SKIN = {},
 	gui = require("gui"),
+
+	TEAM_COLORS = TEAM_COLORS,
+	PLAYER_COLORS = PLAYER_COLORS,
+	PLAYER = PLAYER,
+	TEAM = TEAM,
+	TEAM_NAMES = TEAM_NAMES,
+	MENU = MENU,
+
+	CHARACTER_INTERNAL = CHARACTER_INTERNAL,
+	CHARACTER_NAMES_INTERNAL = CHARACTER_NAMES_INTERNAL,
+	CHARACTER = CHARACTER,
+	CHARACTER_NAMES = CHARACTER_NAMES,
+	CHARACTER_CSS = CHARACTER_CSS,
+	CHARACTER_NAMES_CSS = CHARACTER_NAMES_CSS,
+	STAGE = STAGE,
+	STAGE_NAMES = STAGE_NAMES,
 
 	DOCK_NONE = DOCK_NONE,
 	DOCK_TOP = DOCK_TOP,

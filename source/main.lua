@@ -2,7 +2,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 
 require("errorhandler")
 
-require("extensions.love2d")
+require("extensions.love")
 require("util.color")
 
 local watcher = require("memory.watcher")
@@ -20,16 +20,19 @@ function love.load()
 	local display = gui.createScenePanel("ControllerDisplay")
 	display:SetPort(1)
 
-	local test = gui.createScenePanel("Label")
+	--[[local test = gui.createScenePanel("Label")
 	test:SetFont("fonts/A-OTF-FolkPro-Heavy.otf")
 	test:SetBGColor(color_white)
 	test:SetText("THIS IS A TEST OVERLAY ELEMENT")
-	test:SizeToText()
+	test:SizeToText()]]
 
-	local test = gui.createScenePanel("Label")
-	test:SetBGColor(color_white)
-	test:SetText("Hello world!")
-	test:SizeToText()
+	local test = gui.createScenePanel("PlayerPercent")
+	test:SetPort(1)
+	test:SetSize(200, 128)
+
+	--[[local test = gui.createScenePanel("PlayerPercent")
+	test:SetPort(2)
+	test:SetSize(200, 128)]]
 
 	gui.saveSceneLayout("test.txt")
 end

@@ -10,6 +10,7 @@ function PANEL:Initialize()
 	self.m_tChildren = {}
 	self.m_iWorldPosX = 0
 	self.m_iWorldPosY = 0
+	self.m_iScale = 1
 	self.m_iPosX = 0
 	self.m_iPosY = 0
 	self.m_iWidth = 42
@@ -298,6 +299,10 @@ function PANEL:Add(class)
 	return gui.create(class, self)
 end
 
+function PANEL:GetScale()
+	return self.m_iScale
+end
+
 function PANEL:SetPos(x, y)
 	self.m_iPosX, self.m_iPosY = x, y
 end
@@ -363,8 +368,11 @@ function PANEL:GetSize()
 	return self.m_iWidth, self.m_iHeight
 end
 
-function PANEL:SetWide(i)
-	self.m_iWidth = i
+function PANEL:SetWide(w)
+	if self.m_iWidth ~= w then
+		self.m_iWidth = w
+		self:InvalidateLayout()
+	end
 end
 PANEL.SetWidth = PANEL.SetWide
 
@@ -373,8 +381,11 @@ function PANEL:GetWide()
 end
 PANEL.GetWidth = PANEL.GetWide
 
-function PANEL:SetTall(i)
-	self.m_iHeight = i
+function PANEL:SetTall(h)
+	if self.m_iHeight ~= h then
+		self.m_iHeight = h
+		self:InvalidateLayout()
+	end
 end
 PANEL.SetHeight = PANEL.SetTall
 
@@ -411,32 +422,36 @@ function PANEL:Render()
 		parent = parent:GetParent()
 	end
 
+	local scale = self:GetScale()
+
 	graphics.push() -- Push the current graphics state
-		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
-			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
-
+		graphics.setScissor(sx*scale, sy*scale, sw*scale, sh*scale) -- Set our scissor so things can't be drawn outside the panel
+			graphics.translate(x*scale, y*scale) -- Translate so Paint has localized position values for drawing objects
+			graphics.scale(scale, scale)
 				self:SetWorldPos(x, y)
-
 				graphics.setColor(255, 255, 255, 255)
 				self:PrePaint(w, h)
 				graphics.setColor(255, 255, 255, 255)
 				self:Paint(w, h)
-
-			graphics.origin()
-
-			-- recently added panels are drawn last, thus, ontop of older panels
-			for _,child in ipairs(self.m_tChildren) do
-				child:Render()
-			end
-
-			graphics.translate(x, y)
-
 				graphics.setColor(255, 255, 255, 255)
 				self:PostPaint(w, h)
-
 			graphics.origin()
 		graphics.setScissor()
+	graphics.pop() -- Reset the graphics state to what it was
 
+	-- recently added panels are drawn last, thus, ontop of older panels
+	for _, child in ipairs(self.m_tChildren) do
+		child:Render()
+	end
+
+	graphics.push()
+		graphics.setScissor(sx*scale, sy*scale, sw*scale, sh*scale)
+			graphics.translate(x*scale, y*scale)
+			graphics.scale(scale, scale)
+				graphics.setColor(255, 255, 255, 255)
+				self:PaintOverlay(w, h)
+			graphics.origin()
+		graphics.setScissor()
 	graphics.pop() -- Reset the graphics state to what it was
 
 	if self.m_bDebug then
@@ -608,6 +623,9 @@ function PANEL:Paint(w, h)
 end
 
 function PANEL:PostPaint(w, h)
+end
+
+function PANEL:PaintOverlay(w, h)
 end
 
 function PANEL:OnResize(w, h)

@@ -110,50 +110,50 @@ function table.copy(object)
 	return _copy(object)
 end
 
-function table.concatNumberedList(table, sep, oxford)
-	if type(table) ~= "table" then
-		return tostring(table)
+function table.concatNumberedList(tbl, sep, oxford)
+	if type(tbl) ~= "table" then
+		return tostring(tbl)
 	end
 
 	local str = ""
-	local num = #table
+	local num = #tbl
 	for i=1,num do
 		if i < num then
 			-- If we aren't at the end of the list, use commas
 			-- If we're one before the end of the list, use an oxford comma if we want it
-			str = str .. i .. ". " .. table[i] .. ((oxford or i < num - 1) and ", " or " ")
+			str = str .. i .. ". " .. tbl[i] .. ((oxford or i < num - 1) and ", " or " ")
 		elseif i > 1 then
 			-- If we're the last item and we have more than 1 item already..
 			-- Seperate using our defined seperator word
-			str = str .. (sep or "and") .. " " .. i .. ". " .. table[i]
+			str = str .. (sep or "and") .. " " .. i .. ". " .. tbl[i]
 		else
 			-- Single item..
-			str = i .. ". " .. table[i]
+			str = i .. ". " .. tbl[i]
 		end
 	end
 	return str
 end
 
-function table.concatList(table, sep, oxford)
-	if type(table) ~= "table" then
-		return tostring(table)
+function table.concatList(tbl, sep, oxford)
+	if type(tbl) ~= "table" then
+		return tostring(tbl)
 	end
 
 	local str = ""
-	local num = #table
+	local num = #tbl
 	for i=1,num do
 		if i < num then
 			-- If we aren't at the end of the list, use commas
 			-- If we're one before the end of the list, use an oxford comma if we want it
-			str = str .. table[i] .. ((oxford or i < num - 1) and ", " or " ")
+			str = str .. tbl[i] .. ((oxford or i < num - 1) and ", " or " ")
 		elseif i > 1 then
 			-- If we're the last item and we have more than 1 item already..
 			-- Seperate using our defined seperator word
-			str = str .. (sep or "and") .. " " .. table[i]
+			str = str .. (sep or "and") .. " " .. tbl[i]
 		else
 			-- Single item..
 			-- Don't even bother concating the string
-			str = table[i]
+			str = tbl[i]
 		end
 	end
 	return str
@@ -163,7 +163,7 @@ function table.max(tbl)
 	local max_key = nil
 	local max_value = -math.huge
 	for key, value in pairs(tbl) do
-		value = assert(tonumber(value), "expected a table full of numbers..")
+		value = assert(tonumber(value), "expected a table full of numbers")
 		if value > max_value then
 			max_key = key
 			max_value = value
@@ -176,7 +176,7 @@ function table.min(tbl)
 	local min_key = nil
 	local min_value = math.huge
 	for key, value in pairs(tbl) do
-		value = assert(tonumber(value), "expected a table full of numbers..")
+		value = assert(tonumber(value), "expected a table full of numbers")
 		if value < min_value then
 			min_key = key
 			min_value = value
@@ -189,7 +189,7 @@ function table.avg(tbl)
 	local num = 0
 	local total = 0
 	for key, value in pairs(tbl) do
-		value = assert(tonumber(value), "expected a table full of numbers..")
+		value = assert(tonumber(value), "expected a table full of numbers")
 		total = total + value
 		num = num + 1
 	end
@@ -199,7 +199,7 @@ end
 function table.sum(tbl)
 	local total = 0
 	for key, value in pairs(tbl) do
-		value = assert(tonumber(value), "expected a table full of numbers..")
+		value = assert(tonumber(value), "expected a table full of numbers")
 		total = total + value
 	end
 	return total

@@ -89,3 +89,25 @@ function graphics.outlineRectangle(x, y, w, h, ...)
 
 	graphics.rectangle("line", x, y, w, h, ...)
 end
+
+function graphics.textOutlinef(text, width, x, y, ...)
+	local steps = width * 2 / 3
+	if steps < 1 then steps = 1 end
+
+	for _x = -width, width, steps do
+		for _y = -width, width, steps do
+			graphics.printf(text, x + _x, y + _y, ...)
+		end
+	end
+end
+
+function graphics.textOutline(text, width, x, y, ...)
+	local steps = width * 2 / 3
+	if steps < 1 then steps = 1 end
+
+	for _x = -width, width, steps do
+		for _y = -width, width, steps do
+			graphics.print(text, x + _x, y + _y, ...)
+		end
+	end
+end

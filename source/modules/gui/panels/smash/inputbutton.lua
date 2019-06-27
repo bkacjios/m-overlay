@@ -1,6 +1,6 @@
 local PANEL = {}
 
-local watcher = require("memory.watcher")
+local memory = require("memory.watcher")
 
 local BUTTONS = {
 	NONE		= 0x0000,
@@ -20,29 +20,14 @@ local BUTTONS = {
 
 function PANEL:Initialize()
 	self:super()
-	self.m_iPort = 0
-	self.m_sButton = "NONE"
-end
 
-function PANEL:SetPort(port)
-	self.m_iPort = port
-end
-
-function PANEL:GetPort()
-	return self.m_iPort
-end
-
-function PANEL:SetButton(button)
-	self.m_sButton = button:upper()
-end
-
-function PANEL:GetButton()
-	return self.m_sButton
+	self:MakeAccessor("Port", "m_iPort", 0)
+	self:MakeAccessor("Button", "m_sButton", "NONE")
 end
 
 function PANEL:IsButtonPressed()
-	local controller = watcher.controller[self.m_iPort]
-	local button = BUTTONS[self.m_sButton]
+	local controller = memory.controller[self.m_iPort]
+	local button = BUTTONS[self.m_sButton:upper()]
 
 	if not button or not controller then return false end
 

@@ -146,7 +146,7 @@ function PANEL:Initialize()
 	self:DockPadding(0,0,0,0)
 	self:DockMargin(0,0,0,0)
 
-	self.m_pFont = newFont("fonts/A-OTF-FolkPro-Bold.otf", 16)
+	self.m_pFont = newFont("fonts/FOT-RodinPro-UB.otf", 16)
 
 	self.m_bEnabled = false
 	self.m_iPort = -1

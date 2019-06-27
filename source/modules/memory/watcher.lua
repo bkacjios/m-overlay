@@ -16,7 +16,7 @@ local watcher = {
 	watching_ptr_addr = {},
 	pointer_loc = {},
 	named = {},
-	map = require("memory.melee"), -- The map of the game we want to use!
+	map = require("smash.memory"), -- The map of the game we want to use!
 }
 
 local TYPE_NULL = 0

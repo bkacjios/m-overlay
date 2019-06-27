@@ -48,7 +48,7 @@ function PANEL:Paint(w, h)
 		if self.m_sAlignment == "center" then
 			graphics.print(self.m_sText, floor(w/2 - (tw/2)), floor(h/2 - (th/2)))
 		elseif self.m_sAlignment == "right" then
-			graphics.print(self.m_sText, floor(-tw/2), floor(h/2 - (th/2)))
+			graphics.print(self.m_sText, w - tw, floor(h/2 - (th/2)))
 		else -- Assume left
 			graphics.print(self.m_sText, 0, floor(h/2 - (th/2)))
 		end
@@ -57,6 +57,10 @@ end
 
 function PANEL:SizeToText()
 	self:SetSize(self.m_pFont:getWidth(self.m_sText), self.m_pFont:getHeight())
+end
+
+function PANEL:WidthToText()
+	self:SetWidth(self.m_pFont:getWidth(self.m_sText))
 end
 
 gui.register("Label", PANEL, "Panel")

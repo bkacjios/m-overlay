@@ -1,9 +1,3 @@
-GAMES = {
-	[1] = "MELEE",
-	[3] = "BRAWL",
-	[4] = "PROJECTM",
-}
-
 TEAM_COLORS = {
 	[0x00] = {255, 0, 0, 255},		-- Red
 	[0x01] = {0, 100, 255, 255},	-- Blue

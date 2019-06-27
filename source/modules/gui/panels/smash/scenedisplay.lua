@@ -18,7 +18,6 @@ function PANEL:Initialize()
 	self.m_pHovered = nil
 	self.m_pGrabbed = nil
 	self.m_pSelected = nil
-	self.m_bDragged = false
 	self.m_bDidDrag = false
 	self.m_tGrabbedOffset = { x = 0, y = 0 }
 end
@@ -30,12 +29,12 @@ function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
 end
 
-function PANEL:PostPaint(w, h)
+function PANEL:PaintOverlay(w, h)
 	-- Only draw selection in editor mode and if we have a grabbed panel
 	if self:IsInEditorMode() then
 
 		-- Only draw hovered selection if we are not currently grabbing something
-		if not self.m_pGrabbed and self.m_pHovered and self.m_pHovered ~= self then
+		if not self.m_bDidDrag and self.m_pHovered and self.m_pHovered ~= self then
 			local x, y = self.m_pHovered:GetPos()
 			local w, h = self.m_pHovered:GetSize()
 
@@ -104,6 +103,8 @@ function PANEL:OnMouseReleased(x, y, but)
 		-- May have to change this to Z-Position, as there could be more than 1 object in the background
 		self.m_pSelected = self:GetHoveredChild(x, y, self.m_pSelected) or self.m_pSelected
 	end
+
+	self.m_bDidDrag = false
 	
 	-- We are no longer grabbing the panel
 	self.m_pGrabbed = nil

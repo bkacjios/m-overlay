@@ -11,7 +11,7 @@ do
 	local max = math.max
 
 	function math.clamp(num, min, max)
-		assert(min <= max, "invalid clamp range") -- optional: debug message
+		assert(min <= max, "invalid clamp range")
 		if num < min then
 			num = min
 		elseif num > max then
@@ -41,6 +41,21 @@ do
 	function math.randomFloat(min, max)
 		return min + random() * (max - min)
 	end
+
+	require("extensions.table")
+
+	local sum = table.sum
+
+	function math.weightedRandom(tbl)
+		local threshold = random(0, sum(tbl))
+		local last_choice
+		for choice, weight in pairs(tbl) do
+			threshold = threshold - weight
+			if threshold <= 0 then return choice end
+			last_choice = choice
+		end
+		return last_choice
+	end
 end
 
 do
@@ -48,14 +63,14 @@ do
 
 	function math.sinlerp(min, max, t)
 		local h = (max - min) / 2
-		return min + h + math.sin(t) * h
+		return min + h + sin(t) * h
 	end
 
 	local cos = math.cos
 
 	function math.coslerp(min, max, t)
 		local h = (max - min) / 2
-		return min + h + math.cos(t) * h
+		return min + h + cos(t) * h
 	end
 end
 
@@ -63,7 +78,7 @@ function math.lerp(a,b,t)
 	return (1-t)*a + t*b
 end
 
-function math.toTimeUnits(seconds)
+function math.timeunits(seconds)
 	return {
 		years = seconds/3.154e7,
 		months = seconds/2.628e6,
@@ -90,26 +105,5 @@ do
 		local s = num % 60
 		local ms = (num % 1) * 100
 		return format(fmt or "%02d:%02d:%02d", m, s, ms % 100)
-	end
-end
-
-do
-	local function weighted_total(tbl)
-		local total = 0
-		for choice, weight in pairs(tbl) do
-			total = total + weight
-		end
-		return total
-	end
-
-	function math.weightedRandom(tbl)
-		local threshold = math.random(0, weighted_total(tbl))
-		local last_choice
-		for choice, weight in pairs(tbl) do
-			threshold = threshold - weight
-			if threshold <= 0 then return choice end
-			last_choice = choice
-		end
-		return last_choice
 	end
 end

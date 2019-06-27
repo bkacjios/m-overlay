@@ -19,7 +19,10 @@ function PANEL:Initialize()
 	self.m_pTaskBar:Dock(DOCK_TOP)
 	self.m_pTaskBar:SetVisible(false)
 
-	self.m_pInfoBar = self:Add("Panel")
+	self.m_pTaskBar:AddDropDownEntry("File")
+	self.m_pTaskBar:AddDropDownEntry("Edit")
+
+	self.m_pInfoBar = self:Add("SceneInfoBar")
 	self.m_pInfoBar:DockMargin(0, 0, 0, 0)
 	self.m_pInfoBar:SetBGColor(color(200, 200, 200))
 	self.m_pInfoBar:Dock(DOCK_BOTTOM)
