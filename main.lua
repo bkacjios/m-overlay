@@ -281,50 +281,38 @@ function love.draw()
 
 		graphics.setColor(255, 255, 255, 255)
 
-		-- Draw L
+		-- Draw L and R
 
 		graphics.setLineStyle("smooth")
 		love.graphics.setLineWidth(3)
 
 		graphics.stencil(function()
 			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 24 + 14, 16, 100, 12, 6, 6)
+			graphics.rectangle("fill", 108 + 14, 16, 100, 12, 6, 6)
 		end, "replace", 1)
 		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-			-- L Analog
-			graphics.rectangle("fill", 24 + 14, 16, 88 * controller.analog.float, 12)
+			-- Analog
+			local w = 76 * controller.analog.float
+			graphics.rectangle("fill", 108 + 14 + 12 + 76/2 - (w/2), 16, w, 12)
 
 	 		-- L Button
 			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-				graphics.rectangle("fill", 24 + 14 + 88, 16, 12, 12)
+				graphics.rectangle("fill", 108 + 14, 16, 12, 12)
 			end
-		graphics.setStencilTest()
-
-		-- Draw outline
-		graphics.rectangle("line", 24 + 14, 16, 100, 12, 6, 6)
-		-- Draw segment for button press
-		graphics.line(24 + 14 + 88, 16, 24 + 14 + 88, 16 + 12)
-
-		-- Draw R
-
-		graphics.stencil(function()
-			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 48 + 128 + 14, 16, 100, 12, 6, 6)
-		end, "replace", 1)
-		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-			-- R Analog
-			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - controller.analog.float)), 16, 88 * controller.analog.float, 12)
 
 			-- R Button
 			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-				graphics.rectangle("fill", 48 + 128 + 14, 16, 12, 12)
+				graphics.rectangle("fill", 108 + 14 + 12 + 76, 16, 12, 12)
 			end
 		graphics.setStencilTest()
 
 		-- Draw outline
-		graphics.rectangle("line", 48 + 128 + 14, 16, 100, 12, 6, 6)
+		graphics.rectangle("line", 108 + 14, 16, 100, 12, 6, 6)
 		-- Draw segment for button press
-		graphics.line(48 + 128 + 14 + 12, 16, 48 + 128 + 14 + 12, 16 + 12)
+		graphics.line(108 + 14 + 88, 16, 108 + 14 + 88, 16 + 12)
+
+		-- Draw segment for button press
+		graphics.line(108 + 14 + 12, 16, 108 + 14 + 12, 16 + 12)
 
 		-- Draw buttons
 
