@@ -1,4 +1,5 @@
 local floor = math.floor
+local random = math.random
 
 local byte = string.byte
 local char = string.char
@@ -13,6 +14,64 @@ local upper = string.upper
 
 local concat = table.concat
 local insert = table.insert
+
+do
+	-- With special chars: 33-126
+	-- without: 48-57, 65-90, 97-122 (this is going to be a bit messy without continue)
+	local num = 0 --recycling these up here since they get called a lot
+	local function numroll()
+		num = random(48, 122)
+		if (num > 57 and num < 65) or (num > 90 and num < 97) then
+			return numroll()
+		else
+			return num
+		end
+	end
+
+	local tab = {}
+	function string.random(len, specialchars)
+		tab = {}
+		if specialchars then
+			for i=1, len do
+				insert(tab, char(random(33, 126)))
+			end
+			return concat(tab)
+		else
+			for i=1, len do
+				insert(tab, char(numroll()))
+			end
+			return concat(tab)
+		end
+	end
+end
+
+function string.toTable(str)
+	local tbl = {}
+	
+	for i=1, #str do
+		tbl[i] = sub(str, i, i)
+	end
+	
+	return tbl
+end
+
+function string.explode(str, sep, pat)
+	if sep == "" then return string.toTable(str) end
+	
+	local ret = {}
+	local i, pos = 1, 1
+	
+	if not pat then sep = gsub(sep, "[%-%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%1") end
+	
+	for startpos, endpos in gmatch(str, "()"..sep.."()") do
+		ret[i] = sub(str, pos, startpos - 1)
+		i = i + 1
+		pos = endpos
+	end
+	
+	ret[i] = sub(str, pos)
+	return ret
+end
 
 -- remove trailing and leading whitespace from string.
 function string.trim(s)
@@ -53,10 +112,6 @@ function string.parseArgs(line)
 	return ret
 end
 
-function string.firstToUpper(str)
-	return gsub(str, "^%l", upper)
-end
-
 local pattern_escape_replacements = {
 	["("] = "%(",
 	[")"] = "%)",
@@ -73,7 +128,7 @@ local pattern_escape_replacements = {
 	["\0"] = "%z"
 }
 
-function string.escapePattern(str)
+function string.escape(str)
 	return gsub(str, ".", pattern_escape_replacements)
 end
 
@@ -89,7 +144,7 @@ function string.toSize(size)
 end
 
 function string.upperFirst(str)
-	return upper(sub(str, 1,1)) .. sub(str, 2)
+	return gsub(str, "^%l", upper)
 end
 
 function string.addCommas(str)

@@ -7,6 +7,7 @@ require("util.color")
 
 local watcher = require("memory.watcher")
 local gui = require("gui")
+local icons = require("smash.icons")
 
 local graphics = love.graphics
 
@@ -16,6 +17,7 @@ function love.load()
 
 	gui.init()
 	watcher.init()
+	icons.init()
 
 	local display = gui.createScenePanel("ControllerDisplay")
 	display:SetPort(1)
@@ -28,7 +30,8 @@ function love.load()
 
 	local test = gui.createScenePanel("PlayerPercent")
 	test:SetPort(1)
-	test:SetSize(200, 128)
+
+	local test = gui.createScenePanel("MiniMap")
 
 	--[[local test = gui.createScenePanel("PlayerPercent")
 	test:SetPort(2)

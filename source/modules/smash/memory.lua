@@ -4,7 +4,6 @@ local map = {
 }
 
 -- 804B302C = PAL
-
 local controllers = {
 	[1] = 0x804C1FAC + 0x44 * 0,
 	[2] = 0x804C1FAC + 0x44 * 1,
@@ -169,8 +168,8 @@ for id, address in ipairs(player_static_addresses) do
 				[0x60 + 0x0128] = { type = "float", name = "friction" },
 				[0x60 + 0x0168] = { type = "int", name = "jumps" },
 				[0x60 + 0x016C] = { type = "float", name = "gravity" },
-				[0x60 + 0x0170] = { type = "float", name = "terminal_velocity" },
-				[0x60 + 0x0184] = { type = "float", name = "fastfall_velocity" },
+				[0x60 + 0x0170] = { type = "float", name = "velocity.terminal" },
+				[0x60 + 0x0184] = { type = "float", name = "velocity.fastfall" },
 				[0x60 + 0x0198] = { type = "float", name = "weight" },
 				[0x60 + 0x019C] = { type = "float", name = "scale" },
 
@@ -180,6 +179,13 @@ for id, address in ipairs(player_static_addresses) do
 				[0x60 + 0x0200] = { type = "float", name = "landing_lag.bair" },
 				[0x60 + 0x0204] = { type = "float", name = "landing_lag.uair" },
 				[0x60 + 0x0208] = { type = "float", name = "landing_lag.dair" },
+
+				[0x60 + 0x0620] = { type = "float", name = "controller.joystick.x", },
+				[0x60 + 0x0624] = { type = "float", name = "controller.joystick.y" },
+				[0x60 + 0x0638] = { type = "float", name = "controller.cstick.x" },
+				[0x60 + 0x063C] = { type = "float", name = "controller.cstick.y" },
+				[0x60 + 0x0650] = { type = "float", name = "controller.analog.float" },
+				[0x60 + 0x065C] = { type = "int", name = "controller.buttons.pressed" },
 
 				[0x60 + 0x18C4] = { type = "int", name = "attacker" },
 				[0x60 + 0x1830] = { type = "float", name = "percent" },

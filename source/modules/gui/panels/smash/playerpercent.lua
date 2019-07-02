@@ -3,6 +3,8 @@ local memory = require("memory.watcher")
 function PANEL:Initialize()
 	self:super()
 
+	self:SetSize(200, 200)
+
 	self.m_pFontPercent = graphics.newFont("fonts/FOT-RodinPro-UB.otf", 64)
 	self.m_pFontDecimal = graphics.newFont("fonts/FOT-RodinPro-UB.otf", 24)
 
@@ -19,32 +21,22 @@ function PANEL:UpdatePercent(port, entity, percent)
 	if self:GetPort() == port then
 		self.m_tPercents[entity] = math.floor(percent)
 		self.m_tDecimals[entity] = math.floor(percent%1*10)
-		self.m_tLastUpdate[entity] = timer.getTime()
+		if self.m_tPercents[entity] < percent then
+			self.m_tLastUpdate[entity] = timer.getTime()
+		end
 	end
+end
+
+function PANEL:GetEntityUpdateTime(entity)
+	return self.m_tLastUpdate[entity] or 0
 end
 
 function PANEL:GetPlayer()
 	return memory.player[self:GetPort()]
 end
 
-function PANEL:GetCharacter()
-	local player = self:GetPlayer()
-
-	if not player then return CHARACTER.NONE end
-
-	local character = player.character
-	local transformed = player.transformed == 256
-
-	-- Handle and detect Zelda/Sheik transformations
-	-- Normally, Zelda is the main entity, and Sheik is the partner.
-	-- This is reversed when holding A on game startup.
-	if character == CHARACTER.SHEIK then
-		character = transformed and CHARACTER.ZELDA or CHARACTER.SHEIK
-	elseif character == CHARACTER.ZELDA then
-		character = transformed and CHARACTER.SHEIK or CHARACTER.ZELDA
-	end
-
-	return character
+function PANEL:GetEntity()
+	return melee.getPlayerEntity(self:GetPort())
 end
 
 do
@@ -69,21 +61,31 @@ do
 end
 
 function PANEL:Paint(w, h)
+	local t = timer.getTime()
+
 	local player = self:GetPlayer()
 
-	local percent = self.m_tPercents["entity"]
-	local decimal = string.format(".%i%%", self.m_tDecimals["entity"])
+	if not melee.isEntityAlive(melee.getEntity(player)) then return end
+
+	local active = melee.getActiveEntityName(player)
+
+	local percent = self.m_tPercents[active]
+	local decimal = string.format(".%i%%", self.m_tDecimals[active])
 
 	local percentW = self.m_pFontPercent:getWidth(percent)
-	local percentH = self.m_pFontPercent:getAscent() - self.m_pFontPercent:getDescent() 
+	local percentH = self.m_pFontPercent:getHeight()/2
 
 	local decimalW = self.m_pFontDecimal:getWidth(decimal)
-	local percentH = self.m_pFontDecimal:getWidth(decimal)
+	local decimalH = self.m_pFontDecimal:getWidth(decimal)/2
 
 	local x = w - decimalW - percentW + 6
-	local y = h/2 - percentH/2 + self.m_pFontPercent:getDescent() 
+	local y = h/2 - percentH/2
 
 	local sx, sy = 0, 0
+	if self:GetEntityUpdateTime(active) + 0.25 >= t then
+		sx = math.random(-8, 8)
+		sy = math.random(-8, 8)
+	end
 
 	local pX, pY = x + sx, y + sy
 
@@ -93,29 +95,28 @@ function PANEL:Paint(w, h)
 	graphics.setColor(self:GetPercentColor(percent))
 	graphics.print(percent, pX, pY, 0, 1, 1, 0, 0, -0.15, 0)
 
-	local dX, dY = sx + w - decimalW, h/2 + 6
+	local dX, dY = sx + w - decimalW, h/2 + sy
 
 	graphics.setFont(self.m_pFontDecimal)
-
 	graphics.setColor(0, 0, 0, 255)
 	graphics.textOutline(decimal, 2, dX + 1, dY + 1, 0, 1, 1, 0, 0, -0.15, 0)
 	graphics.setColor(self:GetPercentColor(percent))
 	graphics.print(decimal, dX, dY, 0, 1, 1, 0, 0, -0.15, 0)
 
-	if character == CHARACTER.CLIMBERS then -- and melee.isEntityAlive(player.partner) then
+	if player.character == CHARACTER.CLIMBERS and melee.isEntityAlive(player.partner) then
 		percent = player.partner.percent
 		local display = ("%.1f%%"):format(percent)
 
 		local sx, sy = 0, 0
-		--[[if overlay.didPartnerPercentChange(slot) then
+		if self:GetEntityUpdateTime("partner") + 0.25 >= t then
 			sx = math.random(-8, 8)
 			sy = math.random(-8, 8)
-		end]]
+		end
 
 		graphics.setColor(color_black)
-		graphics.textOutlinef(display, 2, sx - percentH + 8, 112 + sy, w, "right", 0, 1, 1, 0, 0, -0.15, 0)
+		graphics.textOutlinef(display, 2, sx, y + percentH + sy, w, "right", 0, 1, 1, 0, 0, -0.15, 0)
 		graphics.setColor(self:GetPercentColor(percent))
-		graphics.printf(display, sx - percentH + 8, 112 + sy, w, "right", 0, 1, 1, 0, 0, -0.15, 0)
+		graphics.printf(display, sx, y + percentH + sy, w, "right", 0, 1, 1, 0, 0, -0.15, 0)
 
 		--graphics.setColor(color_white)
 		--overlay.drawStockIcon(character, overlay.nana_skins[player.skin] or 0, percentH + 64, 112)

@@ -57,7 +57,7 @@ function watcher.init()
 			for offset, struct in pairs(info.struct) do
 				watcher.watching_ptr_addr[address][offset] = TYPE_NAME[struct.type]
 				local name = ("%s.%s"):format(info.name, struct.name)
-				watcher.setTableValue(name, info.init or 0)
+				watcher.setTableValue(name, info.init)
 			end
 		else
 			watcher.values_memory[address] = info.init or 0
@@ -102,7 +102,7 @@ end
 function watcher.hook(name, desc, callback)
 	if string.find(name, "*", 1, true) then
 		-- Convert '*' into capture patterns
-		local pattern = '^' .. name:escapePattern():gsub("%%%*", "([^.]-)") .. '$'
+		local pattern = '^' .. name:escape():gsub("%%%*", "([^.]-)") .. '$'
 		watcher.wildcard_hooks[pattern] = watcher.wildcard_hooks[pattern] or {}
 		watcher.wildcard_hooks[pattern][desc] = callback
 	else

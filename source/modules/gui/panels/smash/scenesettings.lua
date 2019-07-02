@@ -36,4 +36,4 @@ function PANEL:Initialize()
 	applybox:Dock(DOCK_TOP)
 end
 
-gui.register("Settings", PANEL, "Frame")
+gui.register("SceneSettings", PANEL, "Frame")

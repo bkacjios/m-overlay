@@ -19,7 +19,11 @@ function PANEL:Initialize()
 	self.m_pTaskBar:Dock(DOCK_TOP)
 	self.m_pTaskBar:SetVisible(false)
 
-	self.m_pTaskBar:AddDropDownEntry("File")
+	self.m_pTaskBar:AddDropDownEntry("File").OnClick = function(this)
+		local settings = gui.create("SceneSettings")
+		settings:Center()
+		settings:MakePopup()
+	end
 	self.m_pTaskBar:AddDropDownEntry("Edit")
 
 	self.m_pInfoBar = self:Add("SceneInfoBar")
@@ -30,14 +34,14 @@ function PANEL:Initialize()
 
 	-- Object list when in editor mode
 	-- TODO: Make a new class for this, maybe a list panel
-	self.m_pObjectList = self:Add("ScrollPanel")
+	--[[self.m_pObjectList = self:Add("ScrollPanel")
 	self.m_pObjectList:DockMargin(4, 4, 0, 4)
 	self.m_pObjectList:SetWidth(128 + 32)
 
 	-- Dock to the left
 	self.m_pObjectList:Dock(DOCK_LEFT)
 	-- Not visible on startup
-	self.m_pObjectList:SetVisible(false)
+	self.m_pObjectList:SetVisible(false)]]
 
 	-- The output display
 	self.m_pSceneDisplay = self:Add("SceneDisplay")
@@ -54,11 +58,13 @@ function PANEL:AddToScene(name)
 	local panel = self.m_pSceneDisplay:Add(name)
 	panel:SetFocusable(true)
 
+	--[[
 	-- Add a matching button to our object list, for ordering/removing/settings and stuff?
 	local but = self.m_pObjectList:AddItem("Button") -- TODO: Make a new class for this, maybe a list panel
 	but:DockMargin(0, 0, 0, 0)
 	but:Dock(DOCK_TOP)
 	but:SetText(name)
+	]]
 
 	-- Return the panel we added
 	return panel
@@ -70,7 +76,7 @@ function PANEL:SetEditorMode(b)
 
 	self.m_pTaskBar:SetVisible(b)
 	self.m_pInfoBar:SetVisible(b)
-	self.m_pObjectList:SetVisible(b)
+	--self.m_pObjectList:SetVisible(b)
 
 	if b then
 		-- WE ARE IN EDITOR MODE
@@ -79,7 +85,7 @@ function PANEL:SetEditorMode(b)
 		self:SetBGColor(color(240, 240, 240))
 
 		-- Add a simple margin to the display, so it matches the margin of the object list
-		self.m_pSceneDisplay:DockMargin(32, 32, 32, 32)
+		self.m_pSceneDisplay:DockMargin(0, 0, 0, 0)
 
 		-- Fake the black background of the window, since it would normally be "transparent" for OBS capture
 		-- This will now look black in OBS capture, rather than transparent
@@ -105,7 +111,7 @@ function PANEL:GetUnusableSpace()
 
 	h = h + self.m_pTaskBar:GetHeightPlusMargin()
 	h = h + self.m_pInfoBar:GetHeightPlusMargin()
-	w = w + self.m_pObjectList:GetWidthPlusMargin()
+	--w = w + self.m_pObjectList:GetWidthPlusMargin()
 
 	return w, h
 end

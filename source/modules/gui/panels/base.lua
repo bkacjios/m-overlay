@@ -578,7 +578,7 @@ function PANEL:HasFocus(recursive)
 			end
 		end
 	end
-	return gui.FocusedPanel == self
+	return gui.getFocusedPanel() == self
 end
 
 function PANEL:IsHovered()

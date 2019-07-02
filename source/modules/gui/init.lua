@@ -88,7 +88,7 @@ end
 
 function gui.skinHook(hook, class, panel, ...)
 	local skin = gui.m_tRegisteredSkins[gui.m_strSkin]
-	if not skin then print(hook, class, "NO SKIN", gui.m_strSkin) return end
+	if not skin then return end
 	if not skin[hook .. class] then return error(("no function '%s' in skin '%s'"):format(hook .. class, gui.m_strSkin)) end
 	skin[hook .. class](skin, panel, ...)
 end
@@ -137,8 +137,8 @@ function gui.toggleEditorMode()
 	-- Resize min/max bounds and toggle resizing
 	flags.resizable = gui.m_bEditorMode
 	if gui.m_bEditorMode then
-		flags.minwidth = w + uw
-		flags.minheight = h + uh
+		flags.minwidth = 512 + uw
+		flags.minheight = 256 + uh
 	else
 		flags.minwidth = w
 		flags.minheight = h
@@ -186,6 +186,7 @@ end
 function gui.mousePressed(x, y, button, istouch, presses)
 	local panel = gui.getHoveredPanel()
 	gui.setFocusedPanel(panel)
+
 	local lx, ly = panel:WorldToLocal(x, y)
 	if not panel:OnMousePressed(lx, ly, button, istouch, presses) then
 		local parent = panel:GetParent()

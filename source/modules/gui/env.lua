@@ -82,6 +82,7 @@ local env = {
 	PANEL = {},
 	SKIN = {},
 	gui = require("gui"),
+	melee = require("smash.melee"),
 
 	TEAM_COLORS = TEAM_COLORS,
 	PLAYER_COLORS = PLAYER_COLORS,

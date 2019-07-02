@@ -34,9 +34,9 @@ function PANEL:Initialize()
 	self.m_iSelectLeft = 0
 	self.m_iSelectRight = 0
 	self.m_bInsert = false
-	self.m_cTextColor = Color(0, 0, 0)
-	self.m_cHighlightTextColor = Color(0, 0, 0, 100)
-	self.m_pFont = love.graphics.newFont("resource/fonts/VeraMono.ttf", 12)
+	self.m_cTextColor = color(0, 0, 0)
+	self.m_cHighlightTextColor = color(0, 0, 0, 100)
+	self.m_pFont = graphics.newFont() --love.graphics.newFont("resource/fonts/VeraMono.ttf", 12)
 	self.m_pMouseBeam = love.mouse.getSystemCursor("ibeam")
 	self.m_tCharacterSizes = {}
 	self.m_tUndoBuffer = {}

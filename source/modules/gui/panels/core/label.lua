@@ -5,7 +5,7 @@ function PANEL:Initialize()
 	self:SetBorderColor(color_blank)
 	self:SetFocusable(false)
 	
-	self.m_pFont = graphics.getFont()
+	self.m_pFont = graphics.newFont()
 
 	self:MakeAccessor("Text", "m_sText", "Label")
 	self:MakeAccessor("TextColor", "m_cTextColor", color_black)
@@ -19,7 +19,7 @@ end
 
 function PANEL:Think(dt)
 	if not self.m_pFont and self.m_sFontFile then
-		self.m_pFont = graphics.newFont(filename, size, hinting)
+		self.m_pFont = graphics.newFont(self.m_sFontFile, self.m_iFontSize, self.m_iFontHint)
 	end
 end
 

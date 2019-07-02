@@ -57,17 +57,21 @@ function melee.getPlayerEntityAttacker(entity)
 	return melee.getEntity(melee.getPlayer(port)), port
 end
 
-function melee.getEntity(player)
+function melee.getActiveEntityName(player)
 	local character = player.character
 	local transformed = player.transformed == 256
 	if (character == CHARACTER.ZELDA or character == CHARACTER.SHEIK) and transformed then
 		-- If the character started as zelda or shiek, and they transformed
 		-- return their partner entity (Which is the active entity)
 		-- A player can start as Sheik by holding A when loading in, so their character ID would be Shiek instead of Zelda
-		return player.partner
+		return "partner"
 	else
-		return player.entity
+		return "entity"
 	end
+end
+
+function melee.getEntity(player)
+	return player[melee.getActiveEntityName(player)]
 end
 
 -- action_state 0x0-0xA means the player is dead
