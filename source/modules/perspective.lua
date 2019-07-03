@@ -9,6 +9,7 @@ vec2 v2 = vv[1];
 vec2 v3 = vv[2];
 vec2 v4 = vv[3];
 
+extern vec2 scale = vec2( 1,1 );
 extern vec2 p0 = vec2( 0,0 );
 extern vec2 rep = vec2( 1,1 );
 extern vec2 translate = vec2(0, 0);
@@ -56,8 +57,8 @@ vec4 effect( vec4 color, Image unused, vec2 texture_coords, vec2 screen_coords )
 		vec2 screenB = vec2( screenA.x*cos_factor, screenA.y*cos_factor ) * mat2(cos_factor, -sin_factor, sin_factor, cos_factor);
 
 		//scale
-		vec2 scaleData = vec2( TransformMatrix[0][0], TransformMatrix[1][1] );
-		vec2 screen = screenB / scaleData;
+		//vec2 scaleData = vec2( TransformMatrix[0][0], TransformMatrix[1][1] );
+		vec2 screen = screenB / scale;
 
 	//original shader
 
@@ -149,9 +150,10 @@ local setShader = love.graphics.setShader
 module(...)
 
 --turn shader on before drawing any quads
-function on(x, y)
+function on(x, y, sx, sy)
 	setShader(shader)
 	send(shader, "translate", {x or 0, y or 0})
+	send(shader, "scale", {sx or 1, sy or 1})
 end
 
 --turn off when done

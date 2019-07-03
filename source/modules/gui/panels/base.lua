@@ -10,7 +10,8 @@ function PANEL:Initialize()
 	self.m_tChildren = {}
 	self.m_iWorldPosX = 0
 	self.m_iWorldPosY = 0
-	self.m_iScale = 1
+	self.m_fScaleX = 1
+	self.m_fScaleY = 1
 	self.m_iPosX = 0
 	self.m_iPosY = 0
 	self.m_iWidth = 42
@@ -299,8 +300,13 @@ function PANEL:Add(class)
 	return gui.create(class, self)
 end
 
+function PANEL:SetScale(x, y)
+	y = y or x
+	self.m_fScaleX, self.m_fScaleY = x, y
+end
+
 function PANEL:GetScale()
-	return self.m_iScale
+	return self.m_fScaleX, self.m_fScaleY
 end
 
 function PANEL:SetPos(x, y)
@@ -364,7 +370,12 @@ function PANEL:SetSize(w, h)
 	self:OnResize(w, h)
 end
 
+
 function PANEL:GetSize()
+	return self.m_iWidth * self.m_fScaleX, self.m_iHeight * self.m_fScaleY
+end
+
+function PANEL:GetActualSize()
 	return self.m_iWidth, self.m_iHeight
 end
 
@@ -403,38 +414,51 @@ function PANEL:Render()
 	if not self:IsVisible() then return end
 
 	local x, y = self:LocalToScreen(0, 0)
-	local w, h = self.m_iWidth, self.m_iHeight
+	local w, h = self:GetSize()
 	
 	local parent = self:GetParent()
 	
 	-- Start the scissor position and size with our own values
 	local sx, sy = x, y
 	local sw, sh = w, h
-	
+
 	while parent do
 		-- If we have a parent, fit the scissor to fit inside their bounds
 		local px, py = parent:LocalToScreen(0, 0)
 		local pw, ph = parent:GetSize()
-		sx = math.max(sx, px)
-		sy = math.max(sy, py)
-		sw = math.min(sw, math.max(0, pw - (sx - px)))
-		sh = math.min(sh, math.max(0, ph - (sy - py)))
+
+		if sx < px then
+			sw = math.max(0, sw + sx - px)
+			sx = px
+		end
+		if sx + sw > px + pw then
+			sw = math.max(0, sw - ((sx + sw) - (px + pw)))
+			sx = math.min(sx, px + pw)
+		end
+		if sy < py then
+			sh = math.max(0, sh + sy - py)
+			sy = py
+		end
+		if sy + sh > py + ph then
+			sh = math.max(0, sh - ((sy + sh) - (py + ph)))
+			sy = math.min(sy, py + ph)
+		end
+
 		parent = parent:GetParent()
 	end
 
-	local scale = self:GetScale()
-
 	graphics.push() -- Push the current graphics state
-		graphics.setScissor(sx*scale, sy*scale, sw*scale, sh*scale) -- Set our scissor so things can't be drawn outside the panel
-			graphics.translate(x*scale, y*scale) -- Translate so Paint has localized position values for drawing objects
-			graphics.scale(scale, scale)
+		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
+			graphics.scale(self:GetScale())
+				local uw, uh = self:GetActualSize()
 				self:SetWorldPos(x, y)
 				graphics.setColor(255, 255, 255, 255)
-				self:PrePaint(w, h)
+				self:PrePaint(uw, uh)
 				graphics.setColor(255, 255, 255, 255)
-				self:Paint(w, h)
+				self:Paint(uw, uh)
 				graphics.setColor(255, 255, 255, 255)
-				self:PostPaint(w, h)
+				self:PostPaint(uw, uh)
 			graphics.origin()
 		graphics.setScissor()
 	graphics.pop() -- Reset the graphics state to what it was
@@ -445,18 +469,18 @@ function PANEL:Render()
 	end
 
 	graphics.push()
-		graphics.setScissor(sx*scale, sy*scale, sw*scale, sh*scale)
-			graphics.translate(x*scale, y*scale)
-			graphics.scale(scale, scale)
+		graphics.setScissor(sx, sy, sw, sh)
+			graphics.translate(x, y)
+			graphics.scale(self:GetScale())
 				graphics.setColor(255, 255, 255, 255)
-				self:PaintOverlay(w, h)
+				self:PaintOverlay(self:GetActualSize())
 			graphics.origin()
 		graphics.setScissor()
 	graphics.pop() -- Reset the graphics state to what it was
 
 	if self.m_bDebug then
 		-- Debug the scissor rect
-		graphics.setColor(255, 0, 0, 15)
+		graphics.setColor(255, 0, 0, 25)
 		graphics.rectangle("fill", sx, sy, sw, sh)
 	end
 end

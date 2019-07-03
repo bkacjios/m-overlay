@@ -152,6 +152,8 @@ function PANEL:Initialize()
 	self.m_iPort = -1
 	self.m_iActions = 0
 
+	self:SetScale(0.5)
+
 	watcher.hook("match.finished", self, self.ResetAPM)
 	watcher.hook("player.*.*.action_state", self, self.UpdateAPM)
 end
@@ -277,8 +279,11 @@ function PANEL:Paint(w, h)
 
 		local rotated = transformVertices(vertices, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 64, 64)
 
+		local wx, wy = self:GetWorldPos()
+		local sx, sy = self:GetScale()
+
 		graphics.stencil(function()
-			perspective.on(self:GetWorldPos())
+			perspective.on(wx, wy, sx, sy)
 			perspective.quad(BUTTON_TEXTURES.JOYSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
 			perspective.off()
 		end, "replace", 1)
@@ -286,7 +291,7 @@ function PANEL:Paint(w, h)
 			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.BACKGROUND, 22, 52, 0, 128, 128)
 		graphics.setStencilTest()
 
-		perspective.on(self:GetWorldPos())
+		perspective.on(wx, wy, sx, sy)
 		perspective.quad(BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
 		perspective.off()
 
@@ -311,7 +316,7 @@ function PANEL:Paint(w, h)
 		graphics.setColor(255, 235, 0, 255)
 		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.BACKGROUND, 48 + 128, 52, 0, 128, 128)
 
-		perspective.on(self:GetWorldPos())
+		perspective.on(wx, wy, sx, sy)
 		perspective.quad(BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
 		perspective.off()
 
