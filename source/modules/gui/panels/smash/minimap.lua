@@ -90,4 +90,4 @@ function PANEL:Paint(w, h)
 	end
 end
 
-gui.register("MiniMap", PANEL, "Panel")
+gui.register("MiniMap", PANEL, "Base")

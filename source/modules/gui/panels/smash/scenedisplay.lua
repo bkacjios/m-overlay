@@ -75,7 +75,7 @@ function PANEL:OnMousePressed(x, y, button, istouch, presses)
 		self.m_pSelected = self:GetHoveredChild(x, y)
 	end
 
-	-- Ignore the SceneDisplay object, and allow the MousePressed event to continue on
+	-- If we didn't select anything, don't capture the mouse pressed event
 	if not self.m_pSelected then return true end
 
 	-- Set that we are grabbing a panel
@@ -110,12 +110,17 @@ function PANEL:OnMouseReleased(x, y, but)
 	self.m_pGrabbed = nil
 end
 
-function PANEL:OnMouseMoved(mx, my, dx, dy, istouch)
+function PANEL:Think(dt)
 	-- Translate mouse position to screenspace
-	local lx, ly = self:LocalToWorld(mx, my)
+	local lx, ly = self:LocalToWorld(love.mouse.getPosition())
 
 	-- Ignore selection to select and mark panels behind it as hovered over
 	self.m_pHovered = self:GetHoveredChild(lx, ly, self.m_pSelected)
+end
+
+function PANEL:OnMouseMoved(mx, my, dx, dy, istouch)
+	-- Translate mouse position to screenspace
+	local lx, ly = self:LocalToWorld(mx, my)
 
 	-- Stop if nothing is grabbed or the grabbed object is docked
 	if not self.m_pGrabbed or self.m_pGrabbed:GetDock() ~= 0 then return end

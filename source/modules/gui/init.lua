@@ -136,7 +136,10 @@ function gui.toggleEditorMode()
 
 	-- Resize min/max bounds and toggle resizing
 	flags.resizable = gui.m_bEditorMode
+
 	if gui.m_bEditorMode then
+		w, h = w + uw, h + uh
+		
 		flags.minwidth = 512 + uw
 		flags.minheight = 256 + uh
 	else
@@ -145,8 +148,10 @@ function gui.toggleEditorMode()
 	end
 
 	love.window.setMode(w, h, flags)
+
 	world:SizeToScreen()
 	world:InvalidateLayout()
+	world:ValidateLayout()
 end
 
 function gui.keyPressed(key, scancode, isrepeat)

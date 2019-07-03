@@ -43,7 +43,7 @@ FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-list --count --first
 )
 
 REM Get GIT branch
-FOR /F "tokens=* USEBACKQ" %%F IN (`asdgit -C %SOURCE_DIR% rev-parse --abbrev-ref HEAD`) DO (
+FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-parse --abbrev-ref HEAD`) DO (
 	SET BRANCH=%%F
 )
 
@@ -57,11 +57,12 @@ SET ZIP=%BUILD_DIR%\%NAME%.love
 echo Zipping files in %SOURCE_DIR% into %ZIP%
 
 if exist %ZIP% del %ZIP%
-7z a -tzip -mx=9 -xr!*.git %ZIP% "%SOURCE_DIR%\*"
+7z a -tzip -mx=9 -xr!*.git -xr!*.dll %ZIP% "%SOURCE_DIR%\*"
 
 echo Copying LOVE2D binaries and license to %BUILD_OUTPUT_DIR%
 copy %LOVE_DIR%\license.txt %BUILD_OUTPUT_DIR%
 xcopy /d %LOVE_DIR%\*.dll %BUILD_OUTPUT_DIR% /y
+xcopy /d %SOURCE_DIR%\*.dll %BUILD_OUTPUT_DIR% /y
 
 echo Copying love.exe %BUILD_DIR%
 copy /b %LOVE_DIR%\love.exe+,, %BUILD_DIR%
@@ -83,7 +84,7 @@ REM Remove old zip if it exists
 if exist %ZIP% del %ZIP%
 
 REM Create a release zip
-7z a -tzip -mx=9 -xr!*.git %ZIP% "%BUILD_OUTPUT_DIR%\*"
+7z a -tzip -mx=9 %ZIP% "%BUILD_OUTPUT_DIR%\*"
 
 if exist %INNO_SETUP_DIR% (
 	echo Building installer

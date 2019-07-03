@@ -36,21 +36,27 @@ function PANEL:__tostring()
 end
 
 function PANEL:GetConfig()
-	return {
+	local config = {
 		classname = self:GetClassName(),
 		config = {
 			pos = { self:GetPos() },
-			size = { self:GetSize() },
+			size = { self:GetActualSize() },
+			scale = { self:GetScale() },
 			zpos = self:GetZPos(),
 			visible = self:IsVisible(),
 			accessors = self.__accessors,
-			dock = {
-				mode = self.m_iDock,
-				margins = self.m_tDockMargins,
-				padding = self.m_tDockPadding,
-			}
 		}
 	}
+
+	if self.m_iDock ~= 0 then
+		config.dock = {
+			mode = self.m_iDock,
+			margins = self.m_tDockMargins,
+			padding = self.m_tDockPadding,
+		}
+	end
+
+	return config
 end
 
 function PANEL:SetVisible(b)
@@ -388,7 +394,7 @@ end
 PANEL.SetWidth = PANEL.SetWide
 
 function PANEL:GetWide()
-	return self.m_iWidth
+	return self.m_iWidth * self.m_fScaleX
 end
 PANEL.GetWidth = PANEL.GetWide
 
@@ -401,7 +407,7 @@ end
 PANEL.SetHeight = PANEL.SetTall
 
 function PANEL:GetTall()
-	return self.m_iHeight
+	return self.m_iHeight * self.m_fScaleY
 end
 PANEL.GetHeight = PANEL.GetTall
 

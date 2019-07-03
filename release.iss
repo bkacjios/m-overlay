@@ -29,7 +29,8 @@ ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 LicenseFile=build/x64/license.txt
 
-[Files]                                                                    
+[Files]                                
+Source: "build/x64/license.txt"; DestDir: "{app}"; DestName: "license.txt"                                    
 Source: "build/x64/m-overlay-x64.exe"; DestDir: "{app}"; DestName: "m-overlay-64.exe"       
 Source: "build/x64/love.dll"; DestDir: "{app}"; DestName: "love.dll"
 Source: "build/x64/lua51.dll"; DestDir: "{app}"; DestName: "lua51.dll"
@@ -37,8 +38,8 @@ Source: "build/x64/mpg123.dll"; DestDir: "{app}"; DestName: "mpg123.dll"
 Source: "build/x64/msvcp120.dll"; DestDir: "{app}"; DestName: "msvcp120.dll"
 Source: "build/x64/msvcr120.dll"; DestDir: "{app}"; DestName: "msvcr120.dll"      
 Source: "build/x64/OpenAL32.dll"; DestDir: "{app}"; DestName: "OpenAL32.dll"    
-Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"
-Source: "build/x64/license.txt"; DestDir: "{app}"; DestName: "license.txt"
+Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"  
+Source: "build/x64/nfd.dll"; DestDir: "{app}"; DestName: "nfd.dll"
 
 [Icons]
 Name: "{group}\M'Overlay"; Filename: "{app}\m-overlay-64.exe"

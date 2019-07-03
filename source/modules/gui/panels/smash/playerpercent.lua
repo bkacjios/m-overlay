@@ -123,4 +123,4 @@ function PANEL:Paint(w, h)
 	end
 end
 
-gui.register("PlayerPercent", PANEL, "Panel")
+gui.register("PlayerPercent", PANEL, "Base")

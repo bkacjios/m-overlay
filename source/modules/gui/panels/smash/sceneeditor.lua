@@ -19,13 +19,6 @@ function PANEL:Initialize()
 	self.m_pTaskBar:Dock(DOCK_TOP)
 	self.m_pTaskBar:SetVisible(false)
 
-	self.m_pTaskBar:AddDropDownEntry("File").OnClick = function(this)
-		local settings = gui.create("SceneSettings")
-		settings:Center()
-		settings:MakePopup()
-	end
-	self.m_pTaskBar:AddDropDownEntry("Edit")
-
 	self.m_pInfoBar = self:Add("SceneInfoBar")
 	self.m_pInfoBar:DockMargin(0, 0, 0, 0)
 	self.m_pInfoBar:SetBGColor(color(200, 200, 200))
