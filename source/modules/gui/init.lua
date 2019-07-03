@@ -16,6 +16,9 @@ DOCK_FILL = 16
 
 local json = require("serializer.json")
 local class = require("class")
+local nfd = require("nfd")
+
+require("extensions.table")
 
 function gui.setFocusedPanel(panel)
 	gui.m_pFocusedPanel:OnFocusChanged(false)
@@ -31,7 +34,26 @@ function gui.getHoveredPanel()
 	return gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
 end
 
-function gui.saveSceneLayout(file)
+function gui.openSceneLayout()
+	local file = nfd.open("json", "layout.json")
+
+	if not file then return end
+
+	local f, err = io.open(file, "r")
+	assert(f, err)
+	
+	local layout = json.decode(f:read("*all"))
+
+	print(table.tostring(layout))
+
+	f:close()
+end
+
+function gui.saveSceneLayout()
+	local file = nfd.save("json", "layout.json")
+
+	if not file then return end
+
 	local layout = {}
 	for k, child in ipairs(gui.m_pSceneManager:GetDisplay():GetChildren()) do
 		layout[k] = child:GetConfig()
@@ -39,13 +61,13 @@ function gui.saveSceneLayout(file)
 
 	local data = json.encode(layout, true)
 
-	assert(love.filesystem.write(file, data, #data))
+	--assert(love.filesystem.write(file, data, #data))
 
-	--[[local f, err = io.open(file, "w")
+	local f, err = io.open(file, "w")
 	assert(f, err)
 
 	f:write(data)
-	f:close()]]
+	f:close()
 end
 
 function gui.loadSceneLayout(file)
@@ -138,8 +160,10 @@ function gui.toggleEditorMode()
 	flags.resizable = gui.m_bEditorMode
 
 	if gui.m_bEditorMode then
+		-- Readjust the window size to fit the taskbars and stuff
 		w, h = w + uw, h + uh
 		
+		-- Minimum size we will allow
 		flags.minwidth = 512 + uw
 		flags.minheight = 256 + uh
 	else
@@ -267,12 +291,20 @@ do
 				if err then
 					return error(err)
 				end
-				local env = require("gui.env")
-				-- Reset these
+
+				-- Create a copy of our Lua environment, and merge it with some helper functions
+				local env = table.merge(table.copy(_G), require("gui.env"))
+
+				-- Update the _G variable
+				env._G = env
+
+				-- Reset these to a fresh state, since the script will probably use one of them.
 				env.PANEL = {}
 				env.SKIN = {}
+
+				-- Set the environment to our copy of the global environment
 				setfenv(chunk, env)
-				chunk()
+				chunk() -- Execute the file
 			end
 		end
 	end

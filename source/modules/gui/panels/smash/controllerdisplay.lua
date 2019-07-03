@@ -146,16 +146,9 @@ function PANEL:Initialize()
 	self:DockPadding(0,0,0,0)
 	self:DockMargin(0,0,0,0)
 
-	self.m_pFont = newFont("fonts/FOT-RodinPro-UB.otf", 16)
-
-	self.m_bEnabled = false
 	self.m_iPort = -1
-	self.m_iActions = 0
 
 	self:SetScale(0.5)
-
-	watcher.hook("match.finished", self, self.ResetAPM)
-	watcher.hook("player.*.*.action_state", self, self.UpdateAPM)
 end
 
 function PANEL:SetPort(port)
@@ -164,28 +157,6 @@ end
 
 function PANEL:GetPort()
 	return self.m_iPort
-end
-
-function PANEL:ResetAPM(finished)
-	if finished == 0 then
-		print("starting APM counter")
-		self.m_iActions = 0
-		self.m_bEnabled = true
-	else
-		print("stopping APM counter")
-		self.m_bEnabled = false
-	end
-end
-
-function PANEL:UpdateAPM(port, entityType, state_id)
-	local player = watcher.player[port][entityType]
-
-	if player and port == self:GetPort() and (state.isAction(state_id) or state.isCharacterAction(player.character, state_id)) then
-		print(string.format("[%04X] %s", state_id, state.translateChar(player.character, state_id)))
-		
-		if not self.m_bEnabled then return end
-		self.m_iActions = self.m_iActions + 1
-	end
 end
 
 local vertices = {
@@ -251,15 +222,6 @@ function PANEL:Paint(w, h)
 			graphics.setColor(hsl(360, 1, 0.5, math.sinlerp(0.25, 1, t*4)))
 			graphics.easyDraw(DISCONNECTED, w - 8 - 42, h - 8 - 42, 0, 32, 32)
 		end
-
-		-- Draw APM
-
-		graphics.setColor(255, 255, 255, 255)
-
-		local time = watcher.match.frame / 60
-
-		graphics.setFont(self.m_pFont)
-		graphics.print(format("APM: %d", self.m_iActions / time * 60), 8, h - 24)
 
 		-- Draw Joystick
 

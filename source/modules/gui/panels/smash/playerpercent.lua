@@ -5,8 +5,8 @@ function PANEL:Initialize()
 
 	self:SetSize(200, 200)
 
-	self.m_pFontPercent = graphics.newFont("fonts/FOT-RodinPro-UB.otf", 64)
-	self.m_pFontDecimal = graphics.newFont("fonts/FOT-RodinPro-UB.otf", 24)
+	self.m_pFontPercent = graphics.newFont("fonts/ultimate-bold.otf", 64)
+	self.m_pFontDecimal = graphics.newFont("fonts/ultimate-bold.otf", 24)
 
 	self.m_tPercents = { entity = 0, partner = 0 }
 	self.m_tDecimals = { entity = 0, partner = 0 }

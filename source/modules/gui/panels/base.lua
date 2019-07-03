@@ -278,8 +278,9 @@ end
 function PANEL:SizeToChildren(doWidth, doHeight)
 	local w,h = 0, 0
 	local padding = self:GetDockPadding()
-	w = padding.left + padding.right
-	h = padding.top + padding.bottom
+
+	w = padding.left	-- + padding.right
+	h = padding.top		-- + padding.bottom
 
 	local lw, lh = 0, 0
 
@@ -388,7 +389,7 @@ end
 function PANEL:SetWide(w)
 	if self.m_iWidth ~= w then
 		self.m_iWidth = w
-		self:InvalidateLayout()
+		--self:InvalidateLayout()
 	end
 end
 PANEL.SetWidth = PANEL.SetWide
@@ -401,7 +402,7 @@ PANEL.GetWidth = PANEL.GetWide
 function PANEL:SetTall(h)
 	if self.m_iHeight ~= h then
 		self.m_iHeight = h
-		self:InvalidateLayout()
+		--self:InvalidateLayout()
 	end
 end
 PANEL.SetHeight = PANEL.SetTall

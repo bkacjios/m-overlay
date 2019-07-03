@@ -7,7 +7,7 @@ local log = require("log")
 
 local notification = {
 	messages = {},
-	font = newFont("fonts/A-OTF-FolkPro-Medium.otf", 12),
+	font = newFont("fonts/ultimate-bold", 12),
 	padding = 8,
 }
 

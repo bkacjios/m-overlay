@@ -37,7 +37,7 @@ function love.load()
 	test:SetPort(2)
 	test:SetSize(200, 128)]]
 
-	gui.saveSceneLayout("test.txt")
+	--gui.saveSceneLayout()
 end
 
 function love.update(dt)
