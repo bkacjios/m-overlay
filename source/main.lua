@@ -214,11 +214,21 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 end
 
 function love.draw()
-	local player = watcher.player[PORT + 1].entity
 
-	--local controller = watcher.controller[PORT + 1]
+	local player = watcher.player[PORT + 1]
 
-	local controller = player.controller
+	if not player then return end
+
+	local entity
+
+	if player.transformed == 256 then
+		-- If the player has the "transformed" flag set, assume they are now controlling the "partner" entity
+		entity = player.partner
+	else
+		entity = player.entity
+	end
+	
+	local controller = entity.controller
 
 	if controller then -- and controller.plugged ~= 0xFF then
 		-- Draw Joystick

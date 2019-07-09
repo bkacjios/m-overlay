@@ -37,16 +37,30 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-local entity_pointer_offsets = {
-	[0xB0] = "entity",
-	[0xB4] = "partner", -- Partner entity (For sheik/zelda/iceclimbers)
-}
-
 local player_static_addresses = {
 	0x00453080, -- Player 1
 	0x00453F10, -- Player 2
 	0x00454DA0, -- Player 3
 	0x00455C30, -- Player 4
+}
+
+local player_static_struct = {
+	[0x00C] = { type = "short", name = "transformed" },
+}
+
+for id, address in ipairs(player_static_addresses) do
+	for offset, info in pairs(player_static_struct) do
+		map[address + offset] = {
+			type = info.type,
+			debug = info.debug,
+			name = ("player.%i.%s"):format(id, info.name),
+		}
+	end
+end
+
+local entity_pointer_offsets = {
+	[0xB0] = "entity",
+	[0xB4] = "partner", -- Partner entity (For sheik/zelda/iceclimbers)
 }
 
 for id, address in ipairs(player_static_addresses) do
