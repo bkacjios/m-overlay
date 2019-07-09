@@ -34,13 +34,13 @@ function PANEL:GetCanvas()
 end
 
 function PANEL:InnerWidth()
-	return self:GetCanvas():GetWide()
+	return self:GetCanvas():GetWidth()
 end
 
 function PANEL:Rebuild()
 	self:GetCanvas():SizeToChildren(false, true)
-	if self.m_bNoSizing and self:GetCanvas():GetTall() < self:GetTall() then
-		self:GetCanvas():SetPos(0, (self:GetTall()-self:GetCanvas():GetTall()) * 0.5)
+	if self.m_bNoSizing and self:GetCanvas():GetHeight() < self:GetHeight() then
+		self:GetCanvas():SetPos(0, (self:GetHeight()-self:GetCanvas():GetHeight()) * 0.5)
 	end
 end
 
@@ -59,28 +59,28 @@ function PANEL:ScrollToChild(panel)
 	local w, h = panel:GetSize()
 	
 	y = y + h * 0.5;
-	y = y - self:GetTall() * 0.5;
+	y = y - self:GetHeight() * 0.5;
 
 	self.m_pVBar:AnimateTo(y, 0.5, 0, 0.5);
 end
 
 function PANEL:PerformLayout()
-	local wide = self:GetWide()
+	local wide = self:GetWidth()
 	local ypos = 0
 	local xpos = 0
 	
 	self:Rebuild()
 	
-	self.m_pVBar:SetUp(self:GetTall(), self.m_pCanvas:GetTall())
+	self.m_pVBar:SetUp(self:GetHeight(), self.m_pCanvas:GetHeight())
 	ypos = self.m_pVBar:GetOffset()
 		
 	if self.m_pVBar.m_bEnabled then
-		wide = wide - self.m_pVBar:GetWide()
+		wide = wide - self.m_pVBar:GetWidth()
 		wide = wide - self.m_pVBar.m_tDockMargins.left - self.m_pVBar.m_tDockMargins.right
 	end
 
 	self.m_pCanvas:SetPos(0, ypos)
-	self.m_pCanvas:SetWide(wide)
+	self.m_pCanvas:SetWidth(wide)
 	
 	self:Rebuild()
 end

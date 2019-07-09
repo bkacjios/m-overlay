@@ -146,17 +146,9 @@ function PANEL:Initialize()
 	self:DockPadding(0,0,0,0)
 	self:DockMargin(0,0,0,0)
 
-	self.m_iPort = -1
+	self:MakeAccessor("Port", "m_iPort", -1)
 
 	self:SetScale(0.5)
-end
-
-function PANEL:SetPort(port)
-	self.m_iPort = port
-end
-
-function PANEL:GetPort()
-	return self.m_iPort
 end
 
 local vertices = {

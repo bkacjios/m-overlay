@@ -5,6 +5,8 @@ local gui = {
 	m_pFocusedPanel = nil,
 	m_strSkin = "default",
 	m_bEditorMode = false,
+	m_tOrphans = {},
+	m_tDeleted = {},
 }
 
 DOCK_NONE = 0
@@ -34,6 +36,10 @@ function gui.getHoveredPanel()
 	return gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
 end
 
+function gui.newSceneLayout()
+	
+end
+
 function gui.openSceneLayout()
 	local file = nfd.open("json", "layout.json")
 
@@ -49,17 +55,71 @@ function gui.openSceneLayout()
 	f:close()
 end
 
+function gui.getDefaultConfig()
+	return {
+		width = 512,
+		height = 256,
+		layout = {
+			{
+				classname = "ControllerDisplay",
+				pos = {
+					x = 0,
+					y = 0,
+					z = 1
+				},
+				size = {
+					height = 256,
+					width = 512
+				},
+				visible = true,
+				accessors = {
+					m_iPort = 1
+				},
+				scale = {
+					x = 1,
+					y = 1
+				}
+			}
+		}
+	}
+end
+
+function gui.loadConfig(config)
+	local canvas = gui.getScenePanel():GetDisplay()
+	canvas:Clear()
+	canvas:SetSize(config.width, config.height)
+
+	for i, panel in ipairs(config.layout) do
+		local p = gui.createScenePanel(panel.classname)
+		p:SetPos(panel.pos.x, panel.pos.y)
+		p:SetZPos(panel.pos.z)
+		p:SetSize(panel.size.width, panel.size.height)
+		p:SetVisible(panel.visible)
+		p:SetScale(panel.scale.x, panel.scale.y)
+		for key, value in pairs(panel.accessors) do
+			p.__accessors[key] = value
+		end
+	end
+end
+
 function gui.saveSceneLayout()
 	local file = nfd.save("json", "layout.json")
 
 	if not file then return end
 
-	local layout = {}
+	local canvas = gui.getScenePanel():GetDisplay()
+
+	local config = {
+		width = canvas:GetWidth(),
+		height = canvas:GetHeight(),
+		layout = {}
+	}
+
 	for k, child in ipairs(gui.m_pSceneManager:GetDisplay():GetChildren()) do
-		layout[k] = child:GetConfig()
+		config.layout[k] = child:GetConfig()
 	end
 
-	local data = json.encode(layout, true)
+	local data = json.encode(config, true)
 
 	--assert(love.filesystem.write(file, data, #data))
 
@@ -143,7 +203,6 @@ function gui.toggleEditorMode()
 	-- Toggle editor mode
 	gui.m_bEditorMode = not gui.m_bEditorMode
 
-	local world = gui.getWorldPanel()
 	local scene = gui.getScenePanel()
 
 	-- Get the size of the display canvas
@@ -173,6 +232,7 @@ function gui.toggleEditorMode()
 
 	love.window.setMode(w, h, flags)
 
+	local world = gui.getWorldPanel()
 	world:SizeToScreen()
 	world:InvalidateLayout()
 	world:ValidateLayout()
@@ -254,6 +314,8 @@ end
 function gui.tick(dt)
 	gui.m_pWorldPanel:ValidateLayout()
 	gui.m_pWorldPanel:CallAll("Think", dt)
+	gui.m_pWorldPanel:CleanupOrphans()
+	gui.m_pWorldPanel:CleanupDeleted()
 end
 
 function gui.shutdown()
@@ -263,6 +325,7 @@ end
 function gui.init()
 	gui.loadSkins("modules/gui/skins")
 	gui.loadClasses("modules/gui/panels/core")
+	gui.loadClasses("modules/gui/panels/editor")
 	gui.loadClasses("modules/gui/panels/smash")
 	class.init() -- Initialize all classes, sets inheritance
 

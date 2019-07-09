@@ -18,9 +18,9 @@ function PANEL:PerformLayout()
 	self:SizeToChildren(false, true)
 end
 
-function PANEL:AddSeperator()
+function PANEL:AddSeperator(height)
 	local entry = self:Add("Panel")
-	entry:SetHeight(8)
+	entry:SetHeight(height or 4)
 	entry:SetBGColor(color_blank)
 	entry:SetBorderColor(color_blank)
 	entry:DockMargin(0,0,0,0)

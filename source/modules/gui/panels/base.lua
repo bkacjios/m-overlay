@@ -8,6 +8,7 @@ local graphics = love.graphics
 
 function PANEL:Initialize()
 	self.m_tChildren = {}
+	self.m_tOrphans = {}
 	self.m_iWorldPosX = 0
 	self.m_iWorldPosY = 0
 	self.m_fScaleX = 1
@@ -22,6 +23,8 @@ function PANEL:Initialize()
 	self.m_bValidated = false
 	self.m_bVisible = true
 	self.m_bFocusable = true
+	self.m_bOrphaned = false
+	self.m_bDeleted = false
 	self.m_iDock = 0
 	self.m_tDockMargins = { left = 4, top = 4, right = 4, bottom = 4 }
 	self.m_tDockPadding = { left = 4, top = 4, right = 4, bottom = 4 }
@@ -36,16 +39,16 @@ function PANEL:__tostring()
 end
 
 function PANEL:GetConfig()
+	local w, h = self:GetActualSize()
+	local sx, sy = self:GetScale()
+
 	local config = {
 		classname = self:GetClassName(),
-		config = {
-			pos = { self:GetPos() },
-			size = { self:GetActualSize() },
-			scale = { self:GetScale() },
-			zpos = self:GetZPos(),
-			visible = self:IsVisible(),
-			accessors = self.__accessors,
-		}
+		pos = { x = self:GetX(), y = self:GetY(), z = self:GetZPos() },
+		size = { width = w, height = h },
+		scale = { x = sx, y = sy },
+		visible = self:IsVisible(),
+		accessors = self.__accessors,
 	}
 
 	if self.m_iDock ~= 0 then
@@ -79,15 +82,25 @@ function PANEL:BringToFront()
 	local parent = self.m_pParent
 	if not parent then return end -- There's nothing for it to go in front of!
 	
-	local highest = 0
+	local highest = nil
+
 	for _,child in ipairs(parent.m_tChildren) do
-		if child:GetZPos() > highest then
-			highest = child:GetZPos()
+		if not highest or child:GetZPos() > highest:GetZPos() then
+			highest = child
 		end
 	end
-	
-	if self:GetZPos() > highest then return end
-	self:SetZPos(highest + 1)
+
+	-- No panels or the highest is already ourself
+	if not highest or highest == self then return end
+
+	-- Get the position of the highest panel
+	local replace = highest:GetZPos()
+
+	-- Set the highest panel to our current position
+	highest:SetZPos(self:GetZPos())
+
+	-- Set our position to where the highest panel used to be
+	self:SetZPos(replace)
 end
 
 function PANEL:Dock(i)
@@ -171,6 +184,11 @@ end]]
 
 function PANEL:SetZPos(i)
 	self.m_iZPos = i
+	self:GetParent():ReorderChildren()
+end
+
+function PANEL:ReorderChildren()
+	table.sort(self.m_tChildren, function(a, b) return a.m_iZPos < b.m_iZPos end)
 end
 
 function PANEL:GetZPos()
@@ -198,11 +216,18 @@ function PANEL:Remove()
 	if parent then
 		parent:OnChildRemoved(self)
 	end
-	self:SetParent()
-	for _,child in ipairs(self.m_tChildren) do
+
+	self.m_bDeleted = true
+
+	for zpos, child in ipairs(self.m_tChildren) do
 		child:Remove()
 	end
-	self = nil
+end
+
+function PANEL:Clear()
+	for zpos, child in ipairs(self.m_tChildren) do
+		child:Remove()
+	end
 end
 
 function PANEL:InvalidateLayout()
@@ -217,14 +242,32 @@ function PANEL:InvalidateParent()
 	self.m_pParent:InvalidateLayout()
 end
 
+function PANEL:MarkAsOrphan()
+	self.m_bOrphaned = true
+end
+
+function PANEL:CleanupOrphans()
+	for key, child in reversedipairs(self.m_tChildren) do
+		child:CleanupOrphans()
+		if child.m_bOrphaned then
+			table.remove(self.m_tChildren, key)
+		end
+	end
+end
+
+function PANEL:CleanupDeleted()
+	for key, child in reversedipairs(self.m_tChildren) do
+		child:CleanupDeleted()
+		if child.m_bDeleted then
+			self.m_tChildren[key] = nil
+			table.remove(self.m_tChildren, key)
+		end
+	end
+end
+
 function PANEL:SetParent(parent)
 	if self.m_pParent then
-		for key, child in ipairs(self.m_pParent.m_tChildren) do
-			if child == self then
-				table.remove(self.m_pParent.m_tChildren, key)
-				break
-			end
-		end
+		self:MarkAsOrphan()
 	end
 	self.m_pParent = parent
 	if parent then
@@ -299,8 +342,8 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 			if ch > lh then lh = ch end
 		end
 	end
-	if doWidth then self:SetWide(w + lw) end
-	if doHeight then self:SetTall(h + lh) end
+	if doWidth then self:SetWidth(w + lw) end
+	if doHeight then self:SetHeight(h + lh) end
 end
 
 function PANEL:Add(class)
@@ -377,7 +420,6 @@ function PANEL:SetSize(w, h)
 	self:OnResize(w, h)
 end
 
-
 function PANEL:GetSize()
 	return self.m_iWidth * self.m_fScaleX, self.m_iHeight * self.m_fScaleY
 end
@@ -386,35 +428,31 @@ function PANEL:GetActualSize()
 	return self.m_iWidth, self.m_iHeight
 end
 
-function PANEL:SetWide(w)
+function PANEL:SetWidth(w)
 	if self.m_iWidth ~= w then
 		self.m_iWidth = w
 		--self:InvalidateLayout()
 	end
 end
-PANEL.SetWidth = PANEL.SetWide
 
-function PANEL:GetWide()
+function PANEL:GetWidth()
 	return self.m_iWidth * self.m_fScaleX
 end
-PANEL.GetWidth = PANEL.GetWide
 
-function PANEL:SetTall(h)
+function PANEL:SetHeight(h)
 	if self.m_iHeight ~= h then
 		self.m_iHeight = h
 		--self:InvalidateLayout()
 	end
 end
-PANEL.SetHeight = PANEL.SetTall
 
-function PANEL:GetTall()
+function PANEL:GetHeight()
 	return self.m_iHeight * self.m_fScaleY
 end
-PANEL.GetHeight = PANEL.GetTall
 
 function PANEL:IsWorldPointInside(x, y)
 	local px, py = self:LocalToScreen(0, 0)
-	return x > px and x < px + self:GetWide() and y > py and y < py + self:GetTall()
+	return x > px and x < px + self:GetWidth() and y > py and y < py + self:GetHeight()
 end
 
 function PANEL:Render()
@@ -562,7 +600,7 @@ function PANEL:DockLayout()
 				w = w - width
 			elseif(dock == DOCK_RIGHT) then
 				child:SetPos((dx + dw) - child:GetWidth() - margin.right, dy + margin.top)
-				child:SetSize(child:GetWide(), dh - margin.top - margin.bottom)
+				child:SetSize(child:GetWidth(), dh - margin.top - margin.bottom)
 				local width = margin.left + margin.right + child:GetWidth()
 				w = w - width
 			elseif(dock == DOCK_BOTTOM) then
@@ -601,10 +639,10 @@ function PANEL:MakePopup()
 	self:GiveFocus()
 end
 
-function PANEL:HasFocus(recursive)
-	if recursive then
+function PANEL:HasFocus(checkchildren)
+	if checkchildren then
 		for _,child in ipairs(self.m_tChildren) do
-			if child:HasFocus(true) then
+			if child:HasFocus(checkchildren) then
 				return true
 			end
 		end

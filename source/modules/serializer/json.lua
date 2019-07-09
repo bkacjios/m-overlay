@@ -59,7 +59,7 @@ end
 local function encode_table(val, pretty, stack, scope)
 	local res = {}
 	stack = stack or {}
-	scope = scope or 0
+	scope = scope or 1
 
 	-- Circular reference?
 	if stack[val] then error("circular reference") end

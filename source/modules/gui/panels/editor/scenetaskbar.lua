@@ -1,7 +1,7 @@
 function PANEL:Initialize()
 	self:super()
 
-	self:DockPadding(0,0,0,0)
+	self:DockPadding(0,1,0,1)
 
 	self.m_tEntries = {}
 

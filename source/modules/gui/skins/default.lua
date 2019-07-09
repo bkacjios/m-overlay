@@ -30,28 +30,28 @@ function SKIN:InitPanel(panel)
 end
 
 function SKIN:PaintPanel(panel, w, h)
-	graphics.setColor(unpackcolor(panel:GetBGColor()))
+	graphics.setColor(panel:GetBGColor())
 	graphics.rectangle("fill", 0, 0, w, h)
 
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
 	
-	graphics.setColor(unpackcolor(panel:GetBorderColor()))
+	graphics.setColor(panel:GetBorderColor())
 	graphics.innerRectangle(0, 0, w, h)
 end
 
 function SKIN:PaintFocusPanel(panel, w, h)
-	graphics.setColor(unpackcolor(panel:GetBGColor()))
+	graphics.setColor(panel:GetBGColor())
 	graphics.rectangle("fill", 0, 0, w, h)
 
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
 
 	if panel:HasFocus() then
-		graphics.setColor(unpackcolor(self.PanelFocused))
+		graphics.setColor(self.PanelFocused)
 		graphics.innerRectangle(0, 0, w, h)
 	else
-		graphics.setColor(unpackcolor(panel:GetBorderColor()))
+		graphics.setColor(panel:GetBorderColor())
 		graphics.innerRectangle(0, 0, w, h)
 	end
 end
@@ -75,7 +75,7 @@ function SKIN:PaintScrollBarGrip(panel, w, h)
 	elseif panel:IsHovered() then
 		color = self.ScrollBarGripHover
 	end
-	graphics.setColor(unpackcolor(color))
+	graphics.setColor(color)
 	graphics.rectangle("fill", 1, 0, w-2, h)
 end
 
@@ -110,7 +110,7 @@ function SKIN:PaintButton(panel, w, h)
 	--[[graphics.setColor(255, 255, 255, 255)
 	graphics.innerRectangle(0, 1, w, h - 2)]]
 
-	graphics.setColor(unpackcolor(panel:GetBorderColor()))
+	graphics.setColor(panel:GetBorderColor())
 	graphics.innerRectangle(0, 0, w, h)
 end
 
@@ -127,22 +127,22 @@ function SKIN:PaintFrame(panel, w, h)
 	--[[graphics.setColor(255, 255, 255, 255)
 	graphics.innerRectangle(0, 1, w, h - 2)]]
 	
-	graphics.setColor(unpackcolor(panel.m_cBordercolor or self.FrameBorder))
+	graphics.setColor(panel.m_cBordercolor or self.FrameBorder)
 	graphics.innerRectangle(0, 0, w, h)
 end
 
 function SKIN:PaintTextEntry(panel, w, h)
-	graphics.setColor(unpackcolor(self.TextEntryBackground))
+	graphics.setColor(self.TextEntryBackground)
 	graphics.rectangle("fill", 0, 0, w, h)
 
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
 
 	if panel:HasFocus() then
-		graphics.setColor(unpackcolor(self.TextEntryFocused))
+		graphics.setColor(self.TextEntryFocused)
 		graphics.innerRectangle(0, 0, w, h)
 	else
-		graphics.setColor(unpackcolor(panel:GetBorderColor()))
+		graphics.setColor(panel:GetBorderColor())
 		graphics.innerRectangle(0, 0, w, h)
 	end
 end

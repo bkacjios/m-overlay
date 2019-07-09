@@ -14,10 +14,6 @@ function PANEL:Initialize()
 	gui.skinHook("Init", "Button", self)
 end
 
-function PANEL:SetLabelEnabled(b)
-	self.m_bDrawLabel = b
-end
-
 function PANEL:Paint(w, h)
 	gui.skinHook("Paint", "Button", self, w, h)
 	if self.m_bDrawLabel then

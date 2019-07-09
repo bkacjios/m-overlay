@@ -9,17 +9,17 @@ function PANEL:Initialize()
 	self.m_bFocusable = true
 
 	self.m_pButLeft = self:Add("Button")
-	self.m_pButLeft:SetLabelEnabled(false)
+	self.m_pButLeft:SetDrawLabel(false)
 	self.m_pButLeft:Dock(DOCK_LEFT)
-	self.m_pButLeft:SetWide(20)
+	self.m_pButLeft:SetWidth(20)
 	function self.m_pButLeft:OnClick()
 		self:GetParent():SelectLeft()
 	end
 
 	self.m_pButRight = self:Add("Button")
-	self.m_pButRight:SetLabelEnabled(false)
+	self.m_pButRight:SetDrawLabel(false)
 	self.m_pButRight:Dock(DOCK_RIGHT)
-	self.m_pButRight:SetWide(20)
+	self.m_pButRight:SetWidth(20)
 	function self.m_pButRight:OnClick()
 		self:GetParent():SelectRight()
 	end

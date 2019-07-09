@@ -40,7 +40,7 @@ function PANEL:Paint(w, h)
 
 	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent() 
 	if self.m_bWrapped then
-		graphics.printf(self.m_sText, 0, 0, self:GetWide(), self.m_sAlignment)
+		graphics.printf(self.m_sText, 0, 0, self:GetWidth(), self.m_sAlignment)
 	else
 		--print(self.m_pFont:getHeight(), self.m_pFont:getLineHeight(), self.m_pFont:getDescent(), self.m_pFont:getAscent(), self.m_pFont:getBaseline())
 

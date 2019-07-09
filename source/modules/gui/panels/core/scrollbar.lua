@@ -27,7 +27,7 @@ local PANEL = {}
 function PANEL:Initialize()	
 	self:super()
 	
-	self:SetWide(16)
+	self:SetWidth(16)
 	self.m_iOffset = 0
 	self.m_iScroll = 0
 	self.m_iCanvasSize = 1
@@ -158,19 +158,19 @@ function PANEL:Think(dt)
 	if not self.m_bEnabled then return end
 	if not self.m_bDragging then return end
 
-	local trackSize = self:GetTall() - self:GetWide() * 2 - self.m_pScrollGrip:GetTall()
+	local trackSize = self:GetHeight() - self:GetWidth() * 2 - self.m_pScrollGrip:GetHeight()
 
 	local mx, my = love.mouse.getPosition()
-	my = (my - self.HoldPos - self.m_pUpButton:GetTall()) / trackSize
+	my = (my - self.HoldPos - self.m_pUpButton:GetHeight()) / trackSize
 
 	self:SetScroll(my * self.m_iCanvasSize)
 end
 
 function PANEL:PerformLayout()
-	local wide = self:GetWide()
+	local wide = self:GetWidth()
 	local scroll = self:GetScroll() / self.m_iCanvasSize
-	local barsize = math.max(self:BarScale() * (self:GetTall() - (wide * 2)), 10)
-	local track = self:GetTall() - (wide * 2) - barsize
+	local barsize = math.max(self:BarScale() * (self:GetHeight() - (wide * 2)), 10)
+	local track = self:GetHeight() - (wide * 2) - barsize
 	track = track + 1
 	
 	scroll = scroll * track
@@ -181,7 +181,7 @@ function PANEL:PerformLayout()
 	self.m_pUpButton:SetPos(0, 0)
 	self.m_pUpButton:SetSize(wide, wide)
 	
-	self.m_pDownButton:SetPos(0, self:GetTall() - wide)
+	self.m_pDownButton:SetPos(0, self:GetHeight() - wide)
 	self.m_pDownButton:SetSize(wide, wide)
 end
 

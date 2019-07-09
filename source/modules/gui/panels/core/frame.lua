@@ -26,9 +26,9 @@ end
 
 function PANEL:PerformLayout()
 	self.m_pTitle:SetPos(2, 2)
-	self.m_pTitle:SetSize(self:GetWide() -  48, 28)
+	self.m_pTitle:SetSize(self:GetWidth() -  48, 28)
 	
-	self.m_pClose:SetPos(self:GetWide() - 46, 4)
+	self.m_pClose:SetPos(self:GetWidth() - 46, 4)
 	self.m_pClose:SetSize(42, 24)
 end
 

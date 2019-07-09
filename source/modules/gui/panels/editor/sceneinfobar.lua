@@ -1,7 +1,7 @@
 function PANEL:Initialize()
 	self:super()
 
-	self:DockPadding(0,0,0,0)
+	self:DockPadding(0,1,0,1)
 
 	self.m_pLuaMemory = self:Add("Label")
 	self.m_pLuaMemory:DockMargin(0,0,0,0)
@@ -15,10 +15,18 @@ function PANEL:Initialize()
 	self.m_pGPUMemory:SetWidth(128)
 	self.m_pGPUMemory:SetTextAlignment("left")
 
-	self.m_pCanvasSize = self:Add("Label")
+	self.m_pCanvasSize = self:Add("Button")
 	self.m_pCanvasSize:DockMargin(0,0,0,0)
 	self.m_pCanvasSize:Dock(DOCK_LEFT)
 	self.m_pCanvasSize:SetTextAlignment("left")
+	self.m_pCanvasSize:SetBGColor(color_blank)
+	self.m_pCanvasSize:SetBorderColor(color_blank)
+
+	self.m_pCanvasSize.OnClick = function(this)
+		local edit = gui.create("CanvasEditor")
+		edit:Center()
+		edit:MakePopup()
+	end
 end
 
 function PANEL:Think(dt)

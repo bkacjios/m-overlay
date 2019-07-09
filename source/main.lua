@@ -38,6 +38,8 @@ function love.load()
 	test:SetSize(200, 128)]]
 
 	--gui.saveSceneLayout()
+
+	gui.loadConfig(gui.getDefaultConfig())
 end
 
 function love.update(dt)
