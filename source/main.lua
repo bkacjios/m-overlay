@@ -10,7 +10,7 @@ local graphics = love.graphics
 local newImage = graphics.newImage
 
 function love.load()
-	love.window.setTitle("M'Overlay - Waiting for Dolphin.exe")
+	love.window.setTitle("M'Overlay - Waiting for Dolphin...")
 	watcher.init()
 	graphics.setBackgroundColor(0, 0, 0, 0) -- Transparent background for OBS
 end

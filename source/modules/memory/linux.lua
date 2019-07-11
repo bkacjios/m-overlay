@@ -74,7 +74,7 @@ local MEMORY = {}
 MEMORY.__index = MEMORY
 MEMORY.init = metatype("MEMORY_STRUCT", MEMORY)
 
-function MEMORY:findprocess()
+function MEMORY:findprocess(name)
 	if self:hasProcess() then return false end
 
 	local dir = libc.opendir("/proc/")
@@ -139,13 +139,16 @@ function MEMORY:findGamecubeRAMOffset()
 				if not line then break end -- EOF
 				if #line > 74 then
 					if sub(line, 74, 74 + 18) == "/dev/shm/dolphinmem" or sub(line, 74, 74 + 19) == "/dev/shm/dolphin-emu" then
-						local startAddr = tonumber(sub(line, 1, 12), 16)
-						local endAddr = tonumber(sub(line, 14, 14 + 12), 16)
-						local size = endAddr - startAddr
-						if size == 0x2000000 then
-							self.dolphin_base_addr = startAddr
-							log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
-							return true
+						local startAddr, endAddr = line:match("^(%x-)%-(%x-)%s")
+						if startAddr and endAddr then
+							-- Convert hex values to number
+							startAddr = tonumber(startAddr, 16)
+							endAddr = tonumber(endAddr, 16)
+							if (endAddr - startAddr) == 0x2000000 then
+								self.dolphin_base_addr = startAddr
+								log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
+								return true
+							end
 						end
 					end
 				end
