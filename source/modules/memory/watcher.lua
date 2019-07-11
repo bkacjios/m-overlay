@@ -1,6 +1,6 @@
 local bit = require("bit")
 local log = require("log")
-local memory = require("memory.windows")
+local memory = require("memory." .. jit.os:lower())
 
 require("extensions.string")
 
@@ -177,13 +177,13 @@ end
 function watcher.update(exe)
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
-		love.window.setTitle("M'Overlay - Waiting for Dolphin.exe..")
+		love.window.setTitle("M'Overlay - Waiting for Dolphin..")
 		log.info("closed: %s", exe)
 	end
 
 	if watcher.process:findprocess(exe) then
 		log.info("hooked: %s", exe)
-		love.window.setTitle("M'Overlay - Dolphin.exe hooked")
+		love.window.setTitle("M'Overlay - Dolphin hooked")
 	end
 
 	if not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then

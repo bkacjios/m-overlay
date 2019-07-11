@@ -18,7 +18,7 @@ DOCK_FILL = 16
 
 local json = require("serializer.json")
 local class = require("class")
-local nfd = require("nfd")
+--local nfd = require("nfd")
 
 require("extensions.table")
 
@@ -47,12 +47,11 @@ function gui.openSceneLayout()
 
 	local f, err = io.open(file, "r")
 	assert(f, err)
-	
 	local layout = json.decode(f:read("*all"))
+	f:close()
 
 	print(table.tostring(layout))
-
-	f:close()
+	gui.loadConfig(layout)
 end
 
 function gui.getDefaultConfig()
