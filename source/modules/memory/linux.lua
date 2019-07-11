@@ -20,7 +20,7 @@ local bswap = bit.bswap
 local band = bit.band
 local bor = bit.bor
 
-local libc = load("libc.so")
+local libc = ffi.C
 
 cdef [[
 char *strerror(int errnum);

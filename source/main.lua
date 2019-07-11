@@ -1,5 +1,6 @@
 love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
 
+require("errorhandler")
 require("util.love2d")
 
 local watcher = require("memory.watcher")
