@@ -1,0 +1,5 @@
+*.love
+*.zip
+build/
+releases/
+nativefiledialog-master/
