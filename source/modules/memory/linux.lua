@@ -37,14 +37,14 @@ typedef struct {
 	size_t iov_len;	/* size of buffer in bytes */
 } iovec;
 
-ssize_t process_vm_readv(pid_t pid,
+int process_vm_readv(pid_t pid,
                          iovec *local_iov,
                          unsigned long liovcnt,
                          iovec *remote_iov,
                          unsigned long riovcnt,
                          unsigned long flags);
 
-ssize_t process_vm_writev(pid_t pid,
+int process_vm_writev(pid_t pid,
                           iovec *local_iov,
                           unsigned long liovcnt,
                           iovec *remote_iov,
