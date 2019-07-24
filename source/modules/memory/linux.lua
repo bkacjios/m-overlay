@@ -103,6 +103,8 @@ function MEMORY:findprocess(name)
 	return self:hasProcess()
 end
 
+continue
+
 function MEMORY:isProcessActive()
 	if self.pid ~= 0 then
 		return libc.access("/proc/" .. self.pid, 0) == 0
