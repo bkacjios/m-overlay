@@ -9,7 +9,7 @@ local log = {
 	},
 	color = jit.os == "Linux",
 	date = "%H:%M:%S",
-	level = "trace",
+	level = "debug",
 }
 
 function log.setColor(b)
@@ -37,7 +37,7 @@ for level, cfg in ipairs(log.levels) do
 		local message
 
 		if log.color then
-			message = format("[%s%-5s\27[0m - %s] %s", cfg.color, upname, date, text)
+			message = format("[\27[1m%s%-5s\27[0m - \27[2m%s\27[0m] %s", cfg.color, upname, date, text)
 		else
 			message = format("[%-5s - %s] %s", upname, date, text)
 		end

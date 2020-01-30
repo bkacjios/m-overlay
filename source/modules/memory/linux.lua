@@ -12,6 +12,7 @@ local new = ffi.new
 local typeof = ffi.typeof
 local sizeof = ffi.sizeof
 local string = ffi.string
+local errno = ffi.errno
 
 local lshift = bit.lshift
 local rshift = bit.rshift
@@ -19,9 +20,11 @@ local bswap = bit.bswap
 local band = bit.band
 local bor = bit.bor
 
-local libc = load("libc.so")
+local libc = ffi.C
 
 cdef [[
+char *strerror(int errnum);
+
 typedef signed int pid_t;
 
 typedef struct {
@@ -34,48 +37,67 @@ typedef struct {
 	size_t iov_len;	/* size of buffer in bytes */
 } iovec;
 
-ssize_t process_vm_readv(pid_t pid,
-                         iovec *local_iov,
-                         unsigned long liovcnt,
-                         iovec *remote_iov,
-                         unsigned long riovcnt,
-                         unsigned long flags);
+int process_vm_readv(pid_t pid,
+						 iovec *local_iov,
+						 unsigned long liovcnt,
+						 iovec *remote_iov,
+						 unsigned long riovcnt,
+						 unsigned long flags);
 
-ssize_t process_vm_writev(pid_t pid,
-                          iovec *local_iov,
-                          unsigned long liovcnt,
-                          iovec *remote_iov,
-                          unsigned long riovcnt,
-                          unsigned long flags);
+int process_vm_writev(pid_t pid,
+						  iovec *local_iov,
+						  unsigned long liovcnt,
+						  iovec *remote_iov,
+						  unsigned long riovcnt,
+						  unsigned long flags);
+
+typedef unsigned short ino_t; 	   /* i-node number */
+typedef unsigned long  off_t;	   /* offset within a file */
+
+typedef struct {
+	ino_t          d_ino;       /* Inode number */
+	off_t          d_off;       /* Not an offset; see below */
+	unsigned short d_reclen;    /* Length of this record */
+	unsigned char  d_type;      /* Type of file; not supported
+								  by all filesystem types */
+	char           name[256];   /* Null-terminated filename */
+} dirent;
+typedef struct __dirstream DIR;
+
+int access(const char *path, int amode);
+DIR *opendir(const char *name);
+int closedir(DIR *dirp);
+dirent *readdir(DIR *dirp);
 ]]
 
 local MEMORY = {}
 MEMORY.__index = MEMORY
 MEMORY.init = metatype("MEMORY_STRUCT", MEMORY)
 
-local lfs = require("lfs")
-
-local function NOTWITHINMEMRANGE(addr)
-	return addr < 0x80000000 or addr > 0x81800000
-end
-
 function MEMORY:findprocess(name)
 	if self:hasProcess() then return false end
 
-	for pid in lfs.dir("/proc") do
-		if pid ~= "." and pid ~= ".." then
-			local attr = lfs.attributes("/proc/" .. pid)
-			if attr and attr.mode == "directory" then
-				local f = io.open("/proc/" .. pid .. "/comm")
-				if f then
-					local line = f:read("*line")
-					if line == "dolphin-emu" or line == "dolphin-emu-qt2" or line == "dolphin-emu-wx" then
-						self.pid = tonumber(pid)
-					end
-					f:close()
+	local dir = libc.opendir("/proc/")
+
+	if dir == nil then
+		local message = string(libc.strerror(errno()))
+		error("error opening directory /proc/: " .. message)
+	else
+		local entry
+		while true do
+			entry = libc.readdir(dir)
+			if entry == nil then break end -- end of list
+			local pid = string(entry.name)
+			local f = io.open("/proc/" .. pid .. "/comm")
+			if f then
+				local line = f:read("*line")
+				if line == "dolphin-emu" or line == "dolphin-emu-qt2" or line == "dolphin-emu-wx" then
+					self.pid = tonumber(pid)
 				end
+				f:close()
 			end
 		end
+		libc.closedir(dir)
 	end
 
 	return self:hasProcess()
@@ -83,10 +105,7 @@ end
 
 function MEMORY:isProcessActive()
 	if self.pid ~= 0 then
-		--local status = new("DWORD[1]")
-		--kernel.GetExitCodeProcess(self.pid, status)
-		--return status[0] == STILL_ACTIVE
-		return true
+		return libc.access("/proc/" .. self.pid, 0) == 0
 	end
 	return false
 end
@@ -112,29 +131,30 @@ end
 
 function MEMORY:findGamecubeRAMOffset()
 	if self:hasProcess() then
-		local maps = "/proc/" .. self.pid .. "/maps"
-		local attr = lfs.attributes(maps)
-		if attr.mode == "file" then
-			local f = io.open(maps)
-			if f then
-				local line
-				repeat
-					line = f:read("*line")
-					if not line then break end
-					if #line > 74 then
-						if sub(line, 74, 74 + 18) == "/dev/shm/dolphinmem" or sub(line, 74, 74 + 19) == "/dev/shm/dolphin-emu" then
-							local startAddr = tonumber(sub(line, 1, 12), 16)
-							local endAddr = tonumber(sub(line, 14, 14 + 12), 16)
-							local size = endAddr - startAddr
-							if size == 0x2000000 then
+		local f = io.open("/proc/" .. self.pid .. "/maps")
+		if f then
+			local line
+			while true do
+				line = f:read("*line")
+				if not line then break end -- EOF
+				if #line > 74 then
+					if sub(line, 74, 74 + 18) == "/dev/shm/dolphinmem" or sub(line, 74, 74 + 19) == "/dev/shm/dolphin-emu" then
+						local startAddr, endAddr = line:match("^(%x-)%-(%x-)%s")
+						if startAddr and endAddr then
+							-- Convert hex values to number
+							startAddr = tonumber(startAddr, 16)
+							endAddr = tonumber(endAddr, 16)
+							if (endAddr - startAddr) == 0x2000000 then
 								self.dolphin_base_addr = startAddr
+								log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
+								f:close()
 								return true
 							end
 						end
 					end
-				until false
-				f:close()
+				end
 			end
+			f:close()
 		end
 	end
 
@@ -150,7 +170,7 @@ local function read(mem, addr, output, size)
 	localvec[0].iov_base = output
 	localvec[0].iov_len = size
 
-	remotevec[0].iov_base = ffi.cast("void*", ramaddr)
+	remotevec[0].iov_base = cast("void*", ramaddr)
 	remotevec[0].iov_len = size
 
 	local read = libc.process_vm_readv(mem.pid, localvec, 1, remotevec, 1, 0)
