@@ -20,6 +20,7 @@ function PANEL:Initialize()
 	self.m_bHovered = false
 	self.m_pParent = nil
 	self.m_iZPos = 0
+	self.m_bScissorEnabled = true
 	self.m_bValidated = false
 	self.m_bVisible = true
 	self.m_bFocusable = true
@@ -218,6 +219,7 @@ function PANEL:Remove()
 	end
 
 	self.m_bDeleted = true
+	self:OnRemoved()
 
 	for zpos, child in ipairs(self.m_tChildren) do
 		child:Remove()
@@ -467,7 +469,7 @@ function PANEL:Render()
 	local sx, sy = x, y
 	local sw, sh = w, h
 
-	while parent do
+	while self.m_bScissorEnabled and parent do
 		-- If we have a parent, fit the scissor to fit inside their bounds
 		local px, py = parent:LocalToScreen(0, 0)
 		local pw, ph = parent:GetSize()
@@ -493,7 +495,9 @@ function PANEL:Render()
 	end
 
 	graphics.push() -- Push the current graphics state
-		graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+		if self.m_bScissorEnabled then
+			graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+		end
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
 			graphics.scale(self:GetScale())
 				local uw, uh = self:GetActualSize()
@@ -505,7 +509,9 @@ function PANEL:Render()
 				graphics.setColor(255, 255, 255, 255)
 				self:PostPaint(uw, uh)
 			graphics.origin()
-		graphics.setScissor()
+		if self.m_bScissorEnabled then
+			graphics.setScissor()
+		end
 	graphics.pop() -- Reset the graphics state to what it was
 
 	-- recently added panels are drawn last, thus, ontop of older panels
@@ -514,13 +520,17 @@ function PANEL:Render()
 	end
 
 	graphics.push()
-		graphics.setScissor(sx, sy, sw, sh)
+		if self.m_bScissorEnabled then
+			graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+		end
 			graphics.translate(x, y)
 			graphics.scale(self:GetScale())
 				graphics.setColor(255, 255, 255, 255)
 				self:PaintOverlay(self:GetActualSize())
 			graphics.origin()
-		graphics.setScissor()
+		if self.m_bScissorEnabled then
+			graphics.setScissor()
+		end
 	graphics.pop() -- Reset the graphics state to what it was
 
 	if self.m_bDebug then
@@ -528,6 +538,10 @@ function PANEL:Render()
 		graphics.setColor(255, 0, 0, 25)
 		graphics.rectangle("fill", sx, sy, sw, sh)
 	end
+end
+
+function PANEL:DisableScissor()
+	self.m_bScissorEnabled = false
 end
 
 function PANEL:ValidateLayout()
@@ -810,6 +824,10 @@ end
 
 function PANEL:OnChildAdded(panel)
 	-- Called when a panel has been added
+end
+
+function PANEL:OnRemoved()
+	
 end
 
 function PANEL:OnChildRemoved(panel)

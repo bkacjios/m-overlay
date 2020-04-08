@@ -111,6 +111,10 @@ function watcher.hook(name, desc, callback)
 	end
 end
 
+function watcher.unhook(name, desc)
+	watcher.hook(name, desc, nil)
+end
+
 local args = {}
 local matches = {}
 

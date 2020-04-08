@@ -1,6 +1,6 @@
 local PANEL = {}
 
-local watcher = require("memory.watcher")
+local memory = require("memory.watcher")
 local perspective = require("perspective")
 local state = require("smash.states")
 
@@ -146,10 +146,45 @@ function PANEL:Initialize()
 	self:DockPadding(0,0,0,0)
 	self:DockMargin(0,0,0,0)
 
-	self:MakeAccessor("Port", "m_iPort", -1)
+	self.m_iActions = 0
 
-	self:SetScale(0.5)
+	self:MakeAccessor("Port", "m_iPort", -1)
+	self:MakeAccessor("APM", "m_bDrawAPM", true)
+
+	self.m_pFont = newFont("fonts/ultimate-bold.otf", 16)
+
+	--self:SetScale(0.5)
+
+	self.m_bShouldUpdateAPM = false
+
+	memory.hook("match.finished", self, self.ResetAPM)
+	memory.hook("player.*.*.action_state", self, self.UpdateAPM)
 end
+
+function PANEL:OnRemoved()
+	memory.unhook("match.finished", self)
+	memory.unhook("player.*.*.action_state", self)
+end
+
+function PANEL:ResetAPM(finished)
+	if finished == 0 then
+		self.m_iActions = 0
+		self.m_bShouldUpdateAPM = true
+	else
+		self.m_bShouldUpdateAPM = false
+	end
+end
+
+function PANEL:UpdateAPM(port, entityType, state_id)
+	local player = memory.player[port][entityType]
+
+	if player and port == self:GetPort() and (state.isAction(state_id) or state.isCharacterAction(player.character, state_id)) then
+		--print(string.format("[%04X] %s", state_id, state.translateChar(player.character, state_id)))
+		if not self.m_bShouldUpdateAPM then return end
+		self.m_iActions = self.m_iActions + 1
+	end
+end
+
 
 local vertices = {
 	{
@@ -203,7 +238,7 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 end
 
 function PANEL:Paint(w, h)
-	local controller = watcher.controller[self.m_iPort]
+	local controller = memory.controller[self.m_iPort]
 
 	if controller then
 
@@ -337,6 +372,14 @@ function PANEL:Paint(w, h)
 				end
 			end
 		end
+	end
+
+	if self.m_bDrawAPM then
+		local time = memory.match.frame / 60
+
+		graphics.setFont(self.m_pFont)
+		graphics.setColor(255, 255, 255, 255)
+		graphics.print(format("APM: %d", self.m_iActions / time * 60), 8, h - 24)
 	end
 end
 

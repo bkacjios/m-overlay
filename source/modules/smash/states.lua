@@ -1328,7 +1328,7 @@ local player_states = {
 	[0x026] = "fall damage",				-- DamageFall
 
 	[0x027] = "crouch",						-- Squat
-	[0x028] = "courching",					-- SquatWait
+	[0x028] = "crouching",					-- SquatWait
 	[0x029] = "stand up",					-- SquatRv
 
 	[0x02A] = "landing",					-- Landing

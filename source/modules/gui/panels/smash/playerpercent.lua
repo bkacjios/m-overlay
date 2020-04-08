@@ -17,6 +17,10 @@ function PANEL:Initialize()
 	self:MakeAccessor("Port", "m_iPort")
 end
 
+function PANEL:OnRemoved()
+	memory.unhook("player.*.*.percent", self)
+end
+
 function PANEL:UpdatePercent(port, entity, percent)
 	if self:GetPort() == port then
 		self.m_tPercents[entity] = math.floor(percent)

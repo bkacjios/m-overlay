@@ -18,7 +18,7 @@ DOCK_FILL = 16
 
 local json = require("serializer.json")
 local class = require("class")
---local nfd = require("nfd")
+local nfd = require("nfd")
 
 require("extensions.table")
 

@@ -28,10 +28,12 @@ function love.load()
 	test:SetText("THIS IS A TEST OVERLAY ELEMENT")
 	test:SizeToText()]]
 
-	local test = gui.createScenePanel("PlayerPercent")
-	test:SetPort(1)
+	--local test = gui.createScenePanel("PlayerPercent")
+	--test:SetPort(1)
 
-	local test = gui.createScenePanel("MiniMap")
+	local map = gui.createScenePanel("MiniMap")
+
+	local test = gui.createScenePanel("KillFeed")
 
 	--[[local test = gui.createScenePanel("PlayerPercent")
 	test:SetPort(2)
@@ -39,7 +41,7 @@ function love.load()
 
 	--gui.saveSceneLayout()
 
-	gui.loadConfig(gui.getDefaultConfig())
+	--gui.loadConfig(gui.getDefaultConfig())
 end
 
 function love.update(dt)

@@ -8,7 +8,8 @@ function PANEL:Initialize()
 	self.m_fFadeTime = 0.5
 	self.m_fFadeEnd = 0
 
-	self:SetSize(192, 256)
+	self:SetSize(288, 384)
+	self:DisableScissor()
 end
 
 function PANEL:GetEntityUpdateTime(entity)
@@ -20,6 +21,8 @@ function PANEL:GetPlayer()
 end
 
 function PANEL:Paint(w, h)
+	if memory.menu ~= MENU.IN_GAME then return end
+
 	local t = timer.getTime()
 
 	for i=1,4 do
