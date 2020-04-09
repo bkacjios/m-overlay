@@ -2,24 +2,27 @@ local bit = require("bit")
 local log = require("log")
 local memory = require("memory." .. jit.os:lower())
 
+require("extensions.string")
+
 local watcher = {
 	debug = false,
+	initialized = false,
+	gameid = "\0\0\0\0\0\0",
 	process = memory.init(),
 	hooks = {},
+	wildcard_hooks = {},
 	values_memory = {},
 	values_pointer = {},
 	watching_addr = {},
+	watching_str_addr = {},
 	watching_ptr_addr = {},
 	pointer_loc = {},
 	named = {},
-	synced = 0,
-	map = require("memory.melee"), -- The map of the game we want to use!
-	no_debug = {}
+	map = {}
 }
 
-function watcher.isSynced()
-	return watcher.synced >= 2
-end
+-- Allow us to do things such as watcher.players.name without having to do watcher.named.player.name
+setmetatable(watcher, {__index = watcher.named})
 
 local TYPE_NULL = 0
 local TYPE_BOOL = 1
@@ -29,13 +32,12 @@ local TYPE_INT = 4
 local TYPE_FLOAT = 5
 local TYPE_POINTER = 6
 local TYPE_DATA = 7
-
--- Allow us to do things such as watcher.players.name without having to do watcher.named.player.name
-setmetatable(watcher, {__index = watcher.named})
+local TYPE_SIGNED_BYTE = 8
 
 local TYPE_NAME = {
 	["bool"] = TYPE_BOOL,
 	["byte"] = TYPE_BYTE,
+	["sbyte"] = TYPE_SIGNED_BYTE,
 	["short"] = TYPE_SHORT,
 	["int"] = TYPE_INT,
 	["float"] = TYPE_FLOAT,
@@ -45,12 +47,15 @@ local TYPE_NAME = {
 local READ_TYPES = {
 	[TYPE_BOOL] = "readBool",
 	[TYPE_BYTE] = "readUByte",
+	[TYPE_SIGNED_BYTE] = "readByte",
 	[TYPE_SHORT] = "readShort",
 	[TYPE_INT] = "readInt",
 	[TYPE_FLOAT] = "readFloat",
 }
 
 function watcher.init()
+	log.info("Initializing memory watcher..")
+	watcher.initialized = true
 	for address, info in pairs(watcher.map) do
 		if info.type == "pointer" and info.struct then
 			watcher.pointer_loc[address] = 0x00000000
@@ -59,24 +64,27 @@ function watcher.init()
 			for offset, struct in pairs(info.struct) do
 				watcher.watching_ptr_addr[address][offset] = TYPE_NAME[struct.type]
 				local name = ("%s.%s"):format(info.name, struct.name)
-				watcher.setTableValue(name, 0)
+				watcher.setTableValue(name, info.init)
 			end
 		else
-			watcher.values_memory[address] = 0
+			watcher.values_memory[address] = info.init or 0
 			watcher.watching_addr[address] = TYPE_NAME[info.type]
 			watcher.setTableValue(info.name, watcher.values_memory[address])
 		end
 	end
 end
 
-function watcher.shutdown()
+function watcher.reset()
+	watcher.initialized = false
 	watcher.values_memory = {}
 	watcher.values_pointer = {}
 	watcher.watching_addr = {}
+	watcher.watching_str_addr = {}
 	watcher.watching_ptr_addr = {}
-
+	watcher.pointer_loc = {}
 	watcher.named = {}
-	watcher.synced = 0
+	watcher.map = {}
+	setmetatable(watcher, {__index = watcher.named})
 end
 
 -- Creates or updates a tree of values for easy indexing
@@ -103,8 +111,19 @@ function watcher.setTableValue(path, value)
 end
 
 function watcher.hook(name, desc, callback)
-	watcher.hooks[name] = watcher.hooks[name] or {}
-	watcher.hooks[name][desc] = callback
+	if string.find(name, "*", 1, true) then
+		-- Convert '*' into capture patterns
+		local pattern = '^' .. name:escape():gsub("%%%*", "([^.]-)") .. '$'
+		watcher.wildcard_hooks[pattern] = watcher.wildcard_hooks[pattern] or {}
+		watcher.wildcard_hooks[pattern][desc] = callback
+	else
+		watcher.hooks[name] = watcher.hooks[name] or {}
+		watcher.hooks[name][desc] = callback
+	end
+end
+
+function watcher.unhook(name, desc)
+	watcher.hook(name, desc, nil)
 end
 
 local args = {}
@@ -114,7 +133,13 @@ function watcher.hookRun(name, ...)
 	-- Normal hooks
 	if watcher.hooks[name] then
 		for desc, callback in pairs(watcher.hooks[name]) do
-			local succ, err = xpcall(callback, debug.traceback, ...)
+			local succ, err
+			if type(desc) == "table" then
+				-- Assume a table is an object, so call it as so
+				succ, err = xpcall(callback, debug.traceback, desc, ...)
+			else
+				succ, err = xpcall(callback, debug.traceback, ...)
+			end
 			if not succ then
 				log.error("watcher hook error: %s (%s)", desc, err)
 			end
@@ -124,25 +149,28 @@ function watcher.hookRun(name, ...)
 	local varargs = {...}
 
 	-- Allow for wildcard hooks
-	for hookName, hooks in pairs(watcher.hooks) do
-		if string.find(hookName, "*", 1, true) then
-			local pattern = '^' .. hookName:escapePattern():gsub("%%%*", "([^.]-)") .. '$'
-			if string.find(name, pattern) then
-				args = {}
-				matches = {name:match(pattern)}
+	for pattern, hooks in pairs(watcher.wildcard_hooks) do
+		if string.find(name, pattern) then
+			args = {}
+			matches = {name:match(pattern)}
 
-				for k, match in ipairs(matches) do
-					table.insert(args, tonumber(match) or match)
-				end
-				for k, arg in ipairs(varargs) do
-					table.insert(args, arg)
-				end
+			for k, match in ipairs(matches) do
+				table.insert(args, tonumber(match) or match)
+			end
+			for k, arg in ipairs(varargs) do
+				table.insert(args, arg)
+			end
 
-				for desc, callback in pairs(hooks) do
-					local succ, err = xpcall(callback, debug.traceback, unpack(args))
-					if not succ then
-						log.error("watcher hook error: %s (%s)", desc, err)
-					end
+			for desc, callback in pairs(hooks) do
+				local succ, err
+				if type(desc) == "table" then
+					-- Assume a table is an object, so call it as so
+					succ, err = xpcall(callback, debug.traceback, desc, unpack(args))
+				else
+					succ, err = xpcall(callback, debug.traceback, unpack(args))
+				end
+				if not succ then
+					log.error("watcher wildcard hook error: %s (%s)", desc, err)
 				end
 			end
 		end
@@ -151,6 +179,10 @@ end
 
 function watcher.toHex(address)
 	return ("%08X"):format(address)
+end
+
+function watcher.readGameID()
+	return tostring(watcher.process:read(0x0, 0x06))
 end
 
 function watcher.readType(type, address)
@@ -165,25 +197,39 @@ function watcher.update(exe)
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
 		love.window.setTitle("M'Overlay - Waiting for Dolphin..")
-		log.info("closed dolphin")
+		log.info("closed: %s", exe)
 	end
 
 	if watcher.process:findprocess(exe) then
-		log.info("hooked dolphin")
+		log.info("hooked: %s", exe)
 		love.window.setTitle("M'Overlay - Dolphin hooked")
 	end
 
 	if not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-		log.info("watching dolphin ram")
-		watcher.init()
-		love.gameLoaded()
+		log.info("watching ram: %s", exe)
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
 		watcher.checkmemoryvalues()
 	end
 end
 
 function watcher.checkmemoryvalues()
-	local frame = watcher.frame
+	local frame = watcher.frame or 0
+	local gid = watcher.readGameID()
+
+	if watcher.gameid ~= gid then
+		watcher.reset()
+		watcher.gameid = gid
+
+		log.debug("GAMEID: %q", gid)
+
+		local status, err = xpcall(require, debug.traceback, "games." .. gid)
+
+		if status then
+			watcher.map = err
+			log.info("Loaded memory map for game: %s", gid)
+			watcher.init()
+		end
+	end
 
 	for address, type in pairs(watcher.watching_addr) do
 		local value = watcher.readType(type, address)
@@ -191,7 +237,7 @@ function watcher.checkmemoryvalues()
 			local info = watcher.map[address]
 			local numValue = tonumber(value) or (value and 1 or 0)
 
-			if info.debug then
+			if watcher.debug or info.debug then
 				log.debug("[%d][%08X = %08X] %s = %s", frame, address, numValue, info.name, value)
 			end
 
@@ -231,7 +277,7 @@ function watcher.checkmemoryvalues()
 						local name = string.format("%s.%s", info.name, info.struct[offset].name)
 						local numValue = tonumber(value) or (value and 1 or 0)
 
-						if info.debug or info.struct[offset].debug then
+						if watcher.debug or info.debug or info.struct[offset].debug then
 							log.debug("[%d][%08X->%08X->%08X = %08X] %s = %s", frame, address, ptr_addr, ptr_addr + offset, numValue, name, value)
 						end
 

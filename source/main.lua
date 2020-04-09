@@ -11,7 +11,6 @@ local newImage = graphics.newImage
 
 function love.load()
 	love.window.setTitle("M'Overlay - Waiting for Dolphin...")
-	watcher.init()
 	graphics.setBackgroundColor(0, 0, 0, 0) -- Transparent background for OBS
 end
 
@@ -33,6 +32,8 @@ local BUTTONS = {
 function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 end
+
+local DC_CON = newImage("textures/buttons/disconnected.png")
 
 local BUTTON_TEXTURES = {
 	DPAD = {
@@ -215,15 +216,33 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 end
 
 function love.draw()
+	if not watcher.initialized then return end
+
 	local controller = watcher.controller[PORT + 1]
 
-	if controller and controller.plugged ~= 0xFF then
+	if controller then
 		-- Draw Joystick
 
-		local x, y = controller.joystick.x, 1 - controller.joystick.y
+		if controller.plugged ~= 0x00 then
+			local h = 255/2
+			local sin = 128 + math.sin(love.timer.getTime()*2) * 128
 
-		local angle = math.atan2(controller.joystick.x, controller.joystick.y)
-		local mag = math.sqrt(controller.joystick.x ^ 2 + controller.joystick.y ^ 2)
+			graphics.setColor(255, 0, 0, sin)
+			graphics.easyDraw(DC_CON, 512-42-16, 256-42-16, 0, 42, 42)
+		end
+
+		local x, y
+
+		if watcher.gameid == "RSBE01" then
+			x, y = controller.joystick.x/100, controller.joystick.y/100
+		elseif watcher.gameid == "GALE01" then
+			x, y = controller.joystick.x, controller.joystick.y
+		end
+
+		local vx, vy = x, 1 - y
+
+		local angle = math.atan2(x, y)
+		local mag = math.sqrt(x ^ 2 + y ^ 2)
 
 		local far = mag * 15
 		local near = mag * 20
@@ -234,7 +253,7 @@ function love.draw()
 		vertices[2][1] = 128 - far	-- x
 		vertices[2][2] = near		-- y
 
-		local rotated = transformVertices(vertices, 64 + 22 + (40 * x), 64 + 12 + (40 * y), angle, 64, 64)
+		local rotated = transformVertices(vertices, 64 + 22 + (40 * vx), 64 + 12 + (40 * vy), angle, 64, 64)
 
 		graphics.setColor(255, 255, 255, 255)
 
@@ -253,10 +272,18 @@ function love.draw()
 
 		-- Draw C-Stick
 
-		local x, y = controller.cstick.x, 1 - controller.cstick.y
+		local x, y
 
-		local angle = math.atan2(controller.cstick.x, controller.cstick.y)
-		local mag = math.sqrt(controller.cstick.x ^ 2 + controller.cstick.y ^ 2)
+		if watcher.gameid == "RSBE01" then
+			x, y = controller.cstick.x/100, controller.cstick.y/100
+		elseif watcher.gameid == "GALE01" then
+			x, y = controller.cstick.x, controller.cstick.y
+		end
+
+		local vx, vy = x, 1 - y
+
+		local angle = math.atan2(x, y)
+		local mag = math.sqrt(x ^ 2 + y ^ 2)
 
 		local far = mag * 12
 		local near = mag * 16
@@ -267,7 +294,7 @@ function love.draw()
 		vertices[2][1] = 128 - far	-- x
 		vertices[2][2] = near		-- y
 
-		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * x), 64 + 20 + (32 * y), angle, 64, 64)
+		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 20 + (32 * vy), angle, 64, 64)
 
 		graphics.setColor(255, 235, 0, 255)
 		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
@@ -280,6 +307,8 @@ function love.draw()
 
 		-- Draw L
 
+		local al, ar = math.min(1, controller.analog.l/150), math.min(1, controller.analog.r/150)
+
 		graphics.setLineStyle("smooth")
 		love.graphics.setLineWidth(3)
 
@@ -289,7 +318,7 @@ function love.draw()
 		end, "replace", 1)
 		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 			-- L Analog
-			graphics.rectangle("fill", 24 + 14, 16, 88 * controller.analog.float.l, 12)
+			graphics.rectangle("fill", 24 + 14, 16, 88 * al, 12)
 
 	 		-- L Button
 			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
@@ -310,7 +339,7 @@ function love.draw()
 		end, "replace", 1)
 		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 			-- R Analog
-			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - controller.analog.float.r)), 16, 88 * controller.analog.float.r, 12)
+			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 16, 88 * ar, 12)
 
 			-- R Button
 			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then

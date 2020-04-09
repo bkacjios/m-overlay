@@ -1,3 +1,5 @@
+-- Super Smash Bros. Melee (NTSC v1.02)
+
 local map = {}
 
 -- 804B302C = PAL
@@ -14,8 +16,8 @@ local controller_struct = {
 	[0x04] = { type = "int",	name = "controller.%d.buttons.pressed_previous" },
 	[0x08] = { type = "int",	name = "controller.%d.buttons.instant" },
 	[0x10] = { type = "int",	name = "controller.%d.buttons.released" },
-	[0x1C] = { type = "byte",	name = "controller.%d.analog.byte.l" },
-	[0x1D] = { type = "byte",	name = "controller.%d.analog.byte.r" },
+	[0x1C] = { type = "byte",	name = "controller.%d.analog.l" },
+	[0x1D] = { type = "byte",	name = "controller.%d.analog.r" },
 	[0x20] = { type = "float",	name = "controller.%d.joystick.x" },
 	[0x24] = { type = "float",	name = "controller.%d.joystick.y" },
 	[0x28] = { type = "float",	name = "controller.%d.cstick.x" },

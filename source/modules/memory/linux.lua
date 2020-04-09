@@ -38,18 +38,18 @@ typedef struct {
 } iovec;
 
 int process_vm_readv(pid_t pid,
-                         iovec *local_iov,
-                         unsigned long liovcnt,
-                         iovec *remote_iov,
-                         unsigned long riovcnt,
-                         unsigned long flags);
+						 iovec *local_iov,
+						 unsigned long liovcnt,
+						 iovec *remote_iov,
+						 unsigned long riovcnt,
+						 unsigned long flags);
 
 int process_vm_writev(pid_t pid,
-                          iovec *local_iov,
-                          unsigned long liovcnt,
-                          iovec *remote_iov,
-                          unsigned long riovcnt,
-                          unsigned long flags);
+						  iovec *local_iov,
+						  unsigned long liovcnt,
+						  iovec *remote_iov,
+						  unsigned long riovcnt,
+						  unsigned long flags);
 
 typedef unsigned short ino_t; 	   /* i-node number */
 typedef unsigned long  off_t;	   /* offset within a file */
@@ -59,7 +59,7 @@ typedef struct {
 	off_t          d_off;       /* Not an offset; see below */
 	unsigned short d_reclen;    /* Length of this record */
 	unsigned char  d_type;      /* Type of file; not supported
-	                              by all filesystem types */
+								  by all filesystem types */
 	char           name[256];   /* Null-terminated filename */
 } dirent;
 typedef struct __dirstream DIR;
@@ -102,8 +102,6 @@ function MEMORY:findprocess(name)
 
 	return self:hasProcess()
 end
-
-continue
 
 function MEMORY:isProcessActive()
 	if self.pid ~= 0 then
@@ -149,6 +147,7 @@ function MEMORY:findGamecubeRAMOffset()
 							if (endAddr - startAddr) == 0x2000000 then
 								self.dolphin_base_addr = startAddr
 								log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
+								f:close()
 								return true
 							end
 						end
