@@ -131,6 +131,7 @@ end
 
 function MEMORY:findGamecubeRAMOffset()
 	if self:hasProcess() then
+		love.timer.sleep(0.25) -- Newer versions of dolphin seem to need a bit of time to allocate the memory addresses
 		local f = io.open("/proc/" .. self.pid .. "/maps")
 		if f then
 			local line

@@ -18,7 +18,6 @@ local watcher = {
 	watching_ptr_addr = {},
 	pointer_loc = {},
 	named = {},
-	map = {}
 }
 
 -- Allow us to do things such as watcher.players.name without having to do watcher.named.player.name
@@ -56,7 +55,7 @@ local READ_TYPES = {
 function watcher.init()
 	log.info("Initializing memory watcher..")
 	watcher.initialized = true
-	for address, info in pairs(watcher.map) do
+	for address, info in pairs(watcher.game.memorymap) do
 		if info.type == "pointer" and info.struct then
 			watcher.pointer_loc[address] = 0x00000000
 			watcher.values_pointer[address] = {}
@@ -83,8 +82,13 @@ function watcher.reset()
 	watcher.watching_ptr_addr = {}
 	watcher.pointer_loc = {}
 	watcher.named = {}
-	watcher.map = {}
+	watcher.gameid = "\0\0\0\0\0\0"
+	watcher.game = nil
 	setmetatable(watcher, {__index = watcher.named})
+end
+
+function watcher.getGame()
+	return watcher.game
 end
 
 -- Creates or updates a tree of values for easy indexing
@@ -216,16 +220,20 @@ function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
 
+	--print(("%q"):format(gid))
+
 	if watcher.gameid ~= gid then
 		watcher.reset()
 		watcher.gameid = gid
 
 		log.debug("GAMEID: %q", gid)
 
-		local status, err = xpcall(require, debug.traceback, "games." .. gid)
+		-- Try to load the game table
+		local status, game = xpcall(require, debug.traceback, "games." .. gid)
 
 		if status then
-			watcher.map = err
+			game.id = gid
+			watcher.game = game
 			log.info("Loaded memory map for game: %s", gid)
 			watcher.init()
 		end
@@ -234,7 +242,7 @@ function watcher.checkmemoryvalues()
 	for address, type in pairs(watcher.watching_addr) do
 		local value = watcher.readType(type, address)
 		if watcher.values_memory[address] ~= value then
-			local info = watcher.map[address]
+			local info = watcher.game.memorymap[address]
 			local numValue = tonumber(value) or (value and 1 or 0)
 
 			if watcher.debug or info.debug then
@@ -264,7 +272,7 @@ function watcher.checkmemoryvalues()
 		local ptr_addr = watcher.pointer_loc[address]
 		if ptr_addr and ptr_addr ~= 0x00000000 then
 
-			local info = watcher.map[address]
+			local info = watcher.game.memorymap[address]
 
 			for offset, type in pairs(offsets) do
 

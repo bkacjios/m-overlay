@@ -3,7 +3,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 require("errorhandler")
 require("util.love2d")
 
-local watcher = require("memory.watcher")
+local watcher = require("memory")
 local perspective = require("perspective")
 
 local graphics = love.graphics
@@ -216,7 +216,7 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 end
 
 function love.draw()
-	if not watcher.initialized then return end
+	if not watcher.initialized or not watcher.game then return end
 
 	local controller = watcher.controller[PORT + 1]
 
@@ -224,21 +224,12 @@ function love.draw()
 		-- Draw Joystick
 
 		if controller.plugged ~= 0x00 then
-			local h = 255/2
 			local sin = 128 + math.sin(love.timer.getTime()*2) * 128
-
 			graphics.setColor(255, 0, 0, sin)
 			graphics.easyDraw(DC_CON, 512-42-16, 256-42-16, 0, 42, 42)
 		end
 
-		local x, y
-
-		if watcher.gameid == "RSBE01" then
-			x, y = controller.joystick.x/100, controller.joystick.y/100
-		elseif watcher.gameid == "GALE01" then
-			x, y = controller.joystick.x, controller.joystick.y
-		end
-
+		local x, y = watcher.game.translateAxis(controller.joystick.x, controller.joystick.y)
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)
@@ -272,14 +263,7 @@ function love.draw()
 
 		-- Draw C-Stick
 
-		local x, y
-
-		if watcher.gameid == "RSBE01" then
-			x, y = controller.cstick.x/100, controller.cstick.y/100
-		elseif watcher.gameid == "GALE01" then
-			x, y = controller.cstick.x, controller.cstick.y
-		end
-
+		local x, y = watcher.game.translateAxis(controller.cstick.x, controller.cstick.y)
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)
@@ -307,7 +291,7 @@ function love.draw()
 
 		-- Draw L
 
-		local al, ar = math.min(1, controller.analog.l/150), math.min(1, controller.analog.r/150)
+		local al, ar = watcher.game.translateTriggers(controller.analog.l, controller.analog.r)
 
 		graphics.setLineStyle("smooth")
 		love.graphics.setLineWidth(3)

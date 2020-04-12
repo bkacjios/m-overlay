@@ -1,6 +1,8 @@
 -- Super Smash Bros. Brawl (NTSC v1.01)
 
-local map = {}
+local game = {
+	memorymap = {}
+}
 
 --[[
 Brawl seems to have 4 addresses dedicated to controller input values, each address polling around 15fps.
@@ -59,7 +61,7 @@ for _, polling_addr in ipairs(polling_addresses) do
 	for port, controller_addr in ipairs(controllers) do
 		-- For every controller 
 		for offset, info in pairs(controller_struct) do
-			map[polling_addr + controller_addr + offset] = {
+			game.memorymap[polling_addr + controller_addr + offset] = {
 				type = info.type,
 				debug = info.debug,
 				name = info.name:format(port),
@@ -68,4 +70,14 @@ for _, polling_addr in ipairs(polling_addresses) do
 	end
 end
 
-return map
+function game.translateAxis(x, y)
+	return x/100, y/100
+end
+
+local min = math.min
+
+function game.translateTriggers(l, r)
+	return min(1, l/150), min(1, r/150)
+end
+
+return game
