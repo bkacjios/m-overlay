@@ -77,7 +77,7 @@ end
 local min = math.min
 
 function game.translateTriggers(l, r)
-	return min(1, l/150), min(1, r/150)
+	return min(1, l/128), min(1, r/128)
 end
 
 return game

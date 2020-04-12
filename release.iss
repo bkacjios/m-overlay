@@ -9,7 +9,7 @@
 [Setup]
 AppName=M'Overlay
 AppId=AppName
-AppVersion=0.5
+AppVersion=0.6
 WizardStyle=modern
 DefaultDirName={autopf}\M'Overlay
 DefaultGroupName=M'Overlay
@@ -45,4 +45,4 @@ Source: "build/x64/nfd.dll"; DestDir: "{app}"; DestName: "nfd.dll"
 Name: "{group}\M'Overlay"; Filename: "{app}\m-overlay-64.exe"
 
 [Run]
-Filename: {app}\M'Overlay.exe; Description: "Launch M'Overlay"; Flags: postinstall shellexec skipifsilent nowait
+Filename: {app}\m-overlay-64.exe; Description: "Launch M'Overlay"; Flags: postinstall shellexec skipifsilent nowait
