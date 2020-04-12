@@ -233,7 +233,7 @@ function love.draw()
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)
-		local mag = math.sqrt(x ^ 2 + y ^ 2)
+		local mag = math.sqrt(x*x + y*y)
 
 		local far = mag * 15
 		local near = mag * 20
@@ -267,7 +267,7 @@ function love.draw()
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)
-		local mag = math.sqrt(x ^ 2 + y ^ 2)
+		local mag = math.sqrt(x*x + y*y)
 
 		local far = mag * 12
 		local near = mag * 16

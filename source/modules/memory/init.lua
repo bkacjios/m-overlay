@@ -236,6 +236,8 @@ function watcher.checkmemoryvalues()
 			watcher.game = game
 			log.info("Loaded memory map for game: %s", gid)
 			watcher.init()
+		else
+			log.error(game)
 		end
 	end
 

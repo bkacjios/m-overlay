@@ -19,7 +19,7 @@ local controller_struct = {
 	[0x5] = { type = "sbyte",	name = "controller.%d.cstick.y" },
 	[0x6] = { type = "byte",	name = "controller.%d.analog.l" },
 	[0x7] = { type = "byte",	name = "controller.%d.analog.r" },
-	[0xA] = { type = "byte",	name = "controller.%d.plugged", debug = true },
+	[0xA] = { type = "byte",	name = "controller.%d.plugged" },
 }
 
 for port, address in ipairs(controllers) do
@@ -32,8 +32,19 @@ for port, address in ipairs(controllers) do
 	end
 end
 
+local abs = math.abs
+
 function game.translateAxis(x, y)
-	return x/75, y/75
+	x = x/72
+	y = y/72
+
+	local near = 1 - (abs(abs(x) - abs(y))) * 0.72
+
+	local angle = math.atan2(x, y)
+	local mag = math.sqrt(x*x + y*y)
+
+	-- Amplify the magnitute when x,y values are headed towards a diagonal
+	return x + math.sin(angle) * mag * near * 0.28, y + math.cos(angle) * mag * near * 0.28
 end
 
 local min = math.min
