@@ -1,5 +1,6 @@
 @echo OFF
 
+
 REM Release name
 SET NAME=m-overlay
 
@@ -35,7 +36,7 @@ if not exist %RELEASES_DIR% mkdir %RELEASES_DIR%
 if not exist %BUILD_OUTPUT_DIR% mkdir %BUILD_OUTPUT_DIR%
 
 SET BRANCH=dirty
-SER VERSION=1
+SET VERSION=1
 
 REM Get GIT commit number
 FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-list --count --first-parent HEAD`) DO (

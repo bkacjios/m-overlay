@@ -9,7 +9,7 @@
 [Setup]
 AppName=M'Overlay
 AppId=AppName
-AppVersion=0.6
+AppVersion=0.7
 WizardStyle=modern
 DefaultDirName={autopf}\M'Overlay
 DefaultGroupName=M'Overlay
@@ -39,7 +39,6 @@ Source: "build/x64/msvcp120.dll"; DestDir: "{app}"; DestName: "msvcp120.dll"
 Source: "build/x64/msvcr120.dll"; DestDir: "{app}"; DestName: "msvcr120.dll"      
 Source: "build/x64/OpenAL32.dll"; DestDir: "{app}"; DestName: "OpenAL32.dll"    
 Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"  
-Source: "build/x64/nfd.dll"; DestDir: "{app}"; DestName: "nfd.dll"
 
 [Icons]
 Name: "{group}\M'Overlay"; Filename: "{app}\m-overlay-64.exe"
