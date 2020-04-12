@@ -154,6 +154,11 @@ BOOL GetExitCodeProcess(
 	HANDLE  hProcess,
 	LPDWORD lpExitCode
 );
+
+DWORD WaitForSingleObject(
+	HANDLE hHandle,
+	DWORD  dwMilliseconds
+);
 ]]
 
 local MEMORY = {}
@@ -182,30 +187,37 @@ local PSAPI_WORKING_SET_EX_INFORMATION_PTR = typeof("PSAPI_WORKING_SET_EX_INFORM
 function MEMORY:findprocess(name)
 	if self:hasProcess() then return false end
 
-	local processes = kernel.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) -- Create the snapshot
+	local handle
+	local snapshot = kernel.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) -- Create the snapshot
 
 	local pe32 = PROCESSENTRY32_PTR()[0] -- Will store the info about the process
 	pe32.dwSize = sizeof(pe32)
 
 	repeat
 		if string(pe32.szExeFile) == name then
-			self.process_handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID);
-			break
+			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
+
+			local status = new("DWORD[1]")
+			-- Check if the process is active, we don't want to rehook the closing application
+			if handle ~= nil and kernel.GetExitCodeProcess(handle, status) and status[0] == STILL_ACTIVE then
+				-- We have an active process that matches, let's use it
+				self.process_handle = handle
+				break
+			elseif handle then
+				-- Dolphin is closing.. ignore and close the handle..
+				kernel.CloseHandle(handle)
+			end
 		end
-	until kernel.Process32Next(processes, pe32) == 0
+	until kernel.Process32Next(snapshot, pe32) == 0
 	
-	kernel.CloseHandle(processes)
+	kernel.CloseHandle(snapshot)
 
 	return self:hasProcess()
 end
 
 function MEMORY:isProcessActive()
-	if self.process_handle ~= nil then
-		local status = new("DWORD[1]")
-		kernel.GetExitCodeProcess(self.process_handle, status)
-		return status[0] == STILL_ACTIVE
-	end
-	return false
+	local status = new("DWORD[1]")
+	return self.process_handle ~= nil and kernel.GetExitCodeProcess(self.process_handle, status) and status[0] == STILL_ACTIVE
 end
 
 function MEMORY:hasProcess()
@@ -244,7 +256,7 @@ function MEMORY:findGamecubeRAMOffset()
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
 				if band(flags, lshift(1, 0)) == 1 then -- Check if the Valid flag is set
 					self.dolphin_base_addr = cast("ULONG_PTR", info.BaseAddress)
-					log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
+					log.debug("Memory address: %08X", tonumber(self.dolphin_base_addr))
 					return true
 				end
 			end
@@ -257,13 +269,7 @@ end
 local function read(mem, addr, output, size)
 	local read = new("SIZE_T[1]")
 	local success = kernel.ReadProcessMemory(mem.process_handle, ffi.cast("LPCVOID", mem.dolphin_base_addr + (addr % 0x80000000)), output, size, read)
-
-	if success and read[0] == size then
-		return true
-	else
-		mem:close()
-		return false
-	end
+	return success and read[0] == size
 end
 
 function MEMORY:readByte(addr)

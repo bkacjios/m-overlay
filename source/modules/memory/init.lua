@@ -53,7 +53,7 @@ local READ_TYPES = {
 }
 
 function watcher.init()
-	log.info("Initializing memory watcher..")
+	log.info("Mapping game memory..")
 	watcher.initialized = true
 	for address, info in pairs(watcher.game.memorymap) do
 		if info.type == "pointer" and info.struct then
@@ -201,16 +201,14 @@ function watcher.update(exe)
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
 		love.window.setTitle("M'Overlay - Waiting for Dolphin..")
-		log.info("closed: %s", exe)
+		log.info("Unhooked: %s", exe)
 	end
 
 	if watcher.process:findprocess(exe) then
-		log.info("hooked: %s", exe)
+		log.info("Hooked: %s", exe)
 		love.window.setTitle("M'Overlay - Dolphin hooked")
-	end
-
-	if not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-		log.info("watching ram: %s", exe)
+	elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
+		log.info("Watching process ram: %s", exe)
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
 		watcher.checkmemoryvalues()
 	end
@@ -220,24 +218,26 @@ function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
 
-	--print(("%q"):format(gid))
-
 	if watcher.gameid ~= gid then
 		watcher.reset()
 		watcher.gameid = gid
 
-		log.debug("GAMEID: %q", gid)
+		if gid ~= "\0\0\0\0\0\0" then
+			log.debug("GAMEID: %q", gid)
 
-		-- Try to load the game table
-		local status, game = xpcall(require, debug.traceback, "games." .. gid)
+			-- Try to load the game table
+			local status, game = xpcall(require, debug.traceback, "games." .. gid)
 
-		if status then
-			game.id = gid
-			watcher.game = game
-			log.info("Loaded memory map for game: %s", gid)
-			watcher.init()
+			if status then
+				game.id = gid
+				watcher.game = game
+				log.info("Loaded game config: %s", gid)
+				watcher.init()
+			else
+				log.error(game)
+			end
 		else
-			log.error(game)
+			log.info("Game closed..")
 		end
 	end
 

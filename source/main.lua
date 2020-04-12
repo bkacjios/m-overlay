@@ -148,10 +148,6 @@ local BUTTON_TEXTURES = {
 local MAX_PORTS = 4
 local PORT = 0
 
-function love.gameLoaded()
-	love.window.setTitle(string.format("M'Overlay - Port %d", PORT + 1))
-end
-
 function love.wheelmoved(x, y)
 	if not watcher.isReady() then return end
 
@@ -161,7 +157,7 @@ function love.wheelmoved(x, y)
 		PORT = PORT + 1
 	end
 	PORT = PORT % MAX_PORTS
-	love.gameLoaded()
+	love.window.setTitle(string.format("M'Overlay - Port %d", PORT + 1))
 end
 
 local vertices = {
