@@ -1,14 +1,14 @@
--- Super Smash Bros. Melee (NTSC v1.02)
+-- Super Smash Bros. Melee (PAL)
 
 local game = {
 	memorymap = {}
 }
 
 local controllers = {
-	[1] = 0x804C1FAC + 0x44 * 0,
-	[2] = 0x804C1FAC + 0x44 * 1,
-	[3] = 0x804C1FAC + 0x44 * 2,
-	[4] = 0x804C1FAC + 0x44 * 3,
+	[1] = 0x804B302C + 0x44 * 0,
+	[2] = 0x804B302C + 0x44 * 1,
+	[3] = 0x804B302C + 0x44 * 2,
+	[4] = 0x804B302C + 0x44 * 3,
 }
 
 local controller_struct = {
