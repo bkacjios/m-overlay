@@ -30,15 +30,15 @@ ArchitecturesInstallIn64BitMode=x64
 LicenseFile=build/x64/license.txt
 
 [Files]                                
-Source: "build/x64/license.txt"; DestDir: "{app}"; DestName: "license.txt"                                    
-Source: "build/x64/m-overlay-x64.exe"; DestDir: "{app}"; DestName: "m-overlay-64.exe"       
-Source: "build/x64/love.dll"; DestDir: "{app}"; DestName: "love.dll"
-Source: "build/x64/lua51.dll"; DestDir: "{app}"; DestName: "lua51.dll"
-Source: "build/x64/mpg123.dll"; DestDir: "{app}"; DestName: "mpg123.dll"
-Source: "build/x64/msvcp120.dll"; DestDir: "{app}"; DestName: "msvcp120.dll"
-Source: "build/x64/msvcr120.dll"; DestDir: "{app}"; DestName: "msvcr120.dll"      
-Source: "build/x64/OpenAL32.dll"; DestDir: "{app}"; DestName: "OpenAL32.dll"    
-Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"  
+Source: "build/x64/license.txt"; DestDir: "{app}"; DestName: "license.txt"; Flags: ignoreversion                                    
+Source: "build/x64/m-overlay-x64.exe"; DestDir: "{app}"; DestName: "m-overlay-64.exe"; Flags: ignoreversion       
+Source: "build/x64/love.dll"; DestDir: "{app}"; DestName: "love.dll"; Flags: ignoreversion
+Source: "build/x64/lua51.dll"; DestDir: "{app}"; DestName: "lua51.dll"; Flags: ignoreversion
+Source: "build/x64/mpg123.dll"; DestDir: "{app}"; DestName: "mpg123.dll"; Flags: ignoreversion
+Source: "build/x64/msvcp120.dll"; DestDir: "{app}"; DestName: "msvcp120.dll"; Flags: ignoreversion
+Source: "build/x64/msvcr120.dll"; DestDir: "{app}"; DestName: "msvcr120.dll"; Flags: ignoreversion      
+Source: "build/x64/OpenAL32.dll"; DestDir: "{app}"; DestName: "OpenAL32.dll"; Flags: ignoreversion    
+Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"; Flags: ignoreversion  
 
 [Icons]
 Name: "{group}\M'Overlay"; Filename: "{app}\m-overlay-64.exe"
