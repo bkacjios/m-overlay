@@ -1,6 +1,5 @@
 @echo OFF
 
-
 REM Release name
 SET NAME=m-overlay
 
@@ -58,6 +57,9 @@ SET ZIP=%BUILD_DIR%\%NAME%.love
 echo Zipping files in %SOURCE_DIR% into %ZIP%
 
 if exist %ZIP% del %ZIP%
+
+REM timeout /t 3 /nobreak
+
 7z a -tzip -mx=9 -xr!*.git -xr!*.dll %ZIP% "%SOURCE_DIR%\*"
 
 echo Copying LOVE2D binaries and license to %BUILD_OUTPUT_DIR%

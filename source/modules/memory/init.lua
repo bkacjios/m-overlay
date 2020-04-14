@@ -214,6 +214,12 @@ function watcher.update(exe)
 	end
 end
 
+local game_clones = {
+	["GTME01"] = "GALE01", -- UnclePunch Training Mode
+	["MNCE02"] = "GALE01", -- Melee Netplay Community Build
+	["SDRE32"] = "GALE01", -- SSBM SD Remix
+}
+
 function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
@@ -225,11 +231,13 @@ function watcher.checkmemoryvalues()
 		if gid ~= "\0\0\0\0\0\0" then
 			log.debug("GAMEID: %q", gid)
 
+			-- See if this GameID is a clone of another
+			gid = game_clones[gid] or gid
+
 			-- Try to load the game table
 			local status, game = xpcall(require, debug.traceback, "games." .. gid)
 
 			if status then
-				game.id = gid
 				watcher.game = game
 				log.info("Loaded game config: %s", gid)
 				watcher.init()

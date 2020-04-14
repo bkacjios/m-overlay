@@ -9,7 +9,7 @@
 [Setup]
 AppName=M'Overlay
 AppId=AppName
-AppVersion=0.7
+AppVersion=0.8
 WizardStyle=modern
 DefaultDirName={autopf}\M'Overlay
 DefaultGroupName=M'Overlay
