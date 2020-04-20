@@ -226,6 +226,10 @@ local game_clones = {
 	["SDRE32"] = "GALE01", -- SSBM SD Remix
 }
 
+local game_clones_version = {
+	["SDRE32"] = 2, -- Mod changes version to 3... Use Melee v2 config
+}
+
 function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
@@ -240,6 +244,7 @@ function watcher.checkmemoryvalues()
 			log.debug("GAMEID: %q (Version %d)", gid, version)
 
 			-- See if this GameID is a clone of another
+			version = game_clones_version[gid] or version
 			gid = game_clones[gid] or gid
 
 			-- Try to load the game table

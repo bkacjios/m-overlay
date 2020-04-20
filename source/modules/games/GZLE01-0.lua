@@ -1,5 +1,7 @@
 -- The Legend of Zelda: The Wind Waker (NTSC)
 
+local core = require("games.core")
+
 local game = {
 	memorymap = {}
 }
@@ -32,25 +34,7 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-local abs = math.abs
-
-function game.translateAxis(x, y)
-	x = x/72
-	y = y/72
-
-	local near = 1 - (abs(abs(x) - abs(y))) * 0.72
-
-	local angle = math.atan2(x, y)
-	local mag = math.sqrt(x*x + y*y)
-
-	-- Amplify the magnitute when x,y values are headed towards a diagonal
-	return x + math.sin(angle) * mag * near * 0.28, y + math.cos(angle) * mag * near * 0.28
-end
-
-local min = math.min
-
-function game.translateTriggers(l, r)
-	return min(1, l/125), min(1, r/125)
-end
+game.translateAxis = core.translateAxis
+game.translateTriggers = core.translateTriggers
 
 return game

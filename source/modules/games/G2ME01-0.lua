@@ -1,4 +1,4 @@
--- Metroid Prime (NTSC v1.0)
+-- Metroid Prime 2: Echoes (NTSC v1.0)
 
 local core = require("games.core")
 
@@ -7,10 +7,10 @@ local game = {
 }
 
 local controllers = {
-	[1] = 0x807A55A4 + 0xC * 0,
-	[2] = 0x807A55A4 + 0xC * 1,
-	[3] = 0x807A55A4 + 0xC * 2,
-	[4] = 0x807A55A4 + 0xC * 3,
+	[1] = 0x80704C24 + 0xC * 0,
+	[2] = 0x80704C24 + 0xC * 1,
+	[3] = 0x80704C24 + 0xC * 2,
+	[4] = 0x80704C24 + 0xC * 3,
 }
 
 local controller_struct = {
