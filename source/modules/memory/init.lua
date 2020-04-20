@@ -8,6 +8,7 @@ local watcher = {
 	debug = false,
 	initialized = false,
 	gameid = "\0\0\0\0\0\0",
+	version = 0,
 	process = memory.init(),
 	hooks = {},
 	wildcard_hooks = {},
@@ -83,6 +84,7 @@ function watcher.reset()
 	watcher.pointer_loc = {}
 	watcher.named = {}
 	watcher.gameid = "\0\0\0\0\0\0"
+	watcher.version = 0
 	watcher.game = nil
 	setmetatable(watcher, {__index = watcher.named})
 end
@@ -189,6 +191,10 @@ function watcher.readGameID()
 	return tostring(watcher.process:read(0x0, 0x06))
 end
 
+function watcher.readGameVersion()
+	return watcher.process:readUByte(0x7)
+end
+
 function watcher.readType(type, address)
 	return watcher.process[READ_TYPES[type]](watcher.process, address)
 end
@@ -223,23 +229,25 @@ local game_clones = {
 function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
+	local version = watcher.readGameVersion()
 
-	if watcher.gameid ~= gid then
+	if watcher.gameid ~= gid or watcher.version ~= version then
 		watcher.reset()
 		watcher.gameid = gid
+		watcher.version = version
 
 		if gid ~= "\0\0\0\0\0\0" then
-			log.debug("GAMEID: %q", gid)
+			log.debug("GAMEID: %q (Version %d)", gid, version)
 
 			-- See if this GameID is a clone of another
 			gid = game_clones[gid] or gid
 
 			-- Try to load the game table
-			local status, game = xpcall(require, debug.traceback, "games." .. gid)
+			local status, game = xpcall(require, debug.traceback, string.format("games.%s-%d", gid, version))
 
 			if status then
 				watcher.game = game
-				log.info("Loaded game config: %s", gid)
+				log.info("Loaded game config: %s-%d", gid, version)
 				watcher.init()
 			else
 				log.error(game)

@@ -1,14 +1,14 @@
--- Metroid Prime(NTSC)
+-- Need for Speed: Underground 2 (NTSC v1.0)
 
 local game = {
 	memorymap = {}
 }
 
 local controllers = {
-	[1] = 0x807A55A4 + 0xC * 0,
-	[2] = 0x807A55A4 + 0xC * 1,
-	[3] = 0x807A55A4 + 0xC * 2,
-	[4] = 0x807A55A4 + 0xC * 3,
+	[1] = 0x803E642C + 0xC * 0,
+	[2] = 0x803E642C + 0xC * 1,
+	[3] = 0x803E642C + 0xC * 2,
+	[4] = 0x803E642C + 0xC * 3,
 }
 
 local controller_struct = {
