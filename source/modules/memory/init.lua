@@ -1,6 +1,7 @@
 local bit = require("bit")
 local log = require("log")
 local memory = require("memory." .. jit.os:lower())
+local clones = require("games.clones")
 
 require("extensions.string")
 
@@ -220,16 +221,6 @@ function watcher.update(exe)
 	end
 end
 
-local game_clones = {
-	["GTME01"] = "GALE01", -- UnclePunch Training Mode
-	["MNCE02"] = "GALE01", -- Melee Netplay Community Build
-	["SDRE32"] = "GALE01", -- SSBM SD Remix
-}
-
-local game_clones_version = {
-	["SDRE32"] = 2, -- Mod changes version to 3... Use Melee v2 config
-}
-
 function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
@@ -244,8 +235,12 @@ function watcher.checkmemoryvalues()
 			log.debug("GAMEID: %q (Version %d)", gid, version)
 
 			-- See if this GameID is a clone of another
-			version = game_clones_version[gid] or version
-			gid = game_clones[gid] or gid
+			local clone = clones[gid]
+
+			if clone then
+				version = clone.version
+				gid = clone.id
+			end
 
 			-- Try to load the game table
 			local status, game = xpcall(require, debug.traceback, string.format("games.%s-%d", gid, version))
