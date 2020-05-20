@@ -22,6 +22,13 @@ if filesystem.getInfo(clones_file, "file") then
 		-- Failed loading chunk, chunk is an error string
 		log.error(chunk)
 	elseif chunk then
+		-- Create a sandboxed lua environment
+		local env = {}
+		env._G = env
+
+		-- Set the loaded chunk inside the sandbox
+		setfenv(chunk, env)
+
 		local status, custom_clones = pcall(chunk)
 		if not status then
 			-- Failed calling the chunk, custom_clones is an error string
