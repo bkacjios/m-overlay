@@ -5,9 +5,12 @@ require("util.love2d")
 
 local watcher = require("memory")
 local perspective = require("perspective")
+local notification = require("notification")
 
 local graphics = love.graphics
 local newImage = graphics.newImage
+
+local portChangeFont = graphics.newFont("fonts/melee-bold.otf", 42)
 
 function love.load()
 	love.window.setTitle("M'Overlay - Waiting for Dolphin...")
@@ -31,6 +34,7 @@ local BUTTONS = {
 
 function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
+	notification.update(8, 0)
 end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")
@@ -147,6 +151,7 @@ local BUTTON_TEXTURES = {
 
 local MAX_PORTS = 4
 local PORT = 0
+local CONTROLLER_PORT_DISPLAY = 0
 
 function love.wheelmoved(x, y)
 	if not watcher.isReady() then return end
@@ -157,7 +162,8 @@ function love.wheelmoved(x, y)
 		PORT = PORT + 1
 	end
 	PORT = PORT % MAX_PORTS
-	love.window.setTitle(string.format("M'Overlay - Port %d", PORT + 1))
+
+	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 end
 
 local vertices = {
@@ -212,6 +218,21 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 end
 
 function love.draw()
+	love.drawControllerOverlay()
+
+	-- Draw a temporary number to show that the user changed controller port
+	if CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
+		graphics.setFont(portChangeFont)
+		graphics.setColor(0, 0, 0, 255)
+		graphics.textOutline(PORT + 1, 3, 16, 256 - 42 - 16)
+		graphics.setColor(255, 255, 255, 255)
+		graphics.print(PORT + 1, 16, 256 - 42 - 16)
+	end
+
+	notification.draw()
+end
+
+function love.drawControllerOverlay()
 	if not watcher.initialized or not watcher.game then return end
 
 	local controller = watcher.controller[PORT + 1]

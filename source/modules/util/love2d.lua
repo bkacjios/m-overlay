@@ -29,3 +29,25 @@ function love.graphics.easyDraw(obj, x, y, rotation, width, height, originX, ori
 	local scaledH = height / objH
 	love.graphics.draw(obj, x, y, rotation, scaledW, scaledH, objW * originX, objH * originY, ...)
 end
+
+function love.graphics.textOutlinef(text, width, x, y, ...)
+	local steps = width * 2 / 3
+	if steps < 1 then steps = 1 end
+
+	for _x = -width, width, steps do
+		for _y = -width, width, steps do
+			love.graphics.printf(text, x + _x, y + _y, ...)
+		end
+	end
+end
+
+function love.graphics.textOutline(text, width, x, y, ...)
+	local steps = width * 2 / 3
+	if steps < 1 then steps = 1 end
+
+	for _x = -width, width, steps do
+		for _y = -width, width, steps do
+			love.graphics.print(text, x + _x, y + _y, ...)
+		end
+	end
+end

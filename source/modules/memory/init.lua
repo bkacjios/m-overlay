@@ -2,6 +2,7 @@ local bit = require("bit")
 local log = require("log")
 local memory = require("memory." .. jit.os:lower())
 local clones = require("games.clones")
+local notification = require("notification")
 local filesystem = love.filesystem
 
 local configdir = filesystem.getSaveDirectory()
@@ -19,6 +20,7 @@ if filesystem.getInfo(clones_file, "file") then
 	if not status then
 		-- Failed loading chunk, chunk is an error string
 		log.error(chunk)
+		notification.error(chunk)
 	elseif chunk then
 		-- Create a sandboxed lua environment
 		local env = {}
@@ -31,6 +33,7 @@ if filesystem.getInfo(clones_file, "file") then
 		if not status then
 			-- Failed calling the chunk, custom_clones is an error string
 			log.error(custom_clones)
+			notification.error(custom_clones)
 		else
 			local num_clones = 0
 			for clone_id, info in pairs(custom_clones) do
@@ -38,6 +41,7 @@ if filesystem.getInfo(clones_file, "file") then
 				clones[clone_id] = info
 			end
 			log.info("Loaded %d clones from %s", num_clones, clones_file)
+			notification.coloredMessage(("Loaded %d clones from %s"):format(num_clones, clones_file))
 		end
 	end
 end
@@ -272,6 +276,7 @@ function watcher.checkmemoryvalues()
 
 		if gid ~= "\0\0\0\0\0\0" then
 			log.debug("GAMEID: %q (Version %d)", gid, version)
+			love.window.setTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
 
 			-- See if this GameID is a clone of another
 			local clone = clones[gid]
@@ -292,6 +297,7 @@ function watcher.checkmemoryvalues()
 				log.error(game)
 			end
 		else
+			love.window.setTitle("M'Overlay - Dolphin hooked")
 			log.info("Game closed..")
 		end
 	end
