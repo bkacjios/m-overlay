@@ -11,9 +11,7 @@ if filesystem.createDirectory(configdir) then
 end
 
 local clones_file = "clones.lua"
-local config_clones = ("%s/%s"):format(configdir, clones_file)
-
-log.info("Load: %s", config_clones)
+log.info("Load: %s/%s", configdir, clones_file)
 
 if filesystem.getInfo(clones_file, "file") then
 	local status, chunk = pcall(filesystem.load, clones_file)
