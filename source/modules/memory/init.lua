@@ -2,6 +2,40 @@ local bit = require("bit")
 local log = require("log")
 local memory = require("memory." .. jit.os:lower())
 local clones = require("games.clones")
+local filesystem = love.filesystem
+
+local configdir = filesystem.getSaveDirectory()
+
+if filesystem.createDirectory(configdir) then
+	log.debug("Created %s config directory: %s", filesystem.getIdentity(), configdir)
+end
+
+local clones_file = "clones.lua"
+local config_clones = ("%s/%s"):format(configdir, clones_file)
+
+log.info("Load: %s", config_clones)
+
+if filesystem.getInfo(clones_file, "file") then
+	local status, chunk = pcall(filesystem.load, clones_file)
+
+	if not status then
+		-- Failed loading chunk, chunk is an error string
+		log.error(chunk)
+	elseif chunk then
+		local status, custom_clones = pcall(chunk)
+		if not status then
+			-- Failed calling the chunk, custom_clones is an error string
+			log.error(custom_clones)
+		else
+			local num_clones = 0
+			for clone_id, info in pairs(custom_clones) do
+				num_clones = num_clones + 1
+				clones[clone_id] = info
+			end
+			log.info("Loaded %d clones from %s", num_clones, clones_file)
+		end
+	end
+end
 
 require("extensions.string")
 
