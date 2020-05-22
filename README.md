@@ -19,7 +19,7 @@ You can download that ![here](https://github.com/bkacjios/m-overlay/releases/tag
 To use with OBS, add a "Game Capture" source and use "capture specific window" select "[M'Overlay.exe]"
 and be sure to check "Allow Transparency"
 
-If you encounter the overlay freezing when adding it to OBS, try enabling "Use anti-cheat compatibility hook"
+If you encounter the overlay freezing when adding it to OBS, try enabling "SLI/Crossfire Capture Mode (Slow)"
 
 ### How?
 
