@@ -1,40 +1,103 @@
 love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
 
 require("errorhandler")
-require("util.love2d")
+require("extensions.love")
 
 local watcher = require("memory")
 local perspective = require("perspective")
 local notification = require("notification")
 
+local color = require("util.color")
+local gui = require("gui")
+
 local graphics = love.graphics
 local newImage = graphics.newImage
 
-local portChangeFont = graphics.newFont("fonts/melee-bold.otf", 42)
+local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
+local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
+
+local PANEL_SETTINGS
 
 function love.load()
 	love.window.setTitle("M'Overlay - Waiting for Dolphin...")
+	gui.init()
 	graphics.setBackgroundColor(0, 0, 0, 0) -- Transparent background for OBS
-end
 
-local BUTTONS = {
-	DPAD_LEFT = 0x0001,
-	DPAD_RIGHT = 0x0002,
-	DPAD_DOWN = 0x0004,
-	DPAD_UP = 0x0008,
-	Z = 0x0010,
-	R = 0x0020,
-	L = 0x0040,
-	A = 0x0100,
-	B = 0x0200,
-	X = 0x0400,
-	Y = 0x0800,
-	START = 0x1000,
-}
+	PANEL_SETTINGS = gui.create("Settings")
+	PANEL_SETTINGS:LoadSettings()
+end
 
 function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
+	gui.update(dt)
+end
+
+function love.resize(w, h)
+	gui.resize(w, h)
+end
+
+function love.joystickpressed(joy, but)
+	gui.joyPressed(joy, but)
+end
+
+function love.joystickreleased(joy, but)
+	gui.joyReleased(joy, but)
+end
+
+local MAX_PORTS = 4
+local PORT = 0
+local CONTROLLER_PORT_DISPLAY = 0
+
+function love.keypressed(key, scancode, isrepeat)
+	if key == "escape" and not isrepeat then
+		PANEL_SETTINGS:SetVisible(not PANEL_SETTINGS:IsVisible())
+	end
+
+	if not watcher.isReady() then return end
+
+	local num = tonumber(key)
+
+	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
+		PORT = num - 1
+		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
+	end
+	gui.keyPressed(key, scancode, isrepeat)
+end
+
+function love.keyreleased(key)
+	gui.keyReleased(key)
+end
+
+function love.textinput(text)
+	gui.textInput(text)
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+	gui.mouseMoved(x, y, dx, dy, istouch)
+end
+
+function love.mousepressed(x, y, button, istouch, presses)
+	gui.mousePressed(x, y, button, istouch, presses)
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+	gui.mouseReleased(x, y, button, istouch, presses)
+end
+
+function love.wheelmoved(x, y)
+	gui.mouseWheeled(x, y)
+
+	if not watcher.isReady() then return end
+
+	if y > 0 then
+		PORT = PORT - 1
+	elseif y < 0 then
+		PORT = PORT + 1
+	end
+	PORT = PORT % MAX_PORTS
+
+	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")
@@ -96,7 +159,7 @@ local BUTTON_TEXTURES = {
 	A = {
 		OUTLINE = newImage("textures/buttons/a-outline.png"),
 		PRESSED = newImage("textures/buttons/a-pressed.png"),
-		COLOR = {0, 225, 150, 255},
+		COLOR = color(0, 225, 150, 255),
 		POSITION = {
 			x = 12 + 64 + 256,
 			y = 64
@@ -105,7 +168,7 @@ local BUTTON_TEXTURES = {
 	B = {
 		OUTLINE = newImage("textures/buttons/b-outline.png"),
 		PRESSED = newImage("textures/buttons/b-pressed.png"),
-		COLOR = {230, 0, 0, 255},
+		COLOR = color(230, 0, 0, 255),
 		POSITION = {
 			x = 16 + 256,
 			y = 108
@@ -114,7 +177,7 @@ local BUTTON_TEXTURES = {
 	X = {
 		OUTLINE = newImage("textures/buttons/x-outline.png"),
 		PRESSED = newImage("textures/buttons/x-pressed.png"),
-		COLOR = {255, 255, 255, 255},
+		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 138 + 256,
 			y = 48
@@ -123,7 +186,7 @@ local BUTTON_TEXTURES = {
 	Y = {
 		OUTLINE = newImage("textures/buttons/y-outline.png"),
 		PRESSED = newImage("textures/buttons/y-pressed.png"),
-		COLOR = {255, 255, 255, 255},
+		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 60 + 256,
 			y = 0
@@ -132,7 +195,7 @@ local BUTTON_TEXTURES = {
 	Z = {
 		OUTLINE = newImage("textures/buttons/z-outline.png"),
 		PRESSED = newImage("textures/buttons/z-pressed.png"),
-		COLOR = {165, 75, 165, 255},
+		COLOR = color(165, 75, 165, 255),
 		POSITION = {
 			x = 128 + 256,
 			y = -16
@@ -141,30 +204,13 @@ local BUTTON_TEXTURES = {
 	START = {
 		OUTLINE = newImage("textures/buttons/start-outline.png"),
 		PRESSED = newImage("textures/buttons/start-pressed.png"),
-		COLOR = {255, 255, 255, 255},
+		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 256,
 			y = 42
 		}
 	}
 }
-
-local MAX_PORTS = 4
-local PORT = 0
-local CONTROLLER_PORT_DISPLAY = 0
-
-function love.wheelmoved(x, y)
-	if not watcher.isReady() then return end
-
-	if y > 0 then
-		PORT = PORT - 1
-	elseif y < 0 then
-		PORT = PORT + 1
-	end
-	PORT = PORT % MAX_PORTS
-
-	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
-end
 
 local vertices = {
 	{
@@ -217,19 +263,37 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 	return rotated_vertices
 end
 
-function love.draw()
-	love.drawControllerOverlay()
+local BUTTONS = {
+	Z = 0x0010,
+	R = 0x0020,
+	L = 0x0040,
+	A = 0x0100,
+	B = 0x0200,
+	X = 0x0400,
+	Y = 0x0800,
+	START = 0x1000,
+}
 
-	-- Draw a temporary number to show that the user changed controller port
-	if CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
-		graphics.setFont(portChangeFont)
-		graphics.setColor(0, 0, 0, 255)
-		graphics.textOutline(PORT + 1, 3, 16, 256 - 42 - 16)
-		graphics.setColor(255, 255, 255, 255)
-		graphics.print(PORT + 1, 16, 256 - 42 - 16)
+local DPAD = {
+	DPAD_LEFT = 0x0001,
+	DPAD_RIGHT = 0x0002,
+	DPAD_DOWN = 0x0004,
+	DPAD_UP = 0x0008,
+}
+
+local function drawButtons(buttons, controller)
+	for button, flag in pairs(buttons) do
+		local texture = BUTTON_TEXTURES[button]
+		if texture then
+			local pos = texture.POSITION
+			graphics.setColor(texture.COLOR)
+			if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
+				graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
+			elseif texture.OUTLINE then
+				graphics.easyDraw(texture.OUTLINE, pos.x, pos.y, 0, 128, 128)
+			end
+		end
 	end
-
-	notification.draw()
 end
 
 function love.drawControllerOverlay()
@@ -247,6 +311,24 @@ function love.drawControllerOverlay()
 		end
 
 		local x, y = watcher.game.translateAxis(controller.joystick.x, controller.joystick.y)
+
+		if PANEL_SETTINGS:IsDebugging() then
+			local strx = ("JOY_X: %f"):format(x)
+			local stry = ("JOY_Y: %f"):format(y)
+			local btts = ("BUTTONS: %X"):format(controller.buttons.pressed)
+			graphics.setFont(DEBUG_FONT)
+
+			graphics.setColor(0, 0, 0, 255)
+			graphics.textOutline(btts, 2, 4, 256 - 4 - 36)
+			graphics.textOutline(strx, 2, 4, 256 - 4 - 24)
+			graphics.textOutline(stry, 2, 4, 256 - 4 - 12)
+
+			graphics.setColor(255, 255, 255, 255)
+			graphics.print(btts, 4, 256 - 4 - 36)
+			graphics.print(strx, 4, 256 - 4 - 24)
+			graphics.print(stry, 4, 256 - 4 - 12)
+		end
+
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)
@@ -355,21 +437,29 @@ function love.drawControllerOverlay()
 
 		-- Draw buttons
 
-		graphics.easyDraw(BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
-
-		for button, flag in pairs(BUTTONS) do
-			local texture = BUTTON_TEXTURES[button]
-			if texture then
-				local pos = texture.POSITION
-				graphics.setColor(texture.COLOR)
-				if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
-					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
-				elseif texture.OUTLINE then
-					graphics.easyDraw(texture.OUTLINE, pos.x, pos.y, 0, 128, 128)
-				end
-			end
+		if not PANEL_SETTINGS:IsDPADHidden() then
+			graphics.easyDraw(BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
+			drawButtons(DPAD, controller)
 		end
+
+		drawButtons(BUTTONS, controller)
 	end
+end
+
+function love.draw()
+	love.drawControllerOverlay()
+
+	-- Draw a temporary number to show that the user changed controller port
+	if CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
+		graphics.setFont(PORT_FONT)
+		graphics.setColor(0, 0, 0, 255)
+		graphics.textOutline(PORT + 1, 3, 16, 256 - 42 - 16)
+		graphics.setColor(255, 255, 255, 255)
+		graphics.print(PORT + 1, 16, 256 - 42 - 16)
+	end
+
+	notification.draw()
+	gui.render()
 end
 
 local FPS_LIMIT = 60
@@ -422,4 +512,5 @@ function love.run()
 end
 
 function love.quit()
+	gui.shutdown()
 end

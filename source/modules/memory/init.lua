@@ -294,6 +294,7 @@ function watcher.checkmemoryvalues()
 				log.info("Loaded game config: %s-%d", gid, version)
 				watcher.init()
 			else
+				notification.error(("Unsupported game %s-%d"):format(gid, version))
 				log.error(game)
 			end
 		else
