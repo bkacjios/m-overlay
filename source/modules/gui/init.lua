@@ -3,7 +3,6 @@ local gui = {
 	m_pWorldPanel = nil,
 	m_pFocusedPanel = nil,
 	m_strSkin = "default",
-	m_bEditorMode = false,
 }
 
 DOCK_NONE = 0
@@ -77,19 +76,8 @@ function gui.joyReleased(joy, but)
 	gui.getHoveredPanel():OnJoyReleased(joy, but)
 end
 
-function gui.toggleEditorMode()
-	-- Toggle editor mode
-	gui.m_bEditorMode = not gui.m_bEditorMode
-
-	local world = gui.getWorldPanel()
-	world:SizeToScreen()
-	world:InvalidateLayout()
-	world:ValidateLayout()
-end
-
 function gui.keyPressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
-		gui.toggleEditorMode()
 	end
 	gui.m_pFocusedPanel:OnKeyPressed(key, isrepeat)
 end
@@ -181,6 +169,8 @@ function gui.init()
 	gui.m_pWorldPanel:SetBGColor(color_blank)
 	gui.m_pWorldPanel:SetBorderColor(color_blank)
 	gui.m_pWorldPanel:SizeToScreen()
+	gui.m_pWorldPanel:InvalidateLayout()
+	gui.m_pWorldPanel:ValidateLayout()
 
 	gui.m_pFocusedPanel = gui.m_pWorldPanel
 end

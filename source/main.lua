@@ -20,17 +20,19 @@ local PANEL_SETTINGS
 
 function love.load()
 	love.window.setTitle("M'Overlay - Waiting for Dolphin...")
+
 	gui.init()
-	graphics.setBackgroundColor(0, 0, 0, 0) -- Transparent background for OBS
 
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:LoadSettings()
+	PANEL_SETTINGS:SetVisible(false)
 end
 
 function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
 	gui.update(dt)
+	graphics.setBackgroundColor(0, 0, 0, 1 - (PANEL_SETTINGS:GetTransparency() / 100)) -- Transparent background for OBS
 end
 
 function love.resize(w, h)
@@ -51,8 +53,10 @@ local CONTROLLER_PORT_DISPLAY = 0
 
 function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
-		PANEL_SETTINGS:SetVisible(not PANEL_SETTINGS:IsVisible())
+		PANEL_SETTINGS:Toggle()
 	end
+
+	gui.keyPressed(key, scancode, isrepeat)
 
 	if not watcher.isReady() then return end
 
@@ -62,7 +66,6 @@ function love.keypressed(key, scancode, isrepeat)
 		PORT = num - 1
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 	end
-	gui.keyPressed(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key)
@@ -86,7 +89,10 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.wheelmoved(x, y)
-	gui.mouseWheeled(x, y)
+	if PANEL_SETTINGS:IsVisible() then
+		gui.mouseWheeled(x, y)
+		return
+	end
 
 	if not watcher.isReady() then return end
 

@@ -4,12 +4,11 @@ local json = require("serializer.json")
 
 function PANEL:Initialize()
 	self:super()
+
 	self:SetTitle("Settings")
-	self:SetDraggable(false)
 	self:SetHideOnClose(true)
-	self:Dock(DOCK_FILL)
-	self:DockMargin(128, 32, 128, 32)
-	self:SetVisible(false)
+	self:SetSize(156, 160)
+	self:Center()
 
 	self.m_pDPAD = self:Add("Checkbox")
 	self.m_pDPAD:SetText("Hide D-PAD")
@@ -27,13 +26,33 @@ function PANEL:Initialize()
 		self:GetParent():SaveSettings()
 	end
 
+	self.m_pTLABEL = self:Add("Label")
+	self.m_pTLABEL:SetText("Transparency")
+	self.m_pTLABEL:SizeToText()
+	self.m_pTLABEL:Dock(DOCK_TOP)
+
+	self.m_pTRANSPARENCY = self:Add("Slider")
+	self.m_pTRANSPARENCY:SetValue(100)
+	self.m_pTRANSPARENCY:Dock(DOCK_TOP)
+
+	function self.m_pTRANSPARENCY:OnValueChanged(i)
+		self:GetParent().m_pTLABEL:SetText(("Transparency - %d%%"):format(i))
+		self:GetParent():SaveSettings()
+	end
+
 	self.m_sFileName = "config.json"
+end
+
+function PANEL:Toggle()
+	self:SetVisible(not self:IsVisible())
+	self:Center()
 end
 
 function PANEL:GetSaveTable()
 	return {
 		["hide-dpad"] = self:IsDPADHidden(),
 		["debugging"] = self:IsDebugging(),
+		["transparency"] = self:GetTransparency(),
 	}
 end
 
@@ -43,6 +62,10 @@ end
 
 function PANEL:IsDebugging()
 	return self.m_pDEBUG:IsToggled()
+end
+
+function PANEL:GetTransparency()
+	return self.m_pTRANSPARENCY:GetValue()
 end
 
 function PANEL:SaveSettings()
@@ -59,8 +82,9 @@ function PANEL:LoadSettings()
 	if f then
 		local settings = json.decode(f:read())
 		f:close()
-		self.m_pDPAD:SetToggled(settings["hide-dpad"])
-		self.m_pDEBUG:SetToggled(settings["debugging"])
+		self.m_pDPAD:SetToggled(settings["hide-dpad"] or false)
+		self.m_pDEBUG:SetToggled(settings["debugging"] or false)
+		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 0)
 	end
 end
 

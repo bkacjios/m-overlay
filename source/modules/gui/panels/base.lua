@@ -418,7 +418,8 @@ function PANEL:GetY()
 end
 
 function PANEL:SetSize(w, h)
-	self.m_iWidth, self.m_iHeight = w, h
+	self:SetWidth(w)
+	self:SetHeight(h)
 	self:OnResize(w, h)
 end
 
@@ -433,7 +434,7 @@ end
 function PANEL:SetWidth(w)
 	if self.m_iWidth ~= w then
 		self.m_iWidth = w
-		--self:InvalidateLayout()
+		self:InvalidateLayout()
 	end
 end
 
@@ -444,7 +445,7 @@ end
 function PANEL:SetHeight(h)
 	if self.m_iHeight ~= h then
 		self.m_iHeight = h
-		--self:InvalidateLayout()
+		self:InvalidateLayout()
 	end
 end
 
@@ -545,7 +546,7 @@ function PANEL:DisableScissor()
 end
 
 function PANEL:ValidateLayout()
-	if not self.m_bValidated then
+	if self:IsVisible() and not self.m_bValidated then
 		self.m_bValidated = true
 		self:DockLayout()
 		self:PerformLayout()
@@ -557,7 +558,7 @@ function PANEL:ValidateLayout()
 end
 
 function PANEL:Center(vertical, horizontal)
-	local parent = self:GetParent()	
+	local parent = self:GetParent()
 
 	local w, h = self:GetSize()
 	local pw, ph = graphics.getPixelDimensions() -- Default to window size if no parent
