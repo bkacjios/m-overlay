@@ -4,20 +4,23 @@
 
 ### Downloads
 
-Latest downloads can be found in ![releases](https://github.com/bkacjios/m-overlay/releases)
+Latest downloads can be found in [releases](https://github.com/bkacjios/m-overlay/releases)
 
 ### Slippi replays
 
 By default, this program will NOT work with project Slippi replays or Wii to Dolphin game mirroring, since all controller data is stripped out of memory. However, using a modified version of the program will allow it to work.
 
-You can download that ![here](https://github.com/bkacjios/m-overlay/releases/tag/slippi-test-v1.2)
+You can download that [here](https://github.com/bkacjios/m-overlay/releases/tag/slippi-test-v1.2)
 
 ### Usage
 
-**You can change which controller port is displayed by using the scrollwheel.**
+- **You can change which controller port is displayed by using the scrollwheel or pressing 1-4 on the keyboard.**
+- Access a settings menu by pressing the escape key
 
 To use with OBS, add a "Game Capture" source and use "capture specific window" select "[M'Overlay.exe]"
 and be sure to check "Allow Transparency"
+
+![OBS Settings](https://i.imgur.com/n6xrM3b.png)
 
 If you encounter the overlay freezing when adding it to OBS, try enabling "SLI/Crossfire Capture Mode (Slow)"
 
