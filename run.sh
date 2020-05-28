@@ -1,1 +1,3 @@
-sudo love "/run/media/jake/storage/Developer/Lua/M'Overlay/source"
+#!/bin/bash
+"$(dirname $(readlink -f $0))"
+sudo love `dirname $0`/source
