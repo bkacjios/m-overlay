@@ -24,6 +24,12 @@ and be sure to check "Allow Transparency"
 
 If you encounter the overlay freezing when adding it to OBS, try enabling "SLI/Crossfire Capture Mode (Slow)"
 
+### Linux Users
+
+If you want to run this on linux, install [love2d 11.3](https://love2d.org/) via your package manager or with their provided [AppImage](https://github.com/love2d/love/releases/download/11.3/love-11.3-x86_64.AppImage). You will then be able to run the latest .love file under [releases](https://github.com/bkacjios/m-overlay/releases).
+
+NOTE: In order for the love to read dolphins memory, you will need to either run the .love file as root, or set the love binary file to have ptrace access with `sudo setcap cap_sys_ptrace=eip /usr/bin/love`
+
 ### How?
 
 This program hooks into Dolphin and reads from memory to show a players inputs. This could be an alternative to Nintendo-Spy for those who don't have the technical prowess of setting up an Arduino.
