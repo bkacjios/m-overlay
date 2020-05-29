@@ -19,7 +19,12 @@ local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 local PANEL_SETTINGS
 
 function love.load()
-	love.window.setTitle("M'Overlay - Waiting for Dolphin...")
+	if watcher.hasPermissions() then
+		love.window.setTitle("M'Overlay - Waiting for Dolphin...")
+	else
+		love.window.setTitle("M'Overlay - Invalid permissions...")
+		--notification.error()
+	end
 
 	gui.init()
 

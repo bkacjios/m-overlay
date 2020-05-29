@@ -65,6 +65,8 @@ local watcher = {
 	named = {},
 }
 
+watcher.permissions = watcher.process:hasPermissions()
+
 -- Allow us to do things such as watcher.players.name without having to do watcher.named.player.name
 setmetatable(watcher, {__index = watcher.named})
 
@@ -231,6 +233,10 @@ function watcher.toHex(address)
 	return ("%08X"):format(address)
 end
 
+function watcher.hasPermissions()
+	return watcher.permissions
+end
+
 function watcher.readGameID()
 	return tostring(watcher.process:read(0x0, 0x06))
 end
@@ -248,6 +254,8 @@ function watcher.isReady()
 end
 
 function watcher.update(exe)
+	if not watcher.permissions then return end
+
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
 		love.window.setTitle("M'Overlay - Waiting for Dolphin..")

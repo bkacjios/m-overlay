@@ -21,7 +21,7 @@ IF "%BIT%"=="x86" (
 
 if not exist %LOVE_DIR% goto :exit
 
-where /q 7z || ECHO Could not find 7Zip, please download and install: https://www.7-zip.org/download.html && goto :exit
+where /q 7z || ECHO Could not find 7Zip, please download and install: https://www.7-zip.org/download.html and add it to PATH && goto :exit
 
 SET INSTALLER_DIR=.\installer
 SET BUILD_DIR=.\build
@@ -52,7 +52,8 @@ SET PATH=%PATH%;%INNO_SETUP_DIR%;%TOOLS_DIR%
 SET EXE_NAME=%NAME%-%BIT%.exe
 SET EXE_PATH=%BUILD_OUTPUT_DIR%\%EXE_NAME%
 
-SET ZIP=%BUILD_DIR%\%NAME%.love
+SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%VERSION%).love"
+REM SET ZIP=%BUILD_DIR%\%NAME%.love
 
 echo Zipping files in %SOURCE_DIR% into %ZIP%
 

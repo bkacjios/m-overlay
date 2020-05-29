@@ -184,6 +184,11 @@ local PROCESSENTRY32_PTR = typeof("PROCESSENTRY32[1]")
 local MEMORY_BASIC_INFORMATION_PTR = typeof("MEMORY_BASIC_INFORMATION[1]")
 local PSAPI_WORKING_SET_EX_INFORMATION_PTR = typeof("PSAPI_WORKING_SET_EX_INFORMATION[1]")
 
+function MEMORY:hasPermissions()
+	-- Windows doesn't need any special permissions to read memory from another process
+	return true
+end
+
 function MEMORY:findprocess(name)
 	if self:hasProcess() then return false end
 

@@ -21,6 +21,7 @@ local band = bit.band
 local bor = bit.bor
 
 local libc = ffi.C
+local libcap = load("cap")
 
 cdef [[
 char *strerror(int errnum);
@@ -68,11 +69,56 @@ int access(const char *path, int amode);
 DIR *opendir(const char *name);
 int closedir(DIR *dirp);
 dirent *readdir(DIR *dirp);
+
+typedef enum {
+    CAP_EFFECTIVE=0,                      /* Specifies the effective flag */
+    CAP_PERMITTED=1,                      /* Specifies the permitted flag */
+    CAP_INHERITABLE=2                     /* Specifies the inheritable flag */
+} cap_flag_t;
+
+typedef enum {
+    CAP_CLEAR=0,                            /* The flag is cleared/disabled */
+    CAP_SET=1                               /* The flag is set/enabled */
+} cap_flag_value_t;
+
+typedef void* cap_t;
+typedef int cap_value_t;
+
+cap_t cap_get_proc(void);
+int cap_free(void *);
+int cap_set_proc(cap_t cap_p);
+int cap_set_flag(cap_t, cap_flag_t, int, const cap_value_t *, cap_flag_value_t);
 ]]
+
+local CAP_SYS_PTRACE = 19
 
 local MEMORY = {}
 MEMORY.__index = MEMORY
 MEMORY.init = metatype("MEMORY_STRUCT", MEMORY)
+
+function MEMORY:hasPermissions()
+	local cap = libcap.cap_get_proc()
+
+	if cap == nil then
+		return false
+	end
+
+	local flag =  new("cap_value_t[1]")
+	flag[0] = CAP_SYS_PTRACE
+
+	if libcap.cap_set_flag(cap, libcap.CAP_EFFECTIVE, 1, flag, libcap.CAP_SET) == -1 then
+		libcap.cap_free(cap)
+		return false
+	end
+
+	if libcap.cap_set_proc(cap) ~= 0 then
+		libcap.cap_free(cap)
+		return false
+	end
+
+	libcap.cap_free(cap)
+	return true
+end
 
 function MEMORY:findprocess(name)
 	if self:hasProcess() then return false end
@@ -179,6 +225,7 @@ local function read(mem, addr, output, size)
 	if read == size then
 		return true
 	else
+		log.warn("Failed reading process memory..")
 		mem:close()
 		return false
 	end

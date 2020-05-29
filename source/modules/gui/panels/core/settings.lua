@@ -84,7 +84,7 @@ function PANEL:LoadSettings()
 		f:close()
 		self.m_pDPAD:SetToggled(settings["hide-dpad"] or false)
 		self.m_pDEBUG:SetToggled(settings["debugging"] or false)
-		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 0)
+		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 100)
 	end
 end
 
