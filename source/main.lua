@@ -37,7 +37,17 @@ function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
 	gui.update(dt)
-	graphics.setBackgroundColor(0, 0, 0, 1 - (PANEL_SETTINGS:GetTransparency() / 100)) -- Transparent background for OBS
+
+	-- Default to completely transparent, makes the overlay completely invisible when not in a game!
+	local alpha = 0
+
+	if watcher.initialized and watcher.game then
+		-- Only apply transparency when we are watching a games memory.
+		alpha = 1 - (PANEL_SETTINGS:GetTransparency() / 100)
+	end
+
+	-- Transparent background for OBS
+	graphics.setBackgroundColor(0, 0, 0, alpha)
 end
 
 function love.resize(w, h)
