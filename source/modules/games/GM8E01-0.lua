@@ -6,7 +6,7 @@ local game = {
 	memorymap = {}
 }
 
--- Pointer to where some struct is stored that contains the controller data..
+-- Pointer to a struct that contains the controller data
 local game_data_loc = 0x804576FC
 
 local controller_struct = {

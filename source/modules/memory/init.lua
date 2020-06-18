@@ -110,7 +110,7 @@ function watcher.init()
 			for offset, struct in pairs(info.struct) do
 				watcher.watching_ptr_addr[address][offset] = TYPE_NAME[struct.type]
 				local name = ("%s.%s"):format(info.name, struct.name)
-				watcher.setTableValue(name, info.init)
+				watcher.setTableValue(name, info.init or 0)
 			end
 		else
 			watcher.values_memory[address] = info.init or 0
