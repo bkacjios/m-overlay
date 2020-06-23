@@ -16,6 +16,9 @@ You can download that [here](https://github.com/bkacjios/m-overlay/releases/tag/
 
 - **You can change which controller port is displayed by using the scrollwheel or pressing 1-4 on the keyboard.**
 - Access a settings menu by pressing the escape key
+- Set what port you are using on launch via commandline (--port=N or --port N)
+
+![Port Commandline](https://i.imgur.com/f9AkS2q.png)
 
 To use with OBS, add a "Game Capture" source and use "capture specific window" select "[M'Overlay.exe]"
 and be sure to check "Allow Transparency"

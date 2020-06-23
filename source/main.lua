@@ -18,7 +18,11 @@ local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 local PANEL_SETTINGS
 
-function love.load()
+local MAX_PORTS = 4
+local PORT = 0
+local CONTROLLER_PORT_DISPLAY = 0
+
+function love.load(args, unfilteredArg)
 	if watcher.hasPermissions() then
 		love.window.setTitle("M'Overlay - Waiting for Dolphin...")
 	else
@@ -31,6 +35,22 @@ function love.load()
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:LoadSettings()
 	PANEL_SETTINGS:SetVisible(false)
+
+	-- Loop through all the commandline arguments
+	for n, arg in pairs(args) do
+		 -- Check for '--port=N' first..
+		local portn = tonumber(string.match(arg, "%-%-port=(%d+)"))
+
+		if arg == "--port" then -- Alternative '--port N'
+			portn = tonumber(args[n+1]) -- Convert the next argument in the commandline to a number
+		end
+
+		if portn then -- A port number was specified..
+			PORT = (portn - 1) % MAX_PORTS -- Clamp the number between 0-3
+			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 3 seconds
+			break -- Done
+		end
+	end
 end
 
 function love.update(dt)
@@ -61,10 +81,6 @@ end
 function love.joystickreleased(joy, but)
 	gui.joyReleased(joy, but)
 end
-
-local MAX_PORTS = 4
-local PORT = 0
-local CONTROLLER_PORT_DISPLAY = 0
 
 function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
