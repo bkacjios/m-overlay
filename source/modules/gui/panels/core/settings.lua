@@ -7,8 +7,12 @@ function PANEL:Initialize()
 
 	self:SetTitle("Settings")
 	self:SetHideOnClose(true)
-	self:SetSize(156, 160)
+	self:SetSize(156, 188)
 	self:Center()
+
+	self.m_pSLIPPI = self:Add("Checkbox")
+	self.m_pSLIPPI:SetText("Slippi Netplay")
+	self.m_pSLIPPI:Dock(DOCK_TOP)
 
 	self.m_pDPAD = self:Add("Checkbox")
 	self.m_pDPAD:SetText("Hide D-PAD")
@@ -50,10 +54,15 @@ end
 
 function PANEL:GetSaveTable()
 	return {
+		["slippi-netplay"] = self:IsSlippiNetplay(),
 		["hide-dpad"] = self:IsDPADHidden(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 	}
+end
+
+function PANEL:IsSlippiNetplay()
+	return self.m_pSLIPPI:IsToggled()
 end
 
 function PANEL:IsDPADHidden()
@@ -82,6 +91,7 @@ function PANEL:LoadSettings()
 	if f then
 		local settings = json.decode(f:read())
 		f:close()
+		self.m_pSLIPPI:SetToggled(settings["slippi-netplay"] or false)
 		self.m_pDPAD:SetToggled(settings["hide-dpad"] or false)
 		self.m_pDEBUG:SetToggled(settings["debugging"] or false)
 		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 100)

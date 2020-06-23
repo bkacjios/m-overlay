@@ -16,7 +16,7 @@ local newImage = graphics.newImage
 local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
 local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
-local PANEL_SETTINGS
+--PANEL_SETTINGS
 
 local MAX_PORTS = 4
 local PORT = 0
@@ -89,8 +89,6 @@ function love.keypressed(key, scancode, isrepeat)
 
 	gui.keyPressed(key, scancode, isrepeat)
 
-	if not watcher.isReady() then return end
-
 	local num = tonumber(key)
 
 	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
@@ -124,9 +122,7 @@ function love.wheelmoved(x, y)
 		gui.mouseWheeled(x, y)
 		return
 	end
-
-	if not watcher.isReady() then return end
-
+	
 	if y > 0 then
 		PORT = PORT - 1
 	elseif y < 0 then

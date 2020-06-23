@@ -277,6 +277,12 @@ function watcher.checkmemoryvalues()
 	local gid = watcher.readGameID()
 	local version = watcher.readGameVersion()
 
+	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using this address space for something..
+	if PANEL_SETTINGS:IsSlippiNetplay() then
+		gid = "GALE01"
+		version = 0x02
+	end
+
 	if watcher.gameid ~= gid or watcher.version ~= version then
 		watcher.reset()
 		watcher.gameid = gid
