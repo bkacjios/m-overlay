@@ -1,6 +1,6 @@
 # m-overlay
 
-![Image of M'Overlay](https://thumbs.gfycat.com/GraciousAlarmingAntbear-mobile.mp4)
+![Image of M'Overlay](https://thumbs.gfycat.com/GraciousAlarmingAntbear-size_restricted.gif)
 
 ### Downloads
 
