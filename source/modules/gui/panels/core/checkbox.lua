@@ -2,7 +2,6 @@ function PANEL:Initialize()
 	self:super()
 
 	self:MakeAccessor("Toggled", "m_bToggled", false)
-	self:MakeAccessor("Enabled", "m_bEnabled", true)
 
 	self.m_pLabel = self:Add("Label")
 	self.m_pLabel:DockMargin(32, 0, 0, 0)
@@ -12,6 +11,13 @@ function PANEL:Initialize()
 	self:SetFocusable(true)
 
 	--gui.skinHook("Init", "Checkbox", self)
+end
+
+function PANEL:SetToggle(b)
+	if self.m_bToggled ~= b then
+		self.m_bToggled = b
+		self:OnToggle(b)
+	end
 end
 
 function PANEL:SetText(str)
@@ -24,18 +30,18 @@ function PANEL:Paint(w, h)
 end
 
 function PANEL:OnMousePressed(x, y, but)
-	if not self.m_bEnabled or but ~= 1 then return end
+	if not self:IsEnabled() or but ~= 1 then return end
 	self:SetToggled(not self:GetToggled())
-	self:OnToggle()
+	self:OnToggle(self:GetToggled())
 	return true
 end
 
 function PANEL:OnMouseReleased(x, y, but)
-	if not self.m_bEnabled or but ~= 1 then return end
+	if not self:IsEnabled() or but ~= 1 then return end
 	self:OnClick()
 end
 
-function PANEL:OnToggle()
+function PANEL:OnToggle(on)
 	-- Override
 end
 

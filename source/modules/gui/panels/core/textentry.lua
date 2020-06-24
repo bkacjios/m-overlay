@@ -1,29 +1,6 @@
 local PANEL = {}
 
-local utf8 = require("utf8")
-
-function utf8.sub(s, i, j)
-	j = j or -1
-
-	if i == nil then
-		return ""
-	end
-
-	-- only set len if i or j is negative
-	local len = (i < 0 or j < 0) and utf8.len(s) or 0
-	local startChar = (i >= 0) and i or len + i + 1
-	local endChar = (j >= 0) and j or len + j + 1
-
-	-- can't have start before end!
-	if startChar > endChar then
-		return ""
-	end
-
-	local startByte = utf8.offset(s, startChar)
-	local endByte = utf8.offset(s, endChar)
-
-	return string.sub(s, startByte, endByte)
-end
+local utf8 = require("extensions.utf8")
 
 function PANEL:Initialize()
 	self:super()
@@ -44,11 +21,15 @@ function PANEL:Initialize()
 end
 
 function PANEL:Think(dt)
-	if self:IsHovered() then
+	if self:IsHovered() and self:IsEnabled() then
 		love.mouse.setCursor(self.m_pMouseBeam)
 	else
 		love.mouse.setCursor()
 	end
+end
+
+function PANEL:GetText()
+	return self.m_sText
 end
 
 function PANEL:Paint(w, h)
@@ -79,7 +60,7 @@ function PANEL:Paint(w, h)
 		end
 	end
 
-	if not self:HasFocus() then return end
+	if not self:HasFocus() or not self:IsEnabled() then return end
 	if math.floor(love.timer.getTime()*2) % 2 == 0 then return end -- Blink cursor on and off
 
 	local pre = utf8.sub(self.m_sText, 1, self.m_iCaretPos)
@@ -155,6 +136,11 @@ function PANEL:EnterSelectMode()
 	self.m_bSelectMode = true
 end
 
+function PANEL:SetText(str)
+	self.m_sText = str
+	self:CaretGoToEnd()
+end
+
 function PANEL:OnTextInput(text)
 	for c in text:gfind("([%z\1-\127\194-\244][\128-\191]*)") do
 		if not self.m_tCharacterSizes[c] then
@@ -178,6 +164,8 @@ function PANEL:UpdateUndoBuffer()
 end
 
 function PANEL:OnKeyPressed(key, isrepeat)
+	if not self:IsEnabled() then return end
+
 	local shift = love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
 	local control = love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
 

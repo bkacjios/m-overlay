@@ -4,8 +4,6 @@ function PANEL:Initialize()
 	self:super()
 	self:SetWidth(128)
 
-	self:MakeAccessor("Enabled", "m_bEnabled", true)
-
 	self:SetFocusable(true)
 
 	self.m_bGrabbed = false
@@ -19,7 +17,7 @@ function PANEL:Initialize()
 end
 
 function PANEL:Paint(w,h)
-	self:super("Paint", w, h)
+	gui.skinHook("Paint", "Slider", self, w, h)
 
 	graphics.setColor(color(100, 100, 100))
 	graphics.line(0, h/2, w, h/2)
@@ -70,13 +68,13 @@ function PANEL:SetValueFromMouseX(x)
 end
 
 function PANEL:OnMousePressed(x, y, but)
-	if not self.m_bEnabled or but ~= 1 then return end
+	if not self:IsEnabled() or but ~= 1 then return end
 
 	local w = self:GetWidth()
 	local range = self:GetRange()
 	local xpos = self.m_iValue/range*w
 
-	if x <= xpos + 2 and x >= xpos - 2 then
+	if x <= xpos + 4 and x >= xpos - 4 then
 		self.m_bGrabbed = true
 	else
 		self:SetValueFromMouseX(x)
@@ -95,7 +93,7 @@ function PANEL:OnMouseWheeled(x, y)
 end
 
 function PANEL:OnMouseReleased(x, y, but)
-	if not self.m_bEnabled or but ~= 1 then return end
+	if not self:IsEnabled() or but ~= 1 then return end
 	if self.m_bGrabbed then
 		self.m_bGrabbed = false
 	end

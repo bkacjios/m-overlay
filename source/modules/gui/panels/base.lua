@@ -27,8 +27,8 @@ function PANEL:Initialize()
 	self.m_bOrphaned = false
 	self.m_bDeleted = false
 	self.m_iDock = 0
-	self.m_tDockMargins = { left = 4, top = 4, right = 4, bottom = 4 }
-	self.m_tDockPadding = { left = 4, top = 4, right = 4, bottom = 4 }
+	self.m_tDockMargins = { left = 2, top = 2, right = 2, bottom = 2 }
+	self.m_tDockPadding = { left = 2, top = 2, right = 2, bottom = 2 }
 end
 
 function PANEL:GetClassName()

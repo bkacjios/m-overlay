@@ -22,19 +22,35 @@ local MAX_PORTS = 4
 local PORT = 0
 local CONTROLLER_PORT_DISPLAY = 0
 
-function love.load(args, unfilteredArg)
-	if watcher.hasPermissions() then
-		love.window.setTitle("M'Overlay - Waiting for Dolphin...")
-	else
-		love.window.setTitle("M'Overlay - Invalid permissions...")
-		--notification.error()
-	end
+local portless_title = ""
 
+function love.updateTitle(str)
+	local title = str
+	portless_title = str
+	if PANEL_SETTINGS:IsPortTitleEnabled() then
+		title = string.format("%s (Port %d)", str, PORT + 1)
+	end
+	love.window.setTitle(title)
+end
+
+function love.getTitleNoPort()
+	return portless_title
+end
+
+function love.load(args, unfilteredArg)
 	gui.init()
+	love.keyboard.setKeyRepeat(true)
 
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:LoadSettings()
 	PANEL_SETTINGS:SetVisible(false)
+
+	if watcher.hasPermissions() then
+		love.updateTitle("M'Overlay - Waiting for Dolphin...")
+	else
+		love.updateTitle("M'Overlay - Invalid permissions...")
+		--notification.error()
+	end
 
 	-- Loop through all the commandline arguments
 	for n, arg in pairs(args) do
@@ -52,6 +68,15 @@ function love.load(args, unfilteredArg)
 		end
 	end
 end
+
+watcher.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, name)
+	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		if PANEL_SETTINGS:GetSlippiUsername() == name then
+			PORT = port - 1
+			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 3 seconds
+		end
+	end
+end)
 
 function love.update(dt)
 	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
@@ -94,6 +119,7 @@ function love.keypressed(key, scancode, isrepeat)
 	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
 		PORT = num - 1
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
+		love.updateTitle(love.getTitleNoPort())
 	end
 end
 
@@ -129,8 +155,8 @@ function love.wheelmoved(x, y)
 		PORT = PORT + 1
 	end
 	PORT = PORT % MAX_PORTS
-
 	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
+	love.updateTitle(love.getTitleNoPort())
 end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")
@@ -480,6 +506,24 @@ function love.drawControllerOverlay()
 end
 
 function love.draw()
+
+	-- Show a preview for transparency
+	if PANEL_SETTINGS:IsVisible() then
+		graphics.setColor(255, 255, 255, 255)
+		graphics.rectangle("fill", 0, 0, 512, 256)
+
+		for x=0, 512/32 do
+			for y=0, 256/32 do
+				graphics.setColor(240, 240, 240, 255)
+				graphics.rectangle("fill", 32 * (x + (y%2)), 32 * (y + (x%2)), 32, 32)
+			end
+		end
+
+		local alpha = 1 - (PANEL_SETTINGS:GetTransparency() / 100)
+		graphics.setColor(0, 0, 0, alpha*255)
+		graphics.rectangle("fill", 0, 0, 512, 256)
+	end
+
 	love.drawControllerOverlay()
 
 	-- Draw a temporary number to show that the user changed controller port

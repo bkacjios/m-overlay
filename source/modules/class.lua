@@ -7,6 +7,16 @@ local constructor_method = "Initialize"
 
 local OBJECT = {}
 
+function OBJECT:__newindex(key, value)
+	local accessors = rawget(self, "__accessors")
+	if accessors then
+		if rawget(accessors, key) ~= nil then
+			rawset(accessors, key, value)
+		end
+	end
+	rawset(self, key, value)
+end
+
 function OBJECT:__index(key)
 	-- Check for any specific, class-based, methods like "super"
 	local meta_index = rawget(getmetatable(self), key) -- OBJECT

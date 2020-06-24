@@ -27,6 +27,20 @@ local controller_struct = {
 	[0x41] = { type = "byte",	name = "controller.%d.plugged" },
 }
 
+game.memorymap[0x806E490A] = {
+	type = "data",
+	len = 31,
+	name = "slippi.player.1.name",
+	debug = true
+}
+
+game.memorymap[0x806E4929] = {
+	type = "data",
+	len = 31,
+	name = "slippi.player.2.name",
+	debug = true
+}
+
 for port, address in ipairs(controllers) do
 	for offset, info in pairs(controller_struct) do
 		game.memorymap[address + offset] = {

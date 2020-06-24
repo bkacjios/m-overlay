@@ -1,7 +1,8 @@
 local SKIN = {}
 
-SKIN.Background = color(240, 240, 240)
+SKIN.Background = color(255, 255, 255)
 
+SKIN.PanelBackground = color(240, 240, 240)
 SKIN.PanelBorder = color(165, 165, 165)
 SKIN.PanelFocused = color(0, 162, 232)
 
@@ -29,12 +30,23 @@ SKIN.CheckboxOff = color(200, 200, 200)
 SKIN.CheckboxOn = color(0, 162, 232)
 
 function SKIN:InitPanel(panel)
-	panel:SetBGColor(self.Background)
+	panel:SetBGColor(self.PanelBackground)
 	panel:SetBorderColor(self.PanelBorder)
 end
 
 function SKIN:PaintPanel(panel, w, h)
 	graphics.setColor(panel:GetBGColor())
+	graphics.rectangle("fill", 0, 0, w, h)
+
+	graphics.setLineStyle("rough")
+	graphics.setLineWidth(1)
+	
+	graphics.setColor(panel:GetBorderColor())
+	graphics.innerRectangle(0, 0, w, h)
+end
+
+function SKIN:PaintSlider(panel, w, h)
+	graphics.setColor(self.Background)
 	graphics.rectangle("fill", 0, 0, w, h)
 
 	graphics.setLineStyle("rough")

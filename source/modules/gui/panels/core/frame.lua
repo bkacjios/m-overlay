@@ -18,6 +18,7 @@ function PANEL:Initialize()
 	gui.skinHook("Init", "ExitButton", self.m_pClose)
 	
 	self.m_pClose.OnClick = function(this, but)
+		self:OnClosed()
 		if self.m_bHideOnClose then
 			self:SetVisible(false)
 		else
@@ -62,6 +63,10 @@ function PANEL:Think(dt)
 	local gx, gy = self.m_tGrabbedOffset.x, self.m_tGrabbedOffset.y
 	
 	self:SetPos(mx - gx, my - gy)
+end
+
+function PANEL:OnClosed()
+	-- Override
 end
 
 gui.register("Frame", PANEL, "Panel")

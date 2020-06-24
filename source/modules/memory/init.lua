@@ -87,6 +87,7 @@ local TYPE_NAME = {
 	["short"] = TYPE_SHORT,
 	["int"] = TYPE_INT,
 	["float"] = TYPE_FLOAT,
+	["data"] = TYPE_DATA,
 	["pointer"] = TYPE_POINTER,
 }
 
@@ -238,7 +239,7 @@ function watcher.hasPermissions()
 end
 
 function watcher.readGameID()
-	return tostring(watcher.process:read(0x0, 0x06))
+	return watcher.readData(0x0, 0x06)
 end
 
 function watcher.readGameVersion()
@@ -247,6 +248,10 @@ end
 
 function watcher.readType(type, address)
 	return watcher.process[READ_TYPES[type]](watcher.process, address)
+end
+
+function watcher.readData(addr, len)
+	return tostring(watcher.process:read(addr, len))
 end
 
 function watcher.isReady()
@@ -258,13 +263,13 @@ function watcher.update(exe)
 
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
-		love.window.setTitle("M'Overlay - Waiting for Dolphin..")
+		love.updateTitle("M'Overlay - Waiting for Dolphin..")
 		log.info("Unhooked: %s", exe)
 	end
 
 	if watcher.process:findprocess(exe) then
 		log.info("Hooked: %s", exe)
-		love.window.setTitle("M'Overlay - Dolphin hooked")
+		love.updateTitle("M'Overlay - Dolphin hooked")
 	elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
 		log.info("Watching process ram: %s", exe)
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
@@ -290,7 +295,7 @@ function watcher.checkmemoryvalues()
 
 		if gid ~= "\0\0\0\0\0\0" then
 			log.debug("GAMEID: %q (Version %d)", gid, version)
-			love.window.setTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
+			love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
 
 			-- See if this GameID is a clone of another
 			local clone = clones[gid]
@@ -312,15 +317,23 @@ function watcher.checkmemoryvalues()
 				log.error(game)
 			end
 		else
-			love.window.setTitle("M'Overlay - Dolphin hooked")
+			love.updateTitle("M'Overlay - Dolphin hooked")
 			log.info("Game closed..")
 		end
 	end
 
 	for address, type in pairs(watcher.watching_addr) do
-		local value = watcher.readType(type, address)
+		local info = watcher.game.memorymap[address]
+
+		local value
+
+		if type == TYPE_DATA then
+			value = watcher.readData(address, info.len):match("(.-)%z") -- Strip all trailing '\0's
+		else
+			value = watcher.readType(type, address)
+		end
+
 		if watcher.values_memory[address] ~= value then
-			local info = watcher.game.memorymap[address]
 			local numValue = tonumber(value) or (value and 1 or 0)
 
 			if watcher.debug or info.debug then
