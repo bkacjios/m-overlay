@@ -27,6 +27,51 @@ local controller_struct = {
 	[0x41] = { type = "byte",	name = "controller.%d.plugged" },
 }
 
+local player_static_addresses = {
+	0x80453080, -- Player 1
+	0x80453F10, -- Player 2
+	0x80454DA0, -- Player 3
+	0x80455C30, -- Player 4
+}
+
+local player_static_struct = {
+	[0x00C] = { type = "short", name = "transformed" },
+}
+
+for id, address in ipairs(player_static_addresses) do
+	for offset, info in pairs(player_static_struct) do
+		game.memorymap[address + offset] = {
+			type = info.type,
+			debug = info.debug,
+			name = ("player.%i.%s"):format(id, info.name),
+		}
+	end
+end
+
+local entity_pointer_offsets = {
+	[0xB0] = "entity",
+	[0xB4] = "partner", -- Partner entity (For sheik/zelda/iceclimbers)
+}
+
+for id, address in ipairs(player_static_addresses) do
+	for offset, name in pairs(entity_pointer_offsets) do
+		game.memorymap[address + offset] = {
+			type = "pointer",
+			name = ("player.%i.%s"):format(id, name),
+			debug = false,
+			struct = {
+				[0x60 + 0x0620] = { type = "float", name = "controller.joystick.x" },
+				[0x60 + 0x0624] = { type = "float", name = "controller.joystick.y" },
+				[0x60 + 0x0638] = { type = "float", name = "controller.cstick.x" },
+				[0x60 + 0x063C] = { type = "float", name = "controller.cstick.y" },
+				[0x60 + 0x0650] = { type = "float", name = "controller.analog.float" },
+				[0x60 + 0x065C] = { type = "int",	name = "controller.buttons.pressed" },
+			},
+		}
+	end
+end
+
+
 game.memorymap[0x806E490A] = {
 	type = "data",
 	len = 31,

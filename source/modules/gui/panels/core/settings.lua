@@ -28,9 +28,13 @@ function PANEL:Initialize()
 	self.m_pRIGHT:Dock(DOCK_RIGHT)
 
 	self.m_pRLABEL = self.m_pRIGHT:Add("Label")
-	self.m_pRLABEL:SetText("Netplay")
+	self.m_pRLABEL:SetText("Slippi")
 	self.m_pRLABEL:SizeToText()
 	self.m_pRLABEL:Dock(DOCK_TOP)
+
+	self.m_pSLIPPIREPLAY = self.m_pRIGHT:Add("Checkbox")
+	self.m_pSLIPPIREPLAY:SetText("Slippi Replay")
+	self.m_pSLIPPIREPLAY:Dock(DOCK_TOP)
 
 	self.m_pSLIPPI = self.m_pRIGHT:Add("Checkbox")
 	self.m_pSLIPPI:SetText("Slippi Netplay")
@@ -101,6 +105,7 @@ end
 
 function PANEL:GetSaveTable()
 	return {
+		["slippi-replay"] = self:IsSlippiReplay(),
 		["slippi-netplay"] = self:IsSlippiNetplay(),
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["slippi-username"] = self:GetSlippiUsername(),
@@ -109,6 +114,10 @@ function PANEL:GetSaveTable()
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 	}
+end
+
+function PANEL:IsSlippiReplay()
+	return self.m_pSLIPPIREPLAY:IsToggled()
 end
 
 function PANEL:IsSlippiNetplay()
@@ -157,6 +166,7 @@ function PANEL:LoadSettings()
 	if f then
 		local settings = json.decode(f:read())
 		f:close()
+		self.m_pSLIPPIREPLAY:SetToggle(settings["slippi-replay"] or false)
 		self.m_pSLIPPI:SetToggle(settings["slippi-netplay"] or false)
 		self.m_pPORTTITLE:SetToggle(settings["port-in-title"] or false)
 		self.m_pAUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false)

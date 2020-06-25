@@ -142,6 +142,8 @@ function PANEL:SetText(str)
 end
 
 function PANEL:OnTextInput(text)
+	if not self:IsEnabled() then return end
+	
 	for c in text:gfind("([%z\1-\127\194-\244][\128-\191]*)") do
 		if not self.m_tCharacterSizes[c] then
 			self.m_tCharacterSizes[c] = self.m_pFont:getWidth(c)

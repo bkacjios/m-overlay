@@ -8,15 +8,13 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 
 ### Slippi replays
 
-By default, this program will NOT work with project Slippi replays or Wii to Dolphin game mirroring, since all controller data is stripped out of memory. However, using a modified version of the program will allow it to work.
-
-You can download that [here](https://github.com/bkacjios/m-overlay/releases/tag/slippi-test-v1.2)
+In order to view the inputs of a player when watching a slippi replay or mirring a game from a Wii, please enable "Slippi Replay" in the options menu!
 
 ### Usage
 
 - **You can change which controller port is displayed by using the scrollwheel or pressing 1-4 on the keyboard.**
 - Access a settings menu by pressing the escape key
-- Set what port you are using on launch via commandline (--port=N or --port N)
+- Set what port is selected when opening with the launch command (--port=N or --port N)
 
 ![Port Commandline](https://i.imgur.com/f9AkS2q.png)
 
