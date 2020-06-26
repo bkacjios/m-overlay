@@ -3,7 +3,8 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 require("errorhandler")
 require("extensions.love")
 
-local watcher = require("memory")
+local melee = require("melee")
+local memory = require("memory")
 local perspective = require("perspective")
 local notification = require("notification")
 
@@ -22,8 +23,14 @@ local MAX_PORTS = 4
 local PORT = 0
 local CONTROLLER_PORT_DISPLAY = 0
 
-local portless_title = ""
+local PORT_TEXTURES = {
+	[0] = newImage("textures/player1_color.png"),
+	[1] = newImage("textures/player2_color.png"),
+	[2] = newImage("textures/player3_color.png"),
+	[3] = newImage("textures/player4_color.png")
+}
 
+local portless_title = ""
 function love.updateTitle(str)
 	local title = str
 	portless_title = str
@@ -38,6 +45,7 @@ function love.getTitleNoPort()
 end
 
 function love.load(args, unfilteredArg)
+	melee.loadtextures()
 	gui.init()
 	love.keyboard.setKeyRepeat(true)
 
@@ -45,7 +53,7 @@ function love.load(args, unfilteredArg)
 	PANEL_SETTINGS:LoadSettings()
 	PANEL_SETTINGS:SetVisible(false)
 
-	if watcher.hasPermissions() then
+	if memory.hasPermissions() then
 		love.updateTitle("M'Overlay - Waiting for Dolphin...")
 	else
 		love.updateTitle("M'Overlay - Invalid permissions...")
@@ -69,7 +77,7 @@ function love.load(args, unfilteredArg)
 	end
 end
 
-watcher.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, name)
+memory.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, name)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
 		if PANEL_SETTINGS:GetSlippiUsername() == name then
 			PORT = port - 1
@@ -79,14 +87,14 @@ watcher.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port,
 end)
 
 function love.update(dt)
-	watcher.update("Dolphin.exe") -- Look for Dolphin.exe
+	memory.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
 	gui.update(dt)
 
 	-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 	local alpha = 0
 
-	if watcher.initialized and watcher.game then
+	if memory.initialized and memory.game then
 		-- Only apply transparency when we are watching a games memory.
 		alpha = 1 - (PANEL_SETTINGS:GetTransparency() / 100)
 	end
@@ -356,12 +364,12 @@ local function drawButtons(buttons, controller)
 end
 
 function love.drawControllerOverlay()
-	if not watcher.initialized or not watcher.game then return end
+	if not memory.initialized or not memory.game then return end
 
-	local controller = watcher.controller[PORT + 1]
+	local controller = memory.controller[PORT + 1]
 
 	if PANEL_SETTINGS:IsSlippiReplay() then
-		local player = watcher.player[PORT + 1]
+		local player = memory.player[PORT + 1]
 
 		if not player then return end
 
@@ -386,7 +394,7 @@ function love.drawControllerOverlay()
 			graphics.easyDraw(DC_CON, 512-42-16, 256-42-16, 0, 42, 42)
 		end
 
-		local x, y = watcher.game.translateAxis(controller.joystick.x, controller.joystick.y)
+		local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
 
 		if PANEL_SETTINGS:IsDebugging() then
 			local strx = ("JOY_X: %f"):format(x)
@@ -438,7 +446,7 @@ function love.drawControllerOverlay()
 
 		-- Draw C-Stick
 
-		local x, y = watcher.game.translateAxis(controller.cstick.x, controller.cstick.y)
+		local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)
@@ -503,7 +511,7 @@ function love.drawControllerOverlay()
 			-- Draw segment for button press
 			graphics.line(108 + 14 + 12, 16, 108 + 14 + 12, 16 + 12)
 		else
-			local al, ar = watcher.game.translateTriggers(controller.analog.l, controller.analog.r)
+			local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
 
 			graphics.setLineStyle("smooth")
 			love.graphics.setLineWidth(3)
@@ -584,12 +592,27 @@ function love.draw()
 	love.drawControllerOverlay()
 
 	-- Draw a temporary number to show that the user changed controller port
-	if CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
-		graphics.setFont(PORT_FONT)
-		graphics.setColor(0, 0, 0, 255)
-		graphics.textOutline(PORT + 1, 3, 16, 256 - 42 - 16)
-		graphics.setColor(255, 255, 255, 255)
-		graphics.print(PORT + 1, 16, 256 - 42 - 16)
+	if PANEL_SETTINGS:AlwaysShowPort() or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
+		if memory.isMelee() then
+			local portColor
+			if memory.teams then
+				portColor = melee.getPlayerTeamColor(PORT + 1)
+			else
+				portColor = melee.getPlayerColor(PORT + 1)
+			end
+			portColor.a = 150
+			graphics.setColor(portColor)
+			melee.drawSeries(PORT + 1, 8, 256 - 72 - 4, 0, 72, 72)
+			graphics.setColor(255, 255, 255, 255)
+			melee.drawStock(PORT + 1, 36, 256 - 42 - 8, 0, 32, 32)
+			graphics.easyDraw(PORT_TEXTURES[PORT], 12, 256 - 42 - 24, 0, 33, 14)
+		else
+			graphics.setFont(PORT_FONT)
+			graphics.setColor(0, 0, 0, 255)
+			graphics.textOutline(PORT + 1, 3, 16, 256 - 42 - 16)
+			graphics.setColor(255, 255, 255, 255)
+			graphics.print(PORT + 1, 16, 256 - 42 - 16)
+		end
 	end
 
 	notification.draw()

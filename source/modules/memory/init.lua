@@ -277,12 +277,27 @@ function watcher.update(exe)
 	end
 end
 
+function watcher.isMelee()
+	local gid = watcher.readGameID()
+
+	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
+	if PANEL_SETTINGS:IsSlippiNetplay() then
+		gid = "GALE01"
+		version = 0x02
+	end
+
+	local clone = clones[gid]
+	if clone then gid = clone.id end
+
+	return gid == "GALE01"
+end
+
 function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
 	local version = watcher.readGameVersion()
 
-	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using this address space for something..
+	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if PANEL_SETTINGS:IsSlippiNetplay() then
 		gid = "GALE01"
 		version = 0x02

@@ -7,7 +7,7 @@ function PANEL:Initialize()
 
 	self:SetTitle("Settings")
 	self:SetHideOnClose(true)
-	self:SetSize(296 + 32, 196)
+	self:SetSize(296 + 32, 196 + 28)
 	self:Center()
 
 	self.m_pLEFT = self:Add("Panel")
@@ -67,6 +67,10 @@ function PANEL:Initialize()
 	self.m_pPORTTITLE:SetText("Port in title")
 	self.m_pPORTTITLE:Dock(DOCK_TOP)
 
+	self.m_pALWAYSPORT = self.m_pLEFT:Add("Checkbox")
+	self.m_pALWAYSPORT:SetText("Always show port")
+	self.m_pALWAYSPORT:Dock(DOCK_TOP)
+
 	function self.m_pPORTTITLE:OnToggle()
 		love.updateTitle(love.getTitleNoPort())
 	end
@@ -110,6 +114,7 @@ function PANEL:GetSaveTable()
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["slippi-username"] = self:GetSlippiUsername(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
+		["always-show-port"] = self:AlwaysShowPort(),
 		["hide-dpad"] = self:IsDPADHidden(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
@@ -134,6 +139,10 @@ end
 
 function PANEL:IsPortTitleEnabled()
 	return self.m_pPORTTITLE:IsToggled()
+end
+
+function PANEL:AlwaysShowPort()
+	return self.m_pALWAYSPORT:IsToggled()
 end
 
 function PANEL:IsDPADHidden()
@@ -168,11 +177,12 @@ function PANEL:LoadSettings()
 		f:close()
 		self.m_pSLIPPIREPLAY:SetToggle(settings["slippi-replay"] or false)
 		self.m_pSLIPPI:SetToggle(settings["slippi-netplay"] or false)
-		self.m_pPORTTITLE:SetToggle(settings["port-in-title"] or false)
 		self.m_pAUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false)
+		self.m_pSLIPPINAME:SetText(settings["slippi-username"] or "")
+		self.m_pPORTTITLE:SetToggle(settings["port-in-title"] or false)
+		self.m_pALWAYSPORT:SetToggle(settings["always-show-port"] or false)
 		self.m_pDPAD:SetToggle(settings["hide-dpad"] or false)
 		self.m_pDEBUG:SetToggle(settings["debugging"] or false)
-		self.m_pSLIPPINAME:SetText(settings["slippi-username"] or "")
 		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 100)
 	end
 end

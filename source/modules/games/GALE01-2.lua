@@ -35,7 +35,11 @@ local player_static_addresses = {
 }
 
 local player_static_struct = {
+	[0x004] = { type = "int", name = "character" },
 	[0x00C] = { type = "short", name = "transformed" },
+	[0x044] = { type = "byte", name = "skin" },
+	[0x046] = { type = "byte", name = "color" },
+	[0x047] = { type = "byte", name = "team" },
 }
 
 for id, address in ipairs(player_static_addresses) do
@@ -60,6 +64,11 @@ for id, address in ipairs(player_static_addresses) do
 			name = ("player.%i.%s"):format(id, name),
 			debug = false,
 			struct = {
+				[0x60 + 0x0004] = { type = "float", name = "character" },
+				[0x60 + 0x0619] = { type = "byte", name = "skin" },
+				[0x60 + 0x061A] = { type = "byte", name = "color" },
+				[0x60 + 0x061B] = { type = "byte", name = "team" },
+
 				[0x60 + 0x0620] = { type = "float", name = "controller.joystick.x" },
 				[0x60 + 0x0624] = { type = "float", name = "controller.joystick.y" },
 				[0x60 + 0x0638] = { type = "float", name = "controller.cstick.x" },
@@ -71,6 +80,7 @@ for id, address in ipairs(player_static_addresses) do
 	end
 end
 
+game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
 
 game.memorymap[0x806E490A] = {
 	type = "data",
