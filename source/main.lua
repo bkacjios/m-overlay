@@ -86,6 +86,13 @@ memory.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, 
 	end
 end)
 
+memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
+	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu ~= 2 then
+		-- Switch back to port 1 when leaving a game of melee (In netplay only)
+		PORT = 0
+	end
+end)
+
 function love.update(dt)
 	memory.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
