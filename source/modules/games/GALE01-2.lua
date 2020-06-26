@@ -80,6 +80,7 @@ for id, address in ipairs(player_static_addresses) do
 	end
 end
 
+game.memorymap[0x80479D33] = { type = "byte", name = "menu" }
 game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
 
 game.memorymap[0x806E490A] = {

@@ -208,14 +208,14 @@ function melee.getCharacterID(port)
 end
 
 function melee.getStockTexture(id, skin)
-	if not textures.stocks[id] or not textures.stocks[id][skin] then
+	if memory.menu ~= 2 or not textures.stocks[id] or not textures.stocks[id][skin] then
 		return textures.stocks[0x21]
 	end
 	return textures.stocks[id][skin]
 end
 
 function melee.getSeriesTexture(id)
-	if not textures.series[id] then
+	if memory.menu ~= 2 or not textures.series[id] then
 		return textures.series[0x21]
 	end
 	return textures.series[id]
