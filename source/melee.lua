@@ -263,4 +263,41 @@ function melee.getPlayerColor(port)
 	return PLAYER_COLORS[port] or color_white
 end
 
+local char_replacement_map = {
+	[0x8149] = "!", [0x8168] = "\"", [0x8194] = "#", [0x8190] = "$",
+	[0x8193] = "%", [0x8195] = "&", [0x8166] = "'", [0x8169] = "(",
+	[0x816A] = ")", [0x8196] = "*", [0x817B] = "+", [0x8143] = ",",
+	[0x817C] = "-", [0x8144] = ".", [0x815E] = "/", [0x8146] = ":",
+	[0x8147] = ";", [0x8183] = "<", [0x8181] = "=", [0x8184] = ">",
+	[0x8148] = "?", [0x8197] = "@", [0x816D] = "[", [0x815F] = "\\",
+	[0x816E] = "]", [0x814F] = "^", [0x8151] = "_", [0x814D] = "`",
+	[0x816F] = "{", [0x8162] = "|", [0x8170] = "}", [0x8160] = "~",
+}
+
+function melee.convertStr(str)
+	local niceStr = ""
+	local i = 1
+	while i <= #str do
+		local c1 = string.sub(str, i, i)
+		local b1 = string.byte(c1)
+
+		if bit.band(b1, 0x80) == 0x80 then
+			local c2 = string.sub(str, i + 1, i + 1)
+			local b2 = string.byte(c2)
+
+			local b16 = bit.bor(bit.lshift(b1, 8), bit.lshift(b2, 0))
+
+			if char_replacement_map[b16] then
+				niceStr = niceStr .. char_replacement_map[b16]
+			end
+
+			i = i + 2
+		else
+			niceStr = niceStr .. c1
+			i = i + 1
+		end
+	end
+	return niceStr
+end
+
 return melee
