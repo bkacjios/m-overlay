@@ -78,7 +78,7 @@ function love.load(args, unfilteredArg)
 end
 
 memory.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, name)
-	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+	if memory.IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
 		if PANEL_SETTINGS:GetSlippiUsername() == melee.convertStr(name) then
 			PORT = port - 1
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 3 seconds
@@ -87,7 +87,7 @@ memory.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, 
 end)
 
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
-	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu ~= 2 then
+	if memory.IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu ~= 2 then
 		-- Switch back to port 1 when leaving a game of melee (In netplay only)
 		PORT = 0
 	end
