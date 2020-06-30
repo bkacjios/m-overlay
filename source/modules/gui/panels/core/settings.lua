@@ -36,7 +36,17 @@ function PANEL:Initialize()
 	self.m_pSLIPPIREPLAY:SetText("Replay/Mirror")
 	self.m_pSLIPPIREPLAY:Dock(DOCK_TOP)
 
+	self.m_pSLIPPI = self.m_pRIGHT:Add("Checkbox")
+	self.m_pSLIPPI:SetText("Slippi Netplay")
+	self.m_pSLIPPI:Dock(DOCK_TOP)
+
+	function self.m_pSLIPPI:OnToggle(on)
+		self:GetParent():GetParent().m_pAUTOPORT:SetEnabled(on)
+		self:GetParent():GetParent().m_pSLIPPINAME:SetEnabled(on)
+	end
+
 	self.m_pAUTOPORT = self.m_pRIGHT:Add("Checkbox")
+	self.m_pAUTOPORT:SetEnabled(false)
 	self.m_pAUTOPORT:SetText("Detect port")
 	self.m_pAUTOPORT:Dock(DOCK_TOP)
 
@@ -100,6 +110,7 @@ end
 function PANEL:GetSaveTable()
 	return {
 		["slippi-replay"] = self:IsSlippiReplay(),
+		["slippi-netplay"] = self:IsSlippiNetplay(),
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["slippi-username"] = self:GetSlippiUsername(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
@@ -108,6 +119,10 @@ function PANEL:GetSaveTable()
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 	}
+end
+
+function PANEL:IsSlippiNetplay()
+	return self.m_pSLIPPI:IsToggled()
 end
 
 function PANEL:IsSlippiReplay()
