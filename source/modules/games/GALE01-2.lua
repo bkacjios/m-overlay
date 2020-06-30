@@ -83,14 +83,14 @@ end
 game.memorymap[0x80479D33] = { type = "byte", name = "menu" }
 game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
 
-game.memorymap[0x806E490A] = {
+game.memorymap[0x80BDD44A] = {
 	type = "data",
 	len = 31,
 	name = "slippi.player.1.name",
 	debug = true
 }
 
-game.memorymap[0x806E4929] = {
+game.memorymap[0x80BDD469] = {
 	type = "data",
 	len = 31,
 	name = "slippi.player.2.name",
