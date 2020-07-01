@@ -85,8 +85,8 @@ memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(p
 end)
 
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
-	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu ~= 2 then
-		-- Switch back to port 1 when leaving a game of melee (In netplay only)
+	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu == 0 then
+		-- Switch back to port 1 when going back to CSS screen
 		PORT = 0
 	end
 end)

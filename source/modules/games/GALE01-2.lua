@@ -75,7 +75,6 @@ for id, address in ipairs(player_static_addresses) do
 		game.memorymap[address + offset] = {
 			type = "pointer",
 			name = ("player.%i.%s"):format(id, name),
-			debug = false,
 			struct = {
 				[0x60 + 0x0004] = { type = "float", name = "character" },
 				[0x60 + 0x0619] = { type = "byte", name = "skin" },
