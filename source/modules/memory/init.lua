@@ -381,8 +381,15 @@ function watcher.checkmemoryvalues()
 			local info = watcher.game.memorymap[address]
 
 			for offset, type in pairs(offsets) do
+				local value
 
-				local value = watcher.readType(type, ptr_addr + offset)
+				local sinfo = info.struct[offset]
+
+				if type == TYPE_DATA then
+					value = watcher.readData(ptr_addr + offset, sinfo.len):match("(.-)%z") -- Strip all trailing '\0's
+				else
+					value = watcher.readType(type, ptr_addr + offset)
+				end
 
 				-- If the location of the pointer changed, or our value changed..
 				if watcher.values_pointer[address][offset] ~= value then

@@ -93,33 +93,27 @@ for id, address in ipairs(player_static_addresses) do
 	end
 end
 
--- https://github.com/project-slippi/slippi-ssbm-asm/blob/6e08a376dc9ca239d9b7312089d975e89fa37a5c/Online/Online.s#L217
-local slippi_match_block = 0x80BDD440
+-- https://github.com/project-slippi/slippi-ssbm-asm/blob/67c395692a74c962497669473097a19d782d269d/Online/Online.s#L25
+local CSSDT_BUF_ADDR = 0x80005614
 
--- 80005610
--- 810F1600
-
-local slippi_match_state = {
-	[0x000] = { type = "byte", name = "slippi.connection_state" },
-	[0x001] = { type = "byte", name = "slippi.local_player.ready" },
-	[0x002] = { type = "byte", name = "slippi.remote_player.ready" },
-	[0x003] = { type = "byte", name = "slippi.local_player.index" },
-	[0x004] = { type = "byte", name = "slippi.remote_player.index" },
-	[0x005] = { type = "int", name = "slippi.rng_offset" },
-	[0x009] = { type = "byte", name = "slippi.delay_frames" },
-	[0x00A] = { type = "data", len = 31, name = "slippi.player.1.name" },
-	[0x029] = { type = "data", len = 31, name = "slippi.player.2.name" },
-	[0x048] = { type = "data", len = 31, name = "slippi.opponent_name" },
-	[0x067] = { type = "data", len = 241, name = "slippi.error_message" },
-}
-
-for offset, info in pairs(slippi_match_state) do
-	game.memorymap[slippi_match_block + offset] = {
-		type = info.type,
-		len = info.len,
-		name = info.name
+game.memorymap[CSSDT_BUF_ADDR] = {
+	type = "pointer",
+	name = "slippi",
+	struct = {
+		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/6e08a376dc9ca239d9b7312089d975e89fa37a5c/Online/Online.s#L217
+		[0x040] = { type = "byte", name = "connection_state" },
+		[0x041] = { type = "byte", name = "local_player.ready" },
+		[0x042] = { type = "byte", name = "remote_player.ready" },
+		[0x043] = { type = "byte", name = "local_player.index", debug = true },
+		[0x044] = { type = "byte", name = "remote_player.index" },
+		[0x045] = { type = "int", name = "rng_offset" },
+		[0x049] = { type = "byte", name = "delay_frames" },
+		[0x04A] = { type = "data", len = 31, name = "player.1.name" },
+		[0x069] = { type = "data", len = 31, name = "player.2.name" },
+		[0x088] = { type = "data", len = 31, name = "opponent_name" },
+		[0x0A7] = { type = "data", len = 241, name = "error_message" },
 	}
-end
+}
 
 function game.translateAxis(x, y)
 	return x, y

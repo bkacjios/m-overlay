@@ -77,12 +77,10 @@ function love.load(args, unfilteredArg)
 	end
 end
 
-memory.hook("slippi.player.*.name", "Slippi Auto Port Switcher", function(port, name)
+memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		if PANEL_SETTINGS:GetSlippiUsername() == melee.convertStr(name) then
-			PORT = port - 1
-			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 3 seconds
-		end
+		PORT = port
+		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
 end)
 

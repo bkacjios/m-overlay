@@ -37,31 +37,17 @@ function PANEL:Initialize()
 	self.m_pSLIPPIREPLAY:Dock(DOCK_TOP)
 
 	self.m_pSLIPPI = self.m_pRIGHT:Add("Checkbox")
-	self.m_pSLIPPI:SetText("Slippi Netplay")
+	self.m_pSLIPPI:SetText("Netplay")
 	self.m_pSLIPPI:Dock(DOCK_TOP)
 
 	function self.m_pSLIPPI:OnToggle(on)
 		self:GetParent():GetParent().m_pAUTOPORT:SetEnabled(on)
-		self:GetParent():GetParent().m_pSLIPPINAME:SetEnabled(on)
 	end
 
 	self.m_pAUTOPORT = self.m_pRIGHT:Add("Checkbox")
 	self.m_pAUTOPORT:SetEnabled(false)
 	self.m_pAUTOPORT:SetText("Detect port")
 	self.m_pAUTOPORT:Dock(DOCK_TOP)
-
-	function self.m_pAUTOPORT:OnToggle(on)
-		self:GetParent():GetParent().m_pSLIPPINAME:SetEnabled(on)
-	end
-
-	self.m_pSLIPPINAMELABEL = self.m_pRIGHT:Add("Label")
-	self.m_pSLIPPINAMELABEL:SetText("Slippi Username")
-	self.m_pSLIPPINAMELABEL:SizeToText()
-	self.m_pSLIPPINAMELABEL:Dock(DOCK_TOP)
-
-	self.m_pSLIPPINAME = self.m_pRIGHT:Add("TextEntry")
-	self.m_pSLIPPINAME:SetEnabled(false)
-	self.m_pSLIPPINAME:Dock(DOCK_TOP)
 
 	self.m_pPORTTITLE = self.m_pLEFT:Add("Checkbox")
 	self.m_pPORTTITLE:SetText("Port in title")
@@ -112,7 +98,6 @@ function PANEL:GetSaveTable()
 		["slippi-replay"] = self:IsSlippiReplay(),
 		["slippi-netplay"] = self:IsSlippiNetplay(),
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
-		["slippi-username"] = self:GetSlippiUsername(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
 		["hide-dpad"] = self:IsDPADHidden(),
@@ -131,10 +116,6 @@ end
 
 function PANEL:IsSlippiAutoPortEnabled()
 	return self.m_pAUTOPORT:IsToggled()
-end
-
-function PANEL:GetSlippiUsername()
-	return self.m_pSLIPPINAME:GetText()
 end
 
 function PANEL:IsPortTitleEnabled()
@@ -178,7 +159,6 @@ function PANEL:LoadSettings()
 		self.m_pSLIPPIREPLAY:SetToggle(settings["slippi-replay"] or false)
 		self.m_pSLIPPI:SetToggle(settings["slippi-netplay"] or false)
 		self.m_pAUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false)
-		self.m_pSLIPPINAME:SetText(settings["slippi-username"] or "")
 		self.m_pPORTTITLE:SetToggle(settings["port-in-title"] or false)
 		self.m_pALWAYSPORT:SetToggle(settings["always-show-port"] or false)
 		self.m_pDPAD:SetToggle(settings["hide-dpad"] or false)
