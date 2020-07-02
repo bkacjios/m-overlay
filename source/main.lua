@@ -84,17 +84,83 @@ memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(p
 	end
 end)
 
+local STAGE_SONGS = {}
+local STAGE_SONG_TRACK = 0
+local STAGE_SONG = nil
+
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu == 0 then
 		-- Switch back to port 1 when going back to CSS screen
 		PORT = 0
 	end
+
+	love.musicStateChange(menu)
 end)
+
+for stageid, name in pairs(melee.getAllStages()) do
+	love.filesystem.createDirectory(("Stage Music/%s"):format(name))
+end
+
+function love.musicStateChange()
+	if STAGE_SONG and STAGE_SONG:isPlaying() then
+		STAGE_SONG:stop()
+	end
+	if PANEL_SETTINGS:PlayStageMusic() then
+		if memory.menu == 0 then
+			love.loadStageMusic(0)
+		elseif memory.menu == 2 then
+			love.loadStageMusic(memory.stage)
+		end
+	end
+end
+
+function love.musicVolume(vol)
+	if STAGE_SONG and STAGE_SONG:isPlaying() then
+		STAGE_SONG:setVolume(vol/100)
+	end
+end
+
+function love.musicUpdate()
+	if not PANEL_SETTINGS:PlayStageMusic() then return end
+	if STAGE_SONG == nil or not STAGE_SONG:isPlaying() then
+		local stageid = memory.stage
+		if memory.menu == 0 then stageid = 0 end
+		if stageid and STAGE_SONGS[stageid] and (memory.menu == 2 or memory.menu == 0) then
+			STAGE_SONG_TRACK = (STAGE_SONG_TRACK + 1) % (#STAGE_SONGS[stageid])
+			STAGE_SONG = STAGE_SONGS[stageid][STAGE_SONG_TRACK + 1]
+			if STAGE_SONG then
+				STAGE_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
+				STAGE_SONG:play()
+			end
+		end
+	end
+end
+
+memory.hook("stage", "Slippi music player", function(stageid)
+	love.musicStateChange()
+end)
+
+function love.loadStageMusic(stageid)
+	local stage = melee.getStageName(stageid)
+	if not stage then return end
+	STAGE_SONGS[stageid] = {}
+	local files = love.filesystem.getDirectoryItems(("Stage Music/%s"):format(stage))
+	for k, file in ipairs(files) do
+		local filepath = ("Stage Music/%s/%s"):format(stage, file)
+		local info = love.filesystem.getInfo(filepath)
+		if info.type == "file" then
+			table.insert(STAGE_SONGS[stageid], love.audio.newSource(filepath, "stream"))
+		end
+	end
+	table.shuffle(STAGE_SONGS[stageid])
+end
 
 function love.update(dt)
 	memory.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
 	gui.update(dt)
+
+	love.musicUpdate()
 
 	-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 	local alpha = 0

@@ -217,3 +217,10 @@ function table.randomkeyvalue(tbl)
 	local key = keys[math.random(1, #keys)]
 	return key, tbl[key]
 end
+
+function table.shuffle(tbl)
+	for i = #tbl, 2, -1 do
+		local j = math.random(i)
+		tbl[i], tbl[j] = tbl[j], tbl[i]
+	end
+end

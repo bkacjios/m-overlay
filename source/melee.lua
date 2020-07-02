@@ -164,7 +164,6 @@ local character_selections = {
 	},
 }
 
-
 local textures = {
 	series = {},
 	stocks = {},
@@ -298,6 +297,47 @@ function melee.convertStr(str)
 		end
 	end
 	return niceStr
+end
+
+local STAGE_NAMES = {
+	[0x00] = "Menu",
+	--[0x02] = "Princess Peach's Castle",
+	--[0x03] = "Rainbow Cruise",
+	--[0x04] = "Kongo Jungle",
+	--[0x05] = "Jungle Japes",
+	--[0x06] = "Great Bay",
+	--[0x07] = "Hyrule Temple",
+	--[0x08] = "Brinstar",
+	--[0x09] = "Brinstar Depths",
+	[0x0A] = "Yoshi's Story",
+	--[0x0B] = "Yoshi's Island",
+	[0x0C] = "Fountain of Dreams",
+	--[0x0D] = "Green Greens",
+	--[0x0E] = "Corneria",
+	--[0x0F] = "Venom",
+	[0x10] = "Pokémon Stadium",
+	--[0x11] = "Poké Floats",
+	--[0x12] = "Mute City",
+	--[0x13] = "Big Blue",
+	--[0x14] = "Onett",
+	--[0x15] = "Fourside",
+	--[0x16] = "Icicle Mountain",
+	--[0x18] = "Mushroom Kingdom",
+	--[0x19] = "Mushroom Kingdom 2",
+	--[0x1B] = "Flat Zone",
+	[0x1C] = "Dream Land N64",
+	--[0x1D] = "Yoshi's Island N64",
+	--[0x1E] = "Kongo Jungle N64",
+	[0x24] = "Battlefield",
+	[0x25] = "Final Destination",
+}
+
+function melee.getAllStages()
+	return STAGE_NAMES
+end
+
+function melee.getStageName(id)
+	return STAGE_NAMES[id]
 end
 
 return melee
