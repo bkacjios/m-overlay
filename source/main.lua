@@ -88,10 +88,20 @@ local STAGE_SONGS = {}
 local STAGE_SONG_TRACK = 0
 local STAGE_SONG = nil
 
+local MENU_CSS = 0
+local MENU_STAGE_SELECT = 1
+local MENU_INGAME = 2
+local MENU_POSTGAME_SCORES = 4
+
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
-	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() and menu == 0 then
-		-- Switch back to port 1 when going back to CSS screen
-		PORT = 0
+	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		if menu ~= MENU_INGAME then
+			-- Switch back to port 1 when not in a match
+			PORT = 0
+		else
+			-- Switch to the local player index whenever else
+			PORT = memory.slippi.local_player.index
+		end
 	end
 
 	love.musicStateChange(menu)
