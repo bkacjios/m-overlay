@@ -3,6 +3,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 require("errorhandler")
 require("extensions.love")
 
+local log = require("log")
 local melee = require("melee")
 local memory = require("memory")
 local perspective = require("perspective")
@@ -79,6 +80,7 @@ end
 
 memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		log.debug("SLIPPI - switching to port %d", port)
 		PORT = port
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
@@ -98,9 +100,11 @@ memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 		if menu ~= MENU_INGAME then
 			-- Switch back to port 1 when not in a match
 			PORT = 0
+			log.debug("MENU - Forcing port %d", PORT)
 		else
 			-- Switch to the local player index whenever else
 			PORT = memory.slippi.local_player.index
+			log.debug("IN GAME - Switching to slippi local player index %d", PORT)
 		end
 	end
 

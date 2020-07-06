@@ -37,7 +37,7 @@ function PANEL:Initialize()
 	self.m_pSLIPPIREPLAY:Dock(DOCK_TOP)
 
 	self.m_pSLIPPI = self.m_pRIGHT:Add("Checkbox")
-	self.m_pSLIPPI:SetText("Netplay")
+	self.m_pSLIPPI:SetText("Rollback/Netplay")
 	self.m_pSLIPPI:Dock(DOCK_TOP)
 
 	function self.m_pSLIPPI:OnToggle(on)

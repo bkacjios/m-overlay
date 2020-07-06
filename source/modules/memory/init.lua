@@ -329,6 +329,7 @@ function watcher.checkmemoryvalues()
 				watcher.init()
 			else
 				notification.error(("Unsupported game %s-%d"):format(gid, version))
+				notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
 				log.error(game)
 			end
 		else
