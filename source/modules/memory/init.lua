@@ -48,10 +48,12 @@ end
 
 require("extensions.string")
 
+local GAME_NONE = "\0\0\0\0\0\0"
+
 local watcher = {
 	debug = false,
 	initialized = false,
-	gameid = "\0\0\0\0\0\0",
+	gameid = GAME_NONE,
 	version = 0,
 	process = memory.init(),
 	hooks = {},
@@ -130,7 +132,7 @@ function watcher.reset()
 	watcher.watching_ptr_addr = {}
 	watcher.pointer_loc = {}
 	watcher.named = {}
-	watcher.gameid = "\0\0\0\0\0\0"
+	watcher.gameid = GAME_NONE
 	watcher.version = 0
 	watcher.game = nil
 	setmetatable(watcher, {__index = watcher.named})
@@ -277,11 +279,16 @@ function watcher.update(exe)
 	end
 end
 
+function watcher.isInGame()
+	local gid = watcher.gameid
+	return gid ~= GAME_NONE
+end
+
 function watcher.isMelee()
-	local gid = watcher.readGameID()
+	local gid = watcher.gameid
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
-	if PANEL_SETTINGS:IsSlippiNetplay() then
+	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
 		gid = "GALE01"
 		version = 0x02
 	end
@@ -298,7 +305,7 @@ function watcher.checkmemoryvalues()
 	local version = watcher.readGameVersion()
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
-	if PANEL_SETTINGS:IsSlippiNetplay() then
+	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
 		gid = "GALE01"
 		version = 0x02
 	end
@@ -308,9 +315,10 @@ function watcher.checkmemoryvalues()
 		watcher.gameid = gid
 		watcher.version = version
 
-		if gid ~= "\0\0\0\0\0\0" then
+		if gid ~= GAME_NONE then
 			log.debug("GAMEID: %q (Version %d)", gid, version)
 			love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
+			watcher.hookRun("OnGameOpen", gid, version)
 
 			-- See if this GameID is a clone of another
 			local clone = clones[gid]
@@ -335,6 +343,7 @@ function watcher.checkmemoryvalues()
 		else
 			love.updateTitle("M'Overlay - Dolphin hooked")
 			log.info("Game closed..")
+			watcher.hookRun("OnGameClosed", gid, version)
 		end
 	end
 

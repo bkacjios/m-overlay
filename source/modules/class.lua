@@ -9,12 +9,11 @@ local OBJECT = {}
 
 function OBJECT:__newindex(key, value)
 	local accessors = rawget(self, "__accessors")
-	if accessors then
-		if rawget(accessors, key) ~= nil then
-			rawset(accessors, key, value)
-		end
+	if accessors and rawget(accessors, key) ~= nil then
+		rawset(accessors, key, value)
+	else
+		rawset(self, key, value)
 	end
-	rawset(self, key, value)
 end
 
 function OBJECT:__index(key)

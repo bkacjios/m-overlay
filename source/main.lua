@@ -89,6 +89,7 @@ end)
 local STAGE_SONGS = {}
 local STAGE_SONG_TRACK = 0
 local STAGE_SONG = nil
+local STAGE_ID = 0
 
 local MENU_CSS = 0
 local MENU_STAGE_SELECT = 1
@@ -100,10 +101,12 @@ memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 		if menu ~= MENU_INGAME then
 			-- Switch back to port 1 when not in a match
 			PORT = 0
+			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			log.debug("MENU - Forcing port %d", PORT)
 		else
 			-- Switch to the local player index whenever else
 			PORT = memory.slippi.local_player.index
+			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			log.debug("IN GAME - Switching to slippi local player index %d", PORT)
 		end
 	end
@@ -119,7 +122,7 @@ function love.musicStateChange()
 	if STAGE_SONG and STAGE_SONG:isPlaying() then
 		STAGE_SONG:stop()
 	end
-	if PANEL_SETTINGS:PlayStageMusic() then
+	if memory.isMelee() and PANEL_SETTINGS:PlayStageMusic() then
 		if memory.menu == 0 then
 			love.loadStageMusic(0)
 		elseif memory.menu == 2 then
@@ -135,13 +138,11 @@ function love.musicVolume(vol)
 end
 
 function love.musicUpdate()
-	if not PANEL_SETTINGS:PlayStageMusic() then return end
+	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if STAGE_SONG == nil or not STAGE_SONG:isPlaying() then
-		local stageid = memory.stage
-		if memory.menu == 0 then stageid = 0 end
-		if stageid and STAGE_SONGS[stageid] and (memory.menu == 2 or memory.menu == 0) then
-			STAGE_SONG_TRACK = (STAGE_SONG_TRACK + 1) % (#STAGE_SONGS[stageid])
-			STAGE_SONG = STAGE_SONGS[stageid][STAGE_SONG_TRACK + 1]
+		if STAGE_ID and STAGE_SONGS[STAGE_ID] and (memory.menu == 2 or memory.menu == 0) then
+			STAGE_SONG_TRACK = (STAGE_SONG_TRACK + 1) % (#STAGE_SONGS[STAGE_ID])
+			STAGE_SONG = STAGE_SONGS[STAGE_ID][STAGE_SONG_TRACK + 1]
 			if STAGE_SONG then
 				STAGE_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
 				STAGE_SONG:play()
@@ -151,6 +152,10 @@ function love.musicUpdate()
 end
 
 memory.hook("stage", "Slippi music player", function(stageid)
+	love.musicStateChange()
+end)
+
+memory.hook("OnGameClosed", "Slippi music player", function()
 	love.musicStateChange()
 end)
 
@@ -167,6 +172,7 @@ function love.loadStageMusic(stageid)
 		end
 	end
 	table.shuffle(STAGE_SONGS[stageid])
+	STAGE_ID = stageid
 end
 
 function love.update(dt)
@@ -677,7 +683,7 @@ function love.draw()
 	love.drawControllerOverlay()
 
 	-- Draw a temporary number to show that the user changed controller port
-	if PANEL_SETTINGS:AlwaysShowPort() or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
+	if (PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
 		if memory.isMelee() then
 			local portColor
 			if memory.teams then

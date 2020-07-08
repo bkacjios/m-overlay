@@ -313,14 +313,14 @@ function MEMORY:readUShort(addr)
 	return bswap16(output[0])
 end
 
-local flatconversion = ffi.new("union { uint32_t i; float f; }")
+local floatconversion = ffi.new("union { uint32_t i; float f; }")
 
 function MEMORY:readFloat(addr)
 	if not self:hasProcess() then return 0 end
 	local output = new("uint32_t[1]")
 	read(self, addr, output, sizeof(output))
-	flatconversion.i = bswap(output[0])
-	return flatconversion.f
+	floatconversion.i = bswap(output[0])
+	return floatconversion.f
 end
 
 function MEMORY:readInt(addr)
