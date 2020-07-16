@@ -111,7 +111,7 @@ memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 		end
 	end
 
-	love.musicStateChange(menu)
+	love.musicStateChange()
 end)
 
 for stageid, name in pairs(melee.getAllStages()) do
@@ -161,7 +161,7 @@ end)
 
 function love.loadStageMusic(stageid)
 	local stage = melee.getStageName(stageid)
-	if not stage then return end
+	if not stage then STAGE_ID = nil return end
 	STAGE_SONGS[stageid] = {}
 	local files = love.filesystem.getDirectoryItems(("Stage Music/%s"):format(stage))
 	for k, file in ipairs(files) do
