@@ -137,8 +137,9 @@ function MEMORY:findprocess(name)
 			local f = io.open("/proc/" .. pid .. "/comm")
 			if f then
 				local line = f:read("*line")
-				if line == "dolphin-emu" or line == "dolphin-emu-qt2" or line == "dolphin-emu-wx" then
+				if line == "AppRun" or line == "dolphin-emu" or line == "dolphin-emu-qt2" or line == "dolphin-emu-wx" then
 					self.pid = tonumber(pid)
+					log.debug("Found dolphin-emu process: /proc/%d", self.pid)
 				end
 				f:close()
 			end
@@ -180,6 +181,7 @@ function MEMORY:findGamecubeRAMOffset()
 		love.timer.sleep(0.25) -- Newer versions of dolphin seem to need a bit of time to allocate the memory addresses
 		local f = io.open("/proc/" .. self.pid .. "/maps")
 		if f then
+			log.debug("Searching /proc/%d/maps for gamecube address space", self.pid)
 			local line
 			while true do
 				line = f:read("*line")

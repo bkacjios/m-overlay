@@ -35,7 +35,7 @@ function PANEL:Initialize()
 
 	self.m_pSLIPPIICON = self.m_pRIGHT:Add("Image")
 	self.m_pSLIPPIICON:SetImage("textures/SlippiLogo.png")
-	self.m_pSLIPPIICON:SetPos(0, 2)
+	self.m_pSLIPPIICON:SetPos(0, 4)
 	self.m_pSLIPPIICON:SetSize(32, 24)
 	self.m_pSLIPPIICON:Center(false, true)
 

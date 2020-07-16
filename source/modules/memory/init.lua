@@ -7,14 +7,11 @@ local filesystem = love.filesystem
 
 local configdir = filesystem.getSaveDirectory()
 
-if filesystem.createDirectory(configdir) then
-	log.debug("Created %s config directory: %s", filesystem.getIdentity(), configdir)
-end
-
 local clones_file = "clones.lua"
-log.info("Load: %s/%s", configdir, clones_file)
 
 if filesystem.getInfo(clones_file, "file") then
+	log.info("Load: %s/%s", configdir, clones_file)
+	
 	local status, chunk = pcall(filesystem.load, clones_file)
 
 	if not status then
