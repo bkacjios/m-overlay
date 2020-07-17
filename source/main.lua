@@ -140,7 +140,7 @@ end
 function love.musicUpdate()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if STAGE_SONG == nil or not STAGE_SONG:isPlaying() then
-		if STAGE_ID and STAGE_SONGS[STAGE_ID] and (memory.menu == 2 or memory.menu == 0) then
+		if STAGE_ID and STAGE_SONGS[STAGE_ID] and #STAGE_SONGS[STAGE_ID] > 0 and (memory.menu == 2 or memory.menu == 0) then
 			STAGE_SONG_TRACK = (STAGE_SONG_TRACK + 1) % (#STAGE_SONGS[STAGE_ID])
 			STAGE_SONG = STAGE_SONGS[STAGE_ID][STAGE_SONG_TRACK + 1]
 			if STAGE_SONG then
