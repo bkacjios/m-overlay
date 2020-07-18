@@ -79,8 +79,10 @@ function love.load(args, unfilteredArg)
 end
 
 memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
+	print("slippi.local_player.index", port)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		log.debug("SLIPPI - switching to port %d", port)
+		port = port % 4
+		log.debug("[AUTOPORT] Slippi local player index changed, changing to port %d", port)
 		PORT = port
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
@@ -98,36 +100,38 @@ local MENU_POSTGAME_SCORES = 4
 
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		if menu ~= MENU_INGAME then
+		if menu == MENU_CSS then
 			-- Switch back to port 1 when not in a match
 			PORT = 0
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
-			log.debug("MENU - Forcing port %d", PORT)
-		else
+			log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
+		elseif menu == MENU_INGAME then
 			-- Switch to the local player index whenever else
-			PORT = memory.slippi.local_player.index
+			PORT = memory.slippi.local_player.index % 4
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
-			log.debug("IN GAME - Switching to slippi local player index %d", PORT)
+			log.debug("[AUTOPORT] Switching to slippi local player index %d", PORT)
 		end
 	end
-
-	love.musicStateChange()
 end)
 
 for stageid, name in pairs(melee.getAllStages()) do
 	love.filesystem.createDirectory(("Stage Music/%s"):format(name))
 end
 
-function love.musicStateChange()
+function love.musicKill()
 	if STAGE_SONG and STAGE_SONG:isPlaying() then
 		STAGE_SONG:stop()
+		log.debug("[MUSIC] Stopping music..")
 	end
-	if memory.isMelee() and PANEL_SETTINGS:PlayStageMusic() then
-		if memory.menu == 0 then
-			love.loadStageMusic(0)
-		elseif memory.menu == 2 then
-			love.loadStageMusic(memory.stage)
-		end
+end
+
+function love.musicStateChange(stage)
+	if memory.menu == MENU_INGAME and stage then
+		love.loadStageMusic(stage)
+	elseif memory.menu == MENU_CSS and not stage then
+		love.loadStageMusic(0)
+	else
+		love.musicKill()
 	end
 end
 
@@ -144,6 +148,7 @@ function love.musicUpdate()
 			STAGE_SONG_TRACK = (STAGE_SONG_TRACK + 1) % (#STAGE_SONGS[STAGE_ID])
 			STAGE_SONG = STAGE_SONGS[STAGE_ID][STAGE_SONG_TRACK + 1]
 			if STAGE_SONG then
+				log.debug("[MUSIC] Playing track #%d for stage %q", STAGE_SONG_TRACK, melee.getStageName(STAGE_ID))
 				STAGE_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
 				STAGE_SONG:play()
 			end
@@ -151,15 +156,23 @@ function love.musicUpdate()
 	end
 end
 
-memory.hook("stage", "Slippi music player", function(stageid)
+memory.hook("OnGameClosed", "Slippi music player", function()
+	love.musicKill()
+end)
+
+memory.hook("menu", "Slippi music player", function(menu)
 	love.musicStateChange()
 end)
 
-memory.hook("OnGameClosed", "Slippi music player", function()
-	love.musicStateChange()
+memory.hook("stage", "Slippi music player", function(stage)
+	love.musicStateChange(stage)
 end)
 
 function love.loadStageMusic(stageid)
+	love.musicKill()
+
+	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
+
 	local stage = melee.getStageName(stageid)
 	if not stage then STAGE_ID = nil return end
 	STAGE_SONGS[stageid] = {}
@@ -168,9 +181,17 @@ function love.loadStageMusic(stageid)
 		local filepath = ("Stage Music/%s/%s"):format(stage, file)
 		local info = love.filesystem.getInfo(filepath)
 		if info.type == "file" then
-			table.insert(STAGE_SONGS[stageid], love.audio.newSource(filepath, "stream"))
+			local success, source = pcall(love.audio.newSource, filepath, "stream")
+			if success then
+				table.insert(STAGE_SONGS[stageid], source)
+			else
+				local err = ("invalid music file \"%s/%s\""):format(stage, file)
+				log.error("[MUSIC] %s", err)
+				notification.error(err)
+			end
 		end
 	end
+	log.debug("[MUSIC] Loaded %d songs for %q", #STAGE_SONGS[stageid], stage)
 	table.shuffle(STAGE_SONGS[stageid])
 	STAGE_ID = stageid
 end
