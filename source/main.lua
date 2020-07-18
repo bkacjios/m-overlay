@@ -1,5 +1,7 @@
 love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
 
+math.randomseed(love.timer.getTime())
+
 require("errorhandler")
 require("extensions.love")
 
