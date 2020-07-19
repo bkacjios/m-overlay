@@ -81,7 +81,6 @@ function love.load(args, unfilteredArg)
 end
 
 memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
-	print("slippi.local_player.index", port)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
 		port = port % 4
 		log.debug("[AUTOPORT] Slippi local player index changed, changing to port %d", port)
@@ -187,7 +186,7 @@ function love.loadStageMusic(stageid)
 			if success then
 				table.insert(STAGE_SONGS[stageid], source)
 			else
-				local err = ("invalid music file \"%s/%s\""):format(stage, file)
+				local err = ("ignoring music file \"%s/%s\""):format(stage, file)
 				log.error("[MUSIC] %s", err)
 				notification.error(err)
 			end
