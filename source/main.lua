@@ -18,7 +18,7 @@ local graphics = love.graphics
 local newImage = graphics.newImage
 
 local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
-local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
+--local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 --PANEL_SETTINGS
 
@@ -126,6 +126,12 @@ function love.musicKill()
 	end
 end
 
+function love.musicLoopChange(on)
+	if STAGE_SONG and STAGE_SONG:isPlaying() then
+		STAGE_SONG:setLooping(on)
+	end
+end
+
 function love.musicStateChange()
 	if memory.menu == MENU_INGAME then
 		love.loadStageMusic(memory.stage)
@@ -150,6 +156,9 @@ function love.musicUpdate()
 			STAGE_SONG = STAGE_SONGS[STAGE_ID][STAGE_SONG_TRACK + 1]
 			if STAGE_SONG then
 				log.debug("[MUSIC] Playing track #%d for stage %q", STAGE_SONG_TRACK, melee.getStageName(STAGE_ID))
+				if STAGE_ID ~= 0 then
+					STAGE_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
+				end
 				STAGE_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
 				STAGE_SONG:play()
 			end

@@ -63,6 +63,15 @@ function PANEL:Initialize()
 
 	function self.m_pMUSIC:OnToggle(on)
 		love.musicStateChange()
+		self:GetParent():GetParent().m_pMUSICLOOP:SetEnabled(on)
+	end
+
+	self.m_pMUSICLOOP = self.m_pRIGHT:Add("Checkbox")
+	self.m_pMUSICLOOP:SetText("Loop Stage Song")
+	self.m_pMUSICLOOP:Dock(DOCK_TOP)
+
+	function self.m_pMUSICLOOP:OnToggle(on)
+		love.musicLoopChange(on)
 	end
 
 	self.m_pVOLLABEL = self.m_pRIGHT:Add("Label")
@@ -77,14 +86,6 @@ function PANEL:Initialize()
 	function self.m_pVOLUME:OnValueChanged(i)
 		love.musicVolume(i)
 		self:GetParent():GetParent().m_pVOLLABEL:SetText(("Music Volume - %d%%"):format(i))
-	end
-
-	self.m_pMUSICDIR = self.m_pRIGHT:Add("Button")
-	self.m_pMUSICDIR:SetText("Open Stage Music Dir")
-	self.m_pMUSICDIR:Dock(DOCK_TOP)
-
-	function self.m_pMUSICDIR:OnClick()
-		love.system.openURL(("file://%s/Stage Music/"):format(love.filesystem.getSaveDirectory()))
 	end
 
 	self.m_pPORTTITLE = self.m_pLEFT:Add("Checkbox")
@@ -124,6 +125,14 @@ function PANEL:Initialize()
 		self:GetParent():GetParent().m_pTLABEL:SetText(("Transparency - %d%%"):format(i))
 	end
 
+	self.m_pMUSICDIR = self.m_pLEFT:Add("Button")
+	self.m_pMUSICDIR:SetText("Open Stage Music Dir")
+	self.m_pMUSICDIR:Dock(DOCK_TOP)
+
+	function self.m_pMUSICDIR:OnClick()
+		love.system.openURL(("file://%s/Stage Music/"):format(love.filesystem.getSaveDirectory()))
+	end
+
 	self.m_sFileName = "config.json"
 end
 
@@ -147,12 +156,17 @@ function PANEL:GetSaveTable()
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 		["stage-music"] = self:PlayStageMusic(),
+		["stage-music-loop"] = self:LoopStageMusic(),
 		["music-volume"] = self:GetVolume(),
 	}
 end
 
 function PANEL:PlayStageMusic()
 	return self.m_pMUSIC:IsToggled()
+end
+
+function PANEL:LoopStageMusic()
+	return self.m_pMUSICLOOP:IsToggled()
 end
 
 function PANEL:GetVolume()
@@ -234,6 +248,7 @@ function PANEL:LoadSettings()
 		self.m_pDEBUG:SetToggle(settings["debugging"] or false)
 		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 100)
 		self.m_pMUSIC:SetToggle(settings["stage-music"] or false)
+		self.m_pMUSICLOOP:SetToggle(settings["stage-music-loop"] or false)
 		self.m_pVOLUME:SetValue(settings["music-volume"] or 50)
 	end
 end
