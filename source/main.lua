@@ -80,15 +80,6 @@ function love.load(args, unfilteredArg)
 	end
 end
 
-memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
-	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		port = port % 4
-		log.debug("[AUTOPORT] Slippi local player index changed, changing to port %d", port)
-		PORT = port
-		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
-	end
-end)
-
 local STAGE_SONGS = {}
 local STAGE_SONG_TRACK = 0
 local STAGE_SONG = nil
@@ -98,6 +89,15 @@ local MENU_CSS = 0
 local MENU_STAGE_SELECT = 1
 local MENU_INGAME = 2
 local MENU_POSTGAME_SCORES = 4
+
+memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
+	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		port = port % 4
+		log.debug("[AUTOPORT] Slippi local player index changed, changing to port %d", port)
+		PORT = port
+		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
+	end
+end)
 
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
