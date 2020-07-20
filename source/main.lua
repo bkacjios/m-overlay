@@ -516,7 +516,7 @@ function love.drawControllerOverlay()
 
 		local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
 
-		if PANEL_SETTINGS:IsDebugging() then
+		--[[if PANEL_SETTINGS:IsDebugging() then
 			local strx = ("JOY_X: %f"):format(x)
 			local stry = ("JOY_Y: %f"):format(y)
 			local btts = ("BUTTONS: %X"):format(controller.buttons.pressed)
@@ -531,7 +531,7 @@ function love.drawControllerOverlay()
 			graphics.print(btts, 4, 256 - 4 - 36)
 			graphics.print(strx, 4, 256 - 4 - 24)
 			graphics.print(stry, 4, 256 - 4 - 12)
-		end
+		end]]
 
 		local vx, vy = x, 1 - y
 

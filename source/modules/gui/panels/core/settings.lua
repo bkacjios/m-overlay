@@ -107,6 +107,10 @@ function PANEL:Initialize()
 	self.m_pDEBUG:SetText("Debug mode")
 	self.m_pDEBUG:Dock(DOCK_TOP)
 
+	function self.m_pDEBUG:OnToggle(on)
+		if love.system.getOS() == "Windows" then love._openConsole() end
+	end
+
 	self.m_pTLABEL = self.m_pLEFT:Add("Label")
 	self.m_pTLABEL:SetText("Transparency")
 	self.m_pTLABEL:SizeToText()
