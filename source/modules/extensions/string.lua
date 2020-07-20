@@ -15,6 +15,20 @@ local upper = string.upper
 local concat = table.concat
 local insert = table.insert
 
+function string.getFilePath(path)
+	return match(path, "^(.*[/\\])[^/\\]-$") or ""
+end
+
+function string.getFileExtension(path)
+	return match(path, "%.([^%.]+)$")
+end
+
+function string.stripFileExtension(path)
+	local i = match(path, ".+()%.[^%.]+$")
+	if i then return sub(path, 1, i-1) end
+	return path
+end
+
 do
 	-- With special chars: 33-126
 	-- without: 48-57, 65-90, 97-122 (this is going to be a bit messy without continue)

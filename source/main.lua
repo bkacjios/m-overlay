@@ -169,6 +169,12 @@ memory.hook("stage", "Slippi music player", function(stage)
 	love.musicStateChange(stage)
 end)
 
+local valid_music_ext = {
+	["mp3"] = true,
+	["ogg"] = true,
+	["wav"] = true
+}
+
 function love.loadStageMusic(stageid)
 	love.musicKill()
 
@@ -181,12 +187,13 @@ function love.loadStageMusic(stageid)
 	for k, file in ipairs(files) do
 		local filepath = ("Stage Music/%s/%s"):format(stage, file)
 		local info = love.filesystem.getInfo(filepath)
-		if info.type == "file" then
+		local ext = string.getFileExtension(file)
+		if info.type == "file" and valid_music_ext[ext:lower()] then
 			local success, source = pcall(love.audio.newSource, filepath, "stream")
 			if success then
 				table.insert(STAGE_SONGS[stageid], source)
 			else
-				local err = ("ignoring music file \"%s/%s\""):format(stage, file)
+				local err = ("invalid music file \"%s/%s\""):format(stage, file)
 				log.error("[MUSIC] %s", err)
 				notification.error(err)
 			end
