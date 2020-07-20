@@ -83,7 +83,7 @@ function PANEL:Initialize()
 	self.SLIPPI.AUTOPORT:Dock(DOCK_TOP)
 
 	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
-	self.MELEE.MUSIC:SetText("Stage Music")
+	self.MELEE.MUSIC:SetText("Stage music")
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
 
 	function self.MELEE.MUSIC:OnToggle(on)
@@ -93,7 +93,7 @@ function PANEL:Initialize()
 	end
 
 	self.MELEE.MUSICLOOP = self.MELEE:Add("Checkbox")
-	self.MELEE.MUSICLOOP:SetText("Loop Stage Song")
+	self.MELEE.MUSICLOOP:SetText("Loop stage song")
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 
 	function self.MELEE.MUSICLOOP:OnToggle(on)
@@ -101,7 +101,7 @@ function PANEL:Initialize()
 	end
 
 	local VOLLABEL = self.MELEE:Add("Label")
-	VOLLABEL:SetText("Music Volume")
+	VOLLABEL:SetText("Music volume")
 	VOLLABEL:SizeToText()
 	VOLLABEL:Dock(DOCK_TOP)
 
