@@ -735,8 +735,8 @@ function love.draw()
 		end
 	end
 
-	notification.draw()
 	gui.render()
+	notification.draw()
 end
 
 local FPS_LIMIT = 60
@@ -789,5 +789,6 @@ function love.run()
 end
 
 function love.quit()
+	PANEL_SETTINGS:SaveSettings()
 	gui.shutdown()
 end
