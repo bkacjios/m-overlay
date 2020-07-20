@@ -52,6 +52,7 @@ local watcher = {
 	debug = false,
 	initialized = false,
 	gameid = GAME_NONE,
+	ingame = false,
 	version = 0,
 	process = memory.init(),
 	hooks = {},
@@ -307,42 +308,48 @@ function watcher.checkmemoryvalues()
 		version = 0x02
 	end
 
-	if watcher.gameid ~= gid or watcher.version ~= version then
+	local meleeMode = (watcher.isMelee() and watcher.gameid ~= gid)
+
+	if (not watcher.ingame or meleeMode) and gid ~= GAME_NONE then
 		watcher.reset()
+		watcher.ingame = true
 		watcher.gameid = gid
 		watcher.version = version
 
-		if gid ~= GAME_NONE then
-			log.debug("[DOLPHIN] GAMEID: %q (Version %d)", gid, version)
-			love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
-			watcher.hookRun("OnGameOpen", gid, version)
+		log.debug("[DOLPHIN] GAMEID: %q (Version %d)", gid, version)
+		love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
+		watcher.hookRun("OnGameOpen", gid, version)
 
-			-- See if this GameID is a clone of another
-			local clone = clones[gid]
+		-- See if this GameID is a clone of another
+		local clone = clones[gid]
 
-			if clone then
-				version = clone.version
-				gid = clone.id
-			end
-
-			-- Try to load the game table
-			local status, game = xpcall(require, debug.traceback, string.format("games.%s-%d", gid, version))
-
-			if status then
-				watcher.game = game
-				log.info("[DOLPHIN] Loaded game config: %s-%d", gid, version)
-				watcher.init()
-			else
-				notification.error(("Unsupported game %s-%d"):format(gid, version))
-				notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
-				log.error("[DOLPHIN] %s", game)
-			end
-		else
-			love.updateTitle("M'Overlay - Dolphin hooked")
-			watcher.hookRun("OnGameClosed", gid, version)
-			watcher.process:clearGamecubeRAMOffset() -- Clear the memory address space location (When a new game is opened, we recheck this)
-			log.info("[DOLPHIN] Game closed..")
+		if clone then
+			version = clone.version
+			gid = clone.id
 		end
+
+		-- Try to load the game table
+		local status, game = xpcall(require, debug.traceback, string.format("games.%s-%d", gid, version))
+
+		if status then
+			watcher.game = game
+			log.info("[DOLPHIN] Loaded game config: %s-%d", gid, version)
+			watcher.init()
+		else
+			notification.error(("Unsupported game %s-%d"):format(gid, version))
+			notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
+			log.error("[DOLPHIN] %s", game)
+		end
+	elseif (watcher.ingame or meleeMode) and gid == GAME_NONE then
+		watcher.reset()
+		watcher.ingame = false
+		watcher.gameid = gid
+		watcher.version = version
+
+		love.updateTitle("M'Overlay - Dolphin hooked")
+		watcher.hookRun("OnGameClosed", gid, version)
+		watcher.process:clearGamecubeRAMOffset() -- Clear the memory address space location (When a new game is opened, we recheck this)
+		log.info("[DOLPHIN] Game closed..")
 	end
 
 	for address, type in pairs(watcher.watching_addr) do
