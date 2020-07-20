@@ -77,7 +77,7 @@ for id, address in ipairs(player_static_addresses) do
 			type = "pointer",
 			name = ("player.%i.%s"):format(id, name),
 			struct = {
-				[0x60 + 0x0004] = { type = "float", name = "character" },
+				[0x60 + 0x0004] = { type = "int", name = "character" },
 				[0x60 + 0x0619] = { type = "byte", name = "skin" },
 				[0x60 + 0x061A] = { type = "byte", name = "color" },
 				[0x60 + 0x061B] = { type = "byte", name = "team" },

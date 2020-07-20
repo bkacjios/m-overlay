@@ -161,8 +161,16 @@ function MEMORY:hasProcess()
 	return self.pid ~= 0
 end
 
+function MEMORY:clearGamecubeRAMOffset()
+	self.dolphin_base_addr = 0
+end
+
 function MEMORY:hasGamecubeRAMOffset()
 	return self.dolphin_base_addr ~= 0
+end
+
+function MEMORY:getGamecubeRAMOffset()
+	return tonumber(self.dolphin_base_addr)
 end
 
 function MEMORY:close()
@@ -195,7 +203,6 @@ function MEMORY:findGamecubeRAMOffset()
 							endAddr = tonumber(endAddr, 16)
 							if (endAddr - startAddr) == 0x2000000 then
 								self.dolphin_base_addr = startAddr
-								log.debug("Gamecube memory found: %08X", tonumber(self.dolphin_base_addr))
 								f:close()
 								return true
 							end

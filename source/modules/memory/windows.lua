@@ -229,8 +229,16 @@ function MEMORY:hasProcess()
 	return self.process_handle ~= nil
 end
 
+function MEMORY:clearGamecubeRAMOffset()
+	self.dolphin_base_addr = 0
+end
+
 function MEMORY:hasGamecubeRAMOffset()
 	return self.dolphin_base_addr ~= 0
+end
+
+function MEMORY:getGamecubeRAMOffset()
+	return tonumber(self.dolphin_base_addr)
 end
 
 function MEMORY:close()
@@ -261,7 +269,6 @@ function MEMORY:findGamecubeRAMOffset()
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
 				if band(flags, lshift(1, 0)) == 1 then -- Check if the Valid flag is set
 					self.dolphin_base_addr = cast("ULONG_PTR", info.BaseAddress)
-					log.debug("Memory address: %08X", tonumber(self.dolphin_base_addr))
 					return true
 				end
 			end

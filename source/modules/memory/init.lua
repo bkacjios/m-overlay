@@ -10,7 +10,7 @@ local configdir = filesystem.getSaveDirectory()
 local clones_file = "clones.lua"
 
 if filesystem.getInfo(clones_file, "file") then
-	log.info("Load: %s/%s", configdir, clones_file)
+	log.info("[CONFIG] Load: %s/%s", configdir, clones_file)
 	
 	local status, chunk = pcall(filesystem.load, clones_file)
 
@@ -37,7 +37,7 @@ if filesystem.getInfo(clones_file, "file") then
 				num_clones = num_clones + 1
 				clones[clone_id] = info
 			end
-			log.info("Loaded %d clones from %s", num_clones, clones_file)
+			log.info("[CONFIG] Loaded %d clones from %s", num_clones, clones_file)
 			notification.coloredMessage(("Loaded %d clones from %s"):format(num_clones, clones_file))
 		end
 	end
@@ -46,6 +46,7 @@ end
 require("extensions.string")
 
 local GAME_NONE = "\0\0\0\0\0\0"
+local NULL = 0x00000000
 
 local watcher = {
 	debug = false,
@@ -100,11 +101,11 @@ local READ_TYPES = {
 }
 
 function watcher.init()
-	log.info("Mapping game memory..")
+	log.info("[MEMORY] Mapping game memory..")
 	watcher.initialized = true
 	for address, info in pairs(watcher.game.memorymap) do
 		if info.type == "pointer" and info.struct then
-			watcher.pointer_loc[address] = 0x00000000
+			watcher.pointer_loc[address] = NULL
 			watcher.values_pointer[address] = {}
 			watcher.watching_ptr_addr[address] = {}
 			for offset, struct in pairs(info.struct) do
@@ -193,7 +194,7 @@ function watcher.hookRun(name, ...)
 				succ, err = xpcall(callback, debug.traceback, ...)
 			end
 			if not succ then
-				log.error("watcher hook error: %s (%s)", desc, err)
+				log.error("[MEMORY] watcher hook error: %s (%s)", desc, err)
 			end
 		end
 	end
@@ -222,7 +223,7 @@ function watcher.hookRun(name, ...)
 					succ, err = xpcall(callback, debug.traceback, unpack(args))
 				end
 				if not succ then
-					log.error("watcher wildcard hook error: %s (%s)", desc, err)
+					log.error("[MEMORY] watcher wildcard hook error: %s (%s)", desc, err)
 				end
 			end
 		end
@@ -263,14 +264,14 @@ function watcher.update(exe)
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
 		love.updateTitle("M'Overlay - Waiting for Dolphin..")
-		log.info("Unhooked: %s", exe)
+		log.info("[DOLPHIN] Unhooked: %s", exe)
 	end
 
 	if watcher.process:findprocess(exe) then
-		log.info("Hooked: %s", exe)
+		log.info("[DOLPHIN] Hooked")
 		love.updateTitle("M'Overlay - Dolphin hooked")
 	elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-		log.info("Watching process ram: %s", exe)
+		log.info("[DOLPHIN] Watching ram: %X", watcher.process:getGamecubeRAMOffset())
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
 		watcher.checkmemoryvalues()
 	end
@@ -297,7 +298,6 @@ function watcher.isMelee()
 end
 
 function watcher.checkmemoryvalues()
-	local frame = watcher.frame or 0
 	local gid = watcher.readGameID()
 	local version = watcher.readGameVersion()
 
@@ -313,7 +313,7 @@ function watcher.checkmemoryvalues()
 		watcher.version = version
 
 		if gid ~= GAME_NONE then
-			log.debug("GAMEID: %q (Version %d)", gid, version)
+			log.debug("[DOLPHIN] GAMEID: %q (Version %d)", gid, version)
 			love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
 			watcher.hookRun("OnGameOpen", gid, version)
 
@@ -330,17 +330,18 @@ function watcher.checkmemoryvalues()
 
 			if status then
 				watcher.game = game
-				log.info("Loaded game config: %s-%d", gid, version)
+				log.info("[DOLPHIN] Loaded game config: %s-%d", gid, version)
 				watcher.init()
 			else
 				notification.error(("Unsupported game %s-%d"):format(gid, version))
 				notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
-				log.error(game)
+				log.error("[DOLPHIN] %s", game)
 			end
 		else
 			love.updateTitle("M'Overlay - Dolphin hooked")
-			log.info("Game closed..")
 			watcher.hookRun("OnGameClosed", gid, version)
+			watcher.process:clearGamecubeRAMOffset() -- Clear the memory address space location (When a new game is opened, we recheck this)
+			log.info("[DOLPHIN] Game closed..")
 		end
 	end
 
@@ -359,7 +360,7 @@ function watcher.checkmemoryvalues()
 			local numValue = tonumber(value) or (value and 1 or 0)
 
 			if watcher.debug or info.debug then
-				log.debug("[%d][%08X = %08X] %s = %s", frame, address, numValue, info.name, value)
+				log.debug("[MEMORY] [%08X = %08X] %s = %s", address, numValue, info.name, value)
 			end
 
 			watcher.values_memory[address] = value
@@ -373,17 +374,20 @@ function watcher.checkmemoryvalues()
 		if watcher.pointer_loc[address] ~= ptr_addr then
 			watcher.pointer_loc[address] = ptr_addr
 
-			log.debug("[%d] pointer at %08X changed location to %08X", frame, address, ptr_addr)
+			local info = watcher.game.memorymap[address]
 
-			if ptr_addr == 0x00000000 then
+			if ptr_addr == NULL then
+				log.debug("[MEMORY] [POINTER %08X = NULL] %s", address, info.name)
 				watcher.values_pointer[address] = {}
+			else
+				log.debug("[MEMORY] [POINTER %08X = %08X] %s", address, ptr_addr, info.name)
 			end
 		end
 	end
 
 	for address, offsets in pairs(watcher.watching_ptr_addr) do
 		local ptr_addr = watcher.pointer_loc[address]
-		if ptr_addr and ptr_addr ~= 0x00000000 then
+		if ptr_addr and ptr_addr ~= NULL then
 
 			local info = watcher.game.memorymap[address]
 
@@ -406,7 +410,7 @@ function watcher.checkmemoryvalues()
 						local numValue = tonumber(value) or (value and 1 or 0)
 
 						if watcher.debug or info.debug or info.struct[offset].debug then
-							log.debug("[%d][%08X->%08X->%08X = %08X] %s = %s", frame, address, ptr_addr, ptr_addr + offset, numValue, name, value)
+							log.debug("[MEMORY] [POINTER %08X->%08X->%08X = %08X] %s = %s", address, ptr_addr, ptr_addr + offset, numValue, name, value)
 						end
 
 						watcher.values_pointer[address][offset] = value
