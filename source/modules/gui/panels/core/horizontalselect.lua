@@ -48,8 +48,8 @@ function PANEL:AddOption(str, default)
 	return #self.m_tOptions
 end
 
-function PANEL:SelectOption(num)
-	if self.m_iSelection == num then return end
+function PANEL:SelectOption(num, force)
+	if self.m_iSelection == num and not force then return end
 	self.m_iSelection = num
 	self:UpdateSelection()
 	self:OnSelectOption(self.m_iSelection)

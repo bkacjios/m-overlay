@@ -40,7 +40,6 @@ function PANEL:Initialize()
 	self.SLIPPI = RIGHT:Add("Panel")
 	self.SLIPPI:DockMargin(0,0,0,0)
 	self.SLIPPI:DockPadding(4,28,4,4)
-	--self.SLIPPI:SetBorderColor(color_black)
 	self.SLIPPI:SetBackgroundColor(color(33, 186, 69))
 	self.SLIPPI:SetWidth(164)
 	self.SLIPPI:SetHeight(84)
@@ -55,7 +54,6 @@ function PANEL:Initialize()
 	self.MELEE = RIGHT:Add("Panel")
 	self.MELEE:DockMargin(0,0,0,0)
 	self.MELEE:DockPadding(4,28,4,4)
-	--self.MELEE:SetBorderColor(color_black)
 	self.MELEE:SetBackgroundColor(color(189, 15, 23))
 	self.MELEE:SetWidth(164)
 	self.MELEE:SetHeight(132)
@@ -75,6 +73,7 @@ function PANEL:Initialize()
 	SLIPPI_REPLAY = self.SLIPPI.MODE:AddOption("Replay/Mirror") -- 3
 
 	function self.SLIPPI.MODE:OnSelectOption(num)
+		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100) or color(33, 186, 69))
 		self:GetParent().AUTOPORT:SetEnabled(num == SLIPPI_NETPLAY)
 	end
 
@@ -158,12 +157,12 @@ function PANEL:Initialize()
 		TLABEL:SetText(("Transparency - %d%%"):format(i))
 	end
 
-	self.MELEE.MUSICDIR = LEFT:Add("Button")
-	self.MELEE.MUSICDIR:SetText("Open Stage Music Dir")
-	self.MELEE.MUSICDIR:Dock(DOCK_TOP)
+	self.CONFIGDIR = LEFT:Add("Button")
+	self.CONFIGDIR:SetText("Open config directory")
+	self.CONFIGDIR:Dock(DOCK_TOP)
 
-	function self.MELEE.MUSICDIR:OnClick()
-		love.system.openURL(("file://%s/Stage Music/"):format(love.filesystem.getSaveDirectory()))
+	function self.CONFIGDIR:OnClick()
+		love.system.openURL(("file://%s"):format(love.filesystem.getSaveDirectory()))
 	end
 
 	self.m_sFileName = "config.json"
@@ -296,7 +295,7 @@ function PANEL:LoadSettings()
 	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
 	self.DEBUG:SetToggle(settings["debugging"] or false)
 	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
-	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0)
+	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
 	self.MELEE.MUSICLOOP:SetToggle(settings["melee-stage-music-loop"] or false, true)
