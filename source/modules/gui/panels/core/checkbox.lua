@@ -13,8 +13,8 @@ function PANEL:Initialize()
 	--gui.skinHook("Init", "Checkbox", self)
 end
 
-function PANEL:SetToggle(b)
-	if self.m_bToggled ~= b then
+function PANEL:SetToggle(b, force)
+	if self.m_bToggled ~= b or force then
 		self.m_bToggled = b
 		self:OnToggle(b)
 	end

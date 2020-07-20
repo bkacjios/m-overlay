@@ -9,6 +9,7 @@ function PANEL:Initialize()
 	self:MakeAccessor("PressedColor", "m_cPressedColor")
 	self:MakeAccessor("HoveredColor", "m_cHoveredColor")
 
+	self:SetTextAlignment("center")
 	self:SetText("Button")
 
 	gui.skinHook("Init", "Button", self)

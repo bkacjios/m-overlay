@@ -14,7 +14,7 @@ function PANEL:Initialize()
 	self:MakeAccessor("FontHint", "m_iFontHint")
 
 	self:MakeAccessor("Wrapped", "m_bWrapped", false)
-	self:MakeAccessor("TextAlignment", "m_sAlignment", "center")
+	self:MakeAccessor("TextAlignment", "m_sAlignment", "left")
 end
 
 function PANEL:Think(dt)

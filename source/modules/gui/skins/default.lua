@@ -171,4 +171,9 @@ function SKIN:PaintCheckbox(panel, w, h)
 	graphics.rectangle("line", 4, 4, 16, 16)
 end
 
+function SKIN:InitHorizontalSelect(panel)
+	panel:SetBGColor(self.PanelBackground)
+	panel:SetBorderColor(self.PanelBorder)
+end
+
 gui.registerSkin("default", SKIN)

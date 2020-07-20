@@ -12,124 +12,156 @@ function PANEL:Initialize()
 	self:SetSize(296 + 32, 196 + 28 + 24)
 	self:Center()
 
-	self.m_pLEFT = self:Add("Panel")
-	self.m_pLEFT:DockMargin(0,0,0,0)
-	self.m_pLEFT:DockPadding(4,4,4,4)
-	--self.m_pLEFT:SetBorderColor(color_black)
-	self.m_pLEFT:SetBackgroundColor(color_clear)
-	self.m_pLEFT:SetWidth(164)
-	self.m_pLEFT:Dock(DOCK_LEFT)
+	local LEFT = self:Add("Panel")
+	LEFT:DockMargin(0,0,0,0)
+	LEFT:DockPadding(4,4,4,4)
+	--LEFT:SetBorderColor(color_black)
+	LEFT:SetBackgroundColor(color_clear)
+	LEFT:SetWidth(164)
+	LEFT:Dock(DOCK_LEFT)
 
-	self.m_pLLABEL = self.m_pLEFT:Add("Label")
+	self.m_pLLABEL = LEFT:Add("Label")
 	self.m_pLLABEL:SetText("General")
+	self.m_pLLABEL:SetTextAlignment("center")
 	self.m_pLLABEL:SizeToText()
 	self.m_pLLABEL:SetHeight(20)
 	self.m_pLLABEL:Dock(DOCK_TOP)
 
-	self.m_pRIGHT = self:Add("Panel")
-	self.m_pRIGHT:DockMargin(0,0,0,0)
-	self.m_pRIGHT:DockPadding(4,28,4,4)
-	--self.m_pRIGHT:SetBorderColor(color_black)
-	self.m_pRIGHT:SetBackgroundColor(color(33, 186, 69))
-	self.m_pRIGHT:SetWidth(164)
-	self.m_pRIGHT:Dock(DOCK_RIGHT)
+	local RIGHT = self:Add("Panel")
+	RIGHT:DockMargin(0,0,0,0)
+	RIGHT:DockPadding(0,0,0,0)
+	--RIGHT:DockPadding(4,28,4,4)
+	--RIGHT:SetBorderColor(color_black)
+	--RIGHT:SetBackgroundColor(color(33, 186, 69))
+	RIGHT:SetWidth(164)
+	RIGHT:Dock(DOCK_RIGHT)
 
-	self.m_pSLIPPIICON = self.m_pRIGHT:Add("Image")
-	self.m_pSLIPPIICON:SetImage("textures/SlippiLogo.png")
-	self.m_pSLIPPIICON:SetPos(0, 4)
-	self.m_pSLIPPIICON:SetSize(32, 24)
-	self.m_pSLIPPIICON:Center(false, true)
+	self.SLIPPI = RIGHT:Add("Panel")
+	self.SLIPPI:DockMargin(0,0,0,0)
+	self.SLIPPI:DockPadding(4,28,4,4)
+	--self.SLIPPI:SetBorderColor(color_black)
+	self.SLIPPI:SetBackgroundColor(color(33, 186, 69))
+	self.SLIPPI:SetWidth(164)
+	self.SLIPPI:SetHeight(84)
+	self.SLIPPI:Dock(DOCK_TOP)
 
-	self.m_pSLIPPIREPLAY = self.m_pRIGHT:Add("Checkbox")
-	self.m_pSLIPPIREPLAY:SetText("Replay/Mirror")
-	self.m_pSLIPPIREPLAY:Dock(DOCK_TOP)
+	local SLIPPIICON = self.SLIPPI:Add("Image")
+	SLIPPIICON:SetImage("textures/SlippiLogo.png")
+	SLIPPIICON:SetPos(0, 4)
+	SLIPPIICON:SetSize(32, 24)
+	SLIPPIICON:Center(false, true)
 
-	self.m_pSLIPPI = self.m_pRIGHT:Add("Checkbox")
-	self.m_pSLIPPI:SetText("Rollback/Netplay")
-	self.m_pSLIPPI:Dock(DOCK_TOP)
+	self.MELEE = RIGHT:Add("Panel")
+	self.MELEE:DockMargin(0,0,0,0)
+	self.MELEE:DockPadding(4,28,4,4)
+	--self.MELEE:SetBorderColor(color_black)
+	self.MELEE:SetBackgroundColor(color(189, 15, 23))
+	self.MELEE:SetWidth(164)
+	self.MELEE:SetHeight(132)
+	self.MELEE:Dock(DOCK_TOP)
 
-	function self.m_pSLIPPI:OnToggle(on)
-		self:GetParent():GetParent().m_pAUTOPORT:SetEnabled(on)
+	local MELEEICON = self.MELEE:Add("Image")
+	MELEEICON:SetImage("textures/melee.png")
+	MELEEICON:SetPos(0, 4)
+	MELEEICON:SetSize(160, 32)
+	MELEEICON:Center(false, true)
+
+	self.SLIPPI.MODE = self.SLIPPI:Add("HorizontalSelect")
+	self.SLIPPI.MODE:Dock(DOCK_TOP)
+
+	SLIPPI_OFF = self.SLIPPI.MODE:AddOption("Off", true) -- 1
+	SLIPPI_NETPLAY = self.SLIPPI.MODE:AddOption("Rollback/Netplay") -- 2
+	SLIPPI_REPLAY = self.SLIPPI.MODE:AddOption("Replay/Mirror") -- 3
+
+	function self.SLIPPI.MODE:OnSelectOption(num)
+		self:GetParent().AUTOPORT:SetEnabled(num == SLIPPI_NETPLAY)
 	end
 
-	self.m_pAUTOPORT = self.m_pRIGHT:Add("Checkbox")
-	self.m_pAUTOPORT:SetEnabled(false)
-	self.m_pAUTOPORT:SetText("Detect port")
-	self.m_pAUTOPORT:Dock(DOCK_TOP)
+	self.SLIPPI.AUTOPORT = self.SLIPPI:Add("Checkbox")
+	self.SLIPPI.AUTOPORT:SetEnabled(false)
+	self.SLIPPI.AUTOPORT:SetText("Auto detect port")
+	self.SLIPPI.AUTOPORT:Dock(DOCK_TOP)
 
-	self.m_pMUSIC = self.m_pRIGHT:Add("Checkbox")
-	self.m_pMUSIC:SetText("Stage Music")
-	self.m_pMUSIC:Dock(DOCK_TOP)
+	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
+	self.MELEE.MUSIC:SetText("Stage Music")
+	self.MELEE.MUSIC:Dock(DOCK_TOP)
 
-	function self.m_pMUSIC:OnToggle(on)
+	function self.MELEE.MUSIC:OnToggle(on)
 		love.musicStateChange()
-		self:GetParent():GetParent().m_pMUSICLOOP:SetEnabled(on)
+		self:GetParent().MUSICLOOP:SetEnabled(on)
+		self:GetParent().VOLUME:SetEnabled(on)
 	end
 
-	self.m_pMUSICLOOP = self.m_pRIGHT:Add("Checkbox")
-	self.m_pMUSICLOOP:SetText("Loop Stage Song")
-	self.m_pMUSICLOOP:Dock(DOCK_TOP)
+	self.MELEE.MUSICLOOP = self.MELEE:Add("Checkbox")
+	self.MELEE.MUSICLOOP:SetText("Loop Stage Song")
+	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 
-	function self.m_pMUSICLOOP:OnToggle(on)
+	function self.MELEE.MUSICLOOP:OnToggle(on)
 		love.musicLoopChange(on)
 	end
 
-	self.m_pVOLLABEL = self.m_pRIGHT:Add("Label")
-	self.m_pVOLLABEL:SetText("Music Volume")
-	self.m_pVOLLABEL:SizeToText()
-	self.m_pVOLLABEL:Dock(DOCK_TOP)
+	local VOLLABEL = self.MELEE:Add("Label")
+	VOLLABEL:SetText("Music Volume")
+	VOLLABEL:SizeToText()
+	VOLLABEL:Dock(DOCK_TOP)
 
-	self.m_pVOLUME = self.m_pRIGHT:Add("Slider")
-	self.m_pVOLUME:SetValue(50)
-	self.m_pVOLUME:Dock(DOCK_TOP)
+	self.MELEE.VOLUME = self.MELEE:Add("Slider")
+	self.MELEE.VOLUME:SetValue(50)
+	self.MELEE.VOLUME:Dock(DOCK_TOP)
 
-	function self.m_pVOLUME:OnValueChanged(i)
+	function self.MELEE.VOLUME:OnValueChanged(i)
 		love.musicVolume(i)
-		self:GetParent():GetParent().m_pVOLLABEL:SetText(("Music Volume - %d%%"):format(i))
+		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
 	end
 
-	self.m_pPORTTITLE = self.m_pLEFT:Add("Checkbox")
-	self.m_pPORTTITLE:SetText("Port in title")
-	self.m_pPORTTITLE:Dock(DOCK_TOP)
+	self.PORTTITLE = LEFT:Add("Checkbox")
+	self.PORTTITLE:SetText("Port in title")
+	self.PORTTITLE:Dock(DOCK_TOP)
 
-	self.m_pALWAYSPORT = self.m_pLEFT:Add("Checkbox")
-	self.m_pALWAYSPORT:SetText("Always show port")
-	self.m_pALWAYSPORT:Dock(DOCK_TOP)
+	self.ALWAYSPORT = LEFT:Add("Checkbox")
+	self.ALWAYSPORT:SetText("Always show port")
+	self.ALWAYSPORT:Dock(DOCK_TOP)
 
-	function self.m_pPORTTITLE:OnToggle()
+	function self.PORTTITLE:OnToggle()
 		love.updateTitle(love.getTitleNoPort())
 	end
 
-	self.m_pDPAD = self.m_pLEFT:Add("Checkbox")
-	self.m_pDPAD:SetText("Hide D-PAD")
-	self.m_pDPAD:Dock(DOCK_TOP)
+	self.DPAD = LEFT:Add("Checkbox")
+	self.DPAD:SetText("Hide D-PAD")
+	self.DPAD:Dock(DOCK_TOP)
 
-	self.m_pDEBUG = self.m_pLEFT:Add("Checkbox")
-	self.m_pDEBUG:SetText("Debug mode")
-	self.m_pDEBUG:Dock(DOCK_TOP)
+	if love.system.getOS() == "Windows" then
+		self.DEBUG = LEFT:Add("Checkbox")
+		self.DEBUG:SetText("Debug console")
+		self.DEBUG:Dock(DOCK_TOP)
 
-	function self.m_pDEBUG:OnToggle(on)
-		if love.system.getOS() == "Windows" then love._openConsole() end
+		function self.DEBUG:OnToggle(on)
+			if on then
+				love._openConsole()
+			else
+				notification.warning("The console will be disabled the next time you open the program.")
+			end
+		end
 	end
 
-	self.m_pTLABEL = self.m_pLEFT:Add("Label")
-	self.m_pTLABEL:SetText("Transparency")
-	self.m_pTLABEL:SizeToText()
-	self.m_pTLABEL:Dock(DOCK_TOP)
+	local TLABEL = LEFT:Add("Label")
+	TLABEL:SetText("Transparency")
+	TLABEL:SizeToText()
+	TLABEL:Dock(DOCK_TOP)
 
-	self.m_pTRANSPARENCY = self.m_pLEFT:Add("Slider")
-	self.m_pTRANSPARENCY:SetValue(100)
-	self.m_pTRANSPARENCY:Dock(DOCK_TOP)
+	self.TRANSPARENCY = LEFT:Add("Slider")
+	self.TRANSPARENCY:SetValue(100)
+	self.TRANSPARENCY:Dock(DOCK_TOP)
 
-	function self.m_pTRANSPARENCY:OnValueChanged(i)
-		self:GetParent():GetParent().m_pTLABEL:SetText(("Transparency - %d%%"):format(i))
+	function self.TRANSPARENCY:OnValueChanged(i)
+		TLABEL:SetText(("Transparency - %d%%"):format(i))
 	end
 
-	self.m_pMUSICDIR = self.m_pLEFT:Add("Button")
-	self.m_pMUSICDIR:SetText("Open Stage Music Dir")
-	self.m_pMUSICDIR:Dock(DOCK_TOP)
+	self.MELEE.MUSICDIR = LEFT:Add("Button")
+	self.MELEE.MUSICDIR:SetText("Open Stage Music Dir")
+	self.MELEE.MUSICDIR:Dock(DOCK_TOP)
 
-	function self.m_pMUSICDIR:OnClick()
+	function self.MELEE.MUSICDIR:OnClick()
 		love.system.openURL(("file://%s/Stage Music/"):format(love.filesystem.getSaveDirectory()))
 	end
 
@@ -146,8 +178,7 @@ end
 
 function PANEL:GetSaveTable()
 	return {
-		["slippi-replay"] = self:IsSlippiReplay(),
-		["slippi-netplay"] = self:IsSlippiNetplay(),
+		["slippi-mode"] = self:GetSlippiMode(),
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["music-volume"] = self:GetVolume(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
@@ -155,54 +186,58 @@ function PANEL:GetSaveTable()
 		["hide-dpad"] = self:IsDPADHidden(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
-		["stage-music"] = self:PlayStageMusic(),
-		["stage-music-loop"] = self:LoopStageMusic(),
-		["music-volume"] = self:GetVolume(),
+		["melee-stage-music"] = self:PlayStageMusic(),
+		["melee-stage-music-loop"] = self:LoopStageMusic(),
+		["melee-music-volume"] = self:GetVolume(),
 	}
 end
 
 function PANEL:PlayStageMusic()
-	return self.m_pMUSIC:IsToggled()
+	return self.MELEE.MUSIC:IsToggled()
 end
 
 function PANEL:LoopStageMusic()
-	return self.m_pMUSICLOOP:IsToggled()
+	return self.MELEE.MUSICLOOP:IsToggled()
 end
 
 function PANEL:GetVolume()
-	return self.m_pVOLUME:GetValue()
+	return self.MELEE.VOLUME:GetValue()
+end
+
+function PANEL:GetSlippiMode()
+	return self.SLIPPI.MODE:GetSelection()
 end
 
 function PANEL:IsSlippiNetplay()
-	return self.m_pSLIPPI:IsToggled()
+	return self.SLIPPI.MODE:GetSelection() == SLIPPI_NETPLAY
 end
 
 function PANEL:IsSlippiReplay()
-	return self.m_pSLIPPIREPLAY:IsToggled()
+	return self.SLIPPI.MODE:GetSelection() == SLIPPI_REPLAY
 end
 
 function PANEL:IsSlippiAutoPortEnabled()
-	return self.m_pAUTOPORT:IsToggled()
+	return self.SLIPPI.AUTOPORT:IsToggled()
 end
 
 function PANEL:IsPortTitleEnabled()
-	return self.m_pPORTTITLE:IsToggled()
+	return self.PORTTITLE:IsToggled()
 end
 
 function PANEL:AlwaysShowPort()
-	return self.m_pALWAYSPORT:IsToggled()
+	return self.ALWAYSPORT:IsToggled()
 end
 
 function PANEL:IsDPADHidden()
-	return self.m_pDPAD:IsToggled()
+	return self.DPAD:IsToggled()
 end
 
 function PANEL:IsDebugging()
-	return self.m_pDEBUG:IsToggled()
+	return self.DEBUG:IsToggled()
 end
 
 function PANEL:GetTransparency()
-	return self.m_pTRANSPARENCY:GetValue()
+	return self.TRANSPARENCY:GetValue()
 end
 
 function PANEL:OnClosed()
@@ -239,17 +274,18 @@ function PANEL:LoadSettings()
 		local settings = json.decode(f:read())
 		self.m_tSettings = settings
 		f:close()
-		self.m_pSLIPPIREPLAY:SetToggle(settings["slippi-replay"] or false)
-		self.m_pSLIPPI:SetToggle(settings["slippi-netplay"] or false)
-		self.m_pAUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false)
-		self.m_pPORTTITLE:SetToggle(settings["port-in-title"] or false)
-		self.m_pALWAYSPORT:SetToggle(settings["always-show-port"] or false)
-		self.m_pDPAD:SetToggle(settings["hide-dpad"] or false)
-		self.m_pDEBUG:SetToggle(settings["debugging"] or false)
-		self.m_pTRANSPARENCY:SetValue(settings["transparency"] or 100)
-		self.m_pMUSIC:SetToggle(settings["stage-music"] or false)
-		self.m_pMUSICLOOP:SetToggle(settings["stage-music-loop"] or false)
-		self.m_pVOLUME:SetValue(settings["music-volume"] or 50)
+		self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
+		self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
+		self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
+		self.DEBUG:SetToggle(settings["debugging"] or false, true)
+		self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
+		self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0)
+		self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
+		self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
+		self.MELEE.MUSICLOOP:SetToggle(settings["melee-stage-music-loop"] or false, true)
+		self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
+	else
+		self.m_tSettings = self:GetSaveTable()
 	end
 end
 
