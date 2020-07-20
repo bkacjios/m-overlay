@@ -264,7 +264,7 @@ function watcher.update(exe)
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
 		watcher.process:close()
 		love.updateTitle("M'Overlay - Waiting for Dolphin..")
-		log.info("[DOLPHIN] Unhooked: %s", exe)
+		log.info("[DOLPHIN] Unhooked")
 	end
 
 	if watcher.process:findprocess(exe) then
