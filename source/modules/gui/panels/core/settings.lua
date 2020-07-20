@@ -1,5 +1,6 @@
 local PANEL = {}
 
+local log = require("log")
 local json = require("serializer.json")
 local notification = require("notification")
 
@@ -180,7 +181,6 @@ function PANEL:GetSaveTable()
 	return {
 		["slippi-mode"] = self:GetSlippiMode(),
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
-		["music-volume"] = self:GetVolume(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
 		["hide-dpad"] = self:IsDPADHidden(),
@@ -269,24 +269,38 @@ function PANEL:SaveSettings()
 end
 
 function PANEL:LoadSettings()
+	local settings = self:GetSaveTable()
+
 	local f = filesystem.newFile(self.m_sFileName, "r")
 	if f then
-		local settings = json.decode(f:read())
-		self.m_tSettings = settings
+		for k,v in pairs(json.decode(f:read())) do
+			if settings[k] ~= nil then
+				settings[k] = v
+			elseif k == "slippi-netplay" and v == true then
+				settings["slippi-mode"] = SLIPPI_NETPLAY
+				log.debug("[CONFIG] Converting old config setting %q", k)
+			elseif k == "stage-music" or k == "stage-music-loop" or k == "music-volume" then
+				settings["melee-" .. k] = v
+				log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-" .. k)
+			else
+				log.debug("[CONFIG] Ignoring old setting config %q", k)
+			end
+		end
 		f:close()
-		self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
-		self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
-		self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
-		self.DEBUG:SetToggle(settings["debugging"] or false, true)
-		self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
-		self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0)
-		self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
-		self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
-		self.MELEE.MUSICLOOP:SetToggle(settings["melee-stage-music-loop"] or false, true)
-		self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
-	else
-		self.m_tSettings = self:GetSaveTable()
 	end
+
+	self.m_tSettings = settings
+
+	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
+	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
+	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
+	self.DEBUG:SetToggle(settings["debugging"] or false)
+	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
+	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0)
+	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
+	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
+	self.MELEE.MUSICLOOP:SetToggle(settings["melee-stage-music-loop"] or false, true)
+	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
 end
 
 gui.register("Settings", PANEL, "Frame")
