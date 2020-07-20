@@ -88,10 +88,20 @@ function notification.draw()
 end
 
 function notification.error(text)
+	love.window.requestAttention()
 	notification.add(14, 10, 0.75, function(height, fade)
 		graphics.setColor(0, 0, 0, 255 * fade)
 		graphics.textOutline(text, 1, 1, 1)
 		graphics.setColor(205, 16, 26, 255 * fade)
+		graphics.print(text, 0, 0)
+	end)
+end
+
+function notification.warning(text)
+	notification.add(14, 5, 0.75, function(height, fade)
+		graphics.setColor(0, 0, 0, 255 * fade)
+		graphics.textOutline(text, 1, 1, 1)
+		graphics.setColor(255, 242, 0, 255 * fade)
 		graphics.print(text, 0, 0)
 	end)
 end

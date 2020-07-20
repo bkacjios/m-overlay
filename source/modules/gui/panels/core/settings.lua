@@ -1,6 +1,7 @@
 local PANEL = {}
 
 local json = require("serializer.json")
+local notification = require("notification")
 
 function PANEL:Initialize()
 	self:super()
@@ -190,12 +191,27 @@ function PANEL:OnClosed()
 	self:SaveSettings()
 end
 
+function PANEL:NeedsWrite()
+	for k,v in pairs(self:GetSaveTable()) do
+		-- Return true if the last known settings state differs from the current
+		if self.m_tSettings[k] == nil or self.m_tSettings[k] ~= v then
+			return true
+		end
+	end
+	return false
+end
+
 function PANEL:SaveSettings()
-	local f = filesystem.newFile(self.m_sFileName, "w")
+	if not self:NeedsWrite() then return end -- Stop if we don't need to write any changes
+	local f, err = filesystem.newFile(self.m_sFileName, "w")
 	if f then
-		f:write(json.encode(self:GetSaveTable(), true))
+		notification.warning(("Writing to %s"):format(self.m_sFileName))
+		self.m_tSettings = self:GetSaveTable()
+		f:write(json.encode(self.m_tSettings, true))
 		f:flush()
 		f:close()
+	else
+		notification.error(("Failed writing to %s (%s)"):format(self.m_sFileName, err))
 	end
 end
 
@@ -203,6 +219,7 @@ function PANEL:LoadSettings()
 	local f = filesystem.newFile(self.m_sFileName, "r")
 	if f then
 		local settings = json.decode(f:read())
+		self.m_tSettings = settings
 		f:close()
 		self.m_pSLIPPIREPLAY:SetToggle(settings["slippi-replay"] or false)
 		self.m_pSLIPPI:SetToggle(settings["slippi-netplay"] or false)
