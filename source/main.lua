@@ -126,10 +126,10 @@ function love.musicKill()
 	end
 end
 
-function love.musicStateChange(stage)
-	if memory.menu == MENU_INGAME and stage then
-		love.loadStageMusic(stage)
-	elseif memory.menu == MENU_CSS and not stage then
+function love.musicStateChange()
+	if memory.menu == MENU_INGAME then
+		love.loadStageMusic(memory.stage)
+	elseif memory.menu == MENU_CSS then
 		love.loadStageMusic(0)
 	else
 		love.musicKill()
@@ -166,7 +166,7 @@ memory.hook("menu", "Slippi music player", function(menu)
 end)
 
 memory.hook("stage", "Slippi music player", function(stage)
-	love.musicStateChange(stage)
+	love.musicStateChange()
 end)
 
 local valid_music_ext = {
