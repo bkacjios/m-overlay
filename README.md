@@ -26,5 +26,8 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 - Access a settings menu by pressing the `escape` key
 - Set what port is selected when opening with the launch command (--port=N or --port N) [Example](https://i.imgur.com/f9AkS2q.png)
 
-### [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup)
-### [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
+### Wiki pages
+
+* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup)
+* [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
+* [Super Smash Bros. Melee stage music tutorial](https://github.com/bkacjios/m-overlay/wiki/Stage-music-for-Project-Slippi)
