@@ -21,12 +21,12 @@ function PANEL:Initialize()
 	LEFT:SetWidth(164)
 	LEFT:Dock(DOCK_LEFT)
 
-	self.m_pLLABEL = LEFT:Add("Label")
-	self.m_pLLABEL:SetText("General")
-	self.m_pLLABEL:SetTextAlignment("center")
-	self.m_pLLABEL:SizeToText()
-	self.m_pLLABEL:SetHeight(20)
-	self.m_pLLABEL:Dock(DOCK_TOP)
+	local GLABEL = LEFT:Add("Label")
+	GLABEL:SetText("General")
+	GLABEL:SetTextAlignment("center")
+	GLABEL:SizeToText()
+	GLABEL:SetHeight(20)
+	GLABEL:Dock(DOCK_TOP)
 
 	local RIGHT = self:Add("Panel")
 	RIGHT:DockMargin(0,0,0,0)
@@ -232,7 +232,7 @@ function PANEL:IsDPADHidden()
 end
 
 function PANEL:IsDebugging()
-	return self.DEBUG:IsToggled()
+	return self.DEBUG and self.DEBUG:IsToggled() or false
 end
 
 function PANEL:GetTransparency()
@@ -293,7 +293,7 @@ function PANEL:LoadSettings()
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
 	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
-	self.DEBUG:SetToggle(settings["debugging"] or false)
+	if self.DEBUG then self.DEBUG:SetToggle(settings["debugging"] or false) end
 	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
