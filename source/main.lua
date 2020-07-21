@@ -80,10 +80,11 @@ function love.load(args, unfilteredArg)
 	end
 end
 
-local STAGE_SONGS = {}
-local STAGE_SONG_TRACK = 0
-local STAGE_SONG = nil
+local STAGE_TRACKS_LOADED = {}
+local STAGE_TRACKS = {}
+local TRACK_NUMBER = {}
 local STAGE_ID = 0
+local PLAYING_SONG = nil
 
 local MENU_CSS = 0
 local MENU_STAGE_SELECT = 1
@@ -115,20 +116,22 @@ memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 	end
 end)
 
+love.filesystem.setSymlinksEnabled(true)
 for stageid, name in pairs(melee.getAllStages()) do
 	love.filesystem.createDirectory(("Stage Music/%s"):format(name))
 end
+love.filesystem.createDirectory("Stage Music/All")
 
 function love.musicKill()
-	if STAGE_SONG and STAGE_SONG:isPlaying() then
-		STAGE_SONG:stop()
+	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
+		PLAYING_SONG:stop()
 		log.debug("[MUSIC] Stopping music..")
 	end
 end
 
 function love.musicLoopChange(on)
-	if STAGE_SONG and STAGE_SONG:isPlaying() then
-		STAGE_SONG:setLooping(on)
+	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
+		PLAYING_SONG:setLooping(on)
 	end
 end
 
@@ -143,25 +146,28 @@ function love.musicStateChange()
 end
 
 function love.musicVolume(vol)
-	if STAGE_SONG and STAGE_SONG:isPlaying() then
-		STAGE_SONG:setVolume(vol/100)
+	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
+		PLAYING_SONG:setVolume(vol/100)
 	end
 end
 
 function love.musicUpdate()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
-	if STAGE_SONG == nil or not STAGE_SONG:isPlaying() then
-		if STAGE_ID and STAGE_SONGS[STAGE_ID] and #STAGE_SONGS[STAGE_ID] > 0 and (memory.menu == 2 or memory.menu == 0) then
-			STAGE_SONG_TRACK = (STAGE_SONG_TRACK + 1) % (#STAGE_SONGS[STAGE_ID])
-			STAGE_SONG = STAGE_SONGS[STAGE_ID][STAGE_SONG_TRACK + 1]
-			if STAGE_SONG then
-				log.debug("[MUSIC] Playing track #%d for stage %q", STAGE_SONG_TRACK, melee.getStageName(STAGE_ID))
-				if STAGE_ID ~= 0 then
-					STAGE_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
-				end
-				STAGE_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
-				STAGE_SONG:play()
+	if PLAYING_SONG ~= nil and PLAYING_SONG:isPlaying() then return end
+	if not STAGE_ID or not STAGE_TRACKS[STAGE_ID] then return end
+
+	local songs = STAGE_TRACKS[STAGE_ID]
+
+	if songs and #songs > 0 and (memory.menu == 2 or memory.menu == 0) then
+		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
+		PLAYING_SONG = STAGE_TRACKS[STAGE_ID][TRACK_NUMBER[STAGE_ID] + 1]
+		if PLAYING_SONG then
+			log.debug("[MUSIC] Playing track #%d for stage %q", TRACK_NUMBER[STAGE_ID] + 1, melee.getStageName(STAGE_ID))
+			if STAGE_ID ~= 0 then
+				PLAYING_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
 			end
+			PLAYING_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
+			PLAYING_SONG:play()
 		end
 	end
 end
@@ -175,7 +181,7 @@ memory.hook("menu", "Slippi music player", function(menu)
 end)
 
 memory.hook("stage", "Slippi music player", function(stage)
-	love.musicStateChange()
+	love.loadStageMusic(stage)
 end)
 
 local valid_music_ext = {
@@ -184,32 +190,44 @@ local valid_music_ext = {
 	["wav"] = true
 }
 
-function love.loadStageMusic(stageid)
-	love.musicKill()
-
-	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
-
-	local stage = melee.getStageName(stageid)
-	if not stage then STAGE_ID = nil return end
-	STAGE_SONGS[stageid] = {}
-	local files = love.filesystem.getDirectoryItems(("Stage Music/%s"):format(stage))
+function love.loadStageMusicInDir(stageid, name)
+	local loaded = 0
+	local files = love.filesystem.getDirectoryItems(("Stage Music/%s"):format(name))
 	for k, file in ipairs(files) do
-		local filepath = ("Stage Music/%s/%s"):format(stage, file)
+		local filepath = ("Stage Music/%s/%s"):format(name, file)
 		local info = love.filesystem.getInfo(filepath)
 		local ext = string.getFileExtension(file)
-		if info.type == "file" and valid_music_ext[ext:lower()] then
+		if info.type == "file" and valid_music_ext[ext:lower()] and not STAGE_TRACKS_LOADED[stageid][file] then
 			local success, source = pcall(love.audio.newSource, filepath, "stream")
 			if success then
-				table.insert(STAGE_SONGS[stageid], source)
+				loaded = loaded + 1
+				STAGE_TRACKS_LOADED[stageid][file] = true
+
+				-- Insert the newly loaded track into a random position in the playlist
+				table.insert(STAGE_TRACKS[stageid], math.random(1, #STAGE_TRACKS[stageid]), source)
 			else
-				local err = ("invalid music file \"%s/%s\""):format(stage, file)
+				local err = ("invalid music file \"%s/%s\""):format(name, file)
 				log.error("[MUSIC] %s", err)
 				notification.error(err)
 			end
 		end
 	end
-	log.debug("[MUSIC] Loaded %d songs for %q", #STAGE_SONGS[stageid], stage)
-	table.shuffle(STAGE_SONGS[stageid])
+	if loaded > 0 then
+		log.debug("[MUSIC] Loaded %d songs for %q", loaded, name)
+	end
+end
+
+function love.loadStageMusic(stageid)
+	love.musicKill()
+
+	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
+
+	local name = melee.getStageName(stageid)
+	if not name then STAGE_ID = nil return end
+	STAGE_TRACKS[stageid] = STAGE_TRACKS[stageid] or {}
+	STAGE_TRACKS_LOADED[stageid] = STAGE_TRACKS_LOADED[stageid] or {}
+	love.loadStageMusicInDir(stageid, name) -- Load all songs in the stages folder
+	love.loadStageMusicInDir(stageid, "All") -- Load everything in the 'All' folder too
 	STAGE_ID = stageid
 end
 
@@ -251,7 +269,7 @@ function love.keypressed(key, scancode, isrepeat)
 
 	gui.keyPressed(key, scancode, isrepeat)
 
-	local num = tonumber(key)
+	local num = tonumber(string.match(key, "kp(%d)") or key)
 
 	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
 		PORT = num - 1
@@ -287,9 +305,9 @@ function love.wheelmoved(x, y)
 	end
 	
 	if y > 0 then
-		PORT = PORT - 1
-	elseif y < 0 then
 		PORT = PORT + 1
+	elseif y < 0 then
+		PORT = PORT - 1
 	end
 	PORT = PORT % MAX_PORTS
 	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5

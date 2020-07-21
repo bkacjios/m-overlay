@@ -1,3 +1,5 @@
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VS3S4WHQMZEP6&currency_code=USD&source=url)
+
 # m-overlay
 
 ![Image of M'Overlay](https://thumbs.gfycat.com/GraciousAlarmingAntbear-size_restricted.gif)
