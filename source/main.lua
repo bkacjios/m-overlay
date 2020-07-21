@@ -33,6 +33,24 @@ local PORT_TEXTURES = {
 	[3] = newImage("textures/player4_color.png")
 }
 
+local BUTTONS = {
+	Z = 0x0010,
+	R = 0x0020,
+	L = 0x0040,
+	A = 0x0100,
+	B = 0x0200,
+	X = 0x0400,
+	Y = 0x0800,
+	START = 0x1000,
+}
+
+local DPAD = {
+	DPAD_LEFT = 0x0001,
+	DPAD_RIGHT = 0x0002,
+	DPAD_DOWN = 0x0004,
+	DPAD_UP = 0x0008,
+}
+
 local portless_title = ""
 function love.updateTitle(str)
 	local title = str
@@ -125,7 +143,6 @@ love.filesystem.createDirectory("Stage Music/All")
 function love.musicKill()
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
 		PLAYING_SONG:stop()
-		log.debug("[MUSIC] Stopping music..")
 	end
 end
 
@@ -160,9 +177,17 @@ function love.musicUpdate()
 
 	if songs and #songs > 0 and (memory.menu == 2 or memory.menu == 0) then
 		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
-		PLAYING_SONG = STAGE_TRACKS[STAGE_ID][TRACK_NUMBER[STAGE_ID] + 1]
+		local track = TRACK_NUMBER[STAGE_ID] + 1
+		PLAYING_SONG = songs[track]
+
+		-- Every time we play a song, we randomly place it towards the start of the playlist
+		local newpos = math.random(1, track)
+
+		table.remove(songs, track)
+		table.insert(songs, newpos, PLAYING_SONG)
+
 		if PLAYING_SONG then
-			log.debug("[MUSIC] Playing track #%d for stage %q", TRACK_NUMBER[STAGE_ID] + 1, melee.getStageName(STAGE_ID))
+			log.debug("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
 			if STAGE_ID ~= 0 then
 				PLAYING_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
 			end
@@ -182,6 +207,12 @@ end)
 
 memory.hook("stage", "Slippi music player", function(stage)
 	love.loadStageMusic(stage)
+end)
+
+memory.hook("controller.*.buttons.pressed", "Slippi D-PAD music skipper", function(port, pressed)
+	if bit.band(pressed, DPAD.DPAD_DOWN) > 0 and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
+		love.musicKill()
+	end
 end)
 
 local valid_music_ext = {
@@ -476,24 +507,6 @@ local function transformVertices(vertices, x, y, angle, ox, oy)
 
 	return rotated_vertices
 end
-
-local BUTTONS = {
-	Z = 0x0010,
-	R = 0x0020,
-	L = 0x0040,
-	A = 0x0100,
-	B = 0x0200,
-	X = 0x0400,
-	Y = 0x0800,
-	START = 0x1000,
-}
-
-local DPAD = {
-	DPAD_LEFT = 0x0001,
-	DPAD_RIGHT = 0x0002,
-	DPAD_DOWN = 0x0004,
-	DPAD_UP = 0x0008,
-}
 
 local function drawButtons(buttons, controller)
 	for button, flag in pairs(buttons) do
