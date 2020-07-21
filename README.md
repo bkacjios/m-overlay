@@ -28,6 +28,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 
 ### Wiki pages
 
+* [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual)
 * [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup)
 * [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
 * [Super Smash Bros. Melee stage music tutorial](https://github.com/bkacjios/m-overlay/wiki/Stage-music-for-Project-Slippi)
