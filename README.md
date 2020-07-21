@@ -1,6 +1,6 @@
 # m-overlay
+*A gamecube controller input display for use with Dolphin specifically.*
 
-This program works by hooking into dolphin and reading the games memory values in real time.
 ![Image of M'Overlay](https://thumbs.gfycat.com/GraciousAlarmingAntbear-size_restricted.gif)
 
 ### Downloads
