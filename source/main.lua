@@ -210,7 +210,7 @@ memory.hook("stage", "Slippi music player", function(stage)
 end)
 
 memory.hook("controller.*.buttons.pressed", "Slippi D-PAD music skipper", function(port, pressed)
-	if bit.band(pressed, DPAD.DPAD_DOWN) > 0 and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
+	if port-1 == PORT and bit.band(pressed, DPAD.DPAD_DOWN) > 0 and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
 		love.musicKill()
 	end
 end)

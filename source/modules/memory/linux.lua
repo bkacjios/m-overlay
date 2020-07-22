@@ -189,7 +189,7 @@ function MEMORY:findGamecubeRAMOffset()
 		love.timer.sleep(0.25) -- Newer versions of dolphin seem to need a bit of time to allocate the memory addresses
 		local f = io.open("/proc/" .. self.pid .. "/maps")
 		if f then
-			log.debug("Searching /proc/%d/maps for gamecube address space", self.pid)
+			--log.debug("Searching /proc/%d/maps for gamecube address space", self.pid)
 			local line
 			while true do
 				line = f:read("*line")
