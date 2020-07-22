@@ -2,6 +2,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 
 math.randomseed(love.timer.getTime())
 
+require("console")
 require("errorhandler")
 require("extensions.love")
 
@@ -187,7 +188,7 @@ function love.musicUpdate()
 		table.insert(songs, newpos, PLAYING_SONG)
 
 		if PLAYING_SONG then
-			log.debug("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
+			log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
 			if STAGE_ID ~= 0 then
 				PLAYING_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
 			end

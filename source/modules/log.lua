@@ -7,7 +7,7 @@ local log = {
 		{ name = "error", color = "\27[31m" },
 		{ name = "fatal", color = "\27[35m" },
 	},
-	color = jit.os == "Linux",
+	color = true,
 	date = "%H:%M:%S",
 	level = "trace",
 }

@@ -137,9 +137,9 @@ function PANEL:Initialize()
 
 		function self.DEBUG:OnToggle(on)
 			if on then
-				love._openConsole()
+				love.openConsole()
 			else
-				notification.warning("The console will be disabled the next time you open the program.")
+				love.closeConsole()
 			end
 		end
 	end
