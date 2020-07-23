@@ -115,6 +115,30 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 	}
 }
 
+-- Where character ID's are stored in the CSS menu
+local player_select_external_addresses = {
+	0x8043208B,
+	0x80432093,
+	0x8043209B,
+	0x804320A3,
+}
+
+local player_select_external = {
+	--[0x00] = "unknown",
+	[0x04] = "character",
+	[0x05] = "skin",
+	--[0x08] = "mode"
+}
+
+for id, address in ipairs(player_select_external_addresses) do
+	for offset, name in pairs(player_select_external) do
+		game.memorymap[address + offset] = {
+			type = "byte",
+			name = ("player.%i.%s"):format(id, name),
+		}
+	end
+end
+
 function game.translateAxis(x, y)
 	return x, y
 end
