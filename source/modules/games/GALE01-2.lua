@@ -139,6 +139,17 @@ for id, address in ipairs(player_select_external_addresses) do
 	end
 end
 
+local match_info = 0x8046B6A0
+
+local match_info_struct = {
+	[0x0005] = { type = "bool", name = "match.started", debug = true },
+	[0x000E] = { type = "bool", name = "match.finished", debug = true }
+}
+
+for offset, info in pairs(match_info_struct) do
+	game.memorymap[match_info + offset] = info
+end
+
 function game.translateAxis(x, y)
 	return x, y
 end

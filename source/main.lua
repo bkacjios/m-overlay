@@ -153,16 +153,6 @@ function love.musicLoopChange(on)
 	end
 end
 
-function love.musicStateChange()
-	if memory.menu == MENU_INGAME then
-		love.loadStageMusic(memory.stage)
-	elseif memory.menu == MENU_CSS then
-		love.loadStageMusic(0)
-	else
-		love.musicKill()
-	end
-end
-
 function love.musicVolume(vol)
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
 		PLAYING_SONG:setVolume(vol/100)
@@ -176,7 +166,7 @@ function love.musicUpdate()
 
 	local songs = STAGE_TRACKS[STAGE_ID]
 
-	if songs and #songs > 0 and (memory.menu == 2 or memory.menu == 0) then
+	if songs and #songs > 0 and ((memory.menu == MENU_INGAME and memory.match and memory.match.started) or memory.menu == MENU_CSS) then
 		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
 		local track = TRACK_NUMBER[STAGE_ID] + 1
 		PLAYING_SONG = songs[track]
@@ -198,19 +188,57 @@ function love.musicUpdate()
 	end
 end
 
-memory.hook("OnGameClosed", "Slippi music player", function()
+function love.musicStateChange()
+	if memory.match and memory.match.started then
+		print("MATCH STARTED")
+		love.loadStageMusic(memory.stage)
+	elseif memory.match and memory.match.finished then
+		print("MATCH ENDED")
+		love.musicKill()
+	elseif memory.menu == MENU_CSS then
+		print("IN CSS")
+		love.loadStageMusic(0)
+	else
+		print("KILL ALL MUSIC")
+		love.musicKill()
+	end
+end
+
+memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 	love.musicKill()
 end)
 
-memory.hook("menu", "Slippi music player", function(menu)
-	love.musicStateChange()
+memory.hook("menu", "Melee - Menu state", function(menu)
+	if menu == MENU_CSS then
+		love.loadStageMusic(0)
+	else
+		love.musicKill()
+	end
 end)
 
-memory.hook("stage", "Slippi music player", function(stage)
-	love.loadStageMusic(stage)
+memory.hook("stage", "Melee - Stage loaded", function(stage)
+	if memory.menu == MENU_INGAME and memory.match and memory.match.started then
+		love.loadStageMusic(stage)
+	end
 end)
 
-memory.hook("controller.*.buttons.pressed", "Slippi D-PAD music skipper", function(port, pressed)
+memory.hook("match.started", "Melee - Match started", function(started)
+	if memory.menu == MENU_INGAME then
+		if started and memory.stage ~= 0 then
+			love.loadStageMusic(memory.stage)
+		elseif not started then
+			love.musicKill()
+		end
+	end
+end)
+
+memory.hook("match.finished", "Melee - Match finished", function(finished)
+	if finished then
+		love.musicKill()
+	end
+end)
+
+memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
 	if port-1 == PORT and bit.band(pressed, DPAD.DPAD_DOWN) > 0 and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
 		love.musicKill()
 	end
