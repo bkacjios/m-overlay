@@ -190,16 +190,12 @@ end
 
 function love.musicStateChange()
 	if memory.match and memory.match.started then
-		print("MATCH STARTED")
 		love.loadStageMusic(memory.stage)
 	elseif memory.match and memory.match.finished then
-		print("MATCH ENDED")
 		love.musicKill()
 	elseif memory.menu == MENU_CSS then
-		print("IN CSS")
 		love.loadStageMusic(0)
 	else
-		print("KILL ALL MUSIC")
 		love.musicKill()
 	end
 end
