@@ -121,17 +121,25 @@ end)
 
 memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		if menu == MENU_CSS then
+		if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
 			-- Switch back to port 1 when not in a match
 			PORT = 0
-			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
-		elseif menu == MENU_INGAME then
+			if menu ~= MENU_STAGE_SELECT then
+				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
+			end
+		else
 			-- Switch to the local player index whenever else
 			PORT = memory.slippi.local_player.index % 4
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			log.debug("[AUTOPORT] Switching to slippi local player index %d", PORT)
 		end
+	end
+end)
+
+memory.hook("player.*.character", "Show port on character select", function(port, character)
+	if memory.menu == MENU_CSS and port-1 == PORT then
+		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
 end)
 
@@ -432,7 +440,7 @@ local BUTTON_TEXTURES = {
 		COLOR = color(0, 225, 150, 255),
 		POSITION = {
 			x = 12 + 64 + 256,
-			y = 64
+			y = 48
 		}
 	},
 	B = {
@@ -441,7 +449,7 @@ local BUTTON_TEXTURES = {
 		COLOR = color(230, 0, 0, 255),
 		POSITION = {
 			x = 16 + 256,
-			y = 108
+			y = 92
 		}
 	},
 	X = {
@@ -450,7 +458,7 @@ local BUTTON_TEXTURES = {
 		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 138 + 256,
-			y = 48
+			y = 32
 		}
 	},
 	Y = {
@@ -459,7 +467,7 @@ local BUTTON_TEXTURES = {
 		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 60 + 256,
-			y = 0
+			y = -16
 		}
 	},
 	Z = {
@@ -468,7 +476,7 @@ local BUTTON_TEXTURES = {
 		COLOR = color(165, 75, 165, 255),
 		POSITION = {
 			x = 128 + 256,
-			y = -16
+			y = -32
 		}
 	},
 	START = {
@@ -477,7 +485,7 @@ local BUTTON_TEXTURES = {
 		COLOR = color(255, 255, 255, 255),
 		POSITION = {
 			x = 256,
-			y = 42
+			y = 26
 		}
 	}
 }
