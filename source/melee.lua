@@ -158,8 +158,24 @@ local character_selections = {
 		team_skin = {2, 3, 4},
 		series = "pokemon"
 	},
+	[0x1A] = {
+		name = "master_hand",
+		skinless = true,
+		series = "smash"
+	},
+	[0x1E] = {
+		name = "crazy_hand",
+		skinless = true,
+		series = "smash"
+	},
+	[0x1D] = {
+		name = "giga_bowser",
+		skinless = true,
+		series = "smash"
+	},
 	[0x21] = {
 		name = "wireframe",
+		skinless = true,
 		series = "smash"
 	},
 }
@@ -182,6 +198,8 @@ function melee.loadtextures()
 				textures.stocks[cid] = textures.stocks[cid] or {}
 				textures.stocks[cid][sid-1] = newImage(("textures/stocks/%s-%s.png"):format(info.name, skin))
 			end
+		else
+			textures.stocks[cid] = newImage(("textures/stocks/%s.png"):format(info.name))
 		end
 	end
 end
@@ -207,6 +225,9 @@ function melee.getCharacterID(port)
 end
 
 function melee.getStockTexture(id, skin)
+	if character_selections[id] and character_selections[id].skinless == true then
+		return textures.stocks[id]
+	end
 	if not textures.stocks[id] or not textures.stocks[id][skin] then
 		return textures.stocks[0x21]
 	end
@@ -230,7 +251,7 @@ end
 
 function melee.drawStock(port, ...)
 	local id = melee.getCharacterID(port)
-	if not memory.player then return end
+	if id == 0x21 or not memory.player then return end
 	local player = memory.player[port]
 	if not player or not id then return end
 	local stock = melee.getStockTexture(id, player.skin)

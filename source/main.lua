@@ -174,7 +174,7 @@ function love.musicUpdate()
 
 	local songs = STAGE_TRACKS[STAGE_ID]
 
-	if songs and #songs > 0 and ((memory.menu == MENU_INGAME and memory.match and memory.match.started) or memory.menu == MENU_CSS) then
+	if songs and #songs > 0 and ((memory.menu == MENU_INGAME and memory.match and memory.match.started) or memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT) then
 		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
 		local track = TRACK_NUMBER[STAGE_ID] + 1
 		PLAYING_SONG = songs[track]
@@ -201,7 +201,7 @@ function love.musicStateChange()
 		love.loadStageMusic(memory.stage)
 	elseif memory.match and memory.match.finished then
 		love.musicKill()
-	elseif memory.menu == MENU_CSS then
+	elseif memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT then
 		love.loadStageMusic(0)
 	else
 		love.musicKill()
@@ -213,7 +213,7 @@ memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 end)
 
 memory.hook("menu", "Melee - Menu state", function(menu)
-	if menu == MENU_CSS then
+	if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
 		love.loadStageMusic(0)
 	else
 		love.musicKill()
@@ -282,7 +282,9 @@ function love.loadStageMusicInDir(stageid, name)
 end
 
 function love.loadStageMusic(stageid)
-	love.musicKill()
+	if STAGE_ID ~= stageid then
+		love.musicKill()
+	end
 
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
