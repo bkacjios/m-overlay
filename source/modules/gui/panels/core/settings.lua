@@ -7,9 +7,9 @@ local notification = require("notification")
 function PANEL:Initialize()
 	self:super()
 
-	self:SetTitle("Settings")
-	self:DockPadding(1, 32, 1, 1)
-	self:SetHideOnClose(true)
+	--self:SetTitle("Settings")
+	--self:DockPadding(1, 32, 1, 1)
+	--self:SetHideOnClose(true)
 	self:SetSize(296 + 32, 196 + 28 + 24)
 	self:Center()
 
@@ -39,7 +39,7 @@ function PANEL:Initialize()
 
 	self.SLIPPI = RIGHT:Add("Panel")
 	self.SLIPPI:DockMargin(0,0,0,0)
-	self.SLIPPI:DockPadding(4,28,4,4)
+	self.SLIPPI:DockPadding(2,28,2,2)
 	self.SLIPPI:SetBackgroundColor(color(33, 186, 69))
 	self.SLIPPI:SetWidth(164)
 	self.SLIPPI:SetHeight(84)
@@ -56,7 +56,7 @@ function PANEL:Initialize()
 	self.MELEE:DockPadding(4,28,4,4)
 	self.MELEE:SetBackgroundColor(color(189, 15, 23))
 	self.MELEE:SetWidth(164)
-	self.MELEE:SetHeight(132)
+	self.MELEE:SetHeight(132+28)
 	self.MELEE:Dock(DOCK_TOP)
 
 	local MELEEICON = self.MELEE:Add("Image")
@@ -99,6 +99,9 @@ function PANEL:Initialize()
 	function self.MELEE.MUSICLOOP:OnToggle(on)
 		love.musicLoopChange(on)
 	end
+
+	self.MELEE.MUSICSKIP = self.MELEE:Add("GCBind")
+	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
 
 	local VOLLABEL = self.MELEE:Add("Label")
 	VOLLABEL:SetText("Music volume")
@@ -187,8 +190,13 @@ function PANEL:GetSaveTable()
 		["transparency"] = self:GetTransparency(),
 		["melee-stage-music"] = self:PlayStageMusic(),
 		["melee-stage-music-loop"] = self:LoopStageMusic(),
+		["melee-stage-music-skip-buttons"] = self:GetMusicSkipMask(),
 		["melee-music-volume"] = self:GetVolume(),
 	}
+end
+
+function PANEL:GetMusicSkipMask()
+	return self.MELEE.MUSICSKIP:GetButtonCombo()
 end
 
 function PANEL:PlayStageMusic()
@@ -299,7 +307,8 @@ function PANEL:LoadSettings()
 	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
 	self.MELEE.MUSICLOOP:SetToggle(settings["melee-stage-music-loop"] or false, true)
+	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0004)
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
 end
 
-gui.register("Settings", PANEL, "Frame")
+gui.register("Settings", PANEL, "Panel")

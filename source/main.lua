@@ -243,7 +243,8 @@ memory.hook("match.finished", "Melee - Match finished", function(finished)
 end)
 
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
-	if port-1 == PORT and bit.band(pressed, DPAD.DPAD_DOWN) > 0 and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
+	local mask = PANEL_SETTINGS:GetMusicSkipMask()
+	if port-1 == PORT and bit.band(pressed, mask) == mask and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
 		love.musicKill()
 	end
 end)
