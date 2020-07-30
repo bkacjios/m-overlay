@@ -244,7 +244,7 @@ end)
 
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
 	local mask = PANEL_SETTINGS:GetMusicSkipMask()
-	if port-1 == PORT and bit.band(pressed, mask) == mask and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
+	if mask ~= 0x0 and port-1 == PORT and bit.band(pressed, mask) == mask and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
 		love.musicKill()
 	end
 end)
