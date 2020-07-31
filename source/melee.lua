@@ -320,6 +320,39 @@ function melee.convertStr(str)
 	return niceStr
 end
 
+local STAGE_SERIES = {
+	[0x00] = "Super Smash Bros", -- Menu
+	[0x02] = "Super Mario", -- Princess Peach's Castle
+	[0x03] = "Super Mario", -- Rainbow Cruise
+	[0x04] = "Donkey Kong", -- Kongo Jungle
+	[0x05] = "Donkey Kong", -- Jungle Japes
+	[0x06] = "The Legend of Zelda", -- Great Bay
+	[0x07] = "The Legend of Zelda", -- Hyrule Temple
+	[0x08] = "Metroid", -- Brinstar
+	[0x09] = "Metroid", -- Brinstar Depths
+	[0x0A] = "Yoshi", -- Yoshi's Story
+	[0x0B] = "Yoshi", -- Yoshi's Island
+	[0x0C] = "Kirby", -- Fountain of Dreams
+	[0x0D] = "Kirby", -- Green Greens
+	[0x0E] = "Star Fox", -- Corneria
+	[0x0F] = "Star Fox", -- Venom
+	[0x10] = "Pokémon", -- Pokémon Stadium
+	[0x11] = "Pokémon", -- Poké Floats
+	[0x12] = "F-Zero", -- Mute City
+	[0x13] = "F-Zero", -- Big Blue
+	[0x14] = "Earthbound", -- Onett
+	[0x15] = "Earthbound", -- Fourside
+	[0x16] = "Ice Climbers", -- Icicle Mountain
+	[0x18] = "Super Mario", -- Mushroom Kingdom
+	[0x19] = "Super Mario", -- Mushroom Kingdom 2
+	[0x1B] = "Game & Watch", -- Flat Zone
+	[0x1C] = "Kirby", -- Dream Land N64
+	[0x1D] = "Yoshi", -- Yoshi's Island N64
+	[0x1E] = "Donkey Kong", -- Kongo Jungle N64
+	[0x24] = "Super Smash Bros", -- Battlefield
+	[0x25] = "Super Smash Bros", -- Final Destination
+}
+
 local STAGE_NAMES = {
 	[0x00] = "Menu",
 	[0x02] = "Princess Peach's Castle",
@@ -359,6 +392,14 @@ end
 
 function melee.getStageName(id)
 	return STAGE_NAMES[id]
+end
+
+function melee.getAllStageSeries()
+	return STAGE_SERIES
+end
+
+function melee.getStageSeries(id)
+	return STAGE_SERIES[id]
 end
 
 return melee

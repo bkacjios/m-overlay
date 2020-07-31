@@ -12,6 +12,8 @@ local memory = require("memory")
 local perspective = require("perspective")
 local notification = require("notification")
 
+local music = require("music")
+
 local color = require("util.color")
 local gui = require("gui")
 
@@ -26,6 +28,10 @@ local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
 local MAX_PORTS = 4
 local PORT = 0
 local CONTROLLER_PORT_DISPLAY = 0
+
+function love.getPort()
+	return PORT+1
+end
 
 local PORT_TEXTURES = {
 	[0] = newImage("textures/player1_color.png"),
@@ -74,6 +80,8 @@ function love.load(args, unfilteredArg)
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:LoadSettings()
 	PANEL_SETTINGS:SetVisible(false)
+	
+	music.init()
 
 	if memory.hasPermissions() then
 		love.updateTitle("M'Overlay - Waiting for Dolphin...")
@@ -98,12 +106,6 @@ function love.load(args, unfilteredArg)
 		end
 	end
 end
-
-local STAGE_TRACKS_LOADED = {}
-local STAGE_TRACKS = {}
-local TRACK_NUMBER = {}
-local STAGE_ID = 0
-local PLAYING_SONG = nil
 
 local MENU_CSS = 0
 local MENU_STAGE_SELECT = 1
@@ -143,167 +145,11 @@ memory.hook("player.*.character", "Show port on character select", function(port
 	end
 end)
 
-love.filesystem.setSymlinksEnabled(true)
-for stageid, name in pairs(melee.getAllStages()) do
-	love.filesystem.createDirectory(("Stage Music/%s"):format(name))
-end
-love.filesystem.createDirectory("Stage Music/All")
-
-function love.musicKill()
-	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:stop()
-	end
-end
-
-function love.musicLoopChange(on)
-	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:setLooping(on)
-	end
-end
-
-function love.musicVolume(vol)
-	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:setVolume(vol/100)
-	end
-end
-
-function love.musicUpdate()
-	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
-	if PLAYING_SONG ~= nil and PLAYING_SONG:isPlaying() then return end
-	if not STAGE_ID or not STAGE_TRACKS[STAGE_ID] then return end
-
-	local songs = STAGE_TRACKS[STAGE_ID]
-
-	if songs and #songs > 0 and ((memory.menu == MENU_INGAME and memory.match and memory.match.started) or memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT) then
-		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
-		local track = TRACK_NUMBER[STAGE_ID] + 1
-		PLAYING_SONG = songs[track]
-
-		-- Every time we play a song, we randomly place it towards the start of the playlist
-		local newpos = math.random(1, track)
-
-		table.remove(songs, track)
-		table.insert(songs, newpos, PLAYING_SONG)
-
-		if PLAYING_SONG then
-			log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
-			if STAGE_ID ~= 0 then
-				PLAYING_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
-			end
-			PLAYING_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
-			PLAYING_SONG:play()
-		end
-	end
-end
-
-function love.musicStateChange()
-	if memory.match and memory.match.started then
-		love.loadStageMusic(memory.stage)
-	elseif memory.match and memory.match.finished then
-		love.musicKill()
-	elseif memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT then
-		love.loadStageMusic(0)
-	else
-		love.musicKill()
-	end
-end
-
-memory.hook("OnGameClosed", "Dolphin - Game closed", function()
-	love.musicKill()
-end)
-
-memory.hook("menu", "Melee - Menu state", function(menu)
-	if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
-		love.loadStageMusic(0)
-	else
-		love.musicKill()
-	end
-end)
-
-memory.hook("stage", "Melee - Stage loaded", function(stage)
-	if memory.menu == MENU_INGAME and memory.match and memory.match.started then
-		love.loadStageMusic(stage)
-	end
-end)
-
-memory.hook("match.started", "Melee - Match started", function(started)
-	if memory.menu == MENU_INGAME then
-		if started and memory.stage ~= 0 then
-			love.loadStageMusic(memory.stage)
-		elseif not started then
-			love.musicKill()
-		end
-	end
-end)
-
-memory.hook("match.finished", "Melee - Match finished", function(finished)
-	if finished then
-		love.musicKill()
-	end
-end)
-
-memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
-	local mask = PANEL_SETTINGS:GetMusicSkipMask()
-	if mask ~= 0x0 and port-1 == PORT and bit.band(pressed, mask) == mask and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
-		love.musicKill()
-	end
-end)
-
-local valid_music_ext = {
-	["mp3"] = true,
-	["ogg"] = true,
-	["wav"] = true
-}
-
-function love.loadStageMusicInDir(stageid, name)
-	local loaded = 0
-	local files = love.filesystem.getDirectoryItems(("Stage Music/%s"):format(name))
-	for k, file in ipairs(files) do
-		local filepath = ("Stage Music/%s/%s"):format(name, file)
-		local info = love.filesystem.getInfo(filepath)
-		local ext = string.getFileExtension(file)
-		if info.type == "file" and valid_music_ext[ext:lower()] and not STAGE_TRACKS_LOADED[stageid][file] then
-			local success, source = pcall(love.audio.newSource, filepath, "stream")
-			if success then
-				loaded = loaded + 1
-				STAGE_TRACKS_LOADED[stageid][file] = true
-
-				-- Insert the newly loaded track into a random position in the playlist
-				table.insert(STAGE_TRACKS[stageid], math.random(1, #STAGE_TRACKS[stageid]), source)
-			else
-				local err = ("invalid music file \"%s/%s\""):format(name, file)
-				log.error("[MUSIC] %s", err)
-				notification.error(err)
-			end
-		end
-	end
-	if loaded > 0 then
-		log.debug("[MUSIC] Loaded %d songs for %q", loaded, name)
-	end
-end
-
-function love.loadStageMusic(stageid)
-	if STAGE_ID ~= stageid then
-		love.musicKill()
-	end
-
-	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
-
-	local name = melee.getStageName(stageid)
-	if not name then STAGE_ID = nil return end
-	STAGE_TRACKS[stageid] = STAGE_TRACKS[stageid] or {}
-	STAGE_TRACKS_LOADED[stageid] = STAGE_TRACKS_LOADED[stageid] or {}
-	love.loadStageMusicInDir(stageid, name) -- Load all songs in the stages folder
-	love.loadStageMusicInDir(stageid, "All") -- Load everything in the 'All' folder too
-	STAGE_ID = stageid
-end
-
 function love.update(dt)
 	memory.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
+	music.update()
 	gui.update(dt)
-
-	love.musicUpdate()
 
 	-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 	local alpha = 0

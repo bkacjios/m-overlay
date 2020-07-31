@@ -33,7 +33,12 @@ function PANEL:Initialize()
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
 end
 
+function PANEL:IsBinding()
+	return self.m_bBinding
+end
+
 function PANEL:UpdateButtonCombo(buttons)
+	if buttons == 0x0 then buttons = self.BUTTONS.D_DOWN end
 	self.m_bButtonCombo = buttons
 	self:UpdateButtonLabel()
 end

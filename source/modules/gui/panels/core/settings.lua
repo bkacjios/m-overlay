@@ -3,6 +3,7 @@ local PANEL = {}
 local log = require("log")
 local json = require("serializer.json")
 local notification = require("notification")
+local music = require("music")
 
 function PANEL:Initialize()
 	self:super()
@@ -10,7 +11,7 @@ function PANEL:Initialize()
 	--self:SetTitle("Settings")
 	--self:DockPadding(1, 32, 1, 1)
 	--self:SetHideOnClose(true)
-	self:SetSize(296 + 32, 196 + 28 + 24)
+	self:SetSize(296 + 36, 196 + 28 + 24)
 	self:Center()
 
 	local LEFT = self:Add("Panel")
@@ -39,7 +40,7 @@ function PANEL:Initialize()
 
 	self.SLIPPI = RIGHT:Add("Panel")
 	self.SLIPPI:DockMargin(0,0,0,0)
-	self.SLIPPI:DockPadding(2,28,2,2)
+	self.SLIPPI:DockPadding(4,28,4,4)
 	self.SLIPPI:SetBackgroundColor(color(33, 186, 69))
 	self.SLIPPI:SetWidth(164)
 	self.SLIPPI:SetHeight(84)
@@ -87,7 +88,11 @@ function PANEL:Initialize()
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
 
 	function self.MELEE.MUSIC:OnToggle(on)
-		love.musicStateChange()
+		if on then
+			music.onStateChange()
+		else
+			music.kill()
+		end
 		self:GetParent().MUSICLOOP:SetEnabled(on)
 		self:GetParent().VOLUME:SetEnabled(on)
 	end
@@ -97,7 +102,7 @@ function PANEL:Initialize()
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 
 	function self.MELEE.MUSICLOOP:OnToggle(on)
-		love.musicLoopChange(on)
+		music.onLoopChange(on)
 	end
 
 	self.MELEE.MUSICSKIP = self.MELEE:Add("GCBind")
@@ -113,7 +118,7 @@ function PANEL:Initialize()
 	self.MELEE.VOLUME:Dock(DOCK_TOP)
 
 	function self.MELEE.VOLUME:OnValueChanged(i)
-		love.musicVolume(i)
+		music.setVolume(i)
 		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
 	end
 
@@ -193,6 +198,10 @@ function PANEL:GetSaveTable()
 		["melee-stage-music-skip-buttons"] = self:GetMusicSkipMask(),
 		["melee-music-volume"] = self:GetVolume(),
 	}
+end
+
+function PANEL:IsBinding()
+	return self.MELEE.MUSICSKIP:IsBinding()
 end
 
 function PANEL:GetMusicSkipMask()
