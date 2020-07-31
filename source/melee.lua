@@ -94,7 +94,7 @@ local character_selections = {
 	},
 	[0x15] = {
 		name = "younglink",
-		skin = {"green", "red", "blue", "black", "white"},
+		skin = {"green", "red", "blue", "white", "black"},
 		team_skin = {2, 3, 1},
 		series = "zelda"
 	},
