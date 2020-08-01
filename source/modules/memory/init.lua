@@ -63,6 +63,7 @@ local watcher = {
 	watching_str_addr = {},
 	watching_ptr_addr = {},
 	pointer_loc = {},
+	hook_queue = {},
 	named = {},
 }
 
@@ -275,6 +276,7 @@ function watcher.update(exe)
 		log.info("[DOLPHIN] Watching ram: %X", watcher.process:getGamecubeRAMOffset())
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
 		watcher.checkmemoryvalues()
+		watcher.runhooks()
 	end
 end
 
@@ -296,6 +298,15 @@ function watcher.isMelee()
 	if clone then gid = clone.id end
 
 	return gid == "GALE01"
+end
+
+function watcher.runhooks()
+	local pop
+	while true do
+		pop = table.remove(watcher.hook_queue, 1)
+		if not pop then break end
+		watcher.hookRun(pop.name, pop.value)
+	end
 end
 
 function watcher.checkmemoryvalues()
@@ -352,6 +363,8 @@ function watcher.checkmemoryvalues()
 		log.info("[DOLPHIN] Game closed..")
 	end
 
+	local frame = watcher.frame or 0
+
 	for address, type in pairs(watcher.watching_addr) do
 		local info = watcher.game.memorymap[address]
 
@@ -367,12 +380,14 @@ function watcher.checkmemoryvalues()
 			local numValue = tonumber(value) or (value and 1 or 0)
 
 			if watcher.debug or info.debug then
-				log.debug("[MEMORY] [%08X = %08X] %s = %s", address, numValue, info.name, value)
+				log.debug("[MEMORY] [%d][%08X = %08X] %s = %s", frame, address, numValue, info.name, value)
 			end
 
 			watcher.values_memory[address] = value
 			watcher.setTableValue(info.name, watcher.values_memory[address])
-			watcher.hookRun(info.name, value)
+			--watcher.hookRun(info.name, value)
+
+			table.insert(watcher.hook_queue, 1, {name = info.name, value = value})
 		end
 	end
 
@@ -384,10 +399,10 @@ function watcher.checkmemoryvalues()
 			local info = watcher.game.memorymap[address]
 
 			if ptr_addr == NULL then
-				log.debug("[MEMORY] [POINTER %08X = NULL] %s", address, info.name)
+				log.debug("[MEMORY] [%d][POINTER %08X = NULL] %s", frame, address, info.name)
 				watcher.values_pointer[address] = {}
 			else
-				log.debug("[MEMORY] [POINTER %08X = %08X] %s", address, ptr_addr, info.name)
+				log.debug("[MEMORY] [%d][POINTER %08X = %08X] %s", frame, address, ptr_addr, info.name)
 			end
 		end
 	end
@@ -417,12 +432,14 @@ function watcher.checkmemoryvalues()
 						local numValue = tonumber(value) or (value and 1 or 0)
 
 						if watcher.debug or info.debug or info.struct[offset].debug then
-							log.debug("[MEMORY] [POINTER %08X->%08X->%08X = %08X] %s = %s", address, ptr_addr, ptr_addr + offset, numValue, name, value)
+							log.debug("[MEMORY] [%d][POINTER %08X->%08X->%08X = %08X] %s = %s", frame, address, ptr_addr, ptr_addr + offset, numValue, name, value)
 						end
 
 						watcher.values_pointer[address][offset] = value
 						watcher.setTableValue(name, watcher.values_pointer[address][offset])
-						watcher.hookRun(name, value)
+
+						table.insert(watcher.hook_queue, 1, {name = name, value = value})
+						--watcher.hookRun(name, value)
 					end
 				end
 			end

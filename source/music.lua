@@ -19,13 +19,22 @@ local PLAYING_SONG = nil
 function music.init()
 	love.filesystem.setSymlinksEnabled(true)
 
+	love.filesystem.createDirectory("Melee")
+
 	local info = love.filesystem.getInfo("Stage Music")
 
 	if info and info.type == "directory" then
 		-- Upgrade to new folder layout
 		local configdir = love.filesystem.getSaveDirectory()
-		love.filesystem.createDirectory("Melee")
 		os.rename(("%s/Stage Music"):format(configdir), ("%s/Melee/Stage Music"):format(configdir))
+	end
+
+	local info = love.filesystem.getInfo("Melee/Stage Music/Menu")
+
+	if info and info.type == "directory" then
+		-- Upgrade to new folder layout
+		local configdir = love.filesystem.getSaveDirectory()
+		os.rename(("%s/Melee/Stage Music/Menu"):format(configdir), ("%s/Melee/Menu Music"):format(configdir))
 	end
 
 	for stageid, name in pairs(melee.getAllStages()) do
@@ -77,7 +86,11 @@ function music.update()
 		table.insert(songs, newpos, PLAYING_SONG)
 
 		if PLAYING_SONG then
-			log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
+			if STAGE_ID == 0x0 then
+				log.info("[MUSIC] Playing track #%d for menu", track)
+			else
+				log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
+			end
 			if STAGE_ID ~= 0 then
 				PLAYING_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
 			end
@@ -106,6 +119,8 @@ end)
 memory.hook("menu", "Melee - Menu state", function(menu)
 	if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
 		music.loadForStage(0)
+	elseif menu == MENU_INGAME then
+		music.loadForStage(memory.stage)
 	else
 		music.kill()
 	end
@@ -144,7 +159,8 @@ end)
 local valid_music_ext = {
 	["mp3"] = true,
 	["ogg"] = true,
-	["wav"] = true
+	["wav"] = true,
+	["flac"] = true
 }
 
 function music.loadStageMusicInDir(stageid, name)
@@ -181,18 +197,30 @@ function music.loadForStage(stageid)
 
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
-	local name = melee.getStageName(stageid)
-	local series = melee.getStageSeries(stageid)
-	if not name then STAGE_ID = nil return end
+	STAGE_ID = stageid
 	STAGE_TRACKS[stageid] = STAGE_TRACKS[stageid] or {}
 	STAGE_TRACKS_LOADED[stageid] = STAGE_TRACKS_LOADED[stageid] or {}
-	music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load all songs in the stages folder
-	music.loadStageMusicInDir(stageid, "Melee/Stage Music/All") -- Load everything in the 'All' folder too
-	if series then
-		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load all songs in the series folder
-		music.loadStageMusicInDir(stageid, "Melee/Series Music/All") -- Load all songs in the series folder
+
+	if stageid == 0x0 then
+		music.loadStageMusicInDir(stageid, "Melee/Menu Music")
+		music.loadStageMusicInDir(stageid, "Melee/All Music")
+		music.loadStageMusicInDir(stageid, "Melee")
+		return
 	end
-	STAGE_ID = stageid
+
+	local name = melee.getStageName(stageid)
+	local series = melee.getStageSeries(stageid)
+
+	if not name then STAGE_ID = nil return end
+
+	music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stages folder
+	music.loadStageMusicInDir(stageid, "Melee/Stage Music/All") -- Load everything in the 'All' folder
+	music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+	if series then
+		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
+		music.loadStageMusicInDir(stageid, "Melee/Series Music/All") -- Load everything in the 'All' folder
+		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything in the series folder
+	end
 end
 
 return music

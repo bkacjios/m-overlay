@@ -321,7 +321,6 @@ function melee.convertStr(str)
 end
 
 local STAGE_SERIES = {
-	[0x00] = "Super Smash Bros", -- Menu
 	[0x02] = "Super Mario", -- Princess Peach's Castle
 	[0x03] = "Super Mario", -- Rainbow Cruise
 	[0x04] = "Donkey Kong", -- Kongo Jungle
@@ -354,7 +353,6 @@ local STAGE_SERIES = {
 }
 
 local STAGE_NAMES = {
-	[0x00] = "Menu",
 	[0x02] = "Princess Peach's Castle",
 	[0x03] = "Rainbow Cruise",
 	[0x04] = "Kongo Jungle",

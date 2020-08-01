@@ -4,6 +4,7 @@ local game = {
 	memorymap = {}
 }
 
+game.memorymap[0x80479D60] = { type = "int", name = "frame" }
 game.memorymap[0x8049E753] = { type = "byte", name = "stage", debug = true }
 game.memorymap[0x80479D33] = { type = "byte", name = "menu", init = -1, debug = true }
 game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
