@@ -21,7 +21,7 @@ local graphics = love.graphics
 local newImage = graphics.newImage
 
 local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
---local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
+local WAITING_FONT = graphics.newFont("fonts/melee-bold.otf", 24)
 
 --PANEL_SETTINGS
 
@@ -407,8 +407,6 @@ local function drawButtons(buttons, controller)
 end
 
 function love.drawControllerOverlay()
-	if not memory.initialized or not memory.game then return end
-
 	local controller = memory.controller[PORT + 1]
 
 	if PANEL_SETTINGS:IsSlippiReplay() then
@@ -613,6 +611,26 @@ function love.drawControllerOverlay()
 	end
 end
 
+local ellipses = {".", "..", "..."}
+
+function love.drawWaitingForGameSplash()
+	local msg = "WAITING FOR GAME"
+	local w = WAITING_FONT:getWidth(msg)
+	local h = WAITING_FONT:getHeight()
+	local x = 256 - (w/2)
+	local y = 128 - (h/2)
+
+	local i = math.floor(love.timer.getTime() % #ellipses) + 1
+
+	msg = msg .. ellipses[i]
+
+	graphics.setFont(WAITING_FONT)
+	graphics.setColor(0, 0, 0, 255)
+	graphics.textOutline(msg, 3, x, y)
+	graphics.setColor(255, 255, 255, 255)
+	graphics.print(msg, x, y)
+end
+
 function love.draw()
 
 	-- Show a preview for transparency
@@ -632,7 +650,11 @@ function love.draw()
 		graphics.rectangle("fill", 0, 0, 512, 256)
 	end
 
-	love.drawControllerOverlay()
+	if memory.initialized and memory.game then
+		love.drawControllerOverlay()
+	else
+		love.drawWaitingForGameSplash()
+	end
 
 	-- Draw a temporary number to show that the user changed controller port
 	if (PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
