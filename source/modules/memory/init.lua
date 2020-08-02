@@ -51,6 +51,7 @@ local NULL = 0x00000000
 local watcher = {
 	debug = false,
 	initialized = false,
+	hooked = false,
 	gameid = GAME_NONE,
 	ingame = false,
 	version = 0,
@@ -267,11 +268,13 @@ function watcher.update(exe)
 		watcher.process:close()
 		love.updateTitle("M'Overlay - Waiting for Dolphin..")
 		log.info("[DOLPHIN] Unhooked")
+		watcher.hooked = false
 	end
 
 	if watcher.process:findprocess(exe) then
 		log.info("[DOLPHIN] Hooked")
 		love.updateTitle("M'Overlay - Dolphin hooked")
+		watcher.hooked = true
 	elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
 		log.info("[DOLPHIN] Watching ram: %X", watcher.process:getGamecubeRAMOffset())
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then

@@ -652,7 +652,7 @@ function love.draw()
 
 	if memory.initialized and memory.game then
 		love.drawControllerOverlay()
-	else
+	elseif memory.hooked then
 		love.drawWaitingForGameSplash()
 	end
 
