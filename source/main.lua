@@ -146,7 +146,7 @@ memory.hook("player.*.character", "Show port on character select", function(port
 end)
 
 function love.update(dt)
-	memory.update("Dolphin.exe") -- Look for Dolphin.exe
+	memory.update() -- Look for Dolphin.exe
 	notification.update(8, 0)
 	gui.update(dt)
 

@@ -120,7 +120,15 @@ function MEMORY:hasPermissions()
 	return true
 end
 
-function MEMORY:findprocess(name)
+
+local valid_process_names = {
+	["AppRun"] = true,
+	["dolphin-emu"] = true,
+	["dolphin-emu-qt2"] = true,
+	["dolphin-emu-wx"] = true,
+}
+
+function MEMORY:findprocess()
 	if self:hasProcess() then return false end
 
 	local dir = libc.opendir("/proc/")
@@ -137,7 +145,7 @@ function MEMORY:findprocess(name)
 			local f = io.open("/proc/" .. pid .. "/comm")
 			if f then
 				local line = f:read("*line")
-				if line == "AppRun" or line == "dolphin-emu" or line == "dolphin-emu-qt2" or line == "dolphin-emu-wx" then
+				if valid_process_names[line] then
 					self.pid = tonumber(pid)
 					log.debug("Found dolphin-emu process: /proc/%d", self.pid)
 				end

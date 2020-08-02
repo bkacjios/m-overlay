@@ -189,7 +189,14 @@ function MEMORY:hasPermissions()
 	return true
 end
 
-function MEMORY:findprocess(name)
+local valid_process_names = {
+	["Dolphin.exe"] = true,
+	["Slippi Dolphin.exe"] = true,
+	["DolphinWx.exe"] = true,
+	["DolphinQt2.exe"] = true,
+}
+
+function MEMORY:findprocess()
 	if self:hasProcess() then return false end
 
 	local handle
@@ -199,7 +206,8 @@ function MEMORY:findprocess(name)
 	pe32.dwSize = sizeof(pe32)
 
 	repeat
-		if string(pe32.szExeFile) == name then
+		local name = string(pe32.szExeFile)
+		if valid_process_names[name] then
 			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
 
 			local status = new("DWORD[1]")

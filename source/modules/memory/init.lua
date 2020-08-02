@@ -261,7 +261,7 @@ function watcher.isReady()
 	return watcher.process:hasProcess() and watcher.process:isProcessActive() and watcher.process:hasGamecubeRAMOffset()
 end
 
-function watcher.update(exe)
+function watcher.update()
 	if not watcher.permissions then return end
 
 	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
@@ -271,7 +271,7 @@ function watcher.update(exe)
 		watcher.hooked = false
 	end
 
-	if watcher.process:findprocess(exe) then
+	if watcher.process:findprocess() then
 		log.info("[DOLPHIN] Hooked")
 		love.updateTitle("M'Overlay - Dolphin hooked")
 		watcher.hooked = true
