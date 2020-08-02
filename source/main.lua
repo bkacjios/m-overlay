@@ -150,6 +150,8 @@ function love.update(dt)
 	notification.update(8, 0)
 	gui.update(dt)
 
+	music.playNextTrack()
+
 	-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 	local alpha = 0
 

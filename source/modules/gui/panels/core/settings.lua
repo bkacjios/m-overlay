@@ -84,7 +84,7 @@ function PANEL:Initialize()
 	self.SLIPPI.AUTOPORT:Dock(DOCK_TOP)
 
 	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
-	self.MELEE.MUSIC:SetText("Stage music")
+	self.MELEE.MUSIC:SetText("Music")
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
 
 	function self.MELEE.MUSIC:OnToggle(on)
@@ -97,12 +97,16 @@ function PANEL:Initialize()
 		self:GetParent().VOLUME:SetEnabled(on)
 	end
 
-	self.MELEE.MUSICLOOP = self.MELEE:Add("Checkbox")
-	self.MELEE.MUSICLOOP:SetText("Loop stage song")
+	self.MELEE.MUSICLOOP = self.MELEE:Add("HorizontalSelect")
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 
-	function self.MELEE.MUSICLOOP:OnToggle(on)
-		music.onLoopChange(on)
+	LOOPING_OFF = self.MELEE.MUSICLOOP:AddOption("Playlist mode", true) -- 1
+	LOOPING_MENU = self.MELEE.MUSICLOOP:AddOption("Loop menu") -- 2
+	LOOPING_STAGE = self.MELEE.MUSICLOOP:AddOption("Loop stage") -- 3
+	LOOPING_ALL = self.MELEE.MUSICLOOP:AddOption("Loop all") -- 4
+
+	function self.MELEE.MUSICLOOP:OnSelectOption(num)
+		music.onLoopChange(num)
 	end
 
 	self.MELEE.MUSICSKIP = self.MELEE:Add("GCBind")
@@ -194,7 +198,7 @@ function PANEL:GetSaveTable()
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 		["melee-stage-music"] = self:PlayStageMusic(),
-		["melee-stage-music-loop"] = self:LoopStageMusic(),
+		["melee-stage-music-loop"] = self:GetMusicLoopMode(),
 		["melee-stage-music-skip-buttons"] = self:GetMusicSkipMask(),
 		["melee-music-volume"] = self:GetVolume(),
 	}
@@ -212,8 +216,8 @@ function PANEL:PlayStageMusic()
 	return self.MELEE.MUSIC:IsToggled()
 end
 
-function PANEL:LoopStageMusic()
-	return self.MELEE.MUSICLOOP:IsToggled()
+function PANEL:GetMusicLoopMode()
+	return self.MELEE.MUSICLOOP:GetSelection()
 end
 
 function PANEL:GetVolume()
@@ -305,6 +309,10 @@ function PANEL:LoadSettings()
 		f:close()
 	end
 
+	if type(settings["melee-stage-music-loop"]) == "boolean" and settings["melee-stage-music-loop"] == true then
+		settings["melee-stage-music-loop"] = LOOPING_STAGE
+	end
+
 	self.m_tSettings = settings
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
@@ -315,7 +323,7 @@ function PANEL:LoadSettings()
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
-	self.MELEE.MUSICLOOP:SetToggle(settings["melee-stage-music-loop"] or false, true)
+	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0004)
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
 end

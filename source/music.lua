@@ -48,6 +48,13 @@ function music.init()
 	love.filesystem.createDirectory("Melee/Series Music/All")
 end
 
+function music.isInGame()
+	return memory.menu == MENU_INGAME
+end
+
+function music.isInMenus()
+	return memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT
+end
 
 function music.kill()
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
@@ -55,9 +62,30 @@ function music.kill()
 	end
 end
 
-function music.onLoopChange(on)
+local LOOPING_OFF = 1
+local LOOPING_MENU = 2
+local LOOPING_STAGE = 3
+local LOOPING_ALL = 4
+
+-- Set to true when the announcer says 'GAME!'
+local MATCH_SOFT_END = false
+
+function music.shouldPlayMusic()
+	return music.isInMenus() or (music.isInGame() and not MATCH_SOFT_END)
+end
+
+function music.onLoopChange(mode)
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:setLooping(on)
+		local loop = false
+		-- Handle the different loop settings properly
+		if mode == LOOPING_MENU and music.isInMenus() then
+			loop = true
+		elseif mode == LOOPING_STAGE and music.isInGame() then
+			loop = true
+		elseif mode == LOOPING_ALL then
+			loop = true
+		end
+		PLAYING_SONG:setLooping(loop)
 	end
 end
 
@@ -71,6 +99,7 @@ function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if PLAYING_SONG ~= nil and PLAYING_SONG:isPlaying() then return end
 	if not STAGE_ID or not STAGE_TRACKS[STAGE_ID] then return end
+	if not music.shouldPlayMusic() then return end
 
 	local songs = STAGE_TRACKS[STAGE_ID]
 
@@ -91,9 +120,15 @@ function music.playNextTrack()
 			else
 				log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
 			end
-			if STAGE_ID ~= 0 then
-				PLAYING_SONG:setLooping(PANEL_SETTINGS:LoopStageMusic())
+
+			local loop = PANEL_SETTINGS:GetMusicLoopMode()
+
+			if STAGE_ID == 0 then
+				PLAYING_SONG:setLooping(loop == LOOPING_MENU or loop == LOOPING_ALL)
+			else
+				PLAYING_SONG:setLooping(loop == LOOPING_STAGE or loop == LOOPING_ALL)
 			end
+
 			PLAYING_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
 			PLAYING_SONG:play()
 		end
@@ -103,10 +138,8 @@ end
 function music.onStateChange()
 	if memory.menu == MENU_INGAME then
 		music.loadForStage(memory.stage)
-		music.playNextTrack()
 	elseif memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT then
 		music.loadForStage(0)
-		music.playNextTrack()
 	end
 end
 
@@ -117,10 +150,9 @@ end)
 memory.hook("menu", "Melee - Menu state", function(menu)
 	if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
 		music.loadForStage(0)
-		music.playNextTrack()
 	elseif menu == MENU_INGAME then
+		MATCH_SOFT_END = false
 		music.loadForStage(memory.stage)
-		music.playNextTrack()
 	else
 		music.kill()
 	end
@@ -129,12 +161,12 @@ end)
 memory.hook("stage", "Melee - Stage loaded", function(stage)
 	if memory.menu == MENU_INGAME then
 		music.loadForStage(stage)
-		music.playNextTrack()
 	end
 end)
 
 memory.hook("match.playing", "Melee - Match ended", function(playing)
 	if not playing then
+		MATCH_SOFT_END = true
 		music.kill()
 	end
 end)
