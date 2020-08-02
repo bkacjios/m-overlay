@@ -261,7 +261,7 @@ function MEMORY:findGamecubeRAMOffset()
 	while kernel.VirtualQueryEx(self.process_handle, p, info, sizeof(info)) == sizeof(info) do
 		p = p + info.RegionSize
 
-		if (info.RegionSize == 0x2000000 and info.Type == MEM_MAPPED) then
+		if (info.RegionSize >= 0x2000000 and info.Type == MEM_MAPPED) then
 			local wsinfo = PSAPI_WORKING_SET_EX_INFORMATION_PTR()[0]
 			wsinfo.VirtualAddress = info.BaseAddress
 

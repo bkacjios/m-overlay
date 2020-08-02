@@ -143,7 +143,7 @@ end
 local match_info = 0x8046B6A0
 
 local match_info_struct = {
-	[0x0005] = { type = "bool", name = "match.started", debug = true },
+	[0x0005] = { type = "bool", name = "match.playing", debug = true },
 	[0x000E] = { type = "bool", name = "match.finished", debug = true }
 }
 

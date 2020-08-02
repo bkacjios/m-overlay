@@ -67,14 +67,14 @@ function music.setVolume(vol)
 	end
 end
 
-function music.update()
+function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if PLAYING_SONG ~= nil and PLAYING_SONG:isPlaying() then return end
 	if not STAGE_ID or not STAGE_TRACKS[STAGE_ID] then return end
 
 	local songs = STAGE_TRACKS[STAGE_ID]
 
-	if songs and #songs > 0 and ((memory.menu == MENU_INGAME and memory.match and memory.match.started) or memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT) then
+	if songs and #songs > 0 then
 		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
 		local track = TRACK_NUMBER[STAGE_ID] + 1
 		PLAYING_SONG = songs[track]
@@ -101,14 +101,12 @@ function music.update()
 end
 
 function music.onStateChange()
-	if memory.match and memory.match.started then
+	if memory.menu == MENU_INGAME then
 		music.loadForStage(memory.stage)
-	elseif memory.match and memory.match.finished then
-		music.kill()
+		music.playNextTrack()
 	elseif memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT then
 		music.loadForStage(0)
-	else
-		music.kill()
+		music.playNextTrack()
 	end
 end
 
@@ -119,31 +117,24 @@ end)
 memory.hook("menu", "Melee - Menu state", function(menu)
 	if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
 		music.loadForStage(0)
+		music.playNextTrack()
 	elseif menu == MENU_INGAME then
 		music.loadForStage(memory.stage)
+		music.playNextTrack()
 	else
 		music.kill()
 	end
 end)
 
 memory.hook("stage", "Melee - Stage loaded", function(stage)
-	if memory.menu == MENU_INGAME and memory.match and memory.match.started then
-		music.loadForStage(stage)
-	end
-end)
-
-memory.hook("match.started", "Melee - Match started", function(started)
 	if memory.menu == MENU_INGAME then
-		if started and memory.stage ~= 0 then
-			music.loadForStage(memory.stage)
-		elseif not started then
-			music.kill()
-		end
+		music.loadForStage(stage)
+		music.playNextTrack()
 	end
 end)
 
-memory.hook("match.finished", "Melee - Match finished", function(finished)
-	if finished then
+memory.hook("match.playing", "Melee - Match ended", function(playing)
+	if not playing then
 		music.kill()
 	end
 end)

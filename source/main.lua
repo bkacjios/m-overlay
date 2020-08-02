@@ -148,7 +148,6 @@ end)
 function love.update(dt)
 	memory.update("Dolphin.exe") -- Look for Dolphin.exe
 	notification.update(8, 0)
-	music.update()
 	gui.update(dt)
 
 	-- Default to completely transparent, makes the overlay completely invisible when not in a game!

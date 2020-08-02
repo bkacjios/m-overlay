@@ -305,6 +305,9 @@ function watcher.runhooks()
 	while true do
 		pop = table.remove(watcher.hook_queue, 1)
 		if not pop then break end
+		--[[if pop.debug then
+			log.debug("[HOOK] CALLING [%s][%s]", pop.name, pop.value)
+		end]]
 		watcher.hookRun(pop.name, pop.value)
 	end
 end
@@ -387,7 +390,7 @@ function watcher.checkmemoryvalues()
 			watcher.setTableValue(info.name, watcher.values_memory[address])
 			--watcher.hookRun(info.name, value)
 
-			table.insert(watcher.hook_queue, 1, {name = info.name, value = value})
+			table.insert(watcher.hook_queue, 1, {name = info.name, value = value, debug = info.debug})
 		end
 	end
 
@@ -438,7 +441,7 @@ function watcher.checkmemoryvalues()
 						watcher.values_pointer[address][offset] = value
 						watcher.setTableValue(name, watcher.values_pointer[address][offset])
 
-						table.insert(watcher.hook_queue, 1, {name = name, value = value})
+						table.insert(watcher.hook_queue, 1, {name = name, value = value, debug = info.debug})
 						--watcher.hookRun(name, value)
 					end
 				end
