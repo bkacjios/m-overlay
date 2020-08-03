@@ -107,11 +107,6 @@ function love.load(args, unfilteredArg)
 	end
 end
 
-local MENU_CSS = 0
-local MENU_STAGE_SELECT = 1
-local MENU_INGAME = 2
-local MENU_POSTGAME_SCORES = 4
-
 memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(port)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
 		port = port % 4
@@ -121,13 +116,13 @@ memory.hook("slippi.local_player.index", "Slippi auto port switcher", function(p
 	end
 end)
 
-memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
+memory.hook("menu_minor", "Slippi Auto Port Switcher", function(menu)
 	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
+		if menu == MENU_VS_CSS or menu == MENU_VS_STAGE_SELECT then
 			-- Switch back to port 1 when not in a match
 			PORT = 0
 			log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
-			if menu ~= MENU_STAGE_SELECT then
+			if menu ~= MENU_VS_STAGE_SELECT then
 				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			end
 		else
@@ -140,7 +135,7 @@ memory.hook("menu", "Slippi Auto Port Switcher", function(menu)
 end)
 
 memory.hook("player.*.character", "Show port on character select", function(port, character)
-	if memory.menu == MENU_CSS and port-1 == PORT then
+	if memory.menu_minor == MENU_VS_CSS and port-1 == PORT then
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
 end)

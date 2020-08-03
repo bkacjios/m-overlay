@@ -6,9 +6,10 @@ local game = {
 
 game.memorymap[0x80479D60] = { type = "int", name = "frame" }
 game.memorymap[0x8049E753] = { type = "byte", name = "stage", debug = true }
-game.memorymap[0x80479D33] = { type = "byte", name = "menu", init = -1, debug = true }
+game.memorymap[0x80479D30] = { type = "byte", name = "menu_major", init = -1, debug = true }
+game.memorymap[0x80479D33] = { type = "byte", name = "menu_minor", init = -1, debug = true }
 game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
-
+   
 local controllers = {
 	[1] = 0x804C1FAC + 0x44 * 0,
 	[2] = 0x804C1FAC + 0x44 * 1,

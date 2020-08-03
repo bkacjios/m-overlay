@@ -5,11 +5,6 @@ local melee = require("melee")
 local memory = require("memory")
 local notification = require("notification")
 
-local MENU_CSS = 0
-local MENU_STAGE_SELECT = 1
-local MENU_INGAME = 2
-local MENU_POSTGAME_SCORES = 4
-
 local STAGE_TRACKS_LOADED = {}
 local STAGE_TRACKS = {}
 local TRACK_NUMBER = {}
@@ -49,11 +44,11 @@ function music.init()
 end
 
 function music.isInGame()
-	return memory.menu == MENU_INGAME
+	return memory.menu_minor == MENU_VS_INGAME
 end
 
 function music.isInMenus()
-	return memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT
+	return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_STAGE_SELECT
 end
 
 function music.kill()
@@ -140,9 +135,9 @@ function music.playNextTrack()
 end
 
 function music.onStateChange()
-	if memory.menu == MENU_INGAME then
+	if memory.menu_minor == MENU_VS_INGAME then
 		music.loadForStage(memory.stage)
-	elseif memory.menu == MENU_CSS or memory.menu == MENU_STAGE_SELECT then
+	elseif memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_STAGE_SELECT then
 		music.loadForStage(0)
 	end
 end
@@ -151,10 +146,10 @@ memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 	music.kill()
 end)
 
-memory.hook("menu", "Melee - Menu state", function(menu)
-	if menu == MENU_CSS or menu == MENU_STAGE_SELECT then
+memory.hook("menu_minor", "Melee - Menu state", function(menu)
+	if menu == MENU_VS_CSS or menu == MENU_VS_STAGE_SELECT then
 		music.loadForStage(0)
-	elseif menu == MENU_INGAME then
+	elseif menu == MENU_VS_INGAME then
 		MATCH_SOFT_END = false
 		music.loadForStage(memory.stage)
 	else
@@ -163,7 +158,7 @@ memory.hook("menu", "Melee - Menu state", function(menu)
 end)
 
 memory.hook("stage", "Melee - Stage loaded", function(stage)
-	if memory.menu == MENU_INGAME then
+	if memory.menu_minor == MENU_VS_INGAME then
 		music.loadForStage(stage)
 	end
 end)
@@ -171,10 +166,6 @@ end)
 memory.hook("match.paused", "Melee - Pause volume", function(paused)
 	music.setVolume(music.getVolume())
 end)
-
-local MATCH_GAME = 0x02
-local MATCH_NO_CONTEST = 0x07
-local MATCH_TRAINING_EXIT = 0x09
 
 memory.hook("match.result", "Melee - GAME kill music", function(result)
 	if result == MATCH_GAME then
