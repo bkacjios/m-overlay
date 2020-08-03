@@ -209,7 +209,7 @@ function MEMORY:findGamecubeRAMOffset()
 							-- Convert hex values to number
 							startAddr = tonumber(startAddr, 16)
 							endAddr = tonumber(endAddr, 16)
-							if (endAddr - startAddr) == 0x2000000 then
+							if (endAddr - startAddr) >= 0x2000000 then
 								self.dolphin_base_addr = startAddr
 								f:close()
 								return true

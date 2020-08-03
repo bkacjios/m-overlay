@@ -142,9 +142,11 @@ end
 
 local match_info = 0x8046B6A0
 
+game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }
 local match_info_struct = {
 	[0x0005] = { type = "bool", name = "match.playing", debug = true },
-	[0x000E] = { type = "bool", name = "match.finished", debug = true }
+	[0x0008] = { type = "byte", name = "match.result", debug = true },
+	[0x000E] = { type = "bool", name = "match.finished", debug = true },
 }
 
 for offset, info in pairs(match_info_struct) do

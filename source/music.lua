@@ -89,9 +89,13 @@ function music.onLoopChange(mode)
 	end
 end
 
+function music.getVolume()
+	return PANEL_SETTINGS:GetVolume()
+end
+
 function music.setVolume(vol)
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:setVolume(vol/100)
+		PLAYING_SONG:setVolume((vol/100) * (memory.match.paused and 0.35 or 1))
 	end
 end
 
@@ -129,7 +133,7 @@ function music.playNextTrack()
 				PLAYING_SONG:setLooping(loop == LOOPING_STAGE or loop == LOOPING_ALL)
 			end
 
-			PLAYING_SONG:setVolume(PANEL_SETTINGS:GetVolume()/100)
+			PLAYING_SONG:setVolume((PANEL_SETTINGS:GetVolume()/100) * (memory.match.paused and 0.35 or 1))
 			PLAYING_SONG:play()
 		end
 	end
@@ -164,8 +168,16 @@ memory.hook("stage", "Melee - Stage loaded", function(stage)
 	end
 end)
 
-memory.hook("match.playing", "Melee - Match ended", function(playing)
-	if not playing then
+memory.hook("match.paused", "Melee - Pause volume", function(paused)
+	music.setVolume(music.getVolume())
+end)
+
+local MATCH_GAME = 0x02
+local MATCH_NO_CONTEST = 0x07
+local MATCH_TRAINING_EXIT = 0x09
+
+memory.hook("match.result", "Melee - GAME kill music", function(result)
+	if result == MATCH_GAME then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
