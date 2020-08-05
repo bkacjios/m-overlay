@@ -30,6 +30,8 @@ function music.init()
 		-- Upgrade to new folder layout
 		local configdir = love.filesystem.getSaveDirectory()
 		os.rename(("%s/Melee/Stage Music/Menu"):format(configdir), ("%s/Melee/Menu Music"):format(configdir))
+	else
+		love.filesystem.createDirectory("Melee/Menu Music")
 	end
 
 	for stageid, name in pairs(melee.getAllStages()) do
