@@ -57,6 +57,7 @@ local watcher = {
 	version = 0,
 	process = memory.init(),
 	hooks = {},
+	memorymap = {},
 	wildcard_hooks = {},
 	values_memory = {},
 	values_pointer = {},
@@ -103,10 +104,15 @@ local READ_TYPES = {
 	[TYPE_FLOAT] = "readFloat",
 }
 
-function watcher.init()
+function watcher.init(map)
 	log.info("[MEMORY] Mapping game memory..")
 	watcher.initialized = true
-	for address, info in pairs(watcher.game.memorymap) do
+	watcher.loadmap(map)
+end
+
+function watcher.loadmap(map)
+	for address, info in pairs(map) do
+		watcher.memorymap[address] = info
 		if info.type == "pointer" and info.struct then
 			watcher.pointer_loc[address] = NULL
 			watcher.values_pointer[address] = {}
@@ -126,6 +132,7 @@ end
 
 function watcher.reset()
 	watcher.initialized = false
+	watcher.memorymap = {}
 	watcher.values_memory = {}
 	watcher.values_pointer = {}
 	watcher.watching_addr = {}
@@ -351,7 +358,7 @@ function watcher.checkmemoryvalues()
 		if status then
 			watcher.game = game
 			log.info("[DOLPHIN] Loaded game config: %s-%d", gid, version)
-			watcher.init()
+			watcher.init(game.memorymap)
 		else
 			notification.error(("Unsupported game %s-%d"):format(gid, version))
 			notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
@@ -372,7 +379,7 @@ function watcher.checkmemoryvalues()
 	local frame = watcher.frame or 0
 
 	for address, type in pairs(watcher.watching_addr) do
-		local info = watcher.game.memorymap[address]
+		local info = watcher.memorymap[address]
 
 		local value
 
@@ -402,7 +409,7 @@ function watcher.checkmemoryvalues()
 		if watcher.pointer_loc[address] ~= ptr_addr then
 			watcher.pointer_loc[address] = ptr_addr
 
-			local info = watcher.game.memorymap[address]
+			local info = watcher.memorymap[address]
 
 			if ptr_addr == NULL then
 				log.debug("[MEMORY] [%d][POINTER %08X = NULL] %s", frame, address, info.name)
@@ -417,7 +424,7 @@ function watcher.checkmemoryvalues()
 		local ptr_addr = watcher.pointer_loc[address]
 		if ptr_addr and ptr_addr ~= NULL then
 
-			local info = watcher.game.memorymap[address]
+			local info = watcher.memorymap[address]
 
 			for offset, type in pairs(offsets) do
 				local value

@@ -645,7 +645,7 @@ function love.draw()
 		graphics.rectangle("fill", 0, 0, 512, 256)
 	end
 
-	if memory.initialized and memory.game then
+	if memory.initialized and memory.game and memory.controller then
 		love.drawControllerOverlay()
 	elseif memory.hooked then
 		love.drawWaitingForGameSplash()

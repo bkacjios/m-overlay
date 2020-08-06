@@ -113,7 +113,7 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 		[0x04A] = { type = "data", len = 31, name = "player.1.name" },
 		[0x069] = { type = "data", len = 31, name = "player.2.name" },
 		[0x088] = { type = "data", len = 31, name = "opponent_name" },
-		[0x0A7] = { type = "data", len = 241, name = "error_message" },
+		[0x0A7] = { type = "data", len = 121, name = "error_message" },
 	}
 }
 
