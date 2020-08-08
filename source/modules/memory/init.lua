@@ -283,7 +283,7 @@ function watcher.update()
 		love.updateTitle("M'Overlay - Dolphin hooked")
 		watcher.hooked = true
 	elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-		log.info("[DOLPHIN] Watching ram: %X", watcher.process:getGamecubeRAMOffset())
+		log.info("[DOLPHIN] Watching ram: %X [%X]", watcher.process:getGamecubeRAMOffset(), watcher.process:getGamecubeRAMSize())
 	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
 		watcher.checkmemoryvalues()
 		watcher.runhooks()

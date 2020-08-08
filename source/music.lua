@@ -180,6 +180,7 @@ memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(po
 	if PANEL_SETTINGS:IsBinding() then return end -- Don't skip when the user is setting a button combination..
 	local mask = PANEL_SETTINGS:GetMusicSkipMask()
 	if mask ~= 0x0 and port == love.getPort() and bit.band(pressed, mask) == mask and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
+		log.debug("[MUSIC] [MASK = 0x%X] Button combo pressed, stopping music.", mask)
 		music.kill()
 	end
 end)
@@ -200,12 +201,13 @@ function music.loadStageMusicInDir(stageid, name)
 		local ext = string.getFileExtension(file)
 		if info.type == "file" and valid_music_ext[ext:lower()] and not STAGE_TRACKS_LOADED[stageid][file] then
 			local success, source = pcall(love.audio.newSource, filepath, "stream")
-			if success then
+			if success and source then
 				loaded = loaded + 1
 				STAGE_TRACKS_LOADED[stageid][file] = true
 
 				-- Insert the newly loaded track into a random position in the playlist
-				table.insert(STAGE_TRACKS[stageid], math.random(1, #STAGE_TRACKS[stageid]), source)
+				local pos = math.random(1, #STAGE_TRACKS[stageid])
+				table.insert(STAGE_TRACKS[stageid], pos, source)
 			else
 				local err = ("invalid music file \"%s/%s\""):format(name, file)
 				log.error("[MUSIC] %s", err)

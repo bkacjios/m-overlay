@@ -31,6 +31,7 @@ typedef signed int pid_t;
 typedef struct {
 	pid_t pid;
 	unsigned __int64  dolphin_base_addr;
+	unsigned __int64  dolphin_addr_size;
 } MEMORY_STRUCT;
 
 typedef struct {
@@ -181,6 +182,10 @@ function MEMORY:getGamecubeRAMOffset()
 	return tonumber(self.dolphin_base_addr)
 end
 
+function MEMORY:getGamecubeRAMSize()
+	return tonumber(self.dolphin_addr_size)
+end
+
 function MEMORY:close()
 	if self:hasProcess() then
 		self.pid = 0
@@ -211,6 +216,7 @@ function MEMORY:findGamecubeRAMOffset()
 							endAddr = tonumber(endAddr, 16)
 							if (endAddr - startAddr) >= 0x2000000 then
 								self.dolphin_base_addr = startAddr
+								self.dolphin_addr_size = endAddr - startAddr
 								f:close()
 								return true
 							end

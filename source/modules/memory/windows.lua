@@ -48,6 +48,7 @@ typedef ULONG_PTR SIZE_T;
 typedef struct {
 	HANDLE process_handle;
 	ULONG_PTR dolphin_base_addr;
+	ULONG_PTR dolphin_addr_size;
 } MEMORY_STRUCT;
 
 typedef struct tagPROCESSENTRY32 {
@@ -249,6 +250,10 @@ function MEMORY:getGamecubeRAMOffset()
 	return tonumber(self.dolphin_base_addr)
 end
 
+function MEMORY:getGamecubeRAMSize()
+	return tonumber(self.dolphin_addr_size)
+end
+
 function MEMORY:close()
 	if self:hasProcess() then
 		kernel.CloseHandle(self.process_handle)
@@ -277,6 +282,7 @@ function MEMORY:findGamecubeRAMOffset()
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
 				if band(flags, lshift(1, 0)) == 1 then -- Check if the Valid flag is set
 					self.dolphin_base_addr = cast("ULONG_PTR", info.BaseAddress)
+					self.dolphin_addr_size = cast("ULONG_PTR", info.RegionSize)
 					return true
 				end
 			end
