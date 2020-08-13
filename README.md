@@ -15,13 +15,13 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Super Smash Bros. Brawl (NTSC v1.0, NTSC v1.1, NTSC v1.2, Project M, P+)
 * Need for Speed Underground 1 (NTSC v1.0)
 * Need for Speed Underground 2 (NTSC v1.0)
-* The Legend of Zelda: The Wind Waker
+* The Legend of Zelda: The Wind Waker (NTSC v1.0)
 * The Legend of Zelda: Twilight Princess (GC NTSC v1.0, Wii NTSC v1.0)
 * Metroid Prime (NTSC v1.0, NTSC v1.2)
 * Metroid Prime 2 - Echoes (NTSC v1.0)
 * Super Mario Sunshine. (NTSC v1.0, PAL v1.0, JP v1.0)
 * Pikmin (NTSC v1.1)
-* Pikmin 2 (NTSC v1.0, DEMO v1.0))
+* Pikmin 2 (NTSC v1.0, DEMO v1.0)
 
 *More games can be supported upon request!*
 
@@ -33,6 +33,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 
 ### Wiki pages
 
+* [Common issues](https://github.com/bkacjios/m-overlay/wiki/Common-issues-and-solutions)
 * [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual)
 * [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup)
 * [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
