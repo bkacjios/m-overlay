@@ -11,14 +11,17 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 
 ### Supported games list
 
-* Super Smash Bros. Melee (NTSC v1.02, PAL, 20XX, UnclePunch Training Mode, Slippi)
-* Super Smash Bros. Brawl (NTSC, Project M, P+)
-* Need for Speed Underground 1
-* Need for Speed Underground 2
+* Super Smash Bros. Melee (NTSC v1.2, PAL, 20XX, UnclePunch Training Mode, Slippi)
+* Super Smash Bros. Brawl (NTSC v1.0, NTSC v1.1, NTSC v1.2, Project M, P+)
+* Need for Speed Underground 1 (NTSC v1.0)
+* Need for Speed Underground 2 (NTSC v1.0)
 * The Legend of Zelda: The Wind Waker
-* The Legend of Zelda: Twilight Princess (Wii/GC versions)
+* The Legend of Zelda: Twilight Princess (GC NTSC v1.0, Wii NTSC v1.0)
 * Metroid Prime (NTSC v1.0, NTSC v1.2)
-* Super Mario Sunshine.
+* Metroid Prime 2 - Echoes (NTSC v1.0)
+* Super Mario Sunshine. (NTSC v1.0, PAL v1.0, JP v1.0)
+* Pikmin (NTSC v1.1)
+* Pikmin 2 (NTSC v1.0, DEMO v1.0))
 
 *More games can be supported upon request!*
 
