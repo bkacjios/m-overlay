@@ -127,6 +127,11 @@ local valid_process_names = {
 	["dolphin-emu"] = true,
 	["dolphin-emu-qt2"] = true,
 	["dolphin-emu-wx"] = true,
+	["launch-fm"] = true,
+	["slippi-r18-netplay"] = true,
+	["slippi-r16-netplay"] = true,
+	["slippi-r11-netplay"] = true,
+	["slippi-r10-netplay"] = true,
 }
 
 function MEMORY:findprocess()
