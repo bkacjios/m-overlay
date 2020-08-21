@@ -268,6 +268,8 @@ function watcher.isReady()
 	return watcher.process:hasProcess() and watcher.process:isProcessActive() and watcher.process:hasGamecubeRAMOffset()
 end
 
+local timer = love.timer.getTime()
+
 function watcher.update()
 	if not watcher.permissions then return end
 
@@ -278,13 +280,21 @@ function watcher.update()
 		watcher.hooked = false
 	end
 
-	if watcher.process:findprocess() then
-		log.info("[DOLPHIN] Hooked")
-		love.updateTitle("M'Overlay - Dolphin hooked")
-		watcher.hooked = true
-	elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-		log.info("[DOLPHIN] Watching ram: %X [%X]", watcher.process:getGamecubeRAMOffset(), watcher.process:getGamecubeRAMSize())
-	elseif watcher.process:hasProcess() and watcher.process:hasGamecubeRAMOffset() then
+	local t = love.timer.getTime()
+
+	-- Only check for the dolphin process once per second to reduce CPU load
+	if not watcher.process:hasProcess() or not watcher.process:hasGamecubeRAMOffset() then
+		if timer <= t then
+			timer = t + 0.5
+			if watcher.process:findprocess() then
+				log.info("[DOLPHIN] Hooked")
+				love.updateTitle("M'Overlay - Dolphin hooked")
+				watcher.hooked = true
+			elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
+				log.info("[DOLPHIN] Watching ram: %X [%X]", watcher.process:getGamecubeRAMOffset(), watcher.process:getGamecubeRAMSize())
+			end
+		end
+	else
 		watcher.checkmemoryvalues()
 		watcher.runhooks()
 	end
