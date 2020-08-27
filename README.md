@@ -22,6 +22,9 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Super Mario Sunshine. (NTSC v1.0, PAL v1.0, JP v1.0)
 * Pikmin (NTSC v1.1)
 * Pikmin 2 (NTSC v1.0, DEMO v1.0)
+* The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
+* SpongeBob SquarePants: Battle for Bikini Bottom (NTSC v1.0)
+* Paper Mario - The Thousand-Year Door (NTSC v1.0)
 
 *More games can be supported upon request!*
 
