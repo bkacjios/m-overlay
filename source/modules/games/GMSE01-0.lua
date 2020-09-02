@@ -6,8 +6,6 @@ local game = {
 	memorymap = {}
 }
 
-core.loadGenericControllerMap(0x80404454, game.memorymap)
-game.translateAxis = core.translateAxis
-game.translateTriggers = core.translateTriggers
+core.loadGenericControllerMap(0x80404454, game)
 
 return game

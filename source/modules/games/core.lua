@@ -1,6 +1,6 @@
 local core = {}
 
-function core.loadGenericControllerMap(addr, memorymap)
+function core.loadGenericControllerMap(addr, game)
 	local controllers = {
 		[1] = addr + 0xC * 0,
 		[2] = addr + 0xC * 1,
@@ -21,13 +21,16 @@ function core.loadGenericControllerMap(addr, memorymap)
 
 	for port, address in ipairs(controllers) do
 		for offset, info in pairs(controller_struct) do
-			memorymap[address + offset] = {
+			game.memorymap[address + offset] = {
 				type = info.type,
 				debug = info.debug,
 				name = info.name:format(port),
 			}
 		end
 	end
+
+	game.translateAxis = core.translateAxis
+	game.translateTriggers = core.translateTriggers
 end
 
 local abs = math.abs
