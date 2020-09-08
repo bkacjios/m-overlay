@@ -70,14 +70,7 @@ for _, polling_addr in ipairs(polling_addresses) do
 	end
 end
 
-function game.translateAxis(x, y)
-	return x/100, y/100
-end
-
-local min = math.min
-
-function game.translateTriggers(l, r)
-	return min(1, l/128), min(1, r/128)
-end
+game.translateAxis = core.translateAxis
+game.translateTriggers = core.translateTriggers
 
 return game
