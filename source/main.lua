@@ -1,4 +1,5 @@
 love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
+io.stdout:setvbuf("no")
 
 math.randomseed(love.timer.getTime())
 
@@ -22,6 +23,7 @@ local newImage = graphics.newImage
 
 local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
 local WAITING_FONT = graphics.newFont("fonts/melee-bold.otf", 24)
+local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 --PANEL_SETTINGS
 
@@ -439,15 +441,15 @@ function love.drawControllerOverlay()
 			graphics.setFont(DEBUG_FONT)
 
 			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(btts, 2, 4, 256 - 4 - 36)
-			graphics.textOutline(strx, 2, 4, 256 - 4 - 24)
-			graphics.textOutline(stry, 2, 4, 256 - 4 - 12)
+			graphics.textOutline(btts, 2, 96, 256 - 4 - 36)
+			graphics.textOutline(strx, 2, 96, 256 - 4 - 24)
+			graphics.textOutline(stry, 2, 96, 256 - 4 - 12)
 
 			graphics.setColor(255, 255, 255, 255)
-			graphics.print(btts, 4, 256 - 4 - 36)
-			graphics.print(strx, 4, 256 - 4 - 24)
-			graphics.print(stry, 4, 256 - 4 - 12)
-		end]]
+			graphics.print(btts, 96, 256 - 4 - 36)
+			graphics.print(strx, 96, 256 - 4 - 24)
+			graphics.print(stry, 96, 256 - 4 - 12)
+		--end]]
 
 		local vx, vy = x, 1 - y
 
@@ -483,6 +485,21 @@ function love.drawControllerOverlay()
 		-- Draw C-Stick
 
 		local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
+
+		--[[if PANEL_SETTINGS:IsDebugging() then
+			local strx = ("C_X: %f"):format(x)
+			local stry = ("C_Y: %f"):format(y)
+			graphics.setFont(DEBUG_FONT)
+
+			graphics.setColor(0, 0, 0, 255)
+			graphics.textOutline(strx, 2, 256, 256 - 4 - 24)
+			graphics.textOutline(stry, 2, 256, 256 - 4 - 12)
+
+			graphics.setColor(255, 255, 255, 255)
+			graphics.print(strx, 256, 256 - 4 - 24)
+			graphics.print(stry, 256, 256 - 4 - 12)
+		--end]]
+
 		local vx, vy = x, 1 - y
 
 		local angle = math.atan2(x, y)

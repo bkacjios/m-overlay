@@ -21,6 +21,10 @@ function COLOR:__eq(col)
 	return self.r == col.r and self.g == col.g and self.b == col.b and self.a == col.a
 end
 
+function COLOR:unpack()
+	return self.r, self.g, self.b, self.a
+end
+
 function COLOR:fadeTo(col, frac)
 	local faded = color(255, 255, 255)
 	faded.r = (self.r * (1 - frac)) + col.r * frac
