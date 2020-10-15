@@ -7,4 +7,5 @@ return {
 	["MNCE02"] = { id = "GALE01", version = 2 }, -- Melee Netplay Community Build
 	["SDRE32"] = { id = "GALE01", version = 2 }, -- SSBM SD Remix
 	["RSBE01"] = { id = "RSBE01", version = 2 }, -- Super Smash Bros. Brawl
+	["G2ME0R"] = { id = "G2ME01", version = 0 }, -- Metroid Prime 2: Echoes Randomizer
 }
