@@ -47,7 +47,7 @@ end
 
 function music.isInGame()
 	if memory.menu_major == MENU_ALL_STAR_MODE and memory.menu_minor < MENU_ALL_STAR_CSS then
-		-- Even = playing a game
+		-- Even = playing the match
 		-- Odd  = in the rest area
 		return memory.menu_minor % 2 == 0
 	end
@@ -59,6 +59,11 @@ function music.isInGame()
 	end
 	if memory.menu_major == MENU_EVENT_MATCH then
 		return memory.menu_minor == MENU_EVENT_MATCH_INGAME
+	end
+	if memory.menu_major == MENU_CLASSIC_MODE and memory.menu_minor < MENU_CLASSIC_CONTINUE then
+		-- Even = Verus screen
+		-- Odd  = playing the match
+		return memory.menu_minor % 2 == 1
 	end
 	return false
 end
@@ -200,7 +205,7 @@ memory.hook("match.paused", "Melee - Pause volume", function(paused)
 end)
 
 memory.hook("match.result", "Melee - GAME kill music", function(result)
-	if result == MATCH_GAME or result == MATCH_STAGE_CLEAR then
+	if result ~= MATCH_NO_RESULT and result ~= MATCH_NO_CONTEST then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
