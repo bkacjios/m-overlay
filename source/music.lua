@@ -52,6 +52,9 @@ function music.isInGame()
 	if memory.menu_major == MENU_TRAINING_MODE then
 		return memory.menu_minor == MENU_TRAINING_INGAME
 	end
+	if memory.menu_major == MENU_EVENT_MATCH then
+		return memory.menu_minor == MENU_EVENT_MATCH_INGAME
+	end
 	return false
 end
 
@@ -60,10 +63,13 @@ function music.isInMenus()
 		return true
 	end
 	if memory.menu_major == MENU_VS_MODE then
-		return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_STAGE_SELECT
+		return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_SSS
 	end
 	if memory.menu_major == MENU_TRAINING_MODE then
 		return memory.menu_minor == MENU_TRAINING_CSS or memory.menu_minor == MENU_TRAINING_SSS
+	end
+	if memory.menu_major == MENU_EVENT_MATCH then
+		return memory.menu_minor == MENU_EVENT_MATCH_SELECT
 	end
 	if memory.menu_major == MENU_CLASSIC_MODE or memory.menu_major == MENU_ADVENTURE_MODE or memory.menu_major == MENU_ALL_STAR_MODE then
 		return memory.menu_minor == MENU_CLASSIC_CSS
