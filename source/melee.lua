@@ -635,7 +635,7 @@ local STAGE_NAMES = {
 }
 
 local ADVERTURE_STAGES = {
-	[0x1F] = "Mushroom Kingdom"
+	[0x1F] = "Mushroom Kingdom",
 	[0x20] = "Underground Maze",
 	[0x21] = "Escape Zebes",
 	[0x22] = "F-Zero Grand Prix",
