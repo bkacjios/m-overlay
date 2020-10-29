@@ -46,11 +46,29 @@ function music.init()
 end
 
 function music.isInGame()
-	return memory.menu_minor == MENU_VS_INGAME
+	if memory.menu_major == MENU_VS_MODE then
+		return memory.menu_minor == MENU_VS_INGAME
+	end
+	if memory.menu_major == MENU_TRAINING_MODE then
+		return memory.menu_minor == MENU_TRAINING_INGAME
+	end
+	return false
 end
 
 function music.isInMenus()
-	return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_STAGE_SELECT
+	if memory.menu_major == MENU_TITLE_SCREEN or memory.menu_major == MENU_MAIN_MENU then
+		return true
+	end
+	if memory.menu_major == MENU_VS_MODE then
+		return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_STAGE_SELECT
+	end
+	if memory.menu_major == MENU_TRAINING_MODE then
+		return memory.menu_minor == MENU_TRAINING_CSS or memory.menu_minor == MENU_TRAINING_SSS
+	end
+	if memory.menu_major == MENU_CLASSIC_MODE or memory.menu_major == MENU_ADVENTURE_MODE or memory.menu_major == MENU_ALL_STAR_MODE then
+		return memory.menu_minor == MENU_CLASSIC_CSS
+	end
+	return false
 end
 
 function music.kill()
@@ -137,9 +155,9 @@ function music.playNextTrack()
 end
 
 function music.onStateChange()
-	if memory.menu_minor == MENU_VS_INGAME then
+	if music.isInGame() then
 		music.loadForStage(memory.stage)
-	elseif memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_STAGE_SELECT then
+	elseif music.isInMenus() then
 		music.loadForStage(0)
 	end
 end
@@ -149,9 +167,9 @@ memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 end)
 
 memory.hook("menu_minor", "Melee - Menu state", function(menu)
-	if menu == MENU_VS_CSS or menu == MENU_VS_STAGE_SELECT then
+	if music.isInMenus() then
 		music.loadForStage(0)
-	elseif menu == MENU_VS_INGAME then
+	elseif music.isInGame() then
 		MATCH_SOFT_END = false
 		music.loadForStage(memory.stage)
 	else
@@ -160,7 +178,7 @@ memory.hook("menu_minor", "Melee - Menu state", function(menu)
 end)
 
 memory.hook("stage", "Melee - Stage loaded", function(stage)
-	if memory.menu_minor == MENU_VS_INGAME then
+	if music.isInGame() then
 		music.loadForStage(stage)
 	end
 end)
@@ -232,9 +250,8 @@ function music.loadForStage(stageid)
 	STAGE_TRACKS_LOADED[stageid] = STAGE_TRACKS_LOADED[stageid] or {}
 
 	if stageid == 0x0 then
-		music.loadStageMusicInDir(stageid, "Melee/Menu Music")
-		music.loadStageMusicInDir(stageid, "Melee/All Music")
 		music.loadStageMusicInDir(stageid, "Melee")
+		music.loadStageMusicInDir(stageid, "Melee/Menu Music")
 		return
 	end
 
@@ -243,13 +260,15 @@ function music.loadForStage(stageid)
 
 	if not name then STAGE_ID = nil return end
 
+	music.loadStageMusicInDir(stageid, "Melee")
 	music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stages folder
 	music.loadStageMusicInDir(stageid, "Melee/Stage Music/All") -- Load everything in the 'All' folder
 	music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	if series then
 		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
-		music.loadStageMusicInDir(stageid, "Melee/Series Music/All") -- Load everything in the 'All' folder
+
 		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything in the series folder
+		music.loadStageMusicInDir(stageid, "Melee/Series Music/All") -- Load everything in the 'All' folder
 	end
 end
 
