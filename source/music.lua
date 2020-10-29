@@ -46,6 +46,11 @@ function music.init()
 end
 
 function music.isInGame()
+	if memory.menu_major == MENU_ALL_STAR_MODE and memory.menu_minor < MENU_ALL_STAR_CSS then
+		-- Even = playing a game
+		-- Odd  = in the rest area
+		return memory.menu_minor % 2 == 0
+	end
 	if memory.menu_major == MENU_VS_MODE then
 		return memory.menu_minor == MENU_VS_INGAME
 	end
@@ -72,6 +77,7 @@ function music.isInMenus()
 		return memory.menu_minor == MENU_EVENT_MATCH_SELECT
 	end
 	if memory.menu_major == MENU_CLASSIC_MODE or memory.menu_major == MENU_ADVENTURE_MODE or memory.menu_major == MENU_ALL_STAR_MODE then
+		-- All the menu_mior values all match in these three modes, so just use the MENU_CLASSIC_CSS value for simplicity
 		return memory.menu_minor == MENU_CLASSIC_CSS
 	end
 	return false
@@ -194,7 +200,7 @@ memory.hook("match.paused", "Melee - Pause volume", function(paused)
 end)
 
 memory.hook("match.result", "Melee - GAME kill music", function(result)
-	if result == MATCH_GAME then
+	if result == MATCH_GAME or result == MATCH_STAGE_CLEAR then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
