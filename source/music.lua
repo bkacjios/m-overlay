@@ -85,7 +85,7 @@ function music.isInGame()
 		return true
 	end
 	if memory.menu_major == MENU_VS_MODE then
-		return memory.menu_minor == MENU_VS_INGAME and not memory.match.finished
+		return memory.menu_minor == MENU_VS_INGAME
 	end
 	if memory.menu_major >= MENU_TRAINING_MODE and memory.menu_major <= MENU_STAMINA_MODE or memory.menu_major == MENU_FIXED_CAMERA_MODE then
 		return memory.menu_minor == MENU_TRAINING_INGAME
@@ -155,7 +155,7 @@ function music.isInMenus()
 		return memory.menu_minor == MENU_CLASSIC_CSS
 	end
 	if memory.menu_major == MENU_TARGET_TEST then
-		return memory.menu_minor == MENU_TARGET_TEST_CSSS
+		return memory.menu_minor == MENU_TARGET_TEST_CSS
 	end
 	if memory.menu_major >= MENU_SUPER_SUDDEN_DEATH and memory.menu_major <= MENU_LIGHTNING_MELEE then
 		return memory.menu_minor == MENU_SSD_CSS or memory.menu_minor == MENU_SSD_SSS
