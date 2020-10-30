@@ -597,6 +597,12 @@ local STAGE_SERIES = {
 	[0x24] = "Super Smash Bros", -- Battlefield
 	[0x25] = "Super Smash Bros", -- Final Destination
 	[0x26] = "Super Smash Bros", -- Trophy Collection
+
+	-- Singleplayer stages
+	[0x1F] = "Super Mario", -- Mushroom Kingdom
+	[0x20] = "The Legend of Zelda", -- Underground Maze
+	[0x21] = "Metroid", -- Escape Zebes
+	[0x22] = "F-Zero", -- F-Zero Grand Prix
 	[0x42] = "Super Smash Bros", -- All Star Rest Area
 }
 
@@ -631,7 +637,6 @@ local STAGE_NAMES = {
 	[0x24] = "Battlefield",
 	[0x25] = "Final Destination",
 	[0x26] = "Trophy Collection",
-	[0x42] = "All Star Rest Area",
 }
 
 local ADVERTURE_STAGES = {
@@ -639,14 +644,23 @@ local ADVERTURE_STAGES = {
 	[0x20] = "Underground Maze",
 	[0x21] = "Escape Zebes",
 	[0x22] = "F-Zero Grand Prix",
+	[0x42] = "All Star Rest Area",
 }
+
+function melee.isSinglePlayerStage(id)
+	return ADVERTURE_STAGES[id] ~= nil
+end
+
+function melee.getSinglePlayerStages()
+	return ADVERTURE_STAGES
+end
 
 function melee.getAllStages()
 	return STAGE_NAMES
 end
 
 function melee.getStageName(id)
-	return STAGE_NAMES[id]
+	return STAGE_NAMES[id] or ADVERTURE_STAGES[id]
 end
 
 function melee.getAllStageSeries()

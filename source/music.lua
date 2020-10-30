@@ -11,6 +11,22 @@ local TRACK_NUMBER = {}
 local STAGE_ID = 0
 local PLAYING_SONG = nil
 
+local function moveFolderContentsTo(from, to)
+	local info = love.filesystem.getInfo(from)
+
+	if info and info.type == "directory" then
+		-- Upgrade to new folder layout
+		local configdir = love.filesystem.getSaveDirectory()
+
+		local files = love.filesystem.getDirectoryItems(from)
+		for k, file in ipairs(files) do
+			os.rename(("%s/%s/%s"):format(configdir, from, file), ("%s/%s/%s"):format(configdir, to, file))
+		end
+
+		love.filesystem.remove(from)
+	end
+end
+
 function music.init()
 	love.filesystem.setSymlinksEnabled(true)
 
@@ -34,25 +50,38 @@ function music.init()
 		love.filesystem.createDirectory("Melee/Menu Music")
 	end
 
+	-- VS mode folders
+
 	for stageid, name in pairs(melee.getAllStages()) do
 		love.filesystem.createDirectory(("Melee/Stage Music/%s"):format(name))
 	end
-	love.filesystem.createDirectory("Melee/Stage Music/All")
+	moveFolderContentsTo("Melee/Stage Music/All", "Melee/Stage Music")
+
+	-- Single player folders
+
+	love.filesystem.createDirectory("Melee/Single Player Music")
+	
+	for stageid, name in pairs(melee.getSinglePlayerStages()) do
+		love.filesystem.createDirectory(("Melee/Single Player Music/%s"):format(name))
+	end
+
+	-- Series folders
 
 	for stageid, series in pairs(melee.getAllStageSeries()) do
 		love.filesystem.createDirectory(("Melee/Series Music/%s"):format(series))
 	end
-	love.filesystem.createDirectory("Melee/Series Music/All")
+	moveFolderContentsTo("Melee/Series Music/All", "Melee/Series Music")
 end
 
 function music.isInGame()
 	if memory.menu_major == MENU_ALL_STAR_MODE and memory.menu_minor < MENU_ALL_STAR_CSS then
 		-- Even = playing the match
 		-- Odd  = in the rest area
-		return memory.menu_minor % 2 == 0
+		--return memory.menu_minor % 2 == 0
+		return true
 	end
 	if memory.menu_major == MENU_VS_MODE then
-		return memory.menu_minor == MENU_VS_INGAME
+		return memory.menu_minor == MENU_VS_INGAME and not memory.match.finished
 	end
 	if memory.menu_major == MENU_TRAINING_MODE then
 		return memory.menu_minor == MENU_TRAINING_INGAME
@@ -69,7 +98,7 @@ function music.isInGame()
 end
 
 function music.isInMenus()
-	if memory.menu_major == MENU_TITLE_SCREEN or memory.menu_major == MENU_MAIN_MENU then
+	if memory.menu_major == MENU_MAIN_MENU then
 		return true
 	end
 	if memory.menu_major == MENU_VS_MODE then
@@ -179,8 +208,18 @@ function music.onStateChange()
 	end
 end
 
+memory.hook("frame", "Melee - Music Think", music.playNextTrack)
+
 memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 	music.kill()
+end)
+
+memory.hook("menu_major", "Melee - Menu state", function(menu)
+	if music.isInMenus() then
+		music.loadForStage(0)
+	elseif not music.isInGame() then
+		music.kill()
+	end
 end)
 
 memory.hook("menu_minor", "Melee - Menu state", function(menu)
@@ -274,18 +313,22 @@ function music.loadForStage(stageid)
 
 	local name = melee.getStageName(stageid)
 	local series = melee.getStageSeries(stageid)
+	local sp = melee.isSinglePlayerStage(stageid)
 
 	if not name then STAGE_ID = nil return end
 
 	music.loadStageMusicInDir(stageid, "Melee")
-	music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stages folder
-	music.loadStageMusicInDir(stageid, "Melee/Stage Music/All") -- Load everything in the 'All' folder
-	music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+	if sp then
+		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stages folder
+		music.loadStageMusicInDir(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well
+	else
+		music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stages folder
+		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+	end
+
 	if series then
 		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
-
-		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything in the series folder
-		music.loadStageMusicInDir(stageid, "Melee/Series Music/All") -- Load everything in the 'All' folder
+		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
 end
 

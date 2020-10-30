@@ -67,6 +67,7 @@ local watcher = {
 	pointer_loc = {},
 	hook_queue = {},
 	named = {},
+	game_frame = 0,
 }
 
 watcher.permissions = watcher.process:hasPermissions()
@@ -296,7 +297,13 @@ function watcher.update()
 		end
 	else
 		watcher.checkmemoryvalues()
-		watcher.runhooks()
+
+		local frame = watcher.frame or 0
+
+		if watcher.game_frame ~= frame or frame == 0 then
+			watcher.game_frame = frame
+			watcher.runhooks()
+		end
 	end
 end
 
