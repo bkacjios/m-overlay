@@ -71,9 +71,13 @@ function music.init()
 		love.filesystem.createDirectory(("Melee/Series Music/%s"):format(series))
 	end
 	moveFolderContentsTo("Melee/Series Music/All", "Melee/Series Music")
+
+	love.filesystem.createDirectory("Melee/Single Player Music/Break the Targets")
 end
 
 function music.isInGame()
+	if not memory.menu_major or not memory.menu_minor then return false end
+
 	if memory.menu_major == MENU_ALL_STAR_MODE and memory.menu_minor < MENU_ALL_STAR_CSS then
 		-- Even = playing the match
 		-- Odd  = in the rest area
@@ -83,7 +87,7 @@ function music.isInGame()
 	if memory.menu_major == MENU_VS_MODE then
 		return memory.menu_minor == MENU_VS_INGAME and not memory.match.finished
 	end
-	if memory.menu_major == MENU_TRAINING_MODE then
+	if memory.menu_major >= MENU_TRAINING_MODE and memory.menu_major <= MENU_STAMINA_MODE or memory.menu_major == MENU_FIXED_CAMERA_MODE then
 		return memory.menu_minor == MENU_TRAINING_INGAME
 	end
 	if memory.menu_major == MENU_EVENT_MATCH then
@@ -94,17 +98,28 @@ function music.isInGame()
 		-- Odd  = playing the match
 		return memory.menu_minor % 2 == 1
 	end
+	if memory.menu_major == MENU_TARGET_TEST then
+		return memory.menu_minor == MENU_TARGET_TEST_INGAME
+	end
+	if memory.menu_major >= MENU_SUPER_SUDDEN_DEATH and memory.menu_major <= MENU_LIGHTNING_MELEE then
+		return memory.menu_minor == MENU_SSD_INGAME
+	end
+	if memory.menu_major >= MENU_HOME_RUN_CONTEST and memory.menu_major <= MENU_CRUEL_MELEE then
+		return memory.menu_minor == MENU_HOME_RUN_CONTEST_INGAME
+	end
 	return false
 end
 
 function music.isInMenus()
+	if not memory.menu_major or not memory.menu_minor then return false end
+	
 	if memory.menu_major == MENU_MAIN_MENU then
 		return true
 	end
 	if memory.menu_major == MENU_VS_MODE then
 		return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_SSS
 	end
-	if memory.menu_major == MENU_TRAINING_MODE then
+	if memory.menu_major >= MENU_TRAINING_MODE and memory.menu_major <= MENU_STAMINA_MODE or memory.menu_major == MENU_FIXED_CAMERA_MODE then
 		return memory.menu_minor == MENU_TRAINING_CSS or memory.menu_minor == MENU_TRAINING_SSS
 	end
 	if memory.menu_major == MENU_EVENT_MATCH then
@@ -113,6 +128,15 @@ function music.isInMenus()
 	if memory.menu_major == MENU_CLASSIC_MODE or memory.menu_major == MENU_ADVENTURE_MODE or memory.menu_major == MENU_ALL_STAR_MODE then
 		-- All the menu_mior values all match in these three modes, so just use the MENU_CLASSIC_CSS value for simplicity
 		return memory.menu_minor == MENU_CLASSIC_CSS
+	end
+	if memory.menu_major == MENU_TARGET_TEST then
+		return memory.menu_minor == MENU_TARGET_TEST_CSSS
+	end
+	if memory.menu_major >= MENU_SUPER_SUDDEN_DEATH and memory.menu_major <= MENU_LIGHTNING_MELEE then
+		return memory.menu_minor == MENU_SSD_CSS or memory.menu_minor == MENU_SSD_SSS
+	end
+	if memory.menu_major >= MENU_HOME_RUN_CONTEST and memory.menu_major <= MENU_CRUEL_MELEE then
+		return memory.menu_minor == MENU_HOME_RUN_CONTEST_CSS
 	end
 	return false
 end
@@ -239,6 +263,13 @@ memory.hook("stage", "Melee - Stage loaded", function(stage)
 	end
 end)
 
+memory.hook("match.playing", "Melee - Classic Mode Master Hand Fix?", function(playing)
+	if memory.menu_major == MENU_CLASSIC_MODE and memory.stage == 0x25 and not playing then
+		MATCH_SOFT_END = true
+		music.kill()
+	end
+end)
+
 memory.hook("match.paused", "Melee - Pause volume", function(paused)
 	music.setVolume(music.getVolume())
 end)
@@ -305,9 +336,13 @@ function music.loadForStage(stageid)
 	STAGE_TRACKS[stageid] = STAGE_TRACKS[stageid] or {}
 	STAGE_TRACKS_LOADED[stageid] = STAGE_TRACKS_LOADED[stageid] or {}
 
+	music.loadStageMusicInDir(stageid, "Melee")
+
 	if stageid == 0x0 then
-		music.loadStageMusicInDir(stageid, "Melee")
 		music.loadStageMusicInDir(stageid, "Melee/Menu Music")
+		return
+	elseif melee.isBTTStage(stageid) then
+		music.loadStageMusicInDir(stageid, "Melee/Single Player Music/Break the Targets")
 		return
 	end
 
@@ -317,7 +352,6 @@ function music.loadForStage(stageid)
 
 	if not name then STAGE_ID = nil return end
 
-	music.loadStageMusicInDir(stageid, "Melee")
 	if sp then
 		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stages folder
 		music.loadStageMusicInDir(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well

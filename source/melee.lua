@@ -1,7 +1,6 @@
 local memory = require("memory")
 local color = require("util.color")
 
-
 MATCH_NO_RESULT = 0x00
 MATCH_GAME = 0x02
 MATCH_STAGE_CLEAR = 0x03
@@ -9,6 +8,7 @@ MATCH_STAGE_FAILURE = 0x04
 MATCH_STAGE_CLEAR3 = 0x05
 MATCH_NEW_RECORD = 0x06
 MATCH_NO_CONTEST = 0x07
+MATCH_RETRY = 0x08
 MATCH_GAME_CLEAR = 0x09
 
 -- MAJOR FLAGS
@@ -20,7 +20,7 @@ MENU_VS_MODE = 0x02
 	MENU_VS_CSS = 0x0
 	MENU_VS_SSS = 0x1
 	MENU_VS_INGAME = 0x2
-	MENU_VS_POSTGAME_SCORES = 0x4
+	MENU_VS_POSTGAME = 0x4
 
 MENU_CLASSIC_MODE = 0x03
 
@@ -189,14 +189,32 @@ MENU_START_MATCH = 0x0E
 
 MENU_TARGET_TEST = 0x0F
 	MENU_TARGET_TEST_CSS = 0x00
+	MENU_TARGET_TEST_INGAME = 0x1
 
 MENU_SUPER_SUDDEN_DEATH = 0x10
 	MENU_SSD_CSS = 0x00
 	MENU_SSD_SSS = 0x01
+	MENU_SSD_INGAME = 0x02
+	MENU_SSD_POSTGAME = 0x04
 
 MENU_INVISIBLE_MELEE = 0x11
+	MENU_INVISIBLE_MELEE_CSS = 0x00
+	MENU_INVISIBLE_MELEE_SSS = 0x01
+	MENU_INVISIBLE_MELEE_INGAME = 0x02
+	MENU_INVISIBLE_MELEE_POSTGAME = 0x04
+
 MENU_SLOW_MO_MELEE = 0x12
+	MENU_SLOW_MO_MELEE_CSS = 0x00
+	MENU_SLOW_MO_MELEE_SSS = 0x01
+	MENU_SLOW_MO_MELEE_INGAME = 0x02
+	MENU_SLOW_MO_MELEE_POSTGAME = 0x04
+
 MENU_LIGHTNING_MELEE = 0x13
+	MENU_LIGHTNING_MELEE_CSS = 0x00
+	MENU_LIGHTNING_MELEE_SSS = 0x01
+	MENU_LIGHTNING_MELEE_INGAME = 0x02
+	MENU_LIGHTNING_MELEE_POSTGAME = 0x04
+
 MENU_CHARACTER_APPROACHING = 0x14
 
 MENU_CLASSIC_MODE_COMPLETE = 0x15
@@ -205,7 +223,11 @@ MENU_CLASSIC_MODE_COMPLETE = 0x15
 	MENU_CLASSIC_MODE_CHARACTER_VIDEO = 0x02
 	MENU_CLASSIC_MODE_CONGRATS = 0x03
 
-MENU_ADVENTURE_MODE_CREDITS = 0x16
+MENU_ADVENTURE_MODE_COMPLETE = 0x16
+	MENU_ADVENTURE_MODE_TROPHY = 0x00
+	MENU_ADVENTURE_MODE_CREDITS = 0x01
+	MENU_ADVENTURE_MODE_CHARACTER_VIDEO = 0x02
+	MENU_ADVENTURE_MODE_CONGRATS = 0x03
 
 MENU_ALL_STAR_COMPLETE = 0x17
 	MENU_ALL_STAR_TROPHY = 0x00
@@ -219,7 +241,12 @@ MENU_INTRO_VIDEO = 0x18
 
 MENU_ADVENTURE_MODE_CINEMEATIC = 0x19
 MENU_CHARACTER_UNLOCKED = 0x1A
+
 MENU_TOURNAMENT = 0x1B
+	MENU_TOURNAMENT_CSS = 0x0
+	MENU_TOURNAMENT_BRACKET = 0x1
+	MENU_TOURNAMENT_INGAME = 0x4
+	MENU_TOURNAMENT_POSTGAME = 0x6
 
 MENU_TRAINING_MODE = 0x1C
 	MENU_TRAINING_CSS = 0x0
@@ -227,19 +254,60 @@ MENU_TRAINING_MODE = 0x1C
 	MENU_TRAINING_INGAME = 0x2
 
 MENU_TINY_MELEE = 0x1D
+	MENU_TINY_MELEE_CSS = 0x0
+	MENU_TINY_MELEE_SSS = 0x1
+	MENU_TINY_MELEE_INGAME = 0x2
+	MENU_TINY_MELEE_POSTGAME = 0x4
+
 MENU_GIANT_MELEE = 0x1E
+	MENU_GIANT_MELEE_CSS = 0x0
+	MENU_GIANT_MELEE_SSS = 0x1
+	MENU_GIANT_MELEE_INGAME = 0x2
+	MENU_GIANT_MELEE_POSTGAME = 0x4
+
 MENU_STAMINA_MODE = 0x1F
+	MENU_STAMINA_MODE_CSS = 0x0
+	MENU_STAMINA_MODE_SSS = 0x1
+	MENU_STAMINA_MODE_INGAME = 0x2
+	MENU_STAMINA_MODE_POSTGAME = 0x4
+
 MENU_HOME_RUN_CONTEST = 0x20
+	MENU_HOME_RUN_CONTEST_CSS = 0x0
+	MENU_HOME_RUN_CONTEST_INGAME = 0x1
+
 MENU_10_MAN_MELEE = 0x21
+	MENU_10_MAN_MELEE_CSS = 0x00
+	MENU_10_MAN_MELEE_INGAME = 0x01
+
 MENU_100_MAN_MELEE = 0x22
+	MENU_100_MAN_MELEE_CSS = 0x00
+	MENU_100_MAN_MELEE_INGAME = 0x01
+
 MENU_3_MINUTE_MELEE = 0x23
+	MENU_3_MINUTE_MELEE_CSS = 0x00
+	MENU_3_MINUTE_MELEE_INGAME = 0x01
+
 MENU_15_MINUTE_MELEE = 0x24
+	MENU_15_MINUTE_MELEE_CSS = 0x00
+	MENU_15_MINUTE_MELEE_INGAME = 0x01
+
 MENU_ENDLESS_MELEE = 0x25
+	MENU_ENDLESS_MELEE_CSS = 0x00
+	MENU_ENDLESS_MELEE_INGAME = 0x01
+
 MENU_CRUEL_MELEE = 0x26
+	MENU_CRUEL_MELEE_CSS = 0x00
+	MENU_CRUEL_MELEE_INGAME = 0x01
+	
 MENU_PROGRESSIVE_SCAN = 0x27
 MENU_PLAY_INTRO_VIDEO = 0x28
 MENU_MEMORY_CARD_OVERWRITE = 0x29
+
 MENU_FIXED_CAMERA_MODE = 0x2A
+	MENU_FIXED_CAMERA_MODE_CSS = 0x0
+	MENU_FIXED_CAMERA_MODE_SSS = 0x1
+	MENU_FIXED_CAMERA_MODE_INGAME = 0x2
+	MENU_FIXED_CAMERA_MODE_POSTGAME = 0x4
 
 MENU_EVENT_MATCH = 0x2B
 	MENU_EVENT_MATCH_SELECT = 0x0
@@ -603,7 +671,15 @@ local STAGE_SERIES = {
 	[0x20] = "The Legend of Zelda", -- Underground Maze
 	[0x21] = "Metroid", -- Escape Zebes
 	[0x22] = "F-Zero", -- F-Zero Grand Prix
-	[0x42] = "Super Smash Bros", -- All Star Rest Area
+	[0x26] = "Super Smash Bros", -- Trophy Collection
+	[0x27] = "Super Smash Bros", -- Race to the Finish
+	[0x42] = "Super Smash Bros", -- All-Star Rest Area
+	[0x43] = "Super Smash Bros", -- Home-Run Contest
+	[0x44] = "Super Mario", -- Trophy Tussel - Goomba
+	[0x45] = "Pokémon", -- Trophy Tussel - Entei
+	[0x46] = "The Legend of Zelda", -- Trophy Tussel - Majora's Mask
+
+
 }
 
 local STAGE_NAMES = {
@@ -636,23 +712,62 @@ local STAGE_NAMES = {
 	[0x1E] = "Kongo Jungle N64",
 	[0x24] = "Battlefield",
 	[0x25] = "Final Destination",
-	[0x26] = "Trophy Collection",
 }
 
-local ADVERTURE_STAGES = {
+local BREAK_THE_TARGETS_STAGES = {
+	[0x28] = "Mario Target Test",
+	[0x29] = "Captain Falcon Target Test",
+	[0x2A] = "Young Link Target Test",
+	[0x2B] = "Donkey Kong Target Test",
+	[0x2C] = "Dr. Mario Target Test",
+	[0x2D] = "Falco Target Test",
+	[0x2E] = "Fox Target Test",
+	[0x2F] = "Ice Climbers Target Test",
+	[0x30] = "Kirby Target Test",
+	[0x31] = "Bowser Target Test",
+	[0x32] = "Link Target Test",
+	[0x33] = "Luigi Target Test",
+	[0x34] = "Marth Target Test",
+	[0x35] = "Mewtwo Target Test",
+	[0x36] = "Ness Target Test",
+	[0x37] = "Peach Target Test",
+	[0x38] = "Pichu Target Test",
+	[0x39] = "Pikachu Target Test",
+	[0x3A] = "Jigglypuff Target Test",
+	[0x3B] = "Samus Target Test",
+	[0x3C] = "Sheik Target Test",
+	[0x3D] = "Yoshi Target Test",
+	[0x3E] = "Zelda Target Test",
+	[0x3F] = "Mr. G&W Target Test",
+	[0x40] = "Roy Target Test",
+	[0x41] = "Ganondorf Target Test",
+
+}
+
+local SINGLEPLAYER_STAGES = {
 	[0x1F] = "Mushroom Kingdom",
 	[0x20] = "Underground Maze",
 	[0x21] = "Escape Zebes",
 	[0x22] = "F-Zero Grand Prix",
-	[0x42] = "All Star Rest Area",
+	[0x26] = "Trophy Collection",
+	[0x27] = "Race to the Finish",
+	[0x42] = "All-Star Rest Area",
+	[0x43] = "Home-Run Contest",
+	[0x44] = "Trophy Tussel - Goomba",
+	[0x45] = "Trophy Tussel - Entei",
+	[0x46] = "Trophy Tussel - Majora's Mask",
 }
 
+function melee.isBTTStage(id)
+	return BREAK_THE_TARGETS_STAGES[id] ~= nil
+end
+
 function melee.isSinglePlayerStage(id)
-	return ADVERTURE_STAGES[id] ~= nil
+	return SINGLEPLAYER_STAGES[id] ~= nil
 end
 
 function melee.getSinglePlayerStages()
-	return ADVERTURE_STAGES
+	return SINGLEPLAYER_STAGES
 end
 
 function melee.getAllStages()
@@ -660,7 +775,7 @@ function melee.getAllStages()
 end
 
 function melee.getStageName(id)
-	return STAGE_NAMES[id] or ADVERTURE_STAGES[id]
+	return STAGE_NAMES[id] or SINGLEPLAYER_STAGES[id] or BREAK_THE_TARGETS_STAGES[id]
 end
 
 function melee.getAllStageSeries()
