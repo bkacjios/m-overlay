@@ -98,6 +98,31 @@ function music.isInGame()
 		-- Odd  = playing the match
 		return memory.menu_minor % 2 == 1
 	end
+	if memory.menu_major == MENU_ADVENTURE_MODE then
+		return
+		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KINGDOM or
+		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KINGDOM_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_TINY_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_GIANT_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_UNDERGROUND_MAZE or
+		memory.menu_minor == MENU_ADVENTURE_HYRULE_TEMPLE_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_BRINSTAR or
+		memory.menu_minor == MENU_ADVENTURE_ESCAPE_ZEBES or
+		memory.menu_minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_TEAM_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_GREEN_GREENS_GIANT_KIRBY_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_CORNARIA_BATTLE_1 or
+		memory.menu_minor == MENU_ADVENTURE_CORNARIA_BATTLE_2 or
+		memory.menu_minor == MENU_ADVENTURE_CORNARIA_BATTLE_3 or
+		memory.menu_minor == MENU_ADVENTURE_POKEMON_STADIUM_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_RACE or
+		memory.menu_minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_ONETT_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_ICICLE_MOUNTAIN_CLIMB or
+		memory.menu_minor == MENU_ADVENTURE_BATTLEFIELD_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_BATTLEFIELD_METAL_BATTLE or
+		memory.menu_minor == MENU_ADVENTURE_FINAL_DESTINATION_BATTLE
+	end
 	if memory.menu_major == MENU_TARGET_TEST then
 		return memory.menu_minor == MENU_TARGET_TEST_INGAME
 	end
