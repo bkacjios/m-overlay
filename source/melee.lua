@@ -753,9 +753,9 @@ local SINGLEPLAYER_STAGES = {
 	[0x27] = "Race to the Finish",
 	[0x42] = "All-Star Rest Area",
 	[0x43] = "Home-Run Contest",
-	[0x44] = "Trophy Tussel - Goomba",
-	[0x45] = "Trophy Tussel - Entei",
-	[0x46] = "Trophy Tussel - Majora's Mask",
+	[0x44] = "Trophy Tussle - Goomba",
+	[0x45] = "Trophy Tussle - Entei",
+	[0x46] = "Trophy Tussle - Majora's Mask",
 }
 
 function melee.isBTTStage(id)
