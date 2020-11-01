@@ -48,6 +48,8 @@ local player_static_addresses = {
 	0x80453F10, -- Player 2
 	0x80454DA0, -- Player 3
 	0x80455C30, -- Player 4
+	0x80456AC0, -- Player 5
+	0x80457950, -- Player 6
 }
 
 local player_static_struct = {
