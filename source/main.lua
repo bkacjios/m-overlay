@@ -111,20 +111,22 @@ function love.load(args, unfilteredArg)
 end
 
 memory.hook("menu_minor", "Slippi Auto Port Switcher", function(menu)
-	if PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		if menu == MENU_VS_CSS or menu == MENU_VS_STAGE_SELECT then
+	-- MENU_VS_UNKNOWN = Slippi online
+	if memory.menu_major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		if menu == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
 			-- Switch back to port 1 when not in a match
 			PORT = 0
 			log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
-			if menu ~= MENU_VS_STAGE_SELECT then
+			if menu == MENU_VS_UNKNOWN_CSS then
+				-- Display the port info only when swiching back to CSS
 				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			end
-		elseif menu == MENU_VS_POSTGAME then
+		elseif menu == MENU_VS_UNKNOWN_VERSUS then
 			local port = memory.slippi.local_player.index % 4
 			PORT_DISPLAY_OVERRIDE = port
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 1.5 seconds
 			log.debug("[AUTOPORT] Switching display icon to use port %d", PORT+1)
-		elseif menu == MENU_VS_INGAME then
+		elseif menu == MENU_VS_UNKNOWN_INGAME then
 			-- Switch to the local player index whenever else
 			PORT_DISPLAY_OVERRIDE = nil
 			PORT = memory.slippi.local_player.index % 4
