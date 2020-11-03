@@ -75,6 +75,10 @@ function music.init()
 	love.filesystem.createDirectory("Melee/Single Player Music/Break the Targets")
 end
 
+function music.matchFinsihed()
+	return memory.match.finished == true
+end
+
 function music.isInGame()
 	if not memory.menu_major or not memory.menu_minor then return false end
 
@@ -181,7 +185,7 @@ local LOOPING_ALL = 4
 local MATCH_SOFT_END = false
 
 function music.shouldPlayMusic()
-	return music.isInMenus() or (music.isInGame() and not MATCH_SOFT_END)
+	return music.isInMenus() or (music.isInGame() and not music.matchFinsihed() and not MATCH_SOFT_END)
 end
 
 function music.onLoopChange(mode)
@@ -289,7 +293,9 @@ memory.hook("stage", "Melee - Stage loaded", function(stage)
 end)
 
 memory.hook("match.playing", "Melee - Classic Mode Master Hand Fix?", function(playing)
-	if memory.menu_major == MENU_CLASSIC_MODE and memory.stage == 0x25 and not playing then
+	-- In classic mode, when you kill masterhand the match result is never set, but the "playing" flag is set to false.
+	-- Mute the music right when masterhand is killed.
+	if not playing and (memory.menu_major == MENU_CLASSIC_MODE and memory.stage == 0x25) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
@@ -299,8 +305,19 @@ memory.hook("match.paused", "Melee - Pause volume", function(paused)
 	music.setVolume(music.getVolume())
 end)
 
+memory.hook("match.finished", "Melee - GAME kill music", function(finished)
+	if finished then
+		-- The match ended, so no matter what the music should be killed
+		music.kill()
+	end
+end)
+
 memory.hook("match.result", "Melee - GAME kill music", function(result)
-	if result ~= MATCH_NO_RESULT and result ~= MATCH_NO_CONTEST then
+	-- LRAB+Start/Saltyrunback causes a result of MATCH_NO_CONTEST.. We don't want to end the music in this case only.
+	-- The match.finished hook will end the music instead when actually exiting the match using normal LRA+Start.
+	-- If the match actually ends normally, we kill the music early when it announces the end of the game.
+
+	if result ~= MATCH_NO_RESULT and (memory.menu_major ~= MENU_VS_MODE or (memory.menu_major == MENU_VS_MODE and result ~= MATCH_NO_CONTEST)) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
