@@ -5,6 +5,8 @@ local json = require("serializer.json")
 local notification = require("notification")
 local music = require("music")
 
+require("extensions.math")
+
 function PANEL:Initialize()
 	self:super()
 
@@ -221,7 +223,7 @@ function PANEL:GetMusicLoopMode()
 end
 
 function PANEL:SetVolume(volume)
-	return self.MELEE.VOLUME:SetValue(volume)
+	return self.MELEE.VOLUME:SetValue(math.clamp(volume, 0, 100))
 end
 
 function PANEL:GetVolume()

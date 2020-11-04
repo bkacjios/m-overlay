@@ -209,12 +209,36 @@ function music.getVolume()
 	return PANEL_SETTINGS:GetVolume()
 end
 
-memory.hook("volume.music", "Ingame Volume Adjust", function(volume)
-	PANEL_SETTINGS:SetVolume((volume/127) * 100)
+local LOADED = false
+local IGNORE_CHANGE = false
+
+memory.hook("OnGameClosed", "Set state unloaded", function(gid, version)
+	LOADED = false
+end)
+
+memory.hook("menu_major", "Load Initial Volume", function(menu)
+	if not LOADED and menu == MENU_MAIN_MENU then
+		LOADED = true
+		-- Set the games music value to our value
+		music.setVolume(music.getVolume())
+	end
+end)
+
+memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
+	if LOADED then
+		PANEL_SETTINGS:SetVolume(100-volume)
+	end
 end)
 
 function music.setVolume(vol)
-	memory.writeByte(0x8045C384, math.round((100-vol) / 5)*5)
+	-- Melee's slider goes in increments of 5
+	-- It seems to add +5 or -5 no matter what, but it can actually take numbers in between and still work
+	--local nearest5 = math.round((100-vol) / 5)*5
+
+	-- volume.slider adjust (0-100)
+	memory.writeByte(0x8045C384, math.round(100-vol))
+
+	-- volume.music adjust (0-127)
 	memory.writeByte(0x804D3887, (vol/100) * 127)
 
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then

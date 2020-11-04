@@ -6,19 +6,14 @@ function math.gcd(m, n)
 	return n
 end
 
-do
-	local min = math.min
-	local max = math.max
-
-	function math.clamp(num, min, max)
-		assert(min <= max, "invalid clamp range")
-		if num < min then
-			num = min
-		elseif num > max then
-			num = max
-		end
-		return num
+function math.clamp(num, min, max)
+	assert(min <= max, "invalid clamp range")
+	if num < min then
+		num = min
+	elseif num > max then
+		num = max
 	end
+	return num
 end
 
 do
