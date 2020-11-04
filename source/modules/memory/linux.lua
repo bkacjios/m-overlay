@@ -258,11 +258,40 @@ local function read(mem, addr, output, size)
 	end
 end
 
+local function write(mem, addr, input, size)
+	local localvec = new("iovec[1]")
+	local remotevec = new("iovec[1]")
+
+	local ramaddr = mem.dolphin_base_addr + (addr % 0x80000000)	
+
+	localvec[0].iov_base = input
+	localvec[0].iov_len = size
+
+	remotevec[0].iov_base = cast("void*", ramaddr)
+	remotevec[0].iov_len = size
+
+	local read = libc.process_vm_writev(mem.pid, localvec, 1, remotevec, 1, 0)
+
+	if read == size then
+		return true
+	else
+		log.warn("Failed writing process memory..")
+		mem:close()
+		return false
+	end
+end
+
 function MEMORY:readByte(addr)
 	if not self:hasProcess() then return 0 end
 	local output = new("int8_t[1]")
 	read(self, addr, output, sizeof(output))
 	return output[0]
+end
+
+function MEMORY:writeByte(addr, value)
+	if not self:hasProcess() then return 0 end
+	local input = new("int8_t[1]", value)
+	return write(self, addr, input, sizeof(input))
 end
 
 function MEMORY:readBool(addr)
