@@ -93,6 +93,14 @@ BOOL ReadProcessMemory(
 	SIZE_T  *lpNumberOfBytesRead
 );
 
+BOOL WriteProcessMemory(
+	HANDLE  hProcess,
+	LPVOID  lpBaseAddress,
+	LPCVOID lpBuffer,
+	SIZE_T  nSize,
+	SIZE_T  *lpNumberOfBytesWritten
+);
+
 BOOL CloseHandle(
 	HANDLE hObject
 );
@@ -209,7 +217,7 @@ function MEMORY:findprocess()
 	repeat
 		local name = string(pe32.szExeFile)
 		if valid_process_names[name] then
-			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
+			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_VM_WRITE + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
 
 			local status = new("DWORD[1]")
 			-- Check if the process is active, we don't want to rehook the closing application
@@ -293,9 +301,15 @@ function MEMORY:findGamecubeRAMOffset()
 end
 
 local function read(mem, addr, output, size)
-	local read = new("SIZE_T[1]")
+	local read = new("SIZE_T[1]") -- How many bytes are read from memory
 	local success = kernel.ReadProcessMemory(mem.process_handle, ffi.cast("LPCVOID", mem.dolphin_base_addr + (addr % 0x80000000)), output, size, read)
 	return success and read[0] == size
+end
+
+local function write(mem, addr, input, size)
+	local written = new("SIZE_T[1]") -- How many bytes are written to memory
+	local success = kernel.WriteProcessMemory(mem.process_handle, ffi.cast("LPVOID", mem.dolphin_base_addr + (addr % 0x80000000)), input, size, written)
+	return success and written[0] == size
 end
 
 function MEMORY:readByte(addr)
@@ -303,6 +317,12 @@ function MEMORY:readByte(addr)
 	local output = new("int8_t[1]")
 	read(self, addr, output, sizeof(output))
 	return output[0]
+end
+
+function MEMORY:writeByte(addr, value)
+	if not self:hasProcess() then return end
+	local input = new("int8_t[1]", value)
+	return write(self, addr, input, sizeof(input))
 end
 
 function MEMORY:readBool(addr)

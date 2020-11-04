@@ -66,6 +66,7 @@ local watcher = {
 	watching_ptr_addr = {},
 	pointer_loc = {},
 	hook_queue = {},
+	named_addr = {},
 	named = {},
 	game_frame = 0,
 }
@@ -124,6 +125,7 @@ function watcher.loadmap(map)
 				watcher.setTableValue(name, info.init or 0)
 			end
 		else
+			watcher.named_addr[info.name] = address
 			watcher.values_memory[address] = info.init or 0
 			watcher.watching_addr[address] = TYPE_NAME[info.type]
 			watcher.setTableValue(info.name, watcher.values_memory[address])
@@ -263,6 +265,10 @@ end
 
 function watcher.readData(addr, len)
 	return tostring(watcher.process:read(addr, len))
+end
+
+function watcher.writeByte(addr, value)
+	return watcher.process:writeByte(addr, value)
 end
 
 function watcher.isReady()

@@ -220,6 +220,10 @@ function PANEL:GetMusicLoopMode()
 	return self.MELEE.MUSICLOOP:GetSelection()
 end
 
+function PANEL:SetVolume(volume)
+	return self.MELEE.VOLUME:SetValue(volume)
+end
+
 function PANEL:GetVolume()
 	return self.MELEE.VOLUME:GetValue()
 end

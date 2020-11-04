@@ -4,6 +4,13 @@ local game = {
 	memorymap = {}
 }
 
+-- Controls/Saves the volume levels of the game
+game.memorymap[0x8045C384] = { type = "sbyte", name = "volume.slider" } -- Scale is (-100 to 100)
+
+-- You can change these values in real time to change the volume, but when opening the sound menu, it will readjust to the slider value above
+game.memorymap[0x804D3887] = { type = "byte", name = "volume.music" } -- Scale is (0-127)
+game.memorymap[0x804D388F] = { type = "byte", name = "volume.ui" } -- Scale is (0-127)
+
 game.memorymap[0x80479D60] = { type = "int", name = "frame" }
 game.memorymap[0x8049E753] = { type = "byte", name = "stage", debug = true }
 game.memorymap[0x80479D30] = { type = "byte", name = "menu_major", init = -1, debug = true }

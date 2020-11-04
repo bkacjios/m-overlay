@@ -5,6 +5,8 @@ local melee = require("melee")
 local memory = require("memory")
 local notification = require("notification")
 
+require("extensions.math")
+
 local STAGE_TRACKS_LOADED = {}
 local STAGE_TRACKS = {}
 local TRACK_NUMBER = {}
@@ -207,7 +209,14 @@ function music.getVolume()
 	return PANEL_SETTINGS:GetVolume()
 end
 
+memory.hook("volume.music", "Ingame Volume Adjust", function(volume)
+	PANEL_SETTINGS:SetVolume((volume/127) * 100)
+end)
+
 function music.setVolume(vol)
+	memory.writeByte(0x8045C384, math.round((100-vol) / 5)*5)
+	memory.writeByte(0x804D3887, (vol/100) * 127)
+
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
 		PLAYING_SONG:setVolume((vol/100) * (memory.match.paused and 0.35 or 1))
 	end
