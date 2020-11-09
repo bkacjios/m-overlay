@@ -90,6 +90,9 @@ function music.isInGame()
 		--return memory.menu_minor % 2 == 0
 		return true
 	end
+	if PANEL_SETTINGS:IsSlippiReplay() and memory.menu_major == MENU_START_MATCH then
+		return memory.menu_minor == MENU_START_MATCH_INGAME
+	end
 	if memory.menu_major == MENU_VS_MODE or memory.menu_major == MENU_VS_UNKNOWN then
 		return memory.menu_minor == MENU_VS_INGAME
 	end
@@ -357,7 +360,7 @@ memory.hook("match.result", "Melee - GAME kill music", function(result)
 end)
 
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
-	if PANEL_SETTINGS:IsBinding() then return end -- Don't skip when the user is setting a button combination..
+	if PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
 	local mask = PANEL_SETTINGS:GetMusicSkipMask()
 	if mask ~= 0x0 and port == love.getPort() and bit.band(pressed, mask) == mask and STAGE_TRACKS[STAGE_ID] and #STAGE_TRACKS[STAGE_ID] > 1 then
 		log.debug("[MUSIC] [MASK = 0x%X] Button combo pressed, stopping music.", mask)
