@@ -333,6 +333,10 @@ function watcher.isMelee()
 	return gid == "GALE01"
 end
 
+function watcher.isKirbyAirRide()
+	return (watcher.gameid == "GKYE01" or watcher.gameid == "GKYJ01")
+end
+
 function watcher.runhooks()
 	local pop
 	while true do

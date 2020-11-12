@@ -23,7 +23,7 @@ local controller_struct = {
 	[0x2C] = { type = "float",	name = "controller.%d.cstick.y" },
 	[0x30] = { type = "float",	name = "controller.%d.analog.l" },
 	[0x34] = { type = "float",	name = "controller.%d.analog.r" },
-	[0x44] = { type = "byte",	name = "controller.%d.plugged" },
+	[0x41] = { type = "byte",	name = "controller.%d.plugged" },
 
 	-- A note about plugged:
 	-- Byte 0x41 of each controller is set from 0x00 to 0x01 only after the 
@@ -35,9 +35,9 @@ local controller_struct = {
 	-- Melee has a similar issue, but instead of setting byte 0x41 to 0x01,
 	-- it starts as 0xFF and gets set to 0x00. 
 
-	-- To avoid this issue altogether, I've decided to set the plugged bit
-	-- to 0x44 which is always 0x00, thus showing all controllers as plugged
-	-- in.
+	-- I've fixed this issue by detecting whether or not the current game is
+	-- Kirby Air Ride and changing the number to compare against from 0x00 to
+	-- 0x01 for Kirby Air Ride only.
 }
 
 for port, address in ipairs(controllers) do
