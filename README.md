@@ -27,7 +27,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Super Smash Bros. Melee (NTSC v1.2, PAL, [20XX](https://smashboards.com/threads/the-20xx-melee-training-hack-pack-v4-07-7-04-17.351221/), [UnclePunch Training Mode](https://github.com/UnclePunch/Training-Mode), [Slippi](https://slippi.gg))
 * Super Smash Bros. Brawl (NTSC v1.0, NTSC v1.1, NTSC v1.2, [Project M](https://en.wikipedia.org/wiki/Project_M), [P+](https://projectplusgame.com/))
 * The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
-* Kirby Air Ride (NTSC v1.0)
+* Kirby Air Ride (NTSC-U v1.0, NTSC-J v1.0)
 
 *More games can be supported upon request!*
 
