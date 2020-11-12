@@ -26,7 +26,7 @@ local controller_struct = {
 	[0x44] = { type = "byte",	name = "controller.%d.plugged" },
 
 	-- A note about plugged:
-	-- Byte 0x41 of each controller from 0x00 to 0x01 only after the 
+	-- Byte 0x41 of each controller is set from 0x00 to 0x01 only after the 
 	-- controller has been plugged in or the game was started with the 
 	-- controller plugged in, however, the overlay does not seem to
 	-- detect this behavior, therefore showing all controllers regardless
