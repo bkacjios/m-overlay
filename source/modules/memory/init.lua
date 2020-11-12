@@ -333,6 +333,15 @@ function watcher.isMelee()
 	return gid == "GALE01"
 end
 
+function watcher.isKirbyAirRide()
+	local gid = watcher.gameid
+
+	local clone = clones[gid]
+	if clone then gid = clone.id end
+
+	return (gid == "GKYE01" or gid == "GKYJ01")
+end
+
 function watcher.runhooks()
 	local pop
 	while true do

@@ -423,7 +423,7 @@ function love.drawControllerOverlay()
 	if controller then
 		-- Draw Joystick
 
-		if controller.plugged and controller.plugged ~= 0x00 then
+		if controller.plugged and controller.plugged ~= (memory.isKirbyAirRide() and 0x01 or 0x00) then
 			local sin = 128 + math.sin(love.timer.getTime()*2) * 128
 			graphics.setColor(255, 0, 0, sin)
 			graphics.easyDraw(DC_CON, 512-42-16, 256-42-16, 0, 42, 42)

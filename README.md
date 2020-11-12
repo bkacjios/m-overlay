@@ -14,7 +14,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Need for Speed Underground 1 (NTSC v1.0)
 * Need for Speed Underground 2 (NTSC v1.0)
 * The Legend of Zelda: The Wind Waker (NTSC v1.0)
-* The Legend of Zelda: Twilight Princess (GC NTSC v1.0, Wii NTSC v1.0)
+* The Legend of Zelda: Twilight Princess (GC NTSC v1.0, PAL v1.0, Wii NTSC v1.0)
 * Luigi's Mansion (NTSC v1.0)
 * Metroid Prime (NTSC v1.0, NTSC v1.2)
 * Metroid Prime 2 - Echoes (NTSC v1.0, [Randomizer](https://github.com/randovania/randovania))
@@ -27,6 +27,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Super Smash Bros. Melee (NTSC v1.2, PAL, [20XX](https://smashboards.com/threads/the-20xx-melee-training-hack-pack-v4-07-7-04-17.351221/), [UnclePunch Training Mode](https://github.com/UnclePunch/Training-Mode), [Slippi](https://slippi.gg))
 * Super Smash Bros. Brawl (NTSC v1.0, NTSC v1.1, NTSC v1.2, [Project M](https://en.wikipedia.org/wiki/Project_M), [P+](https://projectplusgame.com/))
 * The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
+* Kirby Air Ride (NTSC-U v1.0, NTSC-J v1.0, [UnclePunch Hack Pack](https://www.kirbyairri.de/hpinfo.html))
 
 *More games can be supported upon request!*
 
