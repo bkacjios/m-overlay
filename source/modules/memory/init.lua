@@ -334,7 +334,12 @@ function watcher.isMelee()
 end
 
 function watcher.isKirbyAirRide()
-	return (watcher.gameid == "GKYE01" or watcher.gameid == "GKYJ01")
+	local gid = watcher.gameid
+
+	local clone = clones[gid]
+	if clone then gid = clone.id end
+
+	return (gid == "GKYE01" or gid == "GKYJ01")
 end
 
 function watcher.runhooks()
