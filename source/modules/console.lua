@@ -69,6 +69,33 @@ void *freopen(
 int fclose(void *stream);
 ]]
 
+function love.setConsoleTitle(title)
+	kernel.SetConsoleTitleA(title)
+end
+
+function love.enableConsoleFlag(flag)
+	local mode = ffi.new("DWORD[1]")
+
+	local hStdOut = kernel.GetStdHandle(STD_OUTPUT_HANDLE)
+
+	if (hStdOut == INVALID_HANDLE_VALUE) then
+		return false, "could not get stdhandle for console."
+	end
+
+	kernel.GetConsoleMode(hStdOut, mode)
+	kernel.SetConsoleMode(hStdOut, bit.bor(mode[0], flag))
+	return true
+end
+
+function love.enableConsoleColors()
+	love.enableConsoleFlag(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+end
+
+function love.isConsoleOpened()
+	kernel.AttachConsole(ATTACH_PARENT_PROCESS)
+	return kernel.GetLastError() == ERROR_ACCESS_DENIED
+end
+
 function love.openConsole()
 	if kernel.AttachConsole(ATTACH_PARENT_PROCESS) == 0 then
 		local winerr = kernel.GetLastError()
@@ -107,12 +134,7 @@ function love.openConsole()
 	end
 
 	--local MAX_CONSOLE_LINES = 5000
-
-	kernel.SetConsoleTitleA("M'Overlay Console")
-
-	local mode = ffi.new("DWORD[1]")
-	kernel.GetConsoleMode(hStdOut, mode)
-	kernel.SetConsoleMode(hStdOut, bit.bor(mode[0], ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+	love.console(true)
 	return true
 end
 
@@ -121,4 +143,16 @@ function love.closeConsole()
 	ffi.C.fclose(io.stdin)
 	ffi.C.fclose(io.stderr)
 	kernel.FreeConsole()
+	love.console(false)
+end
+
+function love.console(opened)
+	if opened then
+		love.setConsoleTitle("M'Overlay Console")
+		love.enableConsoleColors()
+	end
+end
+
+if love.isConsoleOpened() then
+	love.console(true)
 end
