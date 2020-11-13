@@ -29,7 +29,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
 * Kirby Air Ride (NTSC-U v1.0, NTSC-J v1.0, [UnclePunch Hack Pack](https://www.kirbyairri.de/hpinfo.html))
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
-* Mario Kart Wii (NTSC-u v1.0)
+* Mario Kart Wii (NTSC-U v1.0)
 
 *More games can be supported upon request!*
 
