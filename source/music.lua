@@ -82,95 +82,95 @@ function music.matchFinsihed()
 end
 
 function music.isInGame()
-	if not memory.menu_major or not memory.menu_minor then return false end
+	if not memory.menu then return false end
 
-	if memory.menu_major == MENU_ALL_STAR_MODE and memory.menu_minor < MENU_ALL_STAR_CSS then
+	if memory.menu.major == MENU_ALL_STAR_MODE and memory.menu.minor < MENU_ALL_STAR_CSS then
 		-- Even = playing the match
 		-- Odd  = in the rest area
-		--return memory.menu_minor % 2 == 0
+		--return memory.menu.minor % 2 == 0
 		return true
 	end
-	if PANEL_SETTINGS:IsSlippiReplay() and memory.menu_major == MENU_START_MATCH then
-		return memory.menu_minor == MENU_START_MATCH_INGAME
+	if PANEL_SETTINGS:IsSlippiReplay() and memory.menu.major == MENU_START_MATCH then
+		return memory.menu.minor == MENU_START_MATCH_INGAME
 	end
-	if memory.menu_major == MENU_VS_MODE or memory.menu_major == MENU_VS_UNKNOWN then
-		return memory.menu_minor == MENU_VS_INGAME
+	if memory.menu.major == MENU_VS_MODE or memory.menu.major == MENU_VS_UNKNOWN then
+		return memory.menu.minor == MENU_VS_INGAME
 	end
-	if memory.menu_major >= MENU_TRAINING_MODE and memory.menu_major <= MENU_STAMINA_MODE or memory.menu_major == MENU_FIXED_CAMERA_MODE then
-		return memory.menu_minor == MENU_TRAINING_INGAME
+	if memory.menu.major >= MENU_TRAINING_MODE and memory.menu.major <= MENU_STAMINA_MODE or memory.menu.major == MENU_FIXED_CAMERA_MODE then
+		return memory.menu.minor == MENU_TRAINING_INGAME
 	end
-	if memory.menu_major == MENU_EVENT_MATCH then
-		return memory.menu_minor == MENU_EVENT_MATCH_INGAME
+	if memory.menu.major == MENU_EVENT_MATCH then
+		return memory.menu.minor == MENU_EVENT_MATCH_INGAME
 	end
-	if memory.menu_major == MENU_CLASSIC_MODE and memory.menu_minor < MENU_CLASSIC_CONTINUE then
+	if memory.menu.major == MENU_CLASSIC_MODE and memory.menu.minor < MENU_CLASSIC_CONTINUE then
 		-- Even = Verus screen
 		-- Odd  = playing the match
-		return memory.menu_minor % 2 == 1
+		return memory.menu.minor % 2 == 1
 	end
-	if memory.menu_major == MENU_ADVENTURE_MODE then
+	if memory.menu.major == MENU_ADVENTURE_MODE then
 		return
-		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KINGDOM or
-		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KINGDOM_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_TINY_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_GIANT_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_UNDERGROUND_MAZE or
-		memory.menu_minor == MENU_ADVENTURE_HYRULE_TEMPLE_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_BRINSTAR or
-		memory.menu_minor == MENU_ADVENTURE_ESCAPE_ZEBES or
-		memory.menu_minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_TEAM_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_GREEN_GREENS_GIANT_KIRBY_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_CORNARIA_BATTLE_1 or
-		memory.menu_minor == MENU_ADVENTURE_CORNARIA_BATTLE_2 or
-		memory.menu_minor == MENU_ADVENTURE_CORNARIA_BATTLE_3 or
-		memory.menu_minor == MENU_ADVENTURE_POKEMON_STADIUM_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_RACE or
-		memory.menu_minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_ONETT_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_ICICLE_MOUNTAIN_CLIMB or
-		memory.menu_minor == MENU_ADVENTURE_BATTLEFIELD_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_BATTLEFIELD_METAL_BATTLE or
-		memory.menu_minor == MENU_ADVENTURE_FINAL_DESTINATION_BATTLE
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KINGDOM or
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KINGDOM_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_TINY_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_GIANT_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_UNDERGROUND_MAZE or
+		memory.menu.minor == MENU_ADVENTURE_HYRULE_TEMPLE_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_BRINSTAR or
+		memory.menu.minor == MENU_ADVENTURE_ESCAPE_ZEBES or
+		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_TEAM_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_GIANT_KIRBY_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_1 or
+		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_2 or
+		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_3 or
+		memory.menu.minor == MENU_ADVENTURE_POKEMON_STADIUM_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_RACE or
+		memory.menu.minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_ONETT_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_ICICLE_MOUNTAIN_CLIMB or
+		memory.menu.minor == MENU_ADVENTURE_BATTLEFIELD_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_BATTLEFIELD_METAL_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_FINAL_DESTINATION_BATTLE
 	end
-	if memory.menu_major == MENU_TARGET_TEST then
-		return memory.menu_minor == MENU_TARGET_TEST_INGAME
+	if memory.menu.major == MENU_TARGET_TEST then
+		return memory.menu.minor == MENU_TARGET_TEST_INGAME
 	end
-	if memory.menu_major >= MENU_SUPER_SUDDEN_DEATH and memory.menu_major <= MENU_LIGHTNING_MELEE then
-		return memory.menu_minor == MENU_SSD_INGAME
+	if memory.menu.major >= MENU_SUPER_SUDDEN_DEATH and memory.menu.major <= MENU_LIGHTNING_MELEE then
+		return memory.menu.minor == MENU_SSD_INGAME
 	end
-	if memory.menu_major >= MENU_HOME_RUN_CONTEST and memory.menu_major <= MENU_CRUEL_MELEE then
-		return memory.menu_minor == MENU_HOME_RUN_CONTEST_INGAME
+	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
+		return memory.menu.minor == MENU_HOME_RUN_CONTEST_INGAME
 	end
 	return false
 end
 
 function music.isInMenus()
-	if not memory.menu_major or not memory.menu_minor then return false end
+	if not memory.menu then return false end
 	
-	if memory.menu_major == MENU_MAIN_MENU then
+	if memory.menu.major == MENU_MAIN_MENU then
 		return true
 	end
-	if memory.menu_major == MENU_VS_MODE or memory.menu_major == MENU_VS_UNKNOWN then
-		return memory.menu_minor == MENU_VS_CSS or memory.menu_minor == MENU_VS_SSS
+	if memory.menu.major == MENU_VS_MODE or memory.menu.major == MENU_VS_UNKNOWN then
+		return memory.menu.minor == MENU_VS_CSS or memory.menu.minor == MENU_VS_SSS
 	end
-	if memory.menu_major >= MENU_TRAINING_MODE and memory.menu_major <= MENU_STAMINA_MODE or memory.menu_major == MENU_FIXED_CAMERA_MODE then
-		return memory.menu_minor == MENU_TRAINING_CSS or memory.menu_minor == MENU_TRAINING_SSS
+	if memory.menu.major >= MENU_TRAINING_MODE and memory.menu.major <= MENU_STAMINA_MODE or memory.menu.major == MENU_FIXED_CAMERA_MODE then
+		return memory.menu.minor == MENU_TRAINING_CSS or memory.menu.minor == MENU_TRAINING_SSS
 	end
-	if memory.menu_major == MENU_EVENT_MATCH then
-		return memory.menu_minor == MENU_EVENT_MATCH_SELECT
+	if memory.menu.major == MENU_EVENT_MATCH then
+		return memory.menu.minor == MENU_EVENT_MATCH_SELECT
 	end
-	if memory.menu_major == MENU_CLASSIC_MODE or memory.menu_major == MENU_ADVENTURE_MODE or memory.menu_major == MENU_ALL_STAR_MODE then
+	if memory.menu.major == MENU_CLASSIC_MODE or memory.menu.major == MENU_ADVENTURE_MODE or memory.menu.major == MENU_ALL_STAR_MODE then
 		-- All the menu_mior values all match in these three modes, so just use the MENU_CLASSIC_CSS value for simplicity
-		return memory.menu_minor == MENU_CLASSIC_CSS
+		return memory.menu.minor == MENU_CLASSIC_CSS
 	end
-	if memory.menu_major == MENU_TARGET_TEST then
-		return memory.menu_minor == MENU_TARGET_TEST_CSS
+	if memory.menu.major == MENU_TARGET_TEST then
+		return memory.menu.minor == MENU_TARGET_TEST_CSS
 	end
-	if memory.menu_major >= MENU_SUPER_SUDDEN_DEATH and memory.menu_major <= MENU_LIGHTNING_MELEE then
-		return memory.menu_minor == MENU_SSD_CSS or memory.menu_minor == MENU_SSD_SSS
+	if memory.menu.major >= MENU_SUPER_SUDDEN_DEATH and memory.menu.major <= MENU_LIGHTNING_MELEE then
+		return memory.menu.minor == MENU_SSD_CSS or memory.menu.minor == MENU_SSD_SSS
 	end
-	if memory.menu_major >= MENU_HOME_RUN_CONTEST and memory.menu_major <= MENU_CRUEL_MELEE then
-		return memory.menu_minor == MENU_HOME_RUN_CONTEST_CSS
+	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
+		return memory.menu.minor == MENU_HOME_RUN_CONTEST_CSS
 	end
 	return false
 end
@@ -221,7 +221,7 @@ memory.hook("OnGameClosed", "Set state unloaded", function(gid, version)
 	LOADED = false
 end)
 
-memory.hook("menu_major", "Load Initial Volume", function(menu)
+memory.hook("menu.major", "Load Initial Volume", function(menu)
 	if memory.isMelee() and ALLOW_INGAME_VOLUME and not LOADED and menu == MENU_MAIN_MENU then
 		LOADED = true
 		-- Set the games music value to our value
@@ -307,7 +307,7 @@ memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 	music.kill()
 end)
 
-memory.hook("menu_major", "Melee - Menu state", function(menu)
+memory.hook("menu.major", "Melee - Menu state", function(menu)
 	if music.isInMenus() then
 		music.loadForStage(0)
 	elseif not music.isInGame() then
@@ -315,7 +315,7 @@ memory.hook("menu_major", "Melee - Menu state", function(menu)
 	end
 end)
 
-memory.hook("menu_minor", "Melee - Menu state", function(menu)
+memory.hook("menu.minor", "Melee - Menu state", function(menu)
 	if music.isInMenus() then
 		music.loadForStage(0)
 	elseif music.isInGame() then
@@ -335,7 +335,7 @@ end)
 memory.hook("match.playing", "Melee - Classic Mode Master Hand Fix?", function(playing)
 	-- In classic mode, when you kill masterhand the match result is never set, but the "playing" flag is set to false.
 	-- Mute the music right when masterhand is killed.
-	if not playing and (memory.menu_major == MENU_CLASSIC_MODE and memory.stage == 0x25) then
+	if not playing and (memory.menu.major == MENU_CLASSIC_MODE and memory.stage == 0x25) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
@@ -357,7 +357,7 @@ memory.hook("match.result", "Melee - GAME kill music", function(result)
 	-- The match.finished hook will end the music instead when actually exiting the match using normal LRA+Start.
 	-- If the match actually ends normally, we kill the music early when it announces the end of the game.
 
-	if result ~= MATCH_NO_RESULT and (memory.menu_major ~= MENU_VS_MODE or (memory.menu_major == MENU_VS_MODE and result ~= MATCH_NO_CONTEST)) then
+	if result ~= MATCH_NO_RESULT and (memory.menu.major ~= MENU_VS_MODE or (memory.menu.major == MENU_VS_MODE and result ~= MATCH_NO_CONTEST)) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end

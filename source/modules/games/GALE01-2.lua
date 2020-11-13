@@ -13,8 +13,9 @@ game.memorymap[0x804D388F] = { type = "byte", name = "volume.ui" } -- Scale is (
 
 game.memorymap[0x80479D60] = { type = "int", name = "frame" }
 game.memorymap[0x8049E753] = { type = "byte", name = "stage", debug = true }
-game.memorymap[0x80479D30] = { type = "byte", name = "menu_major", init = -1, debug = true }
-game.memorymap[0x80479D33] = { type = "byte", name = "menu_minor", init = -1, debug = true }
+game.memorymap[0x80479D30] = { type = "byte", name = "menu.major", init = -1, debug = true }
+game.memorymap[0x80479D33] = { type = "byte", name = "menu.minor", init = -1, debug = true }
+game.memorymap[0x804D6598] = { type = "byte", name = "menu.player_one_port", debug = true } -- What port is currently acting as "Player 1" in single player games
 game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
    
 local controllers = {
@@ -150,9 +151,9 @@ for id, address in ipairs(player_select_external_addresses) do
 	end
 end
 
-local match_info = 0x8046B6A0
-
 game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }
+
+local match_info = 0x8046B6A0
 local match_info_struct = {
 	[0x0005] = { type = "bool", name = "match.playing", debug = true },
 	[0x0008] = { type = "byte", name = "match.result", debug = true },

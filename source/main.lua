@@ -29,7 +29,6 @@ local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 local MAX_PORTS = 4
 local PORT = 0
-local PORT_DISPLAY_OVERRIDE = nil
 local CONTROLLER_PORT_DISPLAY = 0
 
 function love.getPort()
@@ -110,25 +109,37 @@ function love.load(args, unfilteredArg)
 	end
 end
 
-memory.hook("menu_minor", "Slippi Auto Port Switcher", function(menu)
+memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)
+	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		PORT = port
+	end
+end)
+
+memory.hook("menu.major", "Slippi Auto Port Switcher", function(major)
+	if major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		-- Switch back to whatever controller is controlling port 1, when not in a match
+		PORT = memory.menu.player_one_port
+		log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
+	end
+end)
+
+memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
 	-- MENU_VS_UNKNOWN = Slippi online
-	if memory.menu_major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
-		if menu == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
-			-- Switch back to port 1 when not in a match
-			PORT = 0
+	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+		if minor == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
+			-- Switch back to whatever controller is controlling port 1, when not in a match
+			PORT = memory.menu.player_one_port
 			log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
-			if menu == MENU_VS_UNKNOWN_CSS then
+			if minor == MENU_VS_UNKNOWN_CSS then
 				-- Display the port info only when swiching back to CSS
 				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			end
-		elseif menu == MENU_VS_UNKNOWN_VERSUS then
+		elseif minor == MENU_VS_UNKNOWN_VERSUS then
 			local port = memory.slippi.local_player.index % 4
-			PORT_DISPLAY_OVERRIDE = port
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 1.5 seconds
 			log.debug("[AUTOPORT] Switching display icon to use port %d", PORT+1)
-		elseif menu == MENU_VS_UNKNOWN_INGAME then
+		elseif minor == MENU_VS_UNKNOWN_INGAME then
 			-- Switch to the local player index whenever else
-			PORT_DISPLAY_OVERRIDE = nil
 			PORT = memory.slippi.local_player.index % 4
 			log.debug("[AUTOPORT] Switching to slippi local player index %d", PORT)
 		end
@@ -136,7 +147,7 @@ memory.hook("menu_minor", "Slippi Auto Port Switcher", function(menu)
 end)
 
 memory.hook("player.*.character", "Show port on character select", function(port, character)
-	if memory.menu_minor == MENU_VS_CSS and port-1 == PORT then
+	if memory.menu.minor == MENU_VS_CSS and port-1 == PORT then
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
 end)
@@ -668,19 +679,18 @@ function love.draw()
 	-- Draw a temporary number to show that the user changed controller port
 	if (PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
 		if memory.isMelee() then
-			local port = PORT_DISPLAY_OVERRIDE or PORT
 			local portColor
 			if memory.teams then
-				portColor = melee.getPlayerTeamColor(port + 1)
+				portColor = melee.getPlayerTeamColor(PORT + 1)
 			else
-				portColor = melee.getPlayerColor(port + 1)
+				portColor = melee.getPlayerColor(PORT + 1)
 			end
 			portColor.a = 150
 			graphics.setColor(portColor)
-			melee.drawSeries(port + 1, 8, 256 - 72 - 4, 0, 72, 72)
+			melee.drawSeries(PORT + 1, 8, 256 - 72 - 4, 0, 72, 72)
 			graphics.setColor(255, 255, 255, 255)
-			melee.drawStock(port + 1, 36, 256 - 42 - 8, 0, 32, 32)
-			graphics.easyDraw(PORT_TEXTURES[port], 12, 256 - 42 - 24, 0, 33, 14)
+			melee.drawStock(PORT + 1, 36, 256 - 42 - 8, 0, 32, 32)
+			graphics.easyDraw(PORT_TEXTURES[PORT], 12, 256 - 42 - 24, 0, 33, 14)
 		else
 			graphics.setFont(PORT_FONT)
 			graphics.setColor(0, 0, 0, 255)

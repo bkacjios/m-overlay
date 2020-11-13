@@ -539,6 +539,12 @@ end
 
 function melee.getCharacterID(port)
 	if not memory.player then return end
+
+	if melee.isSinglePlayerGame() and port == memory.menu.player_one_port + 1 then
+		-- In single player games, the player select info is always stored under player 1, no matter which port is acting as player 1
+		port = 1
+	end
+
 	local player = memory.player[port]
 
 	if not player then return end
@@ -775,6 +781,15 @@ local SINGLEPLAYER_STAGES = {
 	[0x45] = "Trophy Tussle - Entei",
 	[0x46] = "Trophy Tussle - Majora's Mask",
 }
+
+function melee.isSinglePlayerGame()
+	local major = memory.menu.major
+	return	major == MENU_ALL_STAR_MODE or major == MENU_TRAINING_MODE or
+			major == MENU_EVENT_MATCH or major == MENU_CLASSIC_MODE or
+			major == MENU_ADVENTURE_MODE or major == MENU_TARGET_TEST or
+			(major >= MENU_HOME_RUN_CONTEST and major <= MENU_CRUEL_MELEE) or
+			major == MENU_VS_UNKNOWN
+end
 
 function melee.isBTTStage(id)
 	return BREAK_THE_TARGETS_STAGES[id] ~= nil

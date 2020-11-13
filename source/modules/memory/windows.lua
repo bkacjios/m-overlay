@@ -168,6 +168,8 @@ DWORD WaitForSingleObject(
 	HANDLE hHandle,
 	DWORD  dwMilliseconds
 );
+
+DWORD GetLastError();
 ]]
 
 local MEMORY = {}
@@ -217,7 +219,7 @@ function MEMORY:findprocess()
 	repeat
 		local name = string(pe32.szExeFile)
 		if valid_process_names[name] then
-			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_VM_WRITE + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
+			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
 
 			local status = new("DWORD[1]")
 			-- Check if the process is active, we don't want to rehook the closing application
@@ -303,6 +305,9 @@ end
 local function read(mem, addr, output, size)
 	local read = new("SIZE_T[1]") -- How many bytes are read from memory
 	local success = kernel.ReadProcessMemory(mem.process_handle, ffi.cast("LPCVOID", mem.dolphin_base_addr + (addr % 0x80000000)), output, size, read)
+	if not success then
+		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", addr, tonumber(kernel.GetLastError()))
+	end
 	return success and read[0] == size
 end
 
