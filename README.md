@@ -28,6 +28,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Super Smash Bros. Brawl (NTSC v1.0, NTSC v1.1, NTSC v1.2, [Project M](https://en.wikipedia.org/wiki/Project_M), [P+](https://projectplusgame.com/))
 * The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
 * Kirby Air Ride (NTSC-U v1.0, NTSC-J v1.0, [UnclePunch Hack Pack](https://www.kirbyairri.de/hpinfo.html))
+* Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
 
 *More games can be supported upon request!*
 
