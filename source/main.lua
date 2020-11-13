@@ -29,6 +29,7 @@ local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 local MAX_PORTS = 4
 local PORT = 0
+local PORT_DISPLAY_OVERRIDE = nil
 local CONTROLLER_PORT_DISPLAY = 0
 
 function love.getPort()
@@ -119,7 +120,7 @@ memory.hook("menu.major", "Slippi Auto Port Switcher", function(major)
 	if major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
 		-- Switch back to whatever controller is controlling port 1, when not in a match
 		PORT = memory.menu.player_one_port
-		log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
+		log.debug("[AUTOPORT] Forcing port %d in menus", PORT+1)
 	end
 end)
 
@@ -129,19 +130,21 @@ memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
 		if minor == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
 			-- Switch back to whatever controller is controlling port 1, when not in a match
 			PORT = memory.menu.player_one_port
-			log.debug("[AUTOPORT] Forcing port %d in menus", PORT)
+			log.debug("[AUTOPORT] Forcing port %d in menus", PORT+1)
 			if minor == MENU_VS_UNKNOWN_CSS then
 				-- Display the port info only when swiching back to CSS
 				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			end
 		elseif minor == MENU_VS_UNKNOWN_VERSUS then
 			local port = memory.slippi.local_player.index % 4
+			PORT_DISPLAY_OVERRIDE = port
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 1.5 seconds
 			log.debug("[AUTOPORT] Switching display icon to use port %d", PORT+1)
 		elseif minor == MENU_VS_UNKNOWN_INGAME then
 			-- Switch to the local player index whenever else
+			PORT_DISPLAY_OVERRIDE = nil
 			PORT = memory.slippi.local_player.index % 4
-			log.debug("[AUTOPORT] Switching to slippi local player index %d", PORT)
+			log.debug("[AUTOPORT] Switching to slippi local player index %d", PORT+1)
 		end
 	end
 end)
@@ -192,6 +195,7 @@ function love.keypressed(key, scancode, isrepeat)
 
 	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
 		PORT = num - 1
+		PORT_DISPLAY_OVERRIDE = nil
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 		love.updateTitle(love.getTitleNoPort())
 	end
@@ -229,6 +233,7 @@ function love.wheelmoved(x, y)
 		PORT = PORT - 1
 	end
 	PORT = PORT % MAX_PORTS
+	PORT_DISPLAY_OVERRIDE = nil
 	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 	love.updateTitle(love.getTitleNoPort())
 end
@@ -679,18 +684,19 @@ function love.draw()
 	-- Draw a temporary number to show that the user changed controller port
 	if (PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
 		if memory.isMelee() then
+			local port = PORT_DISPLAY_OVERRIDE or PORT
 			local portColor
 			if memory.teams then
-				portColor = melee.getPlayerTeamColor(PORT + 1)
+				portColor = melee.getPlayerTeamColor(port + 1)
 			else
-				portColor = melee.getPlayerColor(PORT + 1)
+				portColor = melee.getPlayerColor(port + 1)
 			end
 			portColor.a = 150
 			graphics.setColor(portColor)
-			melee.drawSeries(PORT + 1, 8, 256 - 72 - 4, 0, 72, 72)
+			melee.drawSeries(port + 1, 8, 256 - 72 - 4, 0, 72, 72)
 			graphics.setColor(255, 255, 255, 255)
-			melee.drawStock(PORT + 1, 36, 256 - 42 - 8, 0, 32, 32)
-			graphics.easyDraw(PORT_TEXTURES[PORT], 12, 256 - 42 - 24, 0, 33, 14)
+			melee.drawStock(port + 1, 36, 256 - 42 - 8, 0, 32, 32)
+			graphics.easyDraw(PORT_TEXTURES[port], 12, 256 - 42 - 24, 0, 33, 14)
 		else
 			graphics.setFont(PORT_FONT)
 			graphics.setColor(0, 0, 0, 255)
