@@ -100,6 +100,7 @@ for id, address in ipairs(player_static_addresses) do
 				[0x60 + 0x063C] = { type = "float", name = "controller.cstick.y" },
 				[0x60 + 0x0650] = { type = "float", name = "controller.analog.float" },
 				[0x60 + 0x065C] = { type = "u32",	name = "controller.buttons.pressed" },
+				[0x60 + 0x0660] = { type = "u32",	name = "controller.buttons.pressed_previous" },
 			},
 		}
 	end
@@ -158,7 +159,7 @@ for id, address in ipairs(player_select_external_addresses) do
 	end
 end
 
-game.memorymap[0x804D640F] = { type = "bool", name = "match.paused", debug = true }
+game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }
 
 local match_info = 0x8046B6A0
 local match_info_struct = {

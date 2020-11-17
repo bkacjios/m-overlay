@@ -77,104 +77,6 @@ function music.init()
 	love.filesystem.createDirectory("Melee/Single Player Music/Break the Targets")
 end
 
-function music.matchFinsihed()
-	return memory.match.finished == true
-end
-
-function music.isInGame()
-	if not memory.menu then return false end
-
-	if memory.menu.major == MENU_ALL_STAR_MODE and memory.menu.minor < MENU_ALL_STAR_CSS then
-		-- Even = playing the match
-		-- Odd  = in the rest area
-		--return memory.menu.minor % 2 == 0
-		return true
-	end
-	if PANEL_SETTINGS:IsSlippiReplay() and memory.menu.major == MENU_START_MATCH then
-		return memory.menu.minor == MENU_START_MATCH_INGAME
-	end
-	if memory.menu.major == MENU_VS_MODE or memory.menu.major == MENU_VS_UNKNOWN then
-		return memory.menu.minor == MENU_VS_INGAME
-	end
-	if memory.menu.major >= MENU_TRAINING_MODE and memory.menu.major <= MENU_STAMINA_MODE or memory.menu.major == MENU_FIXED_CAMERA_MODE then
-		return memory.menu.minor == MENU_TRAINING_INGAME
-	end
-	if memory.menu.major == MENU_EVENT_MATCH then
-		return memory.menu.minor == MENU_EVENT_MATCH_INGAME
-	end
-	if memory.menu.major == MENU_CLASSIC_MODE and memory.menu.minor < MENU_CLASSIC_CONTINUE then
-		-- Even = Verus screen
-		-- Odd  = playing the match
-		return memory.menu.minor % 2 == 1
-	end
-	if memory.menu.major == MENU_ADVENTURE_MODE then
-		return
-		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KINGDOM or
-		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KINGDOM_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_TINY_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_GIANT_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_UNDERGROUND_MAZE or
-		memory.menu.minor == MENU_ADVENTURE_HYRULE_TEMPLE_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_BRINSTAR or
-		memory.menu.minor == MENU_ADVENTURE_ESCAPE_ZEBES or
-		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_TEAM_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_GIANT_KIRBY_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_1 or
-		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_2 or
-		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_3 or
-		memory.menu.minor == MENU_ADVENTURE_POKEMON_STADIUM_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_RACE or
-		memory.menu.minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_ONETT_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_ICICLE_MOUNTAIN_CLIMB or
-		memory.menu.minor == MENU_ADVENTURE_BATTLEFIELD_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_BATTLEFIELD_METAL_BATTLE or
-		memory.menu.minor == MENU_ADVENTURE_FINAL_DESTINATION_BATTLE
-	end
-	if memory.menu.major == MENU_TARGET_TEST then
-		return memory.menu.minor == MENU_TARGET_TEST_INGAME
-	end
-	if memory.menu.major >= MENU_SUPER_SUDDEN_DEATH and memory.menu.major <= MENU_LIGHTNING_MELEE then
-		return memory.menu.minor == MENU_SSD_INGAME
-	end
-	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
-		return memory.menu.minor == MENU_HOME_RUN_CONTEST_INGAME
-	end
-	return false
-end
-
-function music.isInMenus()
-	if not memory.menu then return false end
-	
-	if memory.menu.major == MENU_MAIN_MENU then
-		return true
-	end
-	if memory.menu.major == MENU_VS_MODE or memory.menu.major == MENU_VS_UNKNOWN then
-		return memory.menu.minor == MENU_VS_CSS or memory.menu.minor == MENU_VS_SSS
-	end
-	if memory.menu.major >= MENU_TRAINING_MODE and memory.menu.major <= MENU_STAMINA_MODE or memory.menu.major == MENU_FIXED_CAMERA_MODE then
-		return memory.menu.minor == MENU_TRAINING_CSS or memory.menu.minor == MENU_TRAINING_SSS
-	end
-	if memory.menu.major == MENU_EVENT_MATCH then
-		return memory.menu.minor == MENU_EVENT_MATCH_SELECT
-	end
-	if memory.menu.major == MENU_CLASSIC_MODE or memory.menu.major == MENU_ADVENTURE_MODE or memory.menu.major == MENU_ALL_STAR_MODE then
-		-- All the menu_mior values all match in these three modes, so just use the MENU_CLASSIC_CSS value for simplicity
-		return memory.menu.minor == MENU_CLASSIC_CSS
-	end
-	if memory.menu.major == MENU_TARGET_TEST then
-		return memory.menu.minor == MENU_TARGET_TEST_CSS
-	end
-	if memory.menu.major >= MENU_SUPER_SUDDEN_DEATH and memory.menu.major <= MENU_LIGHTNING_MELEE then
-		return memory.menu.minor == MENU_SSD_CSS or memory.menu.minor == MENU_SSD_SSS
-	end
-	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
-		return memory.menu.minor == MENU_HOME_RUN_CONTEST_CSS
-	end
-	return false
-end
-
 function music.kill()
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
 		PLAYING_SONG:stop()
@@ -190,16 +92,16 @@ local LOOPING_ALL = 4
 local MATCH_SOFT_END = false
 
 function music.shouldPlayMusic()
-	return music.isInMenus() or (music.isInGame() and not music.matchFinsihed() and not MATCH_SOFT_END)
+	return melee.isInMenus() or (melee.isInGame() and not melee.matchFinsihed() and not MATCH_SOFT_END)
 end
 
 function music.onLoopChange(mode)
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
 		local loop = false
 		-- Handle the different loop settings properly
-		if mode == LOOPING_MENU and music.isInMenus() then
+		if mode == LOOPING_MENU and melee.isInMenus() then
 			loop = true
-		elseif mode == LOOPING_STAGE and music.isInGame() then
+		elseif mode == LOOPING_STAGE and melee.isInGame() then
 			loop = true
 		elseif mode == LOOPING_ALL then
 			loop = true
@@ -294,9 +196,9 @@ function music.playNextTrack()
 end
 
 function music.onStateChange()
-	if music.isInGame() then
+	if melee.isInGame() then
 		music.loadForStage(memory.stage)
-	elseif music.isInMenus() then
+	elseif melee.isInMenus() then
 		music.loadForStage(0)
 	end
 end
@@ -308,17 +210,17 @@ memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 end)
 
 memory.hook("menu.major", "Melee - Menu state", function(menu)
-	if music.isInMenus() then
+	if melee.isInMenus() then
 		music.loadForStage(0)
-	elseif not music.isInGame() then
+	elseif not melee.isInGame() then
 		music.kill()
 	end
 end)
 
 memory.hook("menu.minor", "Melee - Menu state", function(menu)
-	if music.isInMenus() then
+	if melee.isInMenus() then
 		music.loadForStage(0)
-	elseif music.isInGame() then
+	elseif melee.isInGame() then
 		MATCH_SOFT_END = false
 		music.loadForStage(memory.stage)
 	else
@@ -327,7 +229,7 @@ memory.hook("menu.minor", "Melee - Menu state", function(menu)
 end)
 
 memory.hook("stage", "Melee - Stage loaded", function(stage)
-	if music.isInGame() then
+	if melee.isInGame() then
 		music.loadForStage(stage)
 	end
 end)

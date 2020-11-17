@@ -28,6 +28,9 @@ local memory = {
 	hooked = false,
 	initialized = false,
 
+	ingame = false,
+	hooked = false,
+
 	map = {},
 	values = {},
 
@@ -222,14 +225,18 @@ function memory.newvalue(addr, offset, struct)
 	-- create/get a new value cache based off of the value name
 	local tbl, key = memory.cacheValue(memory.values, struct.name, struct.init or NULL)
 
+	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, struct.name)
+
 	return setmetatable({
 		name = struct.name,
 
 		address = addr, -- Where in memory this value is located
 		offset = offset, -- How far past the address value we should get the value from
 
+		-- Assign the function we will be using to read from memory
 		read = TYPES_READ[struct.type],
 
+		-- Setup the cache
 		cache = tbl,
 		cache_key = key,
 
@@ -250,7 +257,7 @@ function ADDRESS:update()
 
 		if self.debug then
 			local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
-			log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address, numValue, self.name, value)
+			log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)
 		end
 
 		-- Queue up a hook event
@@ -262,17 +269,25 @@ local POINTER = {}
 POINTER.__index = POINTER
 
 function memory.newpointer(addr, offset, pointer)
-	local struct = {}
+	local pstruct = {}
 
-	for poffset, pstruct in pairs(pointer.struct) do
+	--log.debug("[MEMORY] POINTER CREATED %08X + %X", addr, offset)
+
+	for poffset, struct in pairs(pointer.struct) do
+		local originalname = struct.name
+
 		if pointer.name then
-			pstruct.name = pointer.name .. "." .. pstruct.name
+			-- If we named the pointer, prepend it to the structs name
+			struct.name = pointer.name .. "." .. struct.name
 		end
-		if pstruct.type == "pointer" then
-			struct[poffset] = memory.newpointer(NULL, poffset, pstruct)
+		if struct.type == "pointer" then
+			pstruct[poffset] = memory.newpointer(NULL, poffset, struct)
 		else
-			struct[poffset] = memory.newvalue(NULL, poffset, pstruct)
+			pstruct[poffset] = memory.newvalue(NULL, poffset, struct)
 		end
+
+		-- Restore the name back
+		struct.name = originalname
 	end
 
 	return setmetatable({
@@ -280,7 +295,7 @@ function memory.newpointer(addr, offset, pointer)
 		address = addr,
 		offset = offset,
 		location = NULL,
-		struct = struct,
+		struct = pstruct,
 	}, POINTER)
 end
 
@@ -439,6 +454,8 @@ end
 
 function memory.reset()
 	memory.initialized = false
+	memory.ingame = false
+	memory.hooked = false
 	memory.map = {}
 	memory.values = {}
 	memory.gameid = GAME_NONE

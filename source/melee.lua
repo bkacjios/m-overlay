@@ -202,7 +202,7 @@ MENU_TROPHY_GALLERY = 0x0B
 MENU_TROPHY_LOTTERY = 0x0C
 MENU_TROPHY_COLLECTION = 0x0D
 MENU_START_MATCH = 0x0E -- Slippi Replays
-	MENU_START_MATCH_INGAME = 0x01
+	MENU_START_MATCH_INGAME = 0x01 -- Set when the replay is actually playing out
 	MENU_START_MATCH_UNKNOWN = 0x03 -- Seems to be set right before the match loads
 
 MENU_TARGET_TEST = 0x0F
@@ -817,6 +817,104 @@ end
 
 function melee.getStageSeries(id)
 	return STAGE_SERIES[id]
+end
+
+function melee.matchFinsihed()
+	return memory.match.finished == true
+end
+
+function melee.isInGame()
+	if not memory.menu then return false end
+
+	if memory.menu.major == MENU_ALL_STAR_MODE and memory.menu.minor < MENU_ALL_STAR_CSS then
+		-- Even = playing the match
+		-- Odd  = in the rest area
+		--return memory.menu.minor % 2 == 0
+		return true
+	end
+	if PANEL_SETTINGS:IsSlippiReplay() and memory.menu.major == MENU_START_MATCH then
+		return memory.menu.minor == MENU_START_MATCH_INGAME
+	end
+	if memory.menu.major == MENU_VS_MODE or memory.menu.major == MENU_VS_UNKNOWN then
+		return memory.menu.minor == MENU_VS_INGAME
+	end
+	if memory.menu.major >= MENU_TRAINING_MODE and memory.menu.major <= MENU_STAMINA_MODE or memory.menu.major == MENU_FIXED_CAMERA_MODE then
+		return memory.menu.minor == MENU_TRAINING_INGAME
+	end
+	if memory.menu.major == MENU_EVENT_MATCH then
+		return memory.menu.minor == MENU_EVENT_MATCH_INGAME
+	end
+	if memory.menu.major == MENU_CLASSIC_MODE and memory.menu.minor < MENU_CLASSIC_CONTINUE then
+		-- Even = Verus screen
+		-- Odd  = playing the match
+		return memory.menu.minor % 2 == 1
+	end
+	if memory.menu.major == MENU_ADVENTURE_MODE then
+		return
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KINGDOM or
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KINGDOM_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_TINY_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_MUSHROOM_KONGO_JUNGLE_GIANT_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_UNDERGROUND_MAZE or
+		memory.menu.minor == MENU_ADVENTURE_HYRULE_TEMPLE_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_BRINSTAR or
+		memory.menu.minor == MENU_ADVENTURE_ESCAPE_ZEBES or
+		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_KIRBY_TEAM_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_GREEN_GREENS_GIANT_KIRBY_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_1 or
+		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_2 or
+		memory.menu.minor == MENU_ADVENTURE_CORNARIA_BATTLE_3 or
+		memory.menu.minor == MENU_ADVENTURE_POKEMON_STADIUM_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_RACE or
+		memory.menu.minor == MENU_ADVENTURE_FZERO_GRAND_PRIX_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_ONETT_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_ICICLE_MOUNTAIN_CLIMB or
+		memory.menu.minor == MENU_ADVENTURE_BATTLEFIELD_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_BATTLEFIELD_METAL_BATTLE or
+		memory.menu.minor == MENU_ADVENTURE_FINAL_DESTINATION_BATTLE
+	end
+	if memory.menu.major == MENU_TARGET_TEST then
+		return memory.menu.minor == MENU_TARGET_TEST_INGAME
+	end
+	if memory.menu.major >= MENU_SUPER_SUDDEN_DEATH and memory.menu.major <= MENU_LIGHTNING_MELEE then
+		return memory.menu.minor == MENU_SSD_INGAME
+	end
+	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
+		return memory.menu.minor == MENU_HOME_RUN_CONTEST_INGAME
+	end
+	return false
+end
+
+function melee.isInMenus()
+	if not memory.menu then return false end
+	
+	if memory.menu.major == MENU_MAIN_MENU then
+		return true
+	end
+	if memory.menu.major == MENU_VS_MODE or memory.menu.major == MENU_VS_UNKNOWN then
+		return memory.menu.minor == MENU_VS_CSS or memory.menu.minor == MENU_VS_SSS
+	end
+	if memory.menu.major >= MENU_TRAINING_MODE and memory.menu.major <= MENU_STAMINA_MODE or memory.menu.major == MENU_FIXED_CAMERA_MODE then
+		return memory.menu.minor == MENU_TRAINING_CSS or memory.menu.minor == MENU_TRAINING_SSS
+	end
+	if memory.menu.major == MENU_EVENT_MATCH then
+		return memory.menu.minor == MENU_EVENT_MATCH_SELECT
+	end
+	if memory.menu.major == MENU_CLASSIC_MODE or memory.menu.major == MENU_ADVENTURE_MODE or memory.menu.major == MENU_ALL_STAR_MODE then
+		-- All the menu_mior values all match in these three modes, so just use the MENU_CLASSIC_CSS value for simplicity
+		return memory.menu.minor == MENU_CLASSIC_CSS
+	end
+	if memory.menu.major == MENU_TARGET_TEST then
+		return memory.menu.minor == MENU_TARGET_TEST_CSS
+	end
+	if memory.menu.major >= MENU_SUPER_SUDDEN_DEATH and memory.menu.major <= MENU_LIGHTNING_MELEE then
+		return memory.menu.minor == MENU_SSD_CSS or memory.menu.minor == MENU_SSD_SSS
+	end
+	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
+		return memory.menu.minor == MENU_HOME_RUN_CONTEST_CSS
+	end
+	return false
 end
 
 return melee

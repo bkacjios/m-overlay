@@ -419,7 +419,7 @@ end
 function love.drawControllerOverlay()
 	local controller = memory.controller[PORT + 1]
 
-	if PANEL_SETTINGS:IsSlippiReplay() then
+	if PANEL_SETTINGS:IsSlippiReplay() and melee.isInGame() then
 		local player = memory.player[PORT + 1]
 
 		if not player then return end
@@ -551,7 +551,13 @@ function love.drawControllerOverlay()
 			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 				-- Analog
 
-				local analog = controller.analog.float
+				local analog = controller.analog and controller.analog.float or 0
+
+				if not melee.isInGame() then
+					local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
+
+					analog = math.max(al, ar)
+				end
 
 		 		-- L Button
 				if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
