@@ -235,11 +235,11 @@ function MEMORY:findGamecubeRAMOffset()
 	return false
 end
 
-local function read(mem, addr, output, size)
+function MEMORY:read(addr, output, size)
 	local localvec = new("iovec[1]")
 	local remotevec = new("iovec[1]")
 
-	local ramaddr = mem.dolphin_base_addr + (addr % 0x80000000)	
+	local ramaddr = self.dolphin_base_addr + (addr % 0x80000000)	
 
 	localvec[0].iov_base = output
 	localvec[0].iov_len = size
@@ -247,22 +247,21 @@ local function read(mem, addr, output, size)
 	remotevec[0].iov_base = cast("void*", ramaddr)
 	remotevec[0].iov_len = size
 
-	local read = libc.process_vm_readv(mem.pid, localvec, 1, remotevec, 1, 0)
+	local read = libc.process_vm_readv(self.pid, localvec, 1, remotevec, 1, 0)
 
-	if read == size then
-		return true
-	else
+	if read ~= size then
 		log.warn("Failed reading process memory..")
-		mem:close()
-		return false
+		self:close()
 	end
+
+	return read == size
 end
 
-local function write(mem, addr, input, size)
+function MEMORY:write(addr, input, size)
 	local localvec = new("iovec[1]")
 	local remotevec = new("iovec[1]")
 
-	local ramaddr = mem.dolphin_base_addr + (addr % 0x80000000)	
+	local ramaddr = self.dolphin_base_addr + (addr % 0x80000000)	
 
 	localvec[0].iov_base = input
 	localvec[0].iov_len = size
@@ -270,88 +269,14 @@ local function write(mem, addr, input, size)
 	remotevec[0].iov_base = cast("void*", ramaddr)
 	remotevec[0].iov_len = size
 
-	local read = libc.process_vm_writev(mem.pid, localvec, 1, remotevec, 1, 0)
+	local read = libc.process_vm_writev(self.pid, localvec, 1, remotevec, 1, 0)
 
-	if read == size then
-		return true
-	else
+	if read ~= size then
 		log.warn("Failed writing process memory..")
-		mem:close()
-		return false
+		self:close()
 	end
-end
 
-function MEMORY:readByte(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("int8_t[1]")
-	read(self, addr, output, sizeof(output))
-	return output[0]
-end
-
-function MEMORY:writeByte(addr, value)
-	if not self:hasProcess() then return 0 end
-	local input = new("int8_t[1]", value)
-	return write(self, addr, input, sizeof(input))
-end
-
-function MEMORY:readBool(addr)
-	return self:readByte(addr) == 1
-end
-
-function MEMORY:readUByte(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint8_t[1]")
-	read(self, addr, output, sizeof(output))
-	return output[0]
-end
-
-local function bswap16(n)
-	return bor(rshift(n, 8), lshift(band(n, 0xFF), 8))
-end
-
-function MEMORY:readShort(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("int16_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap16(output[0])
-end
-
-function MEMORY:readUShort(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint16_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap16(output[0])
-end
-
-local flatconversion = ffi.new("union { uint32_t i; float f; }")
-
-function MEMORY:readFloat(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint32_t[1]")
-	read(self, addr, output, sizeof(output))
-	flatconversion.i = bswap(output[0])
-	return flatconversion.f
-end
-
-function MEMORY:readInt(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("int32_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap(output[0])
-end
-
-function MEMORY:readUInt(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint32_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap(output[0])
-end
-
-function MEMORY:read(addr, len)
-	if not self:hasProcess() then return "" end
-	local output = new("unsigned char[?]", len)
-	read(self, addr, output, sizeof(output))
-	return string(output, sizeof(output))
+	return read == size
 end
 
 return MEMORY

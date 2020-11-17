@@ -9,6 +9,11 @@
 
 Latest downloads can be found in [releases](https://github.com/bkacjios/m-overlay/releases)
 
+### Known programs that interfere with M'Overlay
+
+* RePlaysTV
+* Raptr Desktop App (AMD Gaming Evolved)
+
 ### Supported games list
 
 * Need for Speed Underground 1 (NTSC v1.0)

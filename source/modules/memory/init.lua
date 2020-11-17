@@ -1,162 +1,194 @@
 local bit = require("bit")
+local ffi = require("ffi")
 local log = require("log")
-local memory = require("memory." .. jit.os:lower())
+local process = require("memory." .. jit.os:lower())
 local clones = require("games.clones")
 local notification = require("notification")
 local filesystem = love.filesystem
 
-local configdir = filesystem.getSaveDirectory()
-
-local clones_file = "clones.lua"
-
-if filesystem.getInfo(clones_file, "file") then
-	log.info("[CONFIG] Load: %s/%s", configdir, clones_file)
-	
-	local status, chunk = pcall(filesystem.load, clones_file)
-
-	if not status then
-		-- Failed loading chunk, chunk is an error string
-		log.error(chunk)
-		notification.error(chunk)
-	elseif chunk then
-		-- Create a sandboxed lua environment
-		local env = {}
-		env._G = env
-
-		-- Set the loaded chunk inside the sandbox
-		setfenv(chunk, env)
-
-		local status, custom_clones = pcall(chunk)
-		if not status then
-			-- Failed calling the chunk, custom_clones is an error string
-			log.error(custom_clones)
-			notification.error(custom_clones)
-		else
-			local num_clones = 0
-			for clone_id, info in pairs(custom_clones) do
-				num_clones = num_clones + 1
-				clones[clone_id] = info
-			end
-			log.info("[CONFIG] Loaded %d clones from %s", num_clones, clones_file)
-			notification.coloredMessage(("Loaded %d clones from %s"):format(num_clones, clones_file))
-		end
-	end
-end
-
 require("extensions.string")
 
-local GAME_NONE = "\0\0\0\0\0\0"
 local NULL = 0x00000000
 
-local watcher = {
-	debug = false,
-	initialized = false,
-	hooked = false,
+local GAME_ID_ADDR  = 0x80000000
+local GAME_VER_ADDR = 0x80000007
+local GAME_ID_LEN   = 0x06
+local GAME_NONE     = "\0\0\0\0\0\0"
+
+local VC_ID_ADDR    = 0x80003180
+local VC_ID_LEN     = 0x04
+local VC_NONE       = "\0\0\0\0"
+
+local memory = {
 	gameid = GAME_NONE,
-	ingame = false,
-	version = 0,
-	process = memory.init(),
+	vcid = VC_NONE,
+	process = process,
+	permissions = process:hasPermissions(),
+
+	hooked = false,
+	initialized = false,
+
+	map = {},
+	values = {},
+
 	hooks = {},
-	memorymap = {},
 	wildcard_hooks = {},
-	values_memory = {},
-	values_pointer = {},
-	watching_addr = {},
-	watching_str_addr = {},
-	watching_ptr_addr = {},
-	pointer_loc = {},
+
 	hook_queue = {},
-	named_addr = {},
-	named = {},
-	game_frame = 0,
 }
 
-watcher.permissions = watcher.process:hasPermissions()
+setmetatable(memory, {__index = memory.values})
 
--- Allow us to do things such as watcher.players.name without having to do watcher.named.player.name
-setmetatable(watcher, {__index = watcher.named})
-
-local TYPE_NULL = 0
-local TYPE_BOOL = 1
-local TYPE_BYTE = 2
-local TYPE_SHORT = 3
-local TYPE_INT = 4
-local TYPE_FLOAT = 5
-local TYPE_POINTER = 6
-local TYPE_DATA = 7
-local TYPE_SIGNED_BYTE = 8
-
-local TYPE_NAME = {
-	["bool"] = TYPE_BOOL,
-	["byte"] = TYPE_BYTE,
-	["sbyte"] = TYPE_SIGNED_BYTE,
-	["short"] = TYPE_SHORT,
-	["int"] = TYPE_INT,
-	["float"] = TYPE_FLOAT,
-	["data"] = TYPE_DATA,
-	["pointer"] = TYPE_POINTER,
-}
-
-local READ_TYPES = {
-	[TYPE_BOOL] = "readBool",
-	[TYPE_BYTE] = "readUByte",
-	[TYPE_SIGNED_BYTE] = "readByte",
-	[TYPE_SHORT] = "readShort",
-	[TYPE_INT] = "readInt",
-	[TYPE_FLOAT] = "readFloat",
-}
-
-function watcher.init(map)
-	log.info("[MEMORY] Mapping game memory..")
-	watcher.initialized = true
-	watcher.loadmap(map)
+local bswap = bit.bswap
+local function bswap16(n)
+	return bit.bor(bit.rshift(n, 8), bit.lshift(bit.band(n, 0xFF), 8))
 end
 
-function watcher.loadmap(map)
-	for address, info in pairs(map) do
-		watcher.memorymap[address] = info
-		if info.type == "pointer" and info.struct then
-			watcher.pointer_loc[address] = NULL
-			watcher.values_pointer[address] = {}
-			watcher.watching_ptr_addr[address] = {}
-			for offset, struct in pairs(info.struct) do
-				watcher.watching_ptr_addr[address][offset] = TYPE_NAME[struct.type]
-				local name = ("%s.%s"):format(info.name, struct.name)
-				watcher.setTableValue(name, info.init or 0)
-			end
-		else
-			watcher.named_addr[info.name] = address
-			watcher.values_memory[address] = info.init or 0
-			watcher.watching_addr[address] = TYPE_NAME[info.type]
-			watcher.setTableValue(info.name, watcher.values_memory[address])
-		end
+function memory.readGameID()
+	return memory.read(GAME_ID_ADDR, GAME_ID_LEN)
+end
+
+function memory.readGameVersion()
+	return memory.readUByte(GAME_VER_ADDR)
+end
+
+function memory.read(addr, len)
+	local output = ffi.new("char[?]", len)
+	local size = ffi.sizeof(output)
+	process:read(addr, output, size)
+	return ffi.string(output, size)
+end
+
+function memory.readByte(addr)
+	if not process:hasProcess() then return 0 end
+	local output = ffi.new("int8_t[1]")
+	process:read(addr, output, ffi.sizeof(output))
+	return output[0]
+end
+
+function memory.writeByte(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("int8_t[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
+end
+
+function memory.readBool(addr)
+	if not process:hasProcess() then return false end
+	return memory.readByte(addr) == 1
+end
+
+function memory.writeBool(addr, value)
+	if not self:hasProcess() then return end
+	self:writeByte(addr, value == true and 1 or 0)
+end
+
+function memory.readUByte(addr)
+	if not process:hasProcess() then return 0 end
+	local output = ffi.new("uint8_t[1]")
+	process:read(addr, output, ffi.sizeof(output))
+	return output[0]
+end
+
+function memory.writeUByte(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("uint8_t[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
+end
+
+function memory.readShort(addr)
+	if not process:hasProcess() then return 0 end
+	local output = ffi.new("int16_t[1]")
+	process:read(addr, output, ffi.sizeof(output))
+	return bswap16(output[0])
+end
+
+function memory.writeShort(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("int16_t[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
+end
+
+function memory.readUShort(addr)
+	if not process:hasProcess() then return 0 end
+	local output = ffi.new("uint16_t[1]")
+	process:read(addr, output, ffi.sizeof(output))
+	return bswap16(output[0])
+end
+
+function memory.writeUShort(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("uint16_t[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
+end
+
+do
+	local floatconversion = ffi.new("union { uint32_t i; float f; }")
+
+	function memory.readFloat(addr)
+		if not process:hasProcess() then return 0 end
+		local output = ffi.new("uint32_t[1]")
+		process:read(addr, output, ffi.sizeof(output))
+		floatconversion.i = bswap(output[0])
+		return floatconversion.f, floatconversion.i
 	end
 end
 
-function watcher.reset()
-	watcher.initialized = false
-	watcher.memorymap = {}
-	watcher.values_memory = {}
-	watcher.values_pointer = {}
-	watcher.watching_addr = {}
-	watcher.watching_str_addr = {}
-	watcher.watching_ptr_addr = {}
-	watcher.pointer_loc = {}
-	watcher.named = {}
-	watcher.gameid = GAME_NONE
-	watcher.version = 0
-	watcher.game = nil
-	setmetatable(watcher, {__index = watcher.named})
+function memory.writeFloat(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("float[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
 end
 
-function watcher.getGame()
-	return watcher.game
+function memory.readInt(addr)
+	if not process:hasProcess() then return 0 end
+	local output = ffi.new("int32_t[1]")
+	process:read(addr, output, ffi.sizeof(output))
+	return bswap(output[0])
 end
+
+function memory.writeInt(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("int32_t[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
+end
+
+function memory.readUInt(addr)
+	if not process:hasProcess() then return 0 end
+	local output = ffi.new("uint32_t[1]")
+	process:read(addr, output, ffi.sizeof(output))
+	return bswap(output[0])
+end
+
+function memory.writeUInt(addr, value)
+	if not process:hasProcess() then return end
+	local input = ffi.new("uint32_t[1]", value)
+	return process:write(addr, input, ffi.sizeof(input))
+end
+
+local TYPES_READ = {
+	["bool"] = memory.readBool,
+
+	["sbyte"] = memory.readByte,
+	["byte"] = memory.readUByte,
+	["short"] = memory.readShort,
+
+	["u8"] = memory.readUByte,
+	["s8"] = memory.readByte,
+	["u16"] = memory.readUShort,
+	["s16"] = memory.readShort,
+	["u32"] = memory.readUInt,
+	["s32"] = memory.readInt,
+
+	["float"] = memory.readFloat,
+
+	["data"] = memory.read,
+}
 
 -- Creates or updates a tree of values for easy indexing
--- Example a path of "player.name" will become watcher.players = { name = value }
-function watcher.setTableValue(path, value)
-	local last = watcher.named
+-- Example a path of "player.name" will become memory.players = { name = value }
+function memory.cacheValue(table, path, value)
+	local last = table
+	local last_key = nil
 
 	local keys = {}
 	for key in string.gmatch(path, "[^%.]+") do
@@ -172,154 +204,128 @@ function watcher.setTableValue(path, value)
 				return error(("Failed to index a %s value (%q)"):format(type(last), keys[i-1]))
 			end
 			last[key] = value
+			last_key = key
+		end
+	end
+
+	-- Return the table that the value is being stored in, and the key name
+	return last, last_key
+end
+
+local ADDRESS = {}
+ADDRESS.__index = ADDRESS
+
+function memory.newvalue(addr, offset, struct)
+	assert(type(addr) == "number", "argument #1 'address' must be a number")
+	assert(TYPES_READ[struct.type] ~= nil, "unhandled type: " .. struct.type)
+
+	-- create/get a new value cache based off of the value name
+	local tbl, key = memory.cacheValue(memory.values, struct.name, struct.init or NULL)
+
+	return setmetatable({
+		name = struct.name,
+
+		address = addr, -- Where in memory this value is located
+		offset = offset, -- How far past the address value we should get the value from
+
+		read = TYPES_READ[struct.type],
+
+		cache = tbl,
+		cache_key = key,
+
+		debug = struct.debug,
+	}, ADDRESS)
+end
+
+function ADDRESS:update()
+	if self.address == NULL then return end
+
+	-- value = byteswapped value
+	-- orig = Non-byteswapped value (Only available for floats)
+	local value, orig = self.read(self.address + self.offset)
+
+	-- Check if there has been a value change
+	if self.cache[self.cache_key] ~= value then
+		self.cache[self.cache_key] = value
+
+		if self.debug then
+			local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
+			log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address, numValue, self.name, value)
+		end
+
+		-- Queue up a hook event
+		table.insert(memory.hook_queue, {name = self.name, value = value, debug = self.debug})
+	end
+end
+
+local POINTER = {}
+POINTER.__index = POINTER
+
+function memory.newpointer(addr, offset, pointer)
+	local struct = {}
+
+	for poffset, pstruct in pairs(pointer.struct) do
+		if pointer.name then
+			pstruct.name = pointer.name .. "." .. pstruct.name
+		end
+		if pstruct.type == "pointer" then
+			struct[poffset] = memory.newpointer(NULL, poffset, pstruct)
+		else
+			struct[poffset] = memory.newvalue(NULL, poffset, pstruct)
+		end
+	end
+
+	return setmetatable({
+		name = pointer.name,
+		address = addr,
+		offset = offset,
+		location = NULL,
+		struct = struct,
+	}, POINTER)
+end
+
+function POINTER:update()
+	local ploc = memory.readUInt(self.address + self.offset)
+
+	if self.location ~= ploc then
+		self.location = ploc
+
+		if ploc == NULL then
+			log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s = 0x%08X", self.address, self.name, self.address)
+		else
+			log.debug("[MEMORY] [0x%08X -> 0x%08X] %s = 0x%08X", self.address, ploc, self.name, ploc)
+		end
+	end
+
+	for offset, struct in pairs(self.struct) do
+		-- Set the address space to be where the containing pointer is pointing to
+		struct.address = ploc
+		-- Update the value/pointer recursively
+		struct:update()
+	end
+end
+
+function memory.loadmap(map)
+	for address, struct in pairs(map) do
+		if struct.type == "pointer" then
+			memory.map[address] = memory.newpointer(address, NULL, struct)
+		else
+			memory.map[address] = memory.newvalue(address, NULL, struct)
 		end
 	end
 end
 
-function watcher.hook(name, desc, callback)
-	if string.find(name, "*", 1, true) then
-		-- Convert '*' into capture patterns
-		local pattern = '^' .. name:escape():gsub("%%%*", "([^.]-)") .. '$'
-		watcher.wildcard_hooks[pattern] = watcher.wildcard_hooks[pattern] or {}
-		watcher.wildcard_hooks[pattern][desc] = callback
-	else
-		watcher.hooks[name] = watcher.hooks[name] or {}
-		watcher.hooks[name][desc] = callback
-	end
+function memory.hasPermissions()
+	return memory.permissions
 end
 
-function watcher.unhook(name, desc)
-	watcher.hook(name, desc, nil)
-end
-
-local args = {}
-local matches = {}
-
-function watcher.hookRun(name, ...)
-	-- Normal hooks
-	if watcher.hooks[name] then
-		for desc, callback in pairs(watcher.hooks[name]) do
-			local succ, err
-			if type(desc) == "table" then
-				-- Assume a table is an object, so call it as so
-				succ, err = xpcall(callback, debug.traceback, desc, ...)
-			else
-				succ, err = xpcall(callback, debug.traceback, ...)
-			end
-			if not succ then
-				log.error("[MEMORY] watcher hook error: %s (%s)", desc, err)
-			end
-		end
-	end
-
-	local varargs = {...}
-
-	-- Allow for wildcard hooks
-	for pattern, hooks in pairs(watcher.wildcard_hooks) do
-		if string.find(name, pattern) then
-			args = {}
-			matches = {name:match(pattern)}
-
-			for k, match in ipairs(matches) do
-				table.insert(args, tonumber(match) or match)
-			end
-			for k, arg in ipairs(varargs) do
-				table.insert(args, arg)
-			end
-
-			for desc, callback in pairs(hooks) do
-				local succ, err
-				if type(desc) == "table" then
-					-- Assume a table is an object, so call it as so
-					succ, err = xpcall(callback, debug.traceback, desc, unpack(args))
-				else
-					succ, err = xpcall(callback, debug.traceback, unpack(args))
-				end
-				if not succ then
-					log.error("[MEMORY] watcher wildcard hook error: %s (%s)", desc, err)
-				end
-			end
-		end
-	end
-end
-
-function watcher.toHex(address)
-	return ("%08X"):format(address)
-end
-
-function watcher.hasPermissions()
-	return watcher.permissions
-end
-
-function watcher.readGameID()
-	return watcher.readData(0x0, 0x06)
-end
-
-function watcher.readGameVersion()
-	return watcher.process:readUByte(0x7)
-end
-
-function watcher.readType(type, address)
-	return watcher.process[READ_TYPES[type]](watcher.process, address)
-end
-
-function watcher.readData(addr, len)
-	return tostring(watcher.process:read(addr, len))
-end
-
-function watcher.writeByte(addr, value)
-	return watcher.process:writeByte(addr, value)
-end
-
-function watcher.isReady()
-	return watcher.process:hasProcess() and watcher.process:isProcessActive() and watcher.process:hasGamecubeRAMOffset()
-end
-
-local timer = love.timer.getTime()
-
-function watcher.update()
-	if not watcher.permissions then return end
-
-	if not watcher.process:isProcessActive() and watcher.process:hasProcess() then
-		watcher.process:close()
-		love.updateTitle("M'Overlay - Waiting for Dolphin..")
-		log.info("[DOLPHIN] Unhooked")
-		watcher.hooked = false
-	end
-
-	local t = love.timer.getTime()
-
-	-- Only check for the dolphin process once per second to reduce CPU load
-	if not watcher.process:hasProcess() or not watcher.process:hasGamecubeRAMOffset() then
-		if timer <= t then
-			timer = t + 0.5
-			if watcher.process:findprocess() then
-				log.info("[DOLPHIN] Hooked")
-				love.updateTitle("M'Overlay - Dolphin hooked")
-				watcher.hooked = true
-			elseif not watcher.process:hasGamecubeRAMOffset() and watcher.process:findGamecubeRAMOffset() then
-				log.info("[DOLPHIN] Watching ram: %X [%X]", watcher.process:getGamecubeRAMOffset(), watcher.process:getGamecubeRAMSize())
-			end
-		end
-	else
-		watcher.checkmemoryvalues()
-
-		local frame = watcher.frame or 0
-
-		if watcher.game_frame ~= frame or frame == 0 then
-			watcher.game_frame = frame
-			watcher.runhooks()
-		end
-	end
-end
-
-function watcher.isInGame()
-	local gid = watcher.gameid
+function memory.isInGame()
+	local gid = memory.gameid
 	return gid ~= GAME_NONE
 end
 
-function watcher.isMelee()
-	local gid = watcher.gameid
+function memory.isMelee()
+	local gid = memory.gameid
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
@@ -333,21 +339,11 @@ function watcher.isMelee()
 	return gid == "GALE01"
 end
 
-function watcher.runhooks()
-	local pop
-	while true do
-		pop = table.remove(watcher.hook_queue, 1)
-		if not pop then break end
-		--[[if pop.debug then
-			log.debug("[HOOK] CALLING [%s][%s]", pop.name, pop.value)
-		end]]
-		watcher.hookRun(pop.name, pop.value)
-	end
-end
+local timer = love.timer.getTime()
 
-function watcher.checkmemoryvalues()
-	local gid = watcher.readGameID()
-	local version = watcher.readGameVersion()
+function memory.findGame()
+	local gid = memory.readGameID()
+	local version = memory.readGameVersion()
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
@@ -355,17 +351,17 @@ function watcher.checkmemoryvalues()
 		version = 0x02
 	end
 
-	local meleeMode = (watcher.isMelee() and watcher.gameid ~= gid)
+	local meleeMode = (memory.isMelee() and memory.gameid ~= gid)
 
-	if (not watcher.ingame or meleeMode) and gid ~= GAME_NONE then
-		watcher.reset()
-		watcher.ingame = true
-		watcher.gameid = gid
-		watcher.version = version
+	if (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
+		memory.reset()
+		memory.ingame = true
+		memory.gameid = gid
+		memory.version = version
 
 		log.debug("[DOLPHIN] GAMEID: %q (Version %d)", gid, version)
 		love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
-		watcher.hookRun("OnGameOpen", gid, version)
+		memory.runhook("OnGameOpen", gid, version)
 
 		-- See if this GameID is a clone of another
 		local clone = clones[gid]
@@ -379,103 +375,164 @@ function watcher.checkmemoryvalues()
 		local status, game = xpcall(require, debug.traceback, string.format("games.%s-%d", gid, version))
 
 		if status then
-			watcher.game = game
+			memory.game = game
 			log.info("[DOLPHIN] Loaded game config: %s-%d", gid, version)
-			watcher.init(game.memorymap)
+			memory.init(game.memorymap)
 		else
 			notification.error(("Unsupported game %s-%d"):format(gid, version))
 			notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
 			log.error("[DOLPHIN] %s", game)
 		end
-	elseif (watcher.ingame or meleeMode) and gid == GAME_NONE then
-		watcher.reset()
-		watcher.ingame = false
-		watcher.gameid = gid
-		watcher.version = version
+	elseif (memory.ingame or meleeMode) and gid == GAME_NONE then
+		memory.reset()
+		memory.ingame = false
+		memory.gameid = gid
+		memory.version = version
 
 		love.updateTitle("M'Overlay - Dolphin hooked")
-		watcher.hookRun("OnGameClosed", gid, version)
-		watcher.process:clearGamecubeRAMOffset() -- Clear the memory address space location (When a new game is opened, we recheck this)
+		memory.runhook("OnGameClosed", gid, version)
+		memory.process:clearGamecubeRAMOffset() -- Clear the memory address space location (When a new game is opened, we recheck this)
 		log.info("[DOLPHIN] Game closed..")
 	end
+end
 
-	local frame = watcher.frame or 0
+function memory.update()
+	if not memory.hasPermissions() then return end
 
-	for address, type in pairs(watcher.watching_addr) do
-		local info = watcher.memorymap[address]
-
-		local value
-
-		if type == TYPE_DATA then
-			value = watcher.readData(address, info.len):match("(.-)%z") -- Strip all trailing '\0's
-		else
-			value = watcher.readType(type, address)
-		end
-
-		if watcher.values_memory[address] ~= value then
-			local numValue = tonumber(value) or (value and 1 or 0)
-
-			if watcher.debug or info.debug then
-				log.debug("[MEMORY] [%d][%08X = %08X] %s = %s", frame, address, numValue, info.name, value)
-			end
-
-			watcher.values_memory[address] = value
-			watcher.setTableValue(info.name, watcher.values_memory[address])
-			--watcher.hookRun(info.name, value)
-
-			table.insert(watcher.hook_queue, 1, {name = info.name, value = value, debug = info.debug})
-		end
+	if not process:isProcessActive() and process:hasProcess() then
+		process:close()
+		love.updateTitle("M'Overlay - Waiting for Dolphin..")
+		log.info("[DOLPHIN] Unhooked")
+		memory.hooked = false
 	end
 
-	for address, pointing in pairs(watcher.pointer_loc) do
-		local ptr_addr = watcher.process:readInt(address)
-		if watcher.pointer_loc[address] ~= ptr_addr then
-			watcher.pointer_loc[address] = ptr_addr
+	local t = love.timer.getTime()
 
-			local info = watcher.memorymap[address]
-
-			if ptr_addr == NULL then
-				log.debug("[MEMORY] [%d][POINTER %08X = NULL] %s", frame, address, info.name)
-				watcher.values_pointer[address] = {}
-			else
-				log.debug("[MEMORY] [%d][POINTER %08X = %08X] %s", frame, address, ptr_addr, info.name)
+	-- Only check for the dolphin process once per second to reduce CPU load
+	if not process:hasProcess() or not process:hasGamecubeRAMOffset() then
+		if timer <= t then
+			timer = t + 0.5
+			if process:findprocess() then
+				log.info("[DOLPHIN] Hooked")
+				love.updateTitle("M'Overlay - Dolphin hooked")
+				memory.hooked = true
+			elseif not process:hasGamecubeRAMOffset() and process:findGamecubeRAMOffset() then
+				log.info("[DOLPHIN] Watching ram: %X [%X]", process:getGamecubeRAMOffset(), process:getGamecubeRAMSize())
 			end
 		end
+	else
+		memory.updatememory()
+
+		local frame = memory.frame or 0
+		if frame == 0 or memory.game_frame ~= frame then
+			memory.game_frame = frame
+			memory.runhooks()
+		end
 	end
+end
 
-	for address, offsets in pairs(watcher.watching_ptr_addr) do
-		local ptr_addr = watcher.pointer_loc[address]
-		if ptr_addr and ptr_addr ~= NULL then
+function memory.init(map)
+	log.info("[MEMORY] Mapping game memory..")
+	memory.initialized = true
+	memory.loadmap(map)
+end
 
-			local info = watcher.memorymap[address]
+function memory.reset()
+	memory.initialized = false
+	memory.map = {}
+	memory.values = {}
+	memory.gameid = GAME_NONE
+	memory.version = 0
+	memory.game = nil
+	setmetatable(memory, {__index = memory.values})
+end
 
-			for offset, type in pairs(offsets) do
-				local value
+function memory.updatememory()
+	memory.findGame()
 
-				local sinfo = info.struct[offset]
+	for addr, value in pairs(memory.map) do
+		value:update()
+	end
+end
 
-				if type == TYPE_DATA then
-					value = watcher.readData(ptr_addr + offset, sinfo.len):match("(.-)%z") -- Strip all trailing '\0's
+local function hookPattern(name)
+	-- Convert '*' into capture patterns
+	if string.find(name, "*", 1, true) then
+		return true, '^' .. name:escape():gsub("%%%*", "([^.]-)") .. '$'
+	end
+	return false, name
+end
+
+function memory.hook(name, desc, callback)
+	local wildcard, name = hookPattern(name)
+	if wildcard then
+		memory.wildcard_hooks[name] = memory.wildcard_hooks[name] or {}
+		memory.wildcard_hooks[name][desc] = callback
+	else
+		memory.hooks[name] = memory.hooks[name] or {}
+		memory.hooks[name][desc] = callback
+	end
+end
+
+function memory.unhook(name, desc)
+	memory.hook(name, desc, nil)
+end
+
+function memory.runhooks()
+	local pop
+	while true do
+		pop = table.remove(memory.hook_queue, #memory.hook_queue)
+		if not pop then break end
+		memory.runhook(pop.name, pop.value)
+	end
+end
+
+do
+	local args = {}
+	local matches = {}
+
+	function memory.runhook(name, ...)
+		-- Normal hooks
+		if memory.hooks[name] then
+			for desc, callback in pairs(memory.hooks[name]) do
+				local succ, err
+				if type(desc) == "table" then
+					-- Assume a table is an object, so call it as so
+					succ, err = xpcall(callback, debug.traceback, desc, ...)
 				else
-					value = watcher.readType(type, ptr_addr + offset)
+					succ, err = xpcall(callback, debug.traceback, ...)
+				end
+				if not succ then
+					log.error("[MEMORY] hook error: %s (%s)", desc, err)
+				end
+			end
+		end
+
+		local varargs = {...}
+
+		-- Allow for wildcard hooks
+		for pattern, hooks in pairs(memory.wildcard_hooks) do
+			if string.find(name, pattern) then
+				args = {}
+				matches = {name:match(pattern)}
+
+				for k, match in ipairs(matches) do
+					table.insert(args, tonumber(match) or match)
+				end
+				for k, arg in ipairs(varargs) do
+					table.insert(args, arg)
 				end
 
-				-- If the location of the pointer changed, or our value changed..
-				if watcher.values_pointer[address][offset] ~= value then
-				
-					if info and info.struct and info.struct[offset] then
-						local name = string.format("%s.%s", info.name, info.struct[offset].name)
-						local numValue = tonumber(value) or (value and 1 or 0)
-
-						if watcher.debug or info.debug or info.struct[offset].debug then
-							log.debug("[MEMORY] [%d][POINTER %08X->%08X->%08X = %08X] %s = %s", frame, address, ptr_addr, ptr_addr + offset, numValue, name, value)
-						end
-
-						watcher.values_pointer[address][offset] = value
-						watcher.setTableValue(name, watcher.values_pointer[address][offset])
-
-						table.insert(watcher.hook_queue, 1, {name = name, value = value, debug = info.debug})
-						--watcher.hookRun(name, value)
+				for desc, callback in pairs(hooks) do
+					local succ, err
+					if type(desc) == "table" then
+						-- Assume a table is an object, so call it as so
+						succ, err = xpcall(callback, debug.traceback, desc, unpack(args))
+					else
+						succ, err = xpcall(callback, debug.traceback, unpack(args))
+					end
+					if not succ then
+						log.error("[MEMORY] wildcard hook error: %s (%s)", desc, err)
 					end
 				end
 			end
@@ -483,4 +540,4 @@ function watcher.checkmemoryvalues()
 	end
 end
 
-return watcher
+return memory

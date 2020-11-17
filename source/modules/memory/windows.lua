@@ -249,11 +249,11 @@ function MEMORY:hasProcess()
 end
 
 function MEMORY:clearGamecubeRAMOffset()
-	self.dolphin_base_addr = 0
+	self.dolphin_base_addr = nil
 end
 
 function MEMORY:hasGamecubeRAMOffset()
-	return self.dolphin_base_addr ~= 0
+	return self.dolphin_base_addr ~= nil
 end
 
 function MEMORY:getGamecubeRAMOffset()
@@ -268,7 +268,7 @@ function MEMORY:close()
 	if self:hasProcess() then
 		kernel.CloseHandle(self.process_handle)
 		self.process_handle = nil
-		self.dolphin_base_addr = 0
+		self.dolphin_base_addr = nil
 	end
 end
 
@@ -302,92 +302,24 @@ function MEMORY:findGamecubeRAMOffset()
 	return false
 end
 
-local function read(mem, addr, output, size)
+function MEMORY:read(addr, output, size)
+	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
 	local read = new("SIZE_T[1]") -- How many bytes are read from memory
-	local success = kernel.ReadProcessMemory(mem.process_handle, ffi.cast("LPCVOID", mem.dolphin_base_addr + (addr % 0x80000000)), output, size, read)
+	local success = kernel.ReadProcessMemory(self.process_handle, ffi.cast("LPCVOID", self.dolphin_base_addr + (addr % 0x80000000)), output, size, read)
 	if not success then
 		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", addr, tonumber(kernel.GetLastError()))
 	end
 	return success and read[0] == size
 end
 
-local function write(mem, addr, input, size)
+function MEMORY:write(addr, input, size)
+	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
 	local written = new("SIZE_T[1]") -- How many bytes are written to memory
-	local success = kernel.WriteProcessMemory(mem.process_handle, ffi.cast("LPVOID", mem.dolphin_base_addr + (addr % 0x80000000)), input, size, written)
+	local success = kernel.WriteProcessMemory(self.process_handle, ffi.cast("LPVOID", self.dolphin_base_addr + (addr % 0x80000000)), input, size, written)
+	if not success then
+		log.debug("[MEMORY] Failed writing to address [%08X = %08X] ERROR #%d", addr, tonumber(input), tonumber(kernel.GetLastError()))
+	end
 	return success and written[0] == size
-end
-
-function MEMORY:readByte(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("int8_t[1]")
-	read(self, addr, output, sizeof(output))
-	return output[0]
-end
-
-function MEMORY:writeByte(addr, value)
-	if not self:hasProcess() then return end
-	local input = new("int8_t[1]", value)
-	return write(self, addr, input, sizeof(input))
-end
-
-function MEMORY:readBool(addr)
-	return self:readByte(addr) == 1
-end
-
-function MEMORY:readUByte(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint8_t[1]")
-	read(self, addr, output, sizeof(output))
-	return output[0]
-end
-
-local function bswap16(n)
-	return bor(rshift(n, 8), lshift(band(n, 0xFF), 8))
-end
-
-function MEMORY:readShort(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("int16_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap16(output[0])
-end
-
-function MEMORY:readUShort(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint16_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap16(output[0])
-end
-
-local floatconversion = ffi.new("union { uint32_t i; float f; }")
-
-function MEMORY:readFloat(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint32_t[1]")
-	read(self, addr, output, sizeof(output))
-	floatconversion.i = bswap(output[0])
-	return floatconversion.f
-end
-
-function MEMORY:readInt(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("int32_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap(output[0])
-end
-
-function MEMORY:readUInt(addr)
-	if not self:hasProcess() then return 0 end
-	local output = new("uint32_t[1]")
-	read(self, addr, output, sizeof(output))
-	return bswap(output[0])
-end
-
-function MEMORY:read(addr, len)
-	if not self:hasProcess() then return "" end
-	local output = new("unsigned char[?]", len)
-	read(self, addr, output, sizeof(output))
-	return string(output, sizeof(output))
 end
 
 return MEMORY
