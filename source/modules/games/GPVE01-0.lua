@@ -9,14 +9,14 @@ local game = {
 	memorymap = {}
 }
 
-game.memorymap[0x80005426] = { type = "byte", name = "revision", debug = true }
+game.memorymap[0x80005426] = { type = "byte", name = "pikmin.revision" }
 
 local controller_addrs = {
 	[0xC5] = 0x80506F48, -- Demo version
 	[0xC6] = 0x80507008, -- Retail version
 }
 
-memory.hook("revision", "Pikmin 2 - Load Version Speicific Offsets", function(revision)
+memory.hook("pikmin.revision", "Pikmin 2 - Load Version Speicific Offsets", function(revision)
 	local controller_map = {}
 
 	local controller_addr = controller_addrs[revision]

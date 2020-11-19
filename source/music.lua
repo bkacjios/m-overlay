@@ -119,7 +119,7 @@ local IGNORE_CHANGE = false
 
 local ALLOW_INGAME_VOLUME = false
 
-memory.hook("OnGameClosed", "Set state unloaded", function(gid, version)
+memory.hook("OnGameClosed", "Set state unloaded", function()
 	LOADED = false
 end)
 

@@ -114,13 +114,19 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 	name = "slippi",
 	struct = {
 		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/6e08a376dc9ca239d9b7312089d975e89fa37a5c/Online/Online.s#L217
-		[0x000] = {
+		--[[[0x000] = {
 			type = "pointer",
-			name = "thing",
+			name = "slippi_ptr",
 			struct = {
-				[0x4] = { type = "u8", name = "test_value", debug = true }
+				[0x01] = { type = "u8", name = "connection_state" },
+				[0x02] = { type = "u8", name = "local_player.ready" },
+				[0x03] = { type = "u8", name = "remote_player.ready" },
+				[0x04] = { type = "u8", name = "local_player.index", debug = true },
+				[0x05] = { type = "u8", name = "remote_player.index", debug = true },
+				[0x06] = { type = "u32", name = "rng_offset" },
+				[0x07] = { type = "u8", name = "delay_frames" },
 			}
-		},
+		},]]
 		[0x040] = { type = "u8", name = "connection_state" },
 		[0x041] = { type = "u8", name = "local_player.ready" },
 		[0x042] = { type = "u8", name = "remote_player.ready" },

@@ -275,8 +275,9 @@ POINTER.__index = POINTER
 function memory.newpointer(addr, offset, pointer)
 	local pstruct = {}
 
-	--log.debug("[MEMORY] POINTER CREATED %08X + %X", addr, offset)
+	log.debug("[MEMORY] POINTER CREATED %08X + %X", addr, offset)
 
+	-- Loop through the pointers children
 	for poffset, struct in pairs(pointer.struct) do
 		local originalname = struct.name
 
@@ -295,6 +296,7 @@ function memory.newpointer(addr, offset, pointer)
 	end
 
 	return setmetatable({
+		parent = addr ~= NULL and pointer or nil,
 		name = pointer.name,
 		address = addr,
 		offset = offset,
@@ -303,16 +305,31 @@ function memory.newpointer(addr, offset, pointer)
 	}, POINTER)
 end
 
+function POINTER:getAddress()
+	return ("0x%08X"):format(self.address + self.offset)
+end
+
+function POINTER:getPointerPath()
+	local parent = self
+	while parent do
+		local path = parent:getAddress()
+		path = parent:getAddress() .. " -> " .. path
+		parent = parent.parent
+	end
+	return path
+end
+
 function POINTER:update()
-	local ploc = memory.readUInt(self.address + self.offset)
+	local addr = self.address + self.offset
+	local ploc = memory.readUInt(addr)
 
 	if self.location ~= ploc then
 		self.location = ploc
 
 		if ploc == NULL then
-			log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s = 0x%08X", self.address, self.name, self.address)
+			log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s -> 0x%08X", addr, self.name, ploc)
 		else
-			log.debug("[MEMORY] [0x%08X -> 0x%08X] %s = 0x%08X", self.address, ploc, self.name, ploc)
+			log.debug("[MEMORY] [0x%08X -> 0x%08X] %s -> 0x%08X", addr, ploc, self.name, ploc)
 		end
 	end
 
@@ -363,7 +380,7 @@ local timer = love.timer.getTime()
 
 function memory.loadGameScript(path)
 	-- Try to load the game table
-	local status, game = xpcall(require, debug.traceback, path)
+	local status, game = xpcall(require, debug.traceback, ("games.%s"):format(path))
 
 	log.debug("[DOLPHIN] GAMEID: %s", path)
 	love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(path))
@@ -400,7 +417,7 @@ function memory.findGame()
 		memory.ingame = true
 		memory.vcid = vcid
 
-		memory.loadGameScript(string.format("games.%s", vcid))
+		memory.loadGameScript(vcid)
 	elseif (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
 		memory.reset()
 		memory.ingame = true
@@ -415,7 +432,7 @@ function memory.findGame()
 			gid = clone.id
 		end
 
-		memory.loadGameScript(string.format("games.%s-%d", gid, version))
+		memory.loadGameScript(("%s-%d"):format(gid, version))
 	elseif (memory.ingame or meleeMode) and (gid == GAME_NONE and vcid == VC_NONE) then
 		memory.reset()
 		memory.ingame = false
@@ -424,7 +441,7 @@ function memory.findGame()
 		memory.version = version
 
 		love.updateTitle("M'Overlay - Dolphin hooked")
-		memory.runhook("OnGameClosed", gid, version)
+		memory.runhook("OnGameClosed")
 		memory.process:clearGamecubeRAMOffset() -- Clear the memory address space location (When a new game is opened, we recheck this)
 		log.info("[DOLPHIN] Game closed..")
 	end
