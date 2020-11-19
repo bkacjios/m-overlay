@@ -51,6 +51,10 @@ function memory.readGameID()
 	return memory.read(GAME_ID_ADDR, GAME_ID_LEN)
 end
 
+function memory.readVirtualConsoleID()
+	return memory.read(VC_ID_ADDR, VC_ID_LEN)
+end
+
 function memory.readGameVersion()
 	return memory.readUByte(GAME_VER_ADDR)
 end
@@ -247,8 +251,8 @@ end
 function ADDRESS:update()
 	if self.address == NULL then return end
 
-	-- value = byteswapped value
-	-- orig = Non-byteswapped value (Only available for floats)
+	-- value = converted value
+	-- orig = Non-converted value (Only available for floats)
 	local value, orig = self.read(self.address + self.offset)
 
 	-- Check if there has been a value change
@@ -336,7 +340,8 @@ end
 
 function memory.isInGame()
 	local gid = memory.gameid
-	return gid ~= GAME_NONE
+	local vcid = memory.vcid
+	return gid ~= GAME_NONE or vcid ~= VC_NONE
 end
 
 function memory.isMelee()
@@ -356,8 +361,28 @@ end
 
 local timer = love.timer.getTime()
 
+function memory.loadGameScript(path)
+	-- Try to load the game table
+	local status, game = xpcall(require, debug.traceback, path)
+
+	log.debug("[DOLPHIN] GAMEID: %s", path)
+	love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(path))
+	memory.runhook("OnGameOpen")
+
+	if status then
+		memory.game = game
+		log.info("[DOLPHIN] Loaded game config: %s", path)
+		memory.init(game.memorymap)
+	else
+		notification.error(("Unsupported game %s"):format(path))
+		notification.error("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode")
+		log.error("[DOLPHIN] %s", game) -- game variable is an error string
+	end
+end
+
 function memory.findGame()
 	local gid = memory.readGameID()
+	local vcid = memory.readVirtualConsoleID()
 	local version = memory.readGameVersion()
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
@@ -366,17 +391,21 @@ function memory.findGame()
 		version = 0x02
 	end
 
+	-- When playing Slippi netplay.. the game ID can and will change..
+	-- This would normally break things, but if you enable Rollback/Netplay mode it will force the gameid to always be GALE01 v1.02
 	local meleeMode = (memory.isMelee() and memory.gameid ~= gid)
 
-	if (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
+	if not memory.ingame and gid == GAME_NONE and vcid ~= VC_NONE then
+		memory.reset()
+		memory.ingame = true
+		memory.vcid = vcid
+
+		memory.loadGameScript(string.format("games.%s", vcid))
+	elseif (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
 		memory.reset()
 		memory.ingame = true
 		memory.gameid = gid
 		memory.version = version
-
-		log.debug("[DOLPHIN] GAMEID: %q (Version %d)", gid, version)
-		love.updateTitle(("M'Overlay - Dolphin hooked (%s-%d)"):format(gid, version))
-		memory.runhook("OnGameOpen", gid, version)
 
 		-- See if this GameID is a clone of another
 		local clone = clones[gid]
@@ -386,22 +415,12 @@ function memory.findGame()
 			gid = clone.id
 		end
 
-		-- Try to load the game table
-		local status, game = xpcall(require, debug.traceback, string.format("games.%s-%d", gid, version))
-
-		if status then
-			memory.game = game
-			log.info("[DOLPHIN] Loaded game config: %s-%d", gid, version)
-			memory.init(game.memorymap)
-		else
-			notification.error(("Unsupported game %s-%d"):format(gid, version))
-			notification.error(("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode"):format(gid, version))
-			log.error("[DOLPHIN] %s", game)
-		end
-	elseif (memory.ingame or meleeMode) and gid == GAME_NONE then
+		memory.loadGameScript(string.format("games.%s-%d", gid, version))
+	elseif (memory.ingame or meleeMode) and (gid == GAME_NONE and vcid == VC_NONE) then
 		memory.reset()
 		memory.ingame = false
 		memory.gameid = gid
+		memory.vcid = vcid
 		memory.version = version
 
 		love.updateTitle("M'Overlay - Dolphin hooked")
