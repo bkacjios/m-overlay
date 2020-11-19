@@ -165,7 +165,7 @@ function MEMORY:findprocess()
 end
 
 function MEMORY:isProcessActive()
-	if self.pid ~= 0 then
+	if self.pid then
 		return libc.access("/proc/" .. self.pid, 0) == 0
 	end
 	return false
@@ -250,7 +250,8 @@ function MEMORY:read(addr, output, size)
 	local read = libc.process_vm_readv(self.pid, localvec, 1, remotevec, 1, 0)
 
 	if read ~= size then
-		log.warn("Failed reading process memory..")
+		local message = libc.strerror(errno())
+		log.warn("[MEMORY] Failed reading from address [%08X] %s", addr, message)
 		self:close()
 	end
 

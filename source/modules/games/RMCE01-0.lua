@@ -14,6 +14,13 @@ local ptr_addr = 0x809B8F4C --> addr + 0x08 -> addr + 0x0A -> the controller str
 local ptr_offset = 0x0A
 local ctrl_offset = 0xB0
 
+local controllers = {
+	ctrl_offset * 0,
+	ctrl_offset * 1,
+	ctrl_offset * 2,
+	ctrl_offset * 3,
+}
+
 local controller_struct = {
 	[0x00] = { type = "short",	name = "controller.%d.buttons.pressed" },
 	[0x02] = { type = "float",	name = "controller.%d.joystick.x" },
@@ -25,28 +32,26 @@ local controller_struct = {
 	[0x90] = { type = "byte",	name = "controller.%d.plugged" },
 }
 
-local controller_ptr = {
-	type = "pointer",
-	struct = {
-		[0x08] = {
-			type = "pointer",
-			name = "controller",
-			struct = controller_struct
-		}
-	}
+game.memorymap[ptr_addr] = {
+    type = "pointer";
+    name = "controller";
+    struct = {
+        [0x08] = {
+            type = "pointer";
+            struct = {}
+        }
+    }
 }
 
-for i = 1, 4 do
-	for offset, info in pairs(controller_struct) do
-		controller_ptr.struct[0x08].struct[(ctrl_offset * (i - 1)) + (offset + ptr_offset)] = {
-			type = info.type,
-			debug = info.debug,
-			name = info.name:format(i),
-		}
-	end
+for port, address in ipairs(controllers) do
+    for offset, info in pairs(controller_struct) do
+        game.memorymap[ptr_addr].struct[0x08].struct[0x0A + address + offset] = {
+            type = info.type;
+            debug = info.debug;
+            name = info.name:format(port);
+        }
+    end
 end
-
-game.memorymap[ptr_addr] = controller_ptr
 
 game.translateAxis = function(x, y) return x, y end
 game.translateTriggers = core.translateTriggers

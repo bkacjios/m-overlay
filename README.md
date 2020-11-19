@@ -36,6 +36,12 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
 * Mario Kart Wii (NTSC-U v1.0)
 
+### Supported VC games list
+
+* Super Mario 64 (NTSC-U)
+* The Legend of Zelda: Ocarina of Time (NTSC-U)
+* The Legend of Zelda: Majora's Mask (NTSC-U)
+
 *More games can be supported upon request!*
 
 ### Usage
