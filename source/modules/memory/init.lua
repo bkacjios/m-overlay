@@ -281,7 +281,7 @@ function memory.newpointer(addr, offset, pointer)
 	for poffset, struct in pairs(pointer.struct) do
 		local originalname = struct.name
 
-		if pointer.name then
+		if pointer.name and struct.name then
 			-- If we named the pointer, prepend it to the structs name
 			struct.name = pointer.name .. "." .. struct.name
 		end
