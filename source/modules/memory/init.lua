@@ -222,17 +222,19 @@ end
 local ADDRESS = {}
 ADDRESS.__index = ADDRESS
 
-function memory.newvalue(addr, offset, struct)
+function memory.newvalue(addr, offset, struct, name)
 	assert(type(addr) == "number", "argument #1 'address' must be a number")
 	assert(TYPES_READ[struct.type] ~= nil, "unhandled type: " .. struct.type)
 
-	-- create/get a new value cache based off of the value name
-	local tbl, key = memory.cacheValue(memory.values, struct.name, struct.init or NULL)
+	name = name or struct.name or ""
 
-	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, struct.name)
+	-- create/get a new value cache based off of the value name
+	local tbl, key = memory.cacheValue(memory.values, name, struct.init or NULL)
+
+	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
 
 	return setmetatable({
-		name = struct.name,
+		name = name,
 
 		address = addr, -- Where in memory this value is located
 		offset = offset, -- How far past the address value we should get the value from
@@ -272,32 +274,29 @@ end
 local POINTER = {}
 POINTER.__index = POINTER
 
-function memory.newpointer(addr, offset, pointer)
+function memory.newpointer(addr, offset, pointer, name)
 	local pstruct = {}
 
-	log.debug("[MEMORY] POINTER CREATED %08X + %X", addr, offset)
+	name = name or pointer.name
+
+	--log.debug("[MEMORY] POINTER CREATED %08X + %X %q", addr, offset, name or "nil")
 
 	-- Loop through the pointers children
 	for poffset, struct in pairs(pointer.struct) do
-		local originalname = struct.name
-
-		if pointer.name and struct.name then
-			-- If we named the pointer, prepend it to the structs name
-			struct.name = pointer.name .. "." .. struct.name
+		local sname = name
+		if sname and struct.name then
+			sname = sname .. "." .. struct.name
 		end
 		if struct.type == "pointer" then
-			pstruct[poffset] = memory.newpointer(NULL, poffset, struct)
+			pstruct[poffset] = memory.newpointer(NULL, poffset, struct, sname)
 		else
-			pstruct[poffset] = memory.newvalue(NULL, poffset, struct)
+			pstruct[poffset] = memory.newvalue(NULL, poffset, struct, sname)
 		end
-
-		-- Restore the name back
-		struct.name = originalname
 	end
 
 	return setmetatable({
 		parent = addr ~= NULL and pointer or nil,
-		name = pointer.name,
+		name = name,
 		address = addr,
 		offset = offset,
 		location = NULL,

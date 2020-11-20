@@ -537,26 +537,39 @@ function melee.loadtextures()
 	end
 end
 
+function melee.getPlayer(port)
+	if not memory.player then return end
+
+	if not melee.isInGame() then
+		if melee.isSinglePlayerGame() and port == memory.menu.player_one_port + 1 then
+			-- Single player games in CSS screen always use PORT 1 character info no matter what port is controlling the menus
+			return memory.player[1].select
+		else
+			return memory.player[port].select
+		end
+	end
+
+	return memory.player[port]
+end
+
 function melee.getCharacterID(port)
 	if not memory.player then return end
 
-	if melee.isSinglePlayerGame() and port == memory.menu.player_one_port + 1 then
-		-- In single player games, the player select info is always stored under player 1, no matter which port is acting as player 1
-		port = 1
-	end
-
-	local player = memory.player[port]
+	local player = melee.getPlayer(port)
 
 	if not player then return end
 
 	local character = player.character
-	local transformed = player.transformed == 256
 
-	-- Handle and detect Zelda/Sheik transformations
-	if character == 0x13 then
-		character = transformed and 0x12 or 0x13
-	elseif character == 0x12 then
-		character = transformed and 0x13 or 0x12
+	if melee.isInGame() then
+		local transformed = player.transformed == 256
+
+		-- Handle and detect Zelda/Sheik transformations
+		if character == 0x13 then
+			character = transformed and 0x12 or 0x13
+		elseif character == 0x12 then
+			character = transformed and 0x13 or 0x12
+		end
 	end
 
 	return character
@@ -590,7 +603,7 @@ end
 function melee.drawStock(port, ...)
 	local id = melee.getCharacterID(port)
 	if id == 0x21 or not memory.player then return end
-	local player = memory.player[port]
+	local player = melee.getPlayer(port)
 	if not player or not id then return end
 	local stock = melee.getStockTexture(id, player.skin)
 	if not stock then return end

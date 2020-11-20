@@ -21,6 +21,8 @@ local bor = bit.bor
 local kernel = load("Kernel32.dll")
 local psapi = load("Psapi.dll")
 
+local libc = ffi.C
+
 cdef [[
 // Stupid Windows typenames..
 
@@ -290,7 +292,9 @@ function MEMORY:findGamecubeRAMOffset()
 
 			if psapi.QueryWorkingSetEx(self.process_handle, wsinfo, sizeof(wsinfo)) == 1 then
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
+
 				if band(flags, lshift(1, 0)) == 1 then -- Check if the Valid flag is set
+					--log.debug("%08X %x", tonumber(cast("ULONG_PTR", info.BaseAddress)), tonumber(cast("ULONG_PTR", info.RegionSize)))
 					self.dolphin_base_addr = cast("ULONG_PTR", info.BaseAddress)
 					self.dolphin_addr_size = cast("ULONG_PTR", info.RegionSize)
 					return true
@@ -302,12 +306,38 @@ function MEMORY:findGamecubeRAMOffset()
 	return false
 end
 
+local GC_RAM_START = cast("uint32_t", 0x80000000)
+local GC_RAM_END = cast("uint32_t", 0x81800000)
+local WII_RAM_START = cast("uint32_t", 0x90000000)
+local WII_RAM_END = cast("uint32_t", 0x94000000)
+
+local WII_RAM_LOCAL_START = cast("uint32_t", 0x02000000)
+
+local CAST_ADDR = ffi.new("uint32_t", 0x00000000)
+
 function MEMORY:read(addr, output, size)
 	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
 	local read = new("SIZE_T[1]") -- How many bytes are read from memory
-	local success = kernel.ReadProcessMemory(self.process_handle, ffi.cast("LPCVOID", self.dolphin_base_addr + (addr % 0x80000000)), output, size, read)
+
+	CAST_ADDR = cast("uint32_t", addr)
+
+	if CAST_ADDR >= WII_RAM_START then
+		CAST_ADDR = WII_RAM_LOCAL_START + (CAST_ADDR % WII_RAM_START)
+	--elseif addr >= GC_RAM_START and addr <= GC_RAM_END then -- There is something seriously wrong with these checks with ffi numbers
+	else
+		CAST_ADDR = (CAST_ADDR % GC_RAM_START)
+	end
+	--[[else
+		--log.warn("[MEMORY] Attempt to read from invalid address %X", tonumber(CAST_ADDR))
+		print(addr >= GC_RAM_START, addr <= GC_RAM_END) -- ??????????
+		return false
+	end]]
+
+	local success = kernel.ReadProcessMemory(self.process_handle, ffi.cast("LPCVOID", self.dolphin_base_addr + CAST_ADDR), output, size, read)
 	if not success then
-		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", addr, tonumber(kernel.GetLastError()))
+		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", CAST_ADDR, tonumber(kernel.GetLastError()))
+	--else
+	--	log.debug("[MEMORY] read 0x%X size 0x%X bytes from 0x%08X = %q", tonumber(read[0]), size, tonumber(CAST_ADDR), tohex(ffi.string(output, read[0])))
 	end
 	return success and read[0] == size
 end
