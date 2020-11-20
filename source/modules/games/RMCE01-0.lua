@@ -9,10 +9,9 @@ local game = {
 }
 
 local ptr_addr = 0x809B8F4C --> addr + 0x08 -> addr + 0x0A -> the controller structs
-local ptr_offset = 0x0A
 local ctrl_offset = 0xB0
 
-local controllers = {
+local controllers = { -- TODO: fix port issues
 	ctrl_offset * 0,
 	ctrl_offset * 1,
 	ctrl_offset * 2,
@@ -41,9 +40,12 @@ game.memorymap[ptr_addr] = {
     }
 }
 
+local ptr_offset = 0x0A
+local controller_ptr = game.memorymap[ptr_addr].struct[0x08].struct
+
 for port, address in ipairs(controllers) do
-    for offset, info in pairs(controller_struct) do
-        game.memorymap[ptr_addr].struct[0x08].struct[0x0A + address + offset] = {
+	for offset, info in pairs(controller_struct) do
+		controller_ptr[ptr_offset + address + offset] = {
             type = info.type;
             debug = info.debug;
             name = info.name:format(port);
