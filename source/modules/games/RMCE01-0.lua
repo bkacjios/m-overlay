@@ -2,8 +2,6 @@
 
 -- Code based on RSBE01-2.lua
 
-local min = math.min
-
 local core = require("games.core")
 
 local game = {
