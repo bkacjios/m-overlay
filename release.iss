@@ -7,19 +7,21 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
 [Setup]
-AppName=M'Overlay
-AppId=M'Overlay
-AppVersion=1.5.5
+#define AppName "M'Overlay"
+#define AppVersion "1.5.5"
+AppName={#AppName}
+AppId={#AppName}
+AppVersion={#AppVersion}
 WizardStyle=modern
-DefaultDirName={autopf}\M'Overlay
-DefaultGroupName=M'Overlay
+DefaultDirName={autopf}\{#AppName}
+DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\m-overlay-64.exe
 SetupIconFile=installer/icon.ico
 WizardSmallImageFile=installer/wizard.bmp
 Compression=lzma2
 SolidCompression=yes
 OutputDir=./releases
-OutputBaseFilename=M'Overlay - installer (x64)
+OutputBaseFilename={#AppName} - installer ({#AppVersion})
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
 ; anything but x64.
 ArchitecturesAllowed=x64
@@ -41,7 +43,7 @@ Source: "build/x64/OpenAL32.dll"; DestDir: "{app}"; DestName: "OpenAL32.dll"; Fl
 Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"; Flags: ignoreversion  
 
 [Icons]
-Name: "{group}\M'Overlay"; Filename: "{app}\m-overlay-64.exe"
+Name: "{group}\{#AppName}"; Filename: "{app}\m-overlay-64.exe"
 
 [Run]
-Filename: {app}\m-overlay-64.exe; Description: "Launch M'Overlay"; Flags: postinstall shellexec skipifsilent nowait
+Filename: {app}\m-overlay-64.exe; Description: "Launch {#AppName}"; Flags: postinstall shellexec skipifsilent nowait

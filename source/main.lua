@@ -228,9 +228,9 @@ function love.wheelmoved(x, y)
 	end
 	
 	if y > 0 then
-		PORT = PORT + 1
-	elseif y < 0 then
 		PORT = PORT - 1
+	elseif y < 0 then
+		PORT = PORT + 1
 	end
 	PORT = PORT % MAX_PORTS
 	PORT_DISPLAY_OVERRIDE = nil

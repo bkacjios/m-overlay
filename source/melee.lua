@@ -543,7 +543,7 @@ function melee.getPlayer(port)
 	if melee.isSinglePlayerGame() and port == memory.menu.player_one_port + 1 then
 		-- Single player games in CSS screen always use PORT 1 character info no matter what port is controlling the menus
 		return memory.player[1].select
-	else if not melee.isInGame() then
+	elseif not melee.isInGame() then
 		return memory.player[port].select
 	end
 

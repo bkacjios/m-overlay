@@ -62,10 +62,15 @@ local player_static_addresses = {
 
 local player_static_struct = {
 	[0x004] = { type = "u32", name = "character" },
+	--[0x008] = { type = "u32", name = "mode" },
 	[0x00C] = { type = "u16", name = "transformed" },
 	[0x044] = { type = "u8", name = "skin" },
+	--[0x045] = { type = "u8", name = "port" },
 	[0x046] = { type = "u8", name = "color" },
 	[0x047] = { type = "u8", name = "team" },
+	--[0x048] = { type = "u8", name = "index" },
+	--[0x049] = { type = "u8", name = "cpu_level", debug = true },
+	--[0x04A] = { type = "u8", name = "cpu_type", debug = true }, -- 4 = 20XX, 22 = normalish, 19 = Alt Normal
 }
 
 for id, address in ipairs(player_static_addresses) do
@@ -90,6 +95,8 @@ for id, address in ipairs(player_static_addresses) do
 			name = ("player.%i.%s"):format(id, name),
 			struct = {
 				[0x60 + 0x0004] = { type = "u32", name = "character" },
+				--[0x60 + 0x000C] = { type = "u8", name = "port" },
+				--[0x60 + 0x0618] = { type = "u8", name = "index" },
 				[0x60 + 0x0619] = { type = "u8", name = "skin" },
 				[0x60 + 0x061A] = { type = "u8", name = "color" },
 				[0x60 + 0x061B] = { type = "u8", name = "team" },
@@ -101,6 +108,11 @@ for id, address in ipairs(player_static_addresses) do
 				[0x60 + 0x0650] = { type = "float", name = "controller.analog.float" },
 				[0x60 + 0x065C] = { type = "u32",	name = "controller.buttons.pressed" },
 				[0x60 + 0x0660] = { type = "u32",	name = "controller.buttons.pressed_previous" },
+
+				--[[
+				[0x60 + 0x1A94] = { type = "u32", name = "cpu_type" },
+				[0x60 + 0x1A98] = { type = "u32", name = "cpu_level" },
+				]]
 			},
 		}
 	end
@@ -130,8 +142,8 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 		[0x040] = { type = "u8", name = "connection_state" },
 		[0x041] = { type = "u8", name = "local_player.ready" },
 		[0x042] = { type = "u8", name = "remote_player.ready" },
-		[0x043] = { type = "u8", name = "local_player.index", debug = true },
-		[0x044] = { type = "u8", name = "remote_player.index", debug = true },
+		[0x043] = { type = "u8", name = "local_player.index" },
+		[0x044] = { type = "u8", name = "remote_player.index" },
 		[0x045] = { type = "u32", name = "rng_offset" },
 		[0x049] = { type = "u8", name = "delay_frames" },
 		--[0x04A] = { type = "data", size = 31, name = "player.1.name" },
