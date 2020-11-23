@@ -27,9 +27,8 @@ local memory = {
 
 	hooked = false,
 	initialized = false,
-
 	ingame = false,
-	hooked = false,
+	supportedgame = false,
 
 	map = {},
 	values = {},
@@ -354,6 +353,10 @@ function memory.hasPermissions()
 	return memory.permissions
 end
 
+function memory.isSupportedGame()
+	return memory.supportedgame
+end
+
 function memory.isInGame()
 	local gid = memory.gameid
 	local vcid = memory.vcid
@@ -386,10 +389,12 @@ function memory.loadGameScript(path)
 	memory.runhook("OnGameOpen")
 
 	if status then
+		memory.supportedgame = true
 		memory.game = game
 		log.info("[DOLPHIN] Loaded game config: %s", path)
 		memory.init(game.memorymap)
 	else
+		memory.supportedgame = false
 		notification.error(("Unsupported game %s"):format(path))
 		notification.error("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode")
 		log.error("[DOLPHIN] %s", game) -- game variable is an error string
@@ -490,7 +495,6 @@ end
 function memory.reset()
 	memory.initialized = false
 	memory.ingame = false
-	memory.hooked = false
 	memory.map = {}
 	memory.values = {}
 	memory.gameid = GAME_NONE

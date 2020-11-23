@@ -3,8 +3,6 @@
 local core = require("games.core")
 local memory = require("memory")
 
-local version = memory.readUByte(0x80005426)
-
 local game = {
 	memorymap = {}
 }

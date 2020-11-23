@@ -688,7 +688,7 @@ function love.draw()
 	end
 
 	-- Draw a temporary number to show that the user changed controller port
-	if (PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime() then
+	if memory.isSupportedGame() and ((PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime()) then
 		if memory.isMelee() then
 			local port = PORT_DISPLAY_OVERRIDE or PORT
 			local portColor
