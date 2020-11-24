@@ -292,6 +292,7 @@ local BUTTON_TEXTURES = {
 	},
 	CSTICK = {
 		GATE = newImage("textures/buttons/c-stick-gate.png"),
+		MASK = newImage("textures/buttons/c-stick-mask.png"),
 		STICK = newImage("textures/buttons/c-stick.png"),
 	},
 	A = {
@@ -530,7 +531,15 @@ function love.drawControllerOverlay()
 		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 20 + (32 * vy), angle, 64, 64)
 
 		graphics.setColor(255, 235, 0, 255)
-		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
+
+		graphics.stencil(function()
+			perspective.on()
+			perspective.quad(BUTTON_TEXTURES.CSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
+			perspective.off()
+		end, "replace", 1)
+		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
+			graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
+		graphics.setStencilTest()
 
 		perspective.on()
 		perspective.quad(BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
