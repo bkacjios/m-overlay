@@ -3,3 +3,4 @@
 build/
 releases/
 nativefiledialog-master/
+*.psd
