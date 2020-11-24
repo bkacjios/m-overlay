@@ -240,6 +240,8 @@ end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")
 
+local ANALOG = newImage("textures/buttons/analog-outline.png")
+
 local BUTTON_TEXTURES = {
 	DPAD = {
 		GATE = newImage("textures/buttons/d-pad-gate.png"),
@@ -340,7 +342,7 @@ local BUTTON_TEXTURES = {
 			y = -32
 		}
 	},
-	START = {
+	--[[START = {
 		OUTLINE = newImage("textures/buttons/start-outline.png"),
 		PRESSED = newImage("textures/buttons/start-pressed.png"),
 		COLOR = color(255, 255, 255, 255),
@@ -348,7 +350,7 @@ local BUTTON_TEXTURES = {
 			x = 256,
 			y = 26
 		}
-	}
+	}]]
 }
 
 local vertices = {
@@ -551,11 +553,20 @@ function love.drawControllerOverlay()
 
 		if PANEL_SETTINGS:IsSlippiReplay() then
 			graphics.setLineStyle("smooth")
-			love.graphics.setLineWidth(3)
+			love.graphics.setLineWidth(4)
+
+			-- Draw outline
+			graphics.easyDraw(ANALOG, 108 + 6, 14, 0, 116, 24)
+
+			-- Draw L segment for button press
+			graphics.line(108 + 14 + 88, 20, 108 + 14 + 88, 20 + 12)
+
+			-- Draw R segment for button press
+			graphics.line(108 + 14 + 12, 20, 108 + 14 + 12, 20 + 12)
 
 			graphics.stencil(function()
 				-- Create a rounded rectangle mask
-				graphics.rectangle("fill", 108 + 14, 16, 100, 12, 6, 6)
+				graphics.rectangle("fill", 108 + 14, 20, 100, 12, 6, 6)
 			end, "replace", 1)
 			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 				-- Analog
@@ -570,74 +581,68 @@ function love.drawControllerOverlay()
 
 		 		-- L Button
 				if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-					graphics.rectangle("fill", 108 + 14, 16, 12, 12)
+					graphics.rectangle("fill", 108 + 14, 20, 12, 12)
 					analog = 1
 				end
 
 				-- R Button
 				if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-					graphics.rectangle("fill", 108 + 14 + 12 + 76, 16, 12, 12)
+					graphics.rectangle("fill", 108 + 14 + 12 + 76, 20, 12, 12)
 					analog = 1
 				end
 
 				local w = 76 * analog
-				graphics.rectangle("fill", 108 + 14 + 12 + 76/2 - (w/2), 16, w, 12)
+				graphics.rectangle("fill", 108 + 14 + 12 + 76/2 - (w/2), 20, w, 12)
 			graphics.setStencilTest()
-
-			-- Draw outline
-			graphics.rectangle("line", 108 + 14, 16, 100, 12, 6, 6)
-			-- Draw segment for button press
-			graphics.line(108 + 14 + 88, 16, 108 + 14 + 88, 16 + 12)
-
-			-- Draw segment for button press
-			graphics.line(108 + 14 + 12, 16, 108 + 14 + 12, 16 + 12)
 		else
 			local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
 
 			graphics.setLineStyle("smooth")
-			love.graphics.setLineWidth(3)
+			love.graphics.setLineWidth(4)
+
+			-- Draw L
+
+			-- Draw outline
+			graphics.easyDraw(ANALOG, 24 + 6, 14, 0, 116, 24)
+			-- Draw segment for button press
+			graphics.line(24 + 14 + 88, 20, 24 + 14 + 88, 20 + 12)
 
 			graphics.stencil(function()
 				-- Create a rounded rectangle mask
-				graphics.rectangle("fill", 24 + 14, 16, 100, 12, 6, 6)
+				graphics.rectangle("fill", 24 + 14, 20, 100, 12, 6, 6)
 			end, "replace", 1)
 			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 		 		-- L Button
 				if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-					graphics.rectangle("fill", 24 + 14 + 88, 16, 12, 12)
+					graphics.rectangle("fill", 24 + 14 + 88, 20, 12, 12)
 					al = 1
 				end
 
 				-- L Analog
-				graphics.rectangle("fill", 24 + 14, 16, 88 * al, 12)
+				graphics.rectangle("fill", 24 + 14, 20, 88 * al, 12)
 			graphics.setStencilTest()
-
-			-- Draw outline
-			graphics.rectangle("line", 24 + 14, 16, 100, 12, 6, 6)
-			-- Draw segment for button press
-			graphics.line(24 + 14 + 88, 16, 24 + 14 + 88, 16 + 12)
 
 			-- Draw R
 
+			-- Draw outline
+			graphics.easyDraw(ANALOG, 48 + 128 + 6, 14, 0, 116, 24)
+			-- Draw segment for button press
+			graphics.line(48 + 128 + 14 + 12, 20, 48 + 128 + 14 + 12, 20 + 12)
+
 			graphics.stencil(function()
 				-- Create a rounded rectangle mask
-				graphics.rectangle("fill", 48 + 128 + 14, 16, 100, 12, 6, 6)
+				graphics.rectangle("fill", 48 + 128 + 14, 20, 100, 12, 6, 6)
 			end, "replace", 1)
 			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
 				-- R Button
 				if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-					graphics.rectangle("fill", 48 + 128 + 14, 16, 12, 12)
+					graphics.rectangle("fill", 48 + 128 + 14, 20, 12, 12)
 					ar = 1
 				end
 
 				-- R Analog
-				graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 16, 88 * ar, 12)
+				graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 20, 88 * ar, 12)
 			graphics.setStencilTest()
-
-			-- Draw outline
-			graphics.rectangle("line", 48 + 128 + 14, 16, 100, 12, 6, 6)
-			-- Draw segment for button press
-			graphics.line(48 + 128 + 14 + 12, 16, 48 + 128 + 14 + 12, 16 + 12)
 		end
 
 		-- Draw buttons
