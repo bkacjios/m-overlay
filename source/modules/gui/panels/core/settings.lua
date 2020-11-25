@@ -202,7 +202,7 @@ function PANEL:GetSaveTable()
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
-		["High-contrast"] = self:IsHighContrast(),
+		["high-contrast"] = self:IsHighContrast(),
 		["hide-dpad"] = self:IsDPADHidden(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
@@ -334,7 +334,7 @@ function PANEL:LoadSettings()
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
-	self.DPAD:SetToggle(settings["High-contrast"] or false, true)
+	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"] or false, true)
 	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
 	if self.DEBUG then self.DEBUG:SetToggle(settings["debugging"] or false) end
 	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
