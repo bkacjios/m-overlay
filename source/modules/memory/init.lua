@@ -177,6 +177,7 @@ local TYPES_READ = {
 	["sbyte"] = memory.readByte,
 	["byte"] = memory.readUByte,
 	["short"] = memory.readShort,
+	["int"] = memory.readInt,
 
 	["u8"] = memory.readUByte,
 	["s8"] = memory.readByte,
@@ -225,12 +226,14 @@ function memory.newvalue(addr, offset, struct, name)
 	assert(type(addr) == "number", "argument #1 'address' must be a number")
 	assert(TYPES_READ[struct.type] ~= nil, "unhandled type: " .. struct.type)
 
-	name = name or struct.name or ""
+	name = name or struct.name or addr
+
+	local init = struct.init or NULL
 
 	-- create/get a new value cache based off of the value name
-	local tbl, key = memory.cacheValue(memory.values, name, struct.init or NULL)
+	local tbl, key = memory.cacheValue(memory.values, name, init)
 
-	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
+	log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
 
 	return setmetatable({
 		name = name,
@@ -244,6 +247,7 @@ function memory.newvalue(addr, offset, struct, name)
 		-- Setup the cache
 		cache = tbl,
 		cache_key = key,
+		cache_value = init,
 
 		debug = struct.debug,
 	}, ADDRESS)
@@ -257,8 +261,9 @@ function ADDRESS:update()
 	local value, orig = self.read(self.address + self.offset)
 
 	-- Check if there has been a value change
-	if self.cache[self.cache_key] ~= value then
-		self.cache[self.cache_key] = value
+	if self.cache_value ~= value then
+		self.cache_value = value
+		self.cache[self.cache_key] = self.cache_value
 
 		if self.debug then
 			local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
