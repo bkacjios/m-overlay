@@ -274,7 +274,7 @@ function PANEL:IsDebugging()
 end
 
 function PANEL:GetTransparency()
-	return self.TRANSPARENCY:GetValue()
+	return self.TRANSPARENCY and self.TRANSPARENCY:GetValue() or nil
 end
 
 function PANEL:OnClosed()
