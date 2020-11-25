@@ -134,10 +134,8 @@ vec4 effect( vec4 color, Image unused, vec2 texture_coords, vec2 screen_coords )
 
 	vec4 pixel = Texel( img, mod( uv*rep+vec2(p0.x-1, p0.y), (1,1) ) ) * color;
 
-	if (pixel.rgb == vec3(0.0)) {
-		// a discarded pixel wont be applied on the stencil.
-		discard;
-	}
+	// Discard transparent pixels
+	if (pixel.a == 0) discard;
 
 	return pixel;
 }

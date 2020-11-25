@@ -140,6 +140,10 @@ function PANEL:Initialize()
 		love.updateTitle(love.getTitleNoPort())
 	end
 
+	self.HIGH_CONTRAST = LEFT:Add("Checkbox")
+	self.HIGH_CONTRAST:SetText("High-contrast")
+	self.HIGH_CONTRAST:Dock(DOCK_TOP)
+
 	self.DPAD = LEFT:Add("Checkbox")
 	self.DPAD:SetText("Hide D-PAD")
 	self.DPAD:Dock(DOCK_TOP)
@@ -158,17 +162,19 @@ function PANEL:Initialize()
 		end
 	end
 
-	local TLABEL = LEFT:Add("Label")
-	TLABEL:SetText("Transparency")
-	TLABEL:SizeToText()
-	TLABEL:Dock(DOCK_TOP)
+	if love.supportsGameCapture() then
+		local TLABEL = LEFT:Add("Label")
+		TLABEL:SetText("Transparency")
+		TLABEL:SizeToText()
+		TLABEL:Dock(DOCK_TOP)
 
-	self.TRANSPARENCY = LEFT:Add("Slider")
-	self.TRANSPARENCY:SetValue(100)
-	self.TRANSPARENCY:Dock(DOCK_TOP)
+		self.TRANSPARENCY = LEFT:Add("Slider")
+		self.TRANSPARENCY:SetValue(100)
+		self.TRANSPARENCY:Dock(DOCK_TOP)
 
-	function self.TRANSPARENCY:OnValueChanged(i)
-		TLABEL:SetText(("Transparency - %d%%"):format(i))
+		function self.TRANSPARENCY:OnValueChanged(i)
+			TLABEL:SetText(("Transparency - %d%%"):format(i))
+		end
 	end
 
 	self.CONFIGDIR = LEFT:Add("Button")
@@ -196,6 +202,7 @@ function PANEL:GetSaveTable()
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
+		["High-contrast"] = self:IsHighContrast(),
 		["hide-dpad"] = self:IsDPADHidden(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
@@ -252,6 +259,10 @@ end
 
 function PANEL:AlwaysShowPort()
 	return self.ALWAYSPORT:IsToggled()
+end
+
+function PANEL:IsHighContrast()
+	return self.HIGH_CONTRAST:IsToggled()
 end
 
 function PANEL:IsDPADHidden()
@@ -323,9 +334,10 @@ function PANEL:LoadSettings()
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
+	self.DPAD:SetToggle(settings["High-contrast"] or false, true)
 	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
 	if self.DEBUG then self.DEBUG:SetToggle(settings["debugging"] or false) end
-	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
+	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
