@@ -299,6 +299,7 @@ local BUTTON_TEXTURES = {
 	},
 	A = {
 		OUTLINE = newImage("textures/buttons/a-outline.png"),
+		FILLED = newImage("textures/buttons/a-filled.png"),
 		PRESSED = newImage("textures/buttons/a-pressed.png"),
 		COLOR = color(0, 225, 150, 255),
 		POSITION = {
@@ -308,6 +309,7 @@ local BUTTON_TEXTURES = {
 	},
 	B = {
 		OUTLINE = newImage("textures/buttons/b-outline.png"),
+		FILLED = newImage("textures/buttons/b-filled.png"),
 		PRESSED = newImage("textures/buttons/b-pressed.png"),
 		COLOR = color(230, 0, 0, 255),
 		POSITION = {
@@ -317,6 +319,7 @@ local BUTTON_TEXTURES = {
 	},
 	X = {
 		OUTLINE = newImage("textures/buttons/x-outline.png"),
+		FILLED = newImage("textures/buttons/x-filled.png"),
 		PRESSED = newImage("textures/buttons/x-pressed.png"),
 		COLOR = color(255, 255, 255, 255),
 		POSITION = {
@@ -326,6 +329,7 @@ local BUTTON_TEXTURES = {
 	},
 	Y = {
 		OUTLINE = newImage("textures/buttons/y-outline.png"),
+		FILLED = newImage("textures/buttons/y-filled.png"),
 		PRESSED = newImage("textures/buttons/y-pressed.png"),
 		COLOR = color(255, 255, 255, 255),
 		POSITION = {
@@ -335,6 +339,7 @@ local BUTTON_TEXTURES = {
 	},
 	Z = {
 		OUTLINE = newImage("textures/buttons/z-outline.png"),
+		FILLED = newImage("textures/buttons/z-filled.png"),
 		PRESSED = newImage("textures/buttons/z-pressed.png"),
 		COLOR = color(165, 75, 165, 255),
 		POSITION = {
@@ -472,14 +477,20 @@ function love.drawControllerOverlay()
 		local angle = math.atan2(x, y)
 		local mag = math.sqrt(x*x + y*y)
 
-		local far = mag * 15
+		local far = mag * 12
 		local near = mag * 20
 
 		-- Make the rectangle look like its fading into the horizon
-		vertices[1][1] = far		-- x
-		vertices[1][2] = near		-- y
-		vertices[2][1] = 128 - far	-- x
-		vertices[2][2] = near		-- y
+
+		-- Top left
+		vertices[1][1] = far
+		-- Top right
+		vertices[2][1] = 128 - far
+
+		-- Bottom left
+		vertices[1][2] = near
+		-- Bottom right
+		vertices[2][2] = near
 
 		local rotated = transformVertices(vertices, 64 + 22 + (40 * vx), 64 + 12 + (40 * vy), angle, 64, 64)
 
@@ -522,15 +533,21 @@ function love.drawControllerOverlay()
 		local mag = math.sqrt(x*x + y*y)
 
 		local far = mag * 12
-		local near = mag * 16
+		local near = mag * 20
 
 		-- Make the rectangle look like its fading into the horizon
-		vertices[1][1] = far		-- x
-		vertices[1][2] = near		-- y
-		vertices[2][1] = 128 - far	-- x
-		vertices[2][2] = near		-- y
 
-		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 20 + (32 * vy), angle, 64, 64)
+		-- Top left
+		vertices[1][1] = far
+		-- Top right
+		vertices[2][1] = 128 - far
+
+		-- Bottom left
+		vertices[1][2] = near
+		-- Bottom right
+		vertices[2][2] = near
+
+		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 18 + (32 * vy), angle, 64, 64)
 
 		graphics.setColor(255, 235, 0, 255)
 
