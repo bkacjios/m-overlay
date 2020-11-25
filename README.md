@@ -3,7 +3,7 @@
 # m-overlay
 *A gamecube controller input display for use with Dolphin specifically.*
 
-![Image of M'Overlay](https://thumbs.gfycat.com/GraciousAlarmingAntbear-size_restricted.gif)
+![M'Overlay in use](https://i.imgur.com/JQYCftg.gif)
 
 ### Downloads
 
