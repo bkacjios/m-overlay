@@ -705,7 +705,7 @@ end
 
 function love.draw()
 	if not love.supportsGameCapture() then
-		graphics.setBackgroundColor(0, 255, 0, 255)
+		graphics.setBackgroundColor(255, 0, 255, 255)
 	else
 		-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 		local alpha = 0
