@@ -20,6 +20,7 @@ local VC_NONE       = "\0\0\0\0"
 
 local memory = {
 	clones = require("games.clones"),
+	vcclones = require("games.vcclones"),
 
 	gameid = GAME_NONE,
 	vcid = VC_NONE,
@@ -429,6 +430,9 @@ function memory.findGame()
 		memory.reset()
 		memory.ingame = true
 		memory.vcid = vcid
+
+		-- Check for VC clones
+		vcid = memory.vcclones[vcid] or vcid
 
 		memory.loadGameScript(vcid)
 	elseif (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
