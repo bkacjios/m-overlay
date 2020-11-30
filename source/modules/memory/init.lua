@@ -1,12 +1,11 @@
 local bit = require("bit")
 local ffi = require("ffi")
 local log = require("log")
+local cloneloader = require("memory.cloneloader")
 local process = require("memory." .. jit.os:lower())
-local clones = require("games.clones")
-local notification = require("notification")
-local filesystem = love.filesystem
 
 require("extensions.string")
+require("extensions.table")
 
 local NULL = 0x00000000
 
@@ -20,6 +19,8 @@ local VC_ID_LEN     = 0x04
 local VC_NONE       = "\0\0\0\0"
 
 local memory = {
+	clones = require("games.clones"),
+
 	gameid = GAME_NONE,
 	vcid = VC_NONE,
 	process = process,
@@ -38,6 +39,8 @@ local memory = {
 
 	hook_queue = {},
 }
+
+cloneloader.loadFile("clones.lua", memory.clones)
 
 setmetatable(memory, {__index = memory.values})
 
@@ -233,7 +236,7 @@ function memory.newvalue(addr, offset, struct, name)
 	-- create/get a new value cache based off of the value name
 	local tbl, key = memory.cacheValue(memory.values, name, init)
 
-	log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
+	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
 
 	return setmetatable({
 		name = name,
@@ -377,7 +380,7 @@ function memory.isMelee()
 		version = 0x02
 	end
 
-	local clone = clones[gid]
+	local clone = memory.clones[gid]
 	if clone then gid = clone.id end
 
 	return gid == "GALE01"
@@ -408,8 +411,9 @@ end
 
 function memory.findGame()
 	local gid = memory.readGameID()
-	local vcid = memory.readVirtualConsoleID()
 	local version = memory.readGameVersion()
+
+	local vcid = memory.readVirtualConsoleID()
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
@@ -434,7 +438,7 @@ function memory.findGame()
 		memory.version = version
 
 		-- See if this GameID is a clone of another
-		local clone = clones[gid]
+		local clone = memory.clones[gid] and memory.clones[gid][version] or nil
 
 		if clone then
 			version = clone.version
