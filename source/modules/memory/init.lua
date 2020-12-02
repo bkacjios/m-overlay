@@ -3,6 +3,7 @@ local ffi = require("ffi")
 local log = require("log")
 local cloneloader = require("memory.cloneloader")
 local process = require("memory." .. jit.os:lower())
+local notification = require("notification")
 
 require("extensions.string")
 require("extensions.table")
@@ -374,6 +375,7 @@ end
 
 function memory.isMelee()
 	local gid = memory.gameid
+	local version = memory.version
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
@@ -384,7 +386,7 @@ function memory.isMelee()
 	local clone = memory.clones[gid]
 	if clone then gid = clone.id end
 
-	return gid == "GALE01"
+	return gid == "GALE01" and version == 0x02
 end
 
 local timer = love.timer.getTime()
@@ -392,10 +394,6 @@ local timer = love.timer.getTime()
 function memory.loadGameScript(path)
 	-- Try to load the game table
 	local status, game = xpcall(require, debug.traceback, ("games.%s"):format(path))
-
-	log.debug("[DOLPHIN] GAMEID: %s", path)
-	love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(path))
-	memory.runhook("OnGameOpen")
 
 	if status then
 		memory.supportedgame = true
@@ -431,15 +429,22 @@ function memory.findGame()
 		memory.ingame = true
 		memory.vcid = vcid
 
+		log.debug("[DOLPHIN] Game: %s", vcid)
+		love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(vcid))
+
 		-- Check for VC clones
 		vcid = memory.vcclones[vcid] or vcid
 
 		memory.loadGameScript(vcid)
+		memory.runhook("OnGameOpen", vcid)
 	elseif (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
 		memory.reset()
 		memory.ingame = true
 		memory.gameid = gid
 		memory.version = version
+
+		log.debug("[DOLPHIN] Game: %s revision %i", gid, version)
+		love.updateTitle(("M'Overlay - Dolphin hooked (%s-%i)"):format(gid, version))
 
 		-- See if this GameID is a clone of another
 		local clone = memory.clones[gid] and memory.clones[gid][version] or nil
@@ -450,6 +455,7 @@ function memory.findGame()
 		end
 
 		memory.loadGameScript(("%s-%d"):format(gid, version))
+		memory.runhook("OnGameOpen", gid, version)
 	elseif (memory.ingame or meleeMode) and (gid == GAME_NONE and vcid == VC_NONE) then
 		memory.reset()
 		memory.ingame = false

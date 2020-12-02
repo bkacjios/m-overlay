@@ -29,4 +29,9 @@ return {
 	["GZLE99"] = {
 		[0] = { id = "GZLE01", version = 0 }, -- The Legend of Zelda: The Wind Waker Randomizer
 	},
+	["GALJ01"] = {
+		[0] = { id = "GALE01", version = 0 }, -- Dairantou Smash Brothers DX (Japan) (v1.0)
+		[1] = { id = "GALE01", version = 1 }, -- Dairantou Smash Brothers DX (Japan) (v1.1)
+		[2] = { id = "GALE01", version = 2 }, -- Dairantou Smash Brothers DX (Japan) (v1.2)
+	},
 }
