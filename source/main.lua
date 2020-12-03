@@ -113,6 +113,7 @@ end
 memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)
 	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
 		PORT = port
+		log.debug("[AUTOPORT] Player \"one\" port changed %d", PORT+1)
 	end
 end)
 
