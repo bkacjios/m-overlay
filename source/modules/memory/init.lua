@@ -383,8 +383,13 @@ function memory.isMelee()
 		version = 0x02
 	end
 
-	local clone = memory.clones[gid]
-	if clone then gid = clone.id end
+	-- See if this GameID is a clone of another
+	local clone = memory.clones[gid] and memory.clones[gid][version] or nil
+
+	if clone then
+		version = clone.version
+		gid = clone.id
+	end
 
 	return gid == "GALE01" and version == 0x02
 end
