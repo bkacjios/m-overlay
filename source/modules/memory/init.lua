@@ -386,7 +386,10 @@ function memory.isMelee()
 	-- See if this GameID is a clone of another
 	local clone = memory.clones[gid] and memory.clones[gid][version] or nil
 
-	if clone then
+	if gid == "GTME01" then
+		version = 0x02
+		gid = "GALE01"
+	elseif clone then
 		version = clone.version
 		gid = clone.id
 	end
@@ -454,7 +457,10 @@ function memory.findGame()
 		-- See if this GameID is a clone of another
 		local clone = memory.clones[gid] and memory.clones[gid][version] or nil
 
-		if clone then
+		if gid == "GTME01" then
+			version = 0x02
+			gid = "GALE01"
+		elseif clone then
 			version = clone.version
 			gid = clone.id
 		end
