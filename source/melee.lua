@@ -543,7 +543,7 @@ end
 function melee.getPlayer(port)
 	if not memory.player then return end
 
-	if melee.isSinglePlayerGame() and port == memory.menu.player_one_port + 1 then
+	if melee.isSinglePlayerGame() and not melee.isNetplayGame() and port == memory.menu.player_one_port + 1 then
 		-- Single player games in CSS screen always use PORT 1 character info no matter what port is controlling the menus
 		return memory.player[1].select
 	elseif not melee.isInGame() then
@@ -795,6 +795,10 @@ local SINGLEPLAYER_STAGES = {
 	[0x45] = "Trophy Tussle - Entei",
 	[0x46] = "Trophy Tussle - Majora's Mask",
 }
+
+function melee.isNetplayGame()
+	return memory.menu.major == MENU_VS_UNKNOWN and (memory.menu.minor == MENU_VS_UNKNOWN_INGAME or memory.menu.minor == MENU_VS_UNKNOWN_VERSUS)
+end
 
 function melee.isSinglePlayerGame()
 	local major = memory.menu.major
