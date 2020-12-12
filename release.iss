@@ -8,7 +8,7 @@
 
 [Setup]
 #define AppName "M'Overlay"
-#define AppVersion "1.6.3"
+#define AppVersion "1.6.4"
 AppName={#AppName}
 AppId={#AppName}
 AppVersion={#AppVersion}
