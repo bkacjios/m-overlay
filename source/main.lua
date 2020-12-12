@@ -343,7 +343,7 @@ local BUTTON_TEXTURES = {
 			y = -32
 		}
 	},
-	--[[START = {
+	START = {
 		OUTLINE = newImage("textures/buttons/start-outline.png"),
 		PRESSED = newImage("textures/buttons/start-pressed.png"),
 		COLOR = color(255, 255, 255, 255),
@@ -351,7 +351,7 @@ local BUTTON_TEXTURES = {
 			x = 256,
 			y = 26
 		}
-	}]]
+	}
 }
 
 local vertices = {
@@ -409,14 +409,16 @@ local function drawButtons(buttons, controller)
 	for button, flag in pairs(buttons) do
 		local texture = BUTTON_TEXTURES[button]
 		if texture then
-			local pos = texture.POSITION
-			graphics.setColor(texture.COLOR)
-			if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
-				graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
-			else
-				local text = PANEL_SETTINGS:IsHighContrast() and texture.FILLED or texture.OUTLINE
-				if text then
-					graphics.easyDraw(text, pos.x, pos.y, 0, 128, 128)
+			if button ~= "START" or (button == "START" and PANEL_SETTINGS:IsStartEnabled()) then
+				local pos = texture.POSITION
+				graphics.setColor(texture.COLOR)
+				if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
+					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
+				else
+					local text = PANEL_SETTINGS:IsHighContrast() and texture.FILLED or texture.OUTLINE
+					if text then
+						graphics.easyDraw(text, pos.x, pos.y, 0, 128, 128)
+					end
 				end
 			end
 		end
@@ -671,7 +673,7 @@ function love.drawControllerOverlay()
 
 		-- Draw buttons
 
-		if not PANEL_SETTINGS:IsDPADHidden() then
+		if PANEL_SETTINGS:IsDPadEnabled() then
 			graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.DPAD.GATE_FILLED or BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
 			drawButtons(DPAD, controller)
 		end

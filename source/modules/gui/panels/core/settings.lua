@@ -144,9 +144,21 @@ function PANEL:Initialize()
 	self.HIGH_CONTRAST:SetText("High-contrast")
 	self.HIGH_CONTRAST:Dock(DOCK_TOP)
 
-	self.DPAD = LEFT:Add("Checkbox")
-	self.DPAD:SetText("Hide D-PAD")
-	self.DPAD:Dock(DOCK_TOP)
+	local BUTTONS = LEFT:Add("Panel")
+	BUTTONS:Dock(DOCK_TOP)
+	BUTTONS:DockPadding(0,0,0,0)
+
+	self.DPAD = BUTTONS:Add("Checkbox")
+	self.DPAD:SetText("D-Pad")
+	self.DPAD:SetWidth(77)
+	self.DPAD:Dock(DOCK_LEFT)
+	self.DPAD:DockMargin(0,0,0,0)
+
+	self.START = BUTTONS:Add("Checkbox")
+	self.START:SetText("Start")
+	self.START:SetWidth(76)
+	self.START:Dock(DOCK_RIGHT)
+	self.START:DockMargin(0,0,0,0)
 
 	if love.system.getOS() == "Windows" then
 		self.DEBUG = LEFT:Add("Checkbox")
@@ -203,7 +215,8 @@ function PANEL:GetSaveTable()
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
 		["high-contrast"] = self:IsHighContrast(),
-		["hide-dpad"] = self:IsDPADHidden(),
+		["enable-dpad"] = self:IsDPadEnabled(),
+		["enable-start"] = self:IsStartEnabled(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 		["melee-stage-music"] = self:PlayStageMusic(),
@@ -265,8 +278,12 @@ function PANEL:IsHighContrast()
 	return self.HIGH_CONTRAST:IsToggled()
 end
 
-function PANEL:IsDPADHidden()
+function PANEL:IsDPadEnabled()
 	return self.DPAD:IsToggled()
+end
+
+function PANEL:IsStartEnabled()
+	return self.START:IsToggled()
 end
 
 function PANEL:IsDebugging()
@@ -313,6 +330,9 @@ function PANEL:LoadSettings()
 		for k,v in pairs(json.decode(f:read())) do
 			if settings[k] ~= nil then
 				settings[k] = v
+			elseif k == "hide-dpad" then
+				settings["enable-dpad"] = not v
+				log.debug("[CONFIG] Converting old config setting %q", k)
 			elseif k == "slippi-netplay" and v == true then
 				settings["slippi-mode"] = SLIPPI_NETPLAY
 				log.debug("[CONFIG] Converting old config setting %q", k)
@@ -335,7 +355,10 @@ function PANEL:LoadSettings()
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
 	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"] or false, true)
-	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
+	if settings["enable-dpad"] ~= nil then
+		self.DPAD:SetToggle(settings["enable-dpad"], true)
+	end
+	self.START:SetToggle(settings["enable-start"] or false, true)
 	if self.DEBUG then self.DEBUG:SetToggle(settings["debugging"] or false) end
 	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
