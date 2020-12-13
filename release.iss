@@ -8,10 +8,15 @@
 
 [Setup]
 #define AppName "M'Overlay"
-#define AppVersion "1.6.4"
+#define AppMajor
+#define AppMinor
+#define AppRevision
+#define AppBuild
+#define AppVersion GetVersionComponents("build/x64/m-overlay-x64.exe", AppMajor, AppMinor, AppRevision, AppBuild)
+#define AppVersion Str(AppMajor) + "." + Str(AppMinor) + "." + Str(AppRevision)
 AppName={#AppName}
 AppId={#AppName}
-AppVersion={#AppVersion}
+AppVersion={#AppVersion}}
 WizardStyle=modern
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
