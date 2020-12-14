@@ -25,6 +25,8 @@ local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
 local WAITING_FONT = graphics.newFont("fonts/melee-bold.otf", 24)
 local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
+local VERSION = love.filesystem.read("version.txt")
+
 --PANEL_SETTINGS
 
 local MAX_PORTS = 4
@@ -736,6 +738,14 @@ function love.draw()
 			alpha = 1 - (PANEL_SETTINGS:GetTransparency() / 100)
 			graphics.setColor(0, 0, 0, alpha*255)
 			graphics.rectangle("fill", 0, 0, 512, 256)
+
+			local rad = math.rad(90)
+
+			graphics.setFont(DEBUG_FONT)
+			graphics.setColor(0, 0, 0, 255)
+			graphics.textOutline(VERSION, 1, 512 - 8, 8, rad)
+			graphics.setColor(255, 255, 255, 255)
+			graphics.print(VERSION, 512 - 8, 8, rad)
 		end
 	end
 

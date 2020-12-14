@@ -14,14 +14,20 @@
 #define AppBuild
 #define AppVersion GetVersionComponents("build/x64/m-overlay-x64.exe", AppMajor, AppMinor, AppRevision, AppBuild)
 #define AppVersion Str(AppMajor) + "." + Str(AppMinor) + "." + Str(AppRevision)
+DisableWelcomePage=no
 AppName={#AppName}
 AppId={#AppName}
-AppVersion={#AppVersion}}
+AppVersion={#AppVersion}
+AppPublisher=Bkacjios
+AppPublisherURL=https://github.com/bkacjios
+AppUpdatesURL=https://github.com/bkacjios/m-overlay/releases
+AppSupportURL=https://github.com/bkacjios/m-overlay/issues
 WizardStyle=modern
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\m-overlay-64.exe
 SetupIconFile=installer/icon.ico
+WizardImageFile=installer/wizardbanner.bmp
 WizardSmallImageFile=installer/wizard.bmp
 Compression=lzma2
 SolidCompression=yes

@@ -49,6 +49,13 @@ FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% describe --tags`) DO (
 	SET VERSION=%%F
 )
 
+IF "%VERSION:~0,1%"=="v" (
+	echo Stripping 'v' from VERSION
+	SET VERSION=%VERSION:~1%
+)
+
+echo %VERSION% > "%SOURCE_DIR%\version.txt"
+
 REM Get GIT branch
 FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-parse --abbrev-ref HEAD`) DO (
 	SET BRANCH=%%F
@@ -77,11 +84,6 @@ xcopy /d %SOURCE_DIR%\*.dll %BUILD_OUTPUT_DIR% /y
 
 echo Copying love.exe %BUILD_DIR%
 copy /b %LOVE_DIR%\love.exe+,, %BUILD_DIR%
-
-IF "%VERSION:~0,1%"=="v" (
-	echo Stripping 'v' from VERSION
-	SET VERSION=%VERSION:~1%
-)
 
 echo Customizing love.exe
 rcedit-x64 "%BUILD_DIR%\love.exe" --set-icon "%INSTALLER_DIR%\icon.ico"
