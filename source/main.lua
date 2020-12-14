@@ -27,6 +27,10 @@ local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 local VERSION = love.filesystem.read("version.txt")
 
+function love.getMOverlayVersion()
+	return VERSION or "0.0.0"
+end
+
 --PANEL_SETTINGS
 
 local MAX_PORTS = 4
@@ -739,13 +743,16 @@ function love.draw()
 			graphics.setColor(0, 0, 0, alpha*255)
 			graphics.rectangle("fill", 0, 0, 512, 256)
 
+			--[[graphics.setColor(0, 0, 0, 100)
+			graphics.rectangle("fill", 512 - 20, 0, 20, 256)
+
 			local rad = math.rad(90)
 
 			graphics.setFont(DEBUG_FONT)
 			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(VERSION, 1, 512 - 8, 8, rad)
+			graphics.print(VERSION, 512 - 5, 5, rad)
 			graphics.setColor(255, 255, 255, 255)
-			graphics.print(VERSION, 512 - 8, 8, rad)
+			graphics.print(VERSION, 512 - 4, 4, rad)]]
 		end
 	end
 

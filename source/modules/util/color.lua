@@ -96,7 +96,11 @@ function hsl(h, s, l, a)
 	return color((r+m)*255, (g+m)*255, (b+m)*255, a*255)
 end
 
+color_clear = color(0, 0, 0, 0)
 color_blank = color(0, 0, 0, 0)
+color_lightgrey = color(200, 200, 200, 255)
+color_grey = color(150, 150, 150, 255)
+color_darkgrey = color(75, 75, 75, 255)
 color_white = color(255, 255, 255)
 color_black = color(0, 0, 0)
 color_red = color(237, 28, 36)

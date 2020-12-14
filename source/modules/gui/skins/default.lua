@@ -37,7 +37,9 @@ end
 function SKIN:PaintPanel(panel, w, h)
 	graphics.setColor(panel:GetBGColor())
 	graphics.rectangle("fill", 0, 0, w, h)
+end
 
+function SKIN:PaintOverlayPanel(panel, w, h)
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
 	
