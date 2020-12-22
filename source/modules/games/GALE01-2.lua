@@ -126,30 +126,19 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 	name = "slippi",
 	struct = {
 		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/6e08a376dc9ca239d9b7312089d975e89fa37a5c/Online/Online.s#L217
-		--[[[0x000] = {
+		[0x000] = {
 			type = "pointer",
-			name = "slippi_ptr",
+			--name = "slippi_ptr",
 			struct = {
-				[0x01] = { type = "u8", name = "connection_state" },
-				[0x02] = { type = "u8", name = "local_player.ready" },
-				[0x03] = { type = "u8", name = "remote_player.ready" },
-				[0x04] = { type = "u8", name = "local_player.index", debug = true },
-				[0x05] = { type = "u8", name = "remote_player.index", debug = true },
-				[0x06] = { type = "u32", name = "rng_offset" },
-				[0x07] = { type = "u8", name = "delay_frames" },
+				[0x00] = { type = "u8", name = "connection_state" },
+				[0x01] = { type = "u8", name = "local_player.ready" },
+				[0x02] = { type = "u8", name = "remote_player.ready" },
+				[0x03] = { type = "u8", name = "local_player.index", debug = true },
+				[0x04] = { type = "u8", name = "remote_player.index" },
+				[0x05] = { type = "u32", name = "rng_offset" },
+				[0x06] = { type = "u8", name = "delay_frames" },
 			}
-		},]]
-		[0x040] = { type = "u8", name = "connection_state" },
-		[0x041] = { type = "u8", name = "local_player.ready" },
-		[0x042] = { type = "u8", name = "remote_player.ready" },
-		[0x043] = { type = "u8", name = "local_player.index", debug = true },
-		[0x044] = { type = "u8", name = "remote_player.index", debug = true },
-		[0x045] = { type = "u32", name = "rng_offset" },
-		[0x049] = { type = "u8", name = "delay_frames" },
-		--[0x04A] = { type = "data", size = 31, name = "player.1.name" },
-		--[0x069] = { type = "data", size = 31, name = "player.2.name" },
-		--[0x088] = { type = "data", size = 31, name = "opponent_name" },
-		--[0x0A7] = { type = "data", size = 121, name = "error_message" },
+		},
 	}
 }
 
