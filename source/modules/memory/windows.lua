@@ -321,17 +321,14 @@ function MEMORY:read(addr, output, size)
 
 	CAST_ADDR = cast("uint32_t", addr)
 
-	if CAST_ADDR >= WII_RAM_START then
+	if CAST_ADDR >= WII_RAM_START and CAST_ADDR <= WII_RAM_END then
 		CAST_ADDR = WII_RAM_LOCAL_START + (CAST_ADDR % WII_RAM_START)
-	--elseif addr >= GC_RAM_START and addr <= GC_RAM_END then -- There is something seriously wrong with these checks with ffi numbers
-	else
+	elseif CAST_ADDR >= GC_RAM_START and CAST_ADDR <= GC_RAM_END then
 		CAST_ADDR = (CAST_ADDR % GC_RAM_START)
-	end
-	--[[else
-		--log.warn("[MEMORY] Attempt to read from invalid address %X", tonumber(CAST_ADDR))
-		print(addr >= GC_RAM_START, addr <= GC_RAM_END) -- ??????????
+	else
+		log.warn("[MEMORY] Attempt to read from invalid address %08X", tonumber(CAST_ADDR))
 		return false
-	end]]
+	end
 
 	local success = kernel.ReadProcessMemory(self.process_handle, ffi.cast("LPCVOID", self.dolphin_base_addr + CAST_ADDR), output, size, read)
 	if not success then

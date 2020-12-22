@@ -327,25 +327,41 @@ function POINTER:getPointerPath()
 	return path
 end
 
-function POINTER:update()
-	local addr = self.address + self.offset
-	local ploc = memory.readUInt(addr)
+do
+	local cast = ffi.cast
+	local GC_RAM_START = cast("uint32_t", 0x80000000)
+	local GC_RAM_END = cast("uint32_t", 0x81800000)
+	local WII_RAM_START = cast("uint32_t", 0x90000000)
+	local WII_RAM_END = cast("uint32_t", 0x94000000)
 
-	if self.location ~= ploc then
-		self.location = ploc
-
-		if ploc == NULL then
-			log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s -> 0x%08X", addr, self.name, ploc)
-		else
-			log.debug("[MEMORY] [0x%08X -> 0x%08X] %s -> 0x%08X", addr, ploc, self.name, ploc)
-		end
+	local function isValidPointer(ptr)
+		ptr = cast("uint32_t", ptr)
+		return ptr ~= NULL and ((ptr >= GC_RAM_START and ptr <= GC_RAM_END) or (ptr >= WII_RAM_START and ptr <= WII_RAM_END))
 	end
 
-	for offset, struct in pairs(self.struct) do
-		-- Set the address space to be where the containing pointer is pointing to
-		struct.address = ploc
-		-- Update the value/pointer recursively
-		struct:update()
+	function POINTER:update()
+		local addr = self.address + self.offset
+		local ploc = memory.readUInt(addr)
+		local valid = isValidPointer(ploc)
+
+		if self.location ~= ploc then
+			self.location = ploc
+
+			if valid then
+				log.debug("[MEMORY] [0x%08X -> 0x%08X] %s -> 0x%08X", addr, ploc, self.name, ploc)
+			else
+				log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s -> 0x%08X", addr, self.name, ploc)
+			end
+		end
+
+		if valid then
+			for offset, struct in pairs(self.struct) do
+				-- Set the address space to be where the containing pointer is pointing to
+				struct.address = ploc
+				-- Update the value/pointer recursively
+				struct:update()
+			end
+		end
 	end
 end
 
