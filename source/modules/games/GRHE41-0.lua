@@ -6,6 +6,6 @@ local game = {
 	memorymap = {}
 }
 
-core.loadGenericControllerMap(0x8042F5C8, game) -- UPDATE THIS
+core.loadGenericControllerMap(0x8042F5C8, game)
 
 return game
