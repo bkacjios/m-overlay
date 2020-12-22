@@ -1,4 +1,4 @@
--- Super Smash Bros. Melee (NTSC v1.02)
+-- Super Smash Bros. Melee (NTSC v1.2) / Dairantou Smash Brothers DX (Japan v1.2)
 
 local game = {
 	memorymap = {}
@@ -30,15 +30,15 @@ local controller_struct = {
 	[0x04] = { type = "u32",	name = "controller.%d.buttons.pressed_previous" },
 	[0x08] = { type = "u32",	name = "controller.%d.buttons.instant" },
 	[0x10] = { type = "u32",	name = "controller.%d.buttons.released" },
-	--[0x1C] = { type = "u8",	name = "controller.%d.analog.byte.l" },
-	--[0x1D] = { type = "u8",	name = "controller.%d.analog.byte.r" },
+	[0x1C] = { type = "u8",		name = "controller.%d.analog.byte.l" },
+	[0x1D] = { type = "u8",		name = "controller.%d.analog.byte.r" },
 	[0x20] = { type = "float",	name = "controller.%d.joystick.x" },
 	[0x24] = { type = "float",	name = "controller.%d.joystick.y" },
 	[0x28] = { type = "float",	name = "controller.%d.cstick.x" },
 	[0x2C] = { type = "float",	name = "controller.%d.cstick.y" },
 	[0x30] = { type = "float",	name = "controller.%d.analog.l" },
 	[0x34] = { type = "float",	name = "controller.%d.analog.r" },
-	[0x41] = { type = "u8",	name = "controller.%d.plugged" },
+	[0x41] = { type = "u8",		name = "controller.%d.plugged" },
 }
 
 for port, address in ipairs(controllers) do
@@ -62,10 +62,15 @@ local player_static_addresses = {
 
 local player_static_struct = {
 	[0x004] = { type = "u32", name = "character" },
+	--[0x008] = { type = "u32", name = "mode" },
 	[0x00C] = { type = "u16", name = "transformed" },
 	[0x044] = { type = "u8", name = "skin" },
+	--[0x045] = { type = "u8", name = "port" },
 	[0x046] = { type = "u8", name = "color" },
 	[0x047] = { type = "u8", name = "team" },
+	--[0x048] = { type = "u8", name = "index" },
+	--[0x049] = { type = "u8", name = "cpu_level", debug = true },
+	--[0x04A] = { type = "u8", name = "cpu_type", debug = true }, -- 4 = 20XX, 22 = normalish, 19 = Alt Normal
 }
 
 for id, address in ipairs(player_static_addresses) do
@@ -90,6 +95,8 @@ for id, address in ipairs(player_static_addresses) do
 			name = ("player.%i.%s"):format(id, name),
 			struct = {
 				[0x60 + 0x0004] = { type = "u32", name = "character" },
+				--[0x60 + 0x000C] = { type = "u8", name = "port" },
+				--[0x60 + 0x0618] = { type = "u8", name = "index" },
 				[0x60 + 0x0619] = { type = "u8", name = "skin" },
 				[0x60 + 0x061A] = { type = "u8", name = "color" },
 				[0x60 + 0x061B] = { type = "u8", name = "team" },
@@ -101,6 +108,11 @@ for id, address in ipairs(player_static_addresses) do
 				[0x60 + 0x0650] = { type = "float", name = "controller.analog.float" },
 				[0x60 + 0x065C] = { type = "u32",	name = "controller.buttons.pressed" },
 				[0x60 + 0x0660] = { type = "u32",	name = "controller.buttons.pressed_previous" },
+
+				--[[
+				[0x60 + 0x1A94] = { type = "u32", name = "cpu_type" },
+				[0x60 + 0x1A98] = { type = "u32", name = "cpu_level" },
+				]]
 			},
 		}
 	end
@@ -173,6 +185,25 @@ local match_info_struct = {
 	[0x0008] = { type = "u8", name = "match.result", debug = true },
 	[0x000E] = { type = "bool", name = "match.finished", debug = true },
 }
+
+local player_cursors_pointers = {
+	0x804A0BC0,
+	0x804A0BC4,
+	0x804A0BC8,
+	0x804A0BCC,
+}
+
+local player_cursor_struct = {
+	--[0x00] = { type = "u32", name = "unknown_ptr" },
+	[0x05] = { type = "u8", name = "state" }, -- The state of the pointer (0 = in the bottom area, 1 = holding coin, 2 = empty hand)
+	[0x0B] = { type = "u8", name = "b_frame_counter" }, -- How many frames the player is holding B for (At 32, it will forcibly exit back to the menus)
+	[0x0C] = { type = "float", name = "position.x" },
+	[0x10] = { type = "float", name = "position.y" },
+}
+
+for port, addr in pairs(player_cursors_pointers) do
+	game.memorymap[addr] = { type = "pointer", name = ("player.%i.cursor"):format(port), struct = player_cursor_struct }
+end
 
 for offset, info in pairs(match_info_struct) do
 	game.memorymap[match_info + offset] = info

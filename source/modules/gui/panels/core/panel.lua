@@ -15,6 +15,10 @@ function PANEL:Paint(w, h)
 	gui.skinHook("Paint", "Panel", self, w, h)
 end
 
+function PANEL:PaintOverlay(w, h)
+	gui.skinHook("PaintOverlay", "Panel", self, w, h)
+end
+
 function PANEL:PostPaint(w, h)
 	if not self:IsEnabled() then
 		graphics.setColor(color(0, 0, 0, 100))

@@ -3,7 +3,7 @@
 # m-overlay
 *A gamecube controller input display for use with Dolphin specifically.*
 
-![Image of M'Overlay](https://thumbs.gfycat.com/GraciousAlarmingAntbear-size_restricted.gif)
+![M'Overlay in use](https://i.imgur.com/VZWta8H.gif)
 
 ### Downloads
 
@@ -16,37 +16,39 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 
 ### Supported Gamecube games:
 
-* Super Smash Bros. Melee (NTSC v1.2, PAL)
+* Gotcha Force (NTSC-U, PAL, NTSC-J)
+* Super Smash Bros. Melee (NTSC-U, PAL, NTSC-J)
   - [20XX](https://smashboards.com/threads/the-20xx-melee-training-hack-pack-v4-07-7-04-17.351221/)
   - [UnclePunch Training Mode](https://github.com/UnclePunch/Training-Mode)
   - [Slippi](https://slippi.gg)
-* The Legend of Zelda: The Wind Waker (NTSC v1.0)
-* The Legend of Zelda: Twilight Princess (NTSC v1.0, PAL v1.0)
+* The Legend of Zelda: The Wind Waker (NTSC-U v1.0)
+  - [Randomizer](https://github.com/LagoLunatic/wwrando)
+* The Legend of Zelda: Twilight Princess (NTSC-U v1.0, PAL v1.0)
 * Super Mario Sunshine. (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0)
-* Luigi's Mansion (NTSC v1.0)
-* Metroid Prime (NTSC v1.0, NTSC v1.2)
-* Metroid Prime 2 - Echoes (NTSC v1.0)
+* Luigi's Mansion (NTSC-U v1.0)
+* Metroid Prime (NTSC-U v1.0, NTSC-U v1.2)
+* Metroid Prime 2 - Echoes (NTSC-U v1.0)
   - [Randomizer](https://github.com/randovania/randovania)
-* Paper Mario - The Thousand-Year Door (NTSC v1.0)
+* Paper Mario - The Thousand-Year Door (NTSC-U v1.0)
 * Kirby Air Ride (NTSC-U v1.0, NTSC-J v1.0)
   - [UnclePunch Hack Pack](https://www.kirbyairri.de/hpinfo.html)
-* Pikmin (NTSC v1.1)
-* Pikmin 2 (NTSC v1.0, DEMO v1.0)
+* Pikmin (NTSC-U v1.0, NTSC-U v1.1)
+* Pikmin 2 (NTSC-U v1.0, DEMO v1.0)
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
 * Rayman 3: Hoodlum Havoc (NTSC-U v1.0)
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC v1.0)
 * The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
 * Naruto - Gekitou Ninja Taisen! 4 (NTSC-J v1.0)
-* Need for Speed Underground 1 (NTSC v1.0)
-* Need for Speed Underground 2 (NTSC v1.0)
+* Need for Speed Underground 1 (NTSC-U v1.0)
+* Need for Speed Underground 2 (NTSC-U v1.0)
 
 ### Supported Wii games:
 
-* Super Smash Bros. Brawl (NTSC v1.0, NTSC v1.1, NTSC v1.2)
+* Super Smash Bros. Brawl (NTSC-U v1.0, NTSC-U v1.1, NTSC-U v1.2)
   - [Project M](https://en.wikipedia.org/wiki/Project_M)
   - [P+](https://projectplusgame.com/)
 * Mario Kart Wii (NTSC-U v1.0)
-* The Legend of Zelda: Twilight Princess (NTSC v1.0)
+* The Legend of Zelda: Twilight Princess (NTSC-U v1.0)
 
 ### Supported VC games:
 

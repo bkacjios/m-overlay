@@ -19,25 +19,25 @@ local controllers = { -- TODO: fix port issues
 }
 
 local controller_struct = {
-	[0x00] = { type = "short",	name = "controller.%d.buttons.pressed" },
-	[0x02] = { type = "float",	name = "controller.%d.joystick.x" },
-	[0x06] = { type = "float",	name = "controller.%d.joystick.y" },
-	[0x96] = { type = "float",	name = "controller.%d.cstick.x" },
-	[0x9A] = { type = "float",	name = "controller.%d.cstick.y" },
-	[0x8C] = { type = "byte",	name = "controller.%d.analog.l" },
-	[0x8D] = { type = "byte",	name = "controller.%d.analog.r" },
-	[0x90] = { type = "byte",	name = "controller.%d.plugged" },
+	[0x00] = { type = "short",	name = "%d.buttons.pressed" },
+	[0x02] = { type = "float",	name = "%d.joystick.x" },
+	[0x06] = { type = "float",	name = "%d.joystick.y" },
+	[0x96] = { type = "float",	name = "%d.cstick.x" },
+	[0x9A] = { type = "float",	name = "%d.cstick.y" },
+	[0x8C] = { type = "byte",	name = "%d.analog.l" },
+	[0x8D] = { type = "byte",	name = "%d.analog.r" },
+	[0x90] = { type = "byte",	name = "%d.plugged" },
 }
 
 game.memorymap[ptr_addr] = {
-    type = "pointer";
-    name = "controller";
-    struct = {
-        [0x08] = {
-            type = "pointer";
-            struct = {}
-        }
-    }
+	type = "pointer";
+	name = "controller";
+	struct = {
+		[0x08] = {
+			type = "pointer";
+			struct = {}
+		}
+	}
 }
 
 local ptr_offset = 0x0A

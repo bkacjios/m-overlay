@@ -253,9 +253,12 @@ MENU_ALL_STAR_COMPLETE = 0x17
 	MENU_ALL_STAR_CHARACTER_VIDEO = 0x02
 	MENU_ALL_STAR_CONGRATS = 0x03
 
-MENU_INTRO_VIDEO = 0x18
-	MENU_INTRO_VIDEO_PLAYING = 0x0
-	MENU_INTRO_VIDEO_DEMO_FIGHT = 0x1
+MENU_TITLE_SCREEN_IDLE = 0x18
+	MENU_TITLE_SCREEN_IDLE_INTRO_VIDEO = 0x0
+	MENU_TITLE_SCREEN_IDLE_FIGHT_1 = 0x1
+	MENU_TITLE_SCREEN_IDLE_BETWEEN_FIGHTS = 0x2
+	MENU_TITLE_SCREEN_IDLE_FIGHT_2 = 0x3
+	MENU_TITLE_SCREEN_IDLE_HOW_TO_PLAY = 0x4
 
 MENU_ADVENTURE_MODE_CINEMEATIC = 0x19
 MENU_CHARACTER_UNLOCKED = 0x1A
@@ -537,26 +540,37 @@ function melee.loadtextures()
 	end
 end
 
+function melee.getPlayer(port)
+	if not memory.player then return end
+
+	if melee.isSinglePlayerGame() and not melee.isNetplayGame() and port == memory.menu.player_one_port + 1 then
+		-- Single player games in CSS screen always use PORT 1 character info no matter what port is controlling the menus
+		return memory.player[1].select
+	elseif not melee.isInGame() then
+		return memory.player[port].select
+	end
+
+	return memory.player[port]
+end
+
 function melee.getCharacterID(port)
 	if not memory.player then return end
 
-	if melee.isSinglePlayerGame() and port == memory.menu.player_one_port + 1 then
-		-- In single player games, the player select info is always stored under player 1, no matter which port is acting as player 1
-		port = 1
-	end
-
-	local player = memory.player[port]
+	local player = melee.getPlayer(port)
 
 	if not player then return end
 
 	local character = player.character
-	local transformed = player.transformed == 256
 
-	-- Handle and detect Zelda/Sheik transformations
-	if character == 0x13 then
-		character = transformed and 0x12 or 0x13
-	elseif character == 0x12 then
-		character = transformed and 0x13 or 0x12
+	if melee.isInGame() then
+		local transformed = player.transformed == 256
+
+		-- Handle and detect Zelda/Sheik transformations
+		if character == 0x13 then
+			character = transformed and 0x12 or 0x13
+		elseif character == 0x12 then
+			character = transformed and 0x13 or 0x12
+		end
 	end
 
 	return character
@@ -590,7 +604,7 @@ end
 function melee.drawStock(port, ...)
 	local id = melee.getCharacterID(port)
 	if id == 0x21 or not memory.player then return end
-	local player = memory.player[port]
+	local player = melee.getPlayer(port)
 	if not player or not id then return end
 	local stock = melee.getStockTexture(id, player.skin)
 	if not stock then return end
@@ -782,6 +796,10 @@ local SINGLEPLAYER_STAGES = {
 	[0x46] = "Trophy Tussle - Majora's Mask",
 }
 
+function melee.isNetplayGame()
+	return memory.menu.major == MENU_VS_UNKNOWN and (memory.menu.minor == MENU_VS_UNKNOWN_INGAME or memory.menu.minor == MENU_VS_UNKNOWN_VERSUS)
+end
+
 function melee.isSinglePlayerGame()
 	local major = memory.menu.major
 	return	major == MENU_ALL_STAR_MODE or major == MENU_TRAINING_MODE or
@@ -882,6 +900,9 @@ function melee.isInGame()
 	end
 	if memory.menu.major >= MENU_HOME_RUN_CONTEST and memory.menu.major <= MENU_CRUEL_MELEE then
 		return memory.menu.minor == MENU_HOME_RUN_CONTEST_INGAME
+	end
+	if memory.menu.major == MENU_TITLE_SCREEN_IDLE then
+		return memory.menu.minor == MENU_TITLE_SCREEN_IDLE_FIGHT_1 or memory.menu.minor == MENU_TITLE_SCREEN_IDLE_FIGHT_2
 	end
 	return false
 end

@@ -1,12 +1,12 @@
 local bit = require("bit")
 local ffi = require("ffi")
 local log = require("log")
+local cloneloader = require("memory.cloneloader")
 local process = require("memory." .. jit.os:lower())
-local clones = require("games.clones")
 local notification = require("notification")
-local filesystem = love.filesystem
 
 require("extensions.string")
+require("extensions.table")
 
 local NULL = 0x00000000
 
@@ -20,6 +20,9 @@ local VC_ID_LEN     = 0x04
 local VC_NONE       = "\0\0\0\0"
 
 local memory = {
+	clones = require("games.clones"),
+	vcclones = require("games.vcclones"),
+
 	gameid = GAME_NONE,
 	vcid = VC_NONE,
 	process = process,
@@ -27,9 +30,8 @@ local memory = {
 
 	hooked = false,
 	initialized = false,
-
 	ingame = false,
-	hooked = false,
+	supportedgame = false,
 
 	map = {},
 	values = {},
@@ -39,6 +41,8 @@ local memory = {
 
 	hook_queue = {},
 }
+
+cloneloader.loadFile("clones.lua", memory.clones)
 
 setmetatable(memory, {__index = memory.values})
 
@@ -178,6 +182,7 @@ local TYPES_READ = {
 	["sbyte"] = memory.readByte,
 	["byte"] = memory.readUByte,
 	["short"] = memory.readShort,
+	["int"] = memory.readInt,
 
 	["u8"] = memory.readUByte,
 	["s8"] = memory.readByte,
@@ -222,17 +227,21 @@ end
 local ADDRESS = {}
 ADDRESS.__index = ADDRESS
 
-function memory.newvalue(addr, offset, struct)
+function memory.newvalue(addr, offset, struct, name)
 	assert(type(addr) == "number", "argument #1 'address' must be a number")
 	assert(TYPES_READ[struct.type] ~= nil, "unhandled type: " .. struct.type)
 
-	-- create/get a new value cache based off of the value name
-	local tbl, key = memory.cacheValue(memory.values, struct.name, struct.init or NULL)
+	name = name or struct.name or addr
 
-	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, struct.name)
+	local init = struct.init or NULL
+
+	-- create/get a new value cache based off of the value name
+	local tbl, key = memory.cacheValue(memory.values, name, init)
+
+	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
 
 	return setmetatable({
-		name = struct.name,
+		name = name,
 
 		address = addr, -- Where in memory this value is located
 		offset = offset, -- How far past the address value we should get the value from
@@ -243,6 +252,7 @@ function memory.newvalue(addr, offset, struct)
 		-- Setup the cache
 		cache = tbl,
 		cache_key = key,
+		cache_value = init,
 
 		debug = struct.debug,
 	}, ADDRESS)
@@ -256,8 +266,9 @@ function ADDRESS:update()
 	local value, orig = self.read(self.address + self.offset)
 
 	-- Check if there has been a value change
-	if self.cache[self.cache_key] ~= value then
-		self.cache[self.cache_key] = value
+	if self.cache_value ~= value then
+		self.cache_value = value
+		self.cache[self.cache_key] = self.cache_value
 
 		if self.debug then
 			local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
@@ -272,32 +283,29 @@ end
 local POINTER = {}
 POINTER.__index = POINTER
 
-function memory.newpointer(addr, offset, pointer)
+function memory.newpointer(addr, offset, pointer, name)
 	local pstruct = {}
 
-	log.debug("[MEMORY] POINTER CREATED %08X + %X", addr, offset)
+	name = name or pointer.name
+
+	--log.debug("[MEMORY] POINTER CREATED %08X + %X %q", addr, offset, name or "nil")
 
 	-- Loop through the pointers children
 	for poffset, struct in pairs(pointer.struct) do
-		local originalname = struct.name
-
-		if pointer.name and struct.name then
-			-- If we named the pointer, prepend it to the structs name
-			struct.name = pointer.name .. "." .. struct.name
+		local sname = name
+		if sname and struct.name then
+			sname = sname .. "." .. struct.name
 		end
 		if struct.type == "pointer" then
-			pstruct[poffset] = memory.newpointer(NULL, poffset, struct)
+			pstruct[poffset] = memory.newpointer(NULL, poffset, struct, sname)
 		else
-			pstruct[poffset] = memory.newvalue(NULL, poffset, struct)
+			pstruct[poffset] = memory.newvalue(NULL, poffset, struct, sname)
 		end
-
-		-- Restore the name back
-		struct.name = originalname
 	end
 
 	return setmetatable({
 		parent = addr ~= NULL and pointer or nil,
-		name = pointer.name,
+		name = name,
 		address = addr,
 		offset = offset,
 		location = NULL,
@@ -355,6 +363,10 @@ function memory.hasPermissions()
 	return memory.permissions
 end
 
+function memory.isSupportedGame()
+	return memory.supportedgame
+end
+
 function memory.isInGame()
 	local gid = memory.gameid
 	local vcid = memory.vcid
@@ -363,6 +375,7 @@ end
 
 function memory.isMelee()
 	local gid = memory.gameid
+	local version = memory.version
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
@@ -370,10 +383,18 @@ function memory.isMelee()
 		version = 0x02
 	end
 
-	local clone = clones[gid]
-	if clone then gid = clone.id end
+	-- See if this GameID is a clone of another
+	local clone = memory.clones[gid] and memory.clones[gid][version] or nil
 
-	return gid == "GALE01"
+	if gid == "GTME01" then
+		version = 0x02
+		gid = "GALE01"
+	elseif clone then
+		version = clone.version
+		gid = clone.id
+	end
+
+	return gid == "GALE01" and version == 0x02
 end
 
 local timer = love.timer.getTime()
@@ -382,15 +403,13 @@ function memory.loadGameScript(path)
 	-- Try to load the game table
 	local status, game = xpcall(require, debug.traceback, ("games.%s"):format(path))
 
-	log.debug("[DOLPHIN] GAMEID: %s", path)
-	love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(path))
-	memory.runhook("OnGameOpen")
-
 	if status then
+		memory.supportedgame = true
 		memory.game = game
 		log.info("[DOLPHIN] Loaded game config: %s", path)
 		memory.init(game.memorymap)
 	else
+		memory.supportedgame = false
 		notification.error(("Unsupported game %s"):format(path))
 		notification.error("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode")
 		log.error("[DOLPHIN] %s", game) -- game variable is an error string
@@ -399,8 +418,9 @@ end
 
 function memory.findGame()
 	local gid = memory.readGameID()
-	local vcid = memory.readVirtualConsoleID()
 	local version = memory.readGameVersion()
+
+	local vcid = memory.readVirtualConsoleID()
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
 	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
@@ -417,22 +437,36 @@ function memory.findGame()
 		memory.ingame = true
 		memory.vcid = vcid
 
+		log.debug("[DOLPHIN] Game: %s", vcid)
+		love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(vcid))
+
+		-- Check for VC clones
+		vcid = memory.vcclones[vcid] or vcid
+
 		memory.loadGameScript(vcid)
+		memory.runhook("OnGameOpen", vcid)
 	elseif (not memory.ingame or meleeMode) and gid ~= GAME_NONE then
 		memory.reset()
 		memory.ingame = true
 		memory.gameid = gid
 		memory.version = version
 
-		-- See if this GameID is a clone of another
-		local clone = clones[gid]
+		log.debug("[DOLPHIN] Game: %s revision %i", gid, version)
+		love.updateTitle(("M'Overlay - Dolphin hooked (%s-%i)"):format(gid, version))
 
-		if clone then
+		-- See if this GameID is a clone of another
+		local clone = memory.clones[gid] and memory.clones[gid][version] or nil
+
+		if gid == "GTME01" then
+			version = 0x02
+			gid = "GALE01"
+		elseif clone then
 			version = clone.version
 			gid = clone.id
 		end
 
 		memory.loadGameScript(("%s-%d"):format(gid, version))
+		memory.runhook("OnGameOpen", gid, version)
 	elseif (memory.ingame or meleeMode) and (gid == GAME_NONE and vcid == VC_NONE) then
 		memory.reset()
 		memory.ingame = false
@@ -491,7 +525,6 @@ end
 function memory.reset()
 	memory.initialized = false
 	memory.ingame = false
-	memory.hooked = false
 	memory.map = {}
 	memory.values = {}
 	memory.gameid = GAME_NONE

@@ -13,13 +13,15 @@ function PANEL:Initialize()
 	--self:SetTitle("Settings")
 	--self:DockPadding(1, 32, 1, 1)
 	--self:SetHideOnClose(true)
-	self:SetSize(296 + 36, 196 + 28 + 24)
+	self:DockPadding(0, 0, 0, 0)
+	self:SetSize(296 + 32, 256)
 	self:Center()
+	self:SetBackgroundColor(color(0, 0, 0, 100))
 
 	local LEFT = self:Add("Panel")
 	LEFT:DockMargin(0,0,0,0)
 	LEFT:DockPadding(4,4,4,4)
-	--LEFT:SetBorderColor(color_black)
+	LEFT:SetBorderColor(color_clear)
 	LEFT:SetBackgroundColor(color_clear)
 	LEFT:SetWidth(164)
 	LEFT:Dock(DOCK_LEFT)
@@ -28,24 +30,29 @@ function PANEL:Initialize()
 	GLABEL:SetText("General")
 	GLABEL:SetTextAlignment("center")
 	GLABEL:SizeToText()
-	GLABEL:SetHeight(20)
+	GLABEL:SetHeight(14)
 	GLABEL:Dock(DOCK_TOP)
+	GLABEL:SetTextColor(color_white)
+	GLABEL:SetShadowDistance(1)
+	GLABEL:SetShadowColor(color_black)
+	GLABEL:SetFont("fonts/melee-bold.otf", 14)
 
 	local RIGHT = self:Add("Panel")
 	RIGHT:DockMargin(0,0,0,0)
 	RIGHT:DockPadding(0,0,0,0)
 	--RIGHT:DockPadding(4,28,4,4)
-	--RIGHT:SetBorderColor(color_black)
-	--RIGHT:SetBackgroundColor(color(33, 186, 69))
+	RIGHT:SetBorderColor(color_clear)
+	RIGHT:SetBackgroundColor(color_clear)
 	RIGHT:SetWidth(164)
 	RIGHT:Dock(DOCK_RIGHT)
 
 	self.SLIPPI = RIGHT:Add("Panel")
 	self.SLIPPI:DockMargin(0,0,0,0)
-	self.SLIPPI:DockPadding(4,28,4,4)
-	self.SLIPPI:SetBackgroundColor(color(33, 186, 69))
+	self.SLIPPI:DockPadding(4,30,4,4)
+	self.SLIPPI:SetBorderColor(color_clear)
+	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 150))
 	self.SLIPPI:SetWidth(164)
-	self.SLIPPI:SetHeight(84)
+	self.SLIPPI:SetHeight(90)
 	self.SLIPPI:Dock(DOCK_TOP)
 
 	local SLIPPIICON = self.SLIPPI:Add("Image")
@@ -56,10 +63,11 @@ function PANEL:Initialize()
 
 	self.MELEE = RIGHT:Add("Panel")
 	self.MELEE:DockMargin(0,0,0,0)
-	self.MELEE:DockPadding(4,28,4,4)
-	self.MELEE:SetBackgroundColor(color(189, 15, 23))
+	self.MELEE:DockPadding(4,34,4,4)
+	self.MELEE:SetBorderColor(color_clear)
+	self.MELEE:SetBackgroundColor(color(189, 15, 23, 150))
 	self.MELEE:SetWidth(164)
-	self.MELEE:SetHeight(132+28)
+	self.MELEE:SetHeight(132+34)
 	self.MELEE:Dock(DOCK_TOP)
 
 	local MELEEICON = self.MELEE:Add("Image")
@@ -76,7 +84,7 @@ function PANEL:Initialize()
 	SLIPPI_REPLAY = self.SLIPPI.MODE:AddOption("Replay/Mirror") -- 3
 
 	function self.SLIPPI.MODE:OnSelectOption(num)
-		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100) or color(33, 186, 69))
+		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100, 150) or color(33, 186, 69, 150))
 		self:GetParent().AUTOPORT:SetEnabled(num == SLIPPI_NETPLAY)
 	end
 
@@ -118,6 +126,10 @@ function PANEL:Initialize()
 	VOLLABEL:SetText("Music volume")
 	VOLLABEL:SizeToText()
 	VOLLABEL:Dock(DOCK_TOP)
+	VOLLABEL:SetTextColor(color_white)
+	VOLLABEL:SetShadowDistance(1)
+	VOLLABEL:SetShadowColor(color_black)
+	VOLLABEL:SetFont("fonts/melee-bold.otf", 12)
 
 	self.MELEE.VOLUME = self.MELEE:Add("Slider")
 	self.MELEE.VOLUME:SetValue(50)
@@ -140,9 +152,25 @@ function PANEL:Initialize()
 		love.updateTitle(love.getTitleNoPort())
 	end
 
-	self.DPAD = LEFT:Add("Checkbox")
-	self.DPAD:SetText("Hide D-PAD")
-	self.DPAD:Dock(DOCK_TOP)
+	self.HIGH_CONTRAST = LEFT:Add("Checkbox")
+	self.HIGH_CONTRAST:SetText("High-contrast")
+	self.HIGH_CONTRAST:Dock(DOCK_TOP)
+
+	local BUTTONS = LEFT:Add("Panel")
+	BUTTONS:Dock(DOCK_TOP)
+	BUTTONS:DockPadding(0,0,0,0)
+
+	self.DPAD = BUTTONS:Add("Checkbox")
+	self.DPAD:SetText("D-Pad")
+	self.DPAD:SetWidth(77)
+	self.DPAD:Dock(DOCK_LEFT)
+	self.DPAD:DockMargin(0,0,0,0)
+
+	self.START = BUTTONS:Add("Checkbox")
+	self.START:SetText("Start")
+	self.START:SetWidth(76)
+	self.START:Dock(DOCK_RIGHT)
+	self.START:DockMargin(0,0,0,0)
 
 	if love.system.getOS() == "Windows" then
 		self.DEBUG = LEFT:Add("Checkbox")
@@ -158,17 +186,23 @@ function PANEL:Initialize()
 		end
 	end
 
-	local TLABEL = LEFT:Add("Label")
-	TLABEL:SetText("Transparency")
-	TLABEL:SizeToText()
-	TLABEL:Dock(DOCK_TOP)
+	if love.supportsGameCapture() then
+		local TLABEL = LEFT:Add("Label")
+		TLABEL:SetText("Transparency")
+		TLABEL:SizeToText()
+		TLABEL:Dock(DOCK_TOP)
+		TLABEL:SetTextColor(color_white)
+		TLABEL:SetShadowDistance(1)
+		TLABEL:SetShadowColor(color_black)
+		TLABEL:SetFont("fonts/melee-bold.otf", 12)
 
-	self.TRANSPARENCY = LEFT:Add("Slider")
-	self.TRANSPARENCY:SetValue(100)
-	self.TRANSPARENCY:Dock(DOCK_TOP)
+		self.TRANSPARENCY = LEFT:Add("Slider")
+		self.TRANSPARENCY:SetValue(100)
+		self.TRANSPARENCY:Dock(DOCK_TOP)
 
-	function self.TRANSPARENCY:OnValueChanged(i)
-		TLABEL:SetText(("Transparency - %d%%"):format(i))
+		function self.TRANSPARENCY:OnValueChanged(i)
+			TLABEL:SetText(("Transparency - %d%%"):format(i))
+		end
 	end
 
 	self.CONFIGDIR = LEFT:Add("Button")
@@ -180,6 +214,17 @@ function PANEL:Initialize()
 	end
 
 	self.m_sFileName = "config.json"
+
+	local VLABEL = LEFT:Add("Label")
+	VLABEL:SetText(love.getMOverlayVersion())
+	VLABEL:SetTextAlignment("center")
+	VLABEL:SizeToText()
+	VLABEL:SetHeight(14)
+	VLABEL:Dock(DOCK_TOP)
+	VLABEL:SetTextColor(color_white)
+	VLABEL:SetShadowDistance(1)
+	VLABEL:SetShadowColor(color_black)
+	VLABEL:SetFont("fonts/melee-bold.otf", 12)
 end
 
 function PANEL:Toggle()
@@ -196,7 +241,9 @@ function PANEL:GetSaveTable()
 		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
-		["hide-dpad"] = self:IsDPADHidden(),
+		["high-contrast"] = self:IsHighContrast(),
+		["enable-dpad"] = self:IsDPadEnabled(),
+		["enable-start"] = self:IsStartEnabled(),
 		["debugging"] = self:IsDebugging(),
 		["transparency"] = self:GetTransparency(),
 		["melee-stage-music"] = self:PlayStageMusic(),
@@ -254,8 +301,16 @@ function PANEL:AlwaysShowPort()
 	return self.ALWAYSPORT:IsToggled()
 end
 
-function PANEL:IsDPADHidden()
+function PANEL:IsHighContrast()
+	return self.HIGH_CONTRAST:IsToggled()
+end
+
+function PANEL:IsDPadEnabled()
 	return self.DPAD:IsToggled()
+end
+
+function PANEL:IsStartEnabled()
+	return self.START:IsToggled()
 end
 
 function PANEL:IsDebugging()
@@ -263,7 +318,7 @@ function PANEL:IsDebugging()
 end
 
 function PANEL:GetTransparency()
-	return self.TRANSPARENCY:GetValue()
+	return self.TRANSPARENCY and self.TRANSPARENCY:GetValue() or nil
 end
 
 function PANEL:OnClosed()
@@ -302,6 +357,9 @@ function PANEL:LoadSettings()
 		for k,v in pairs(json.decode(f:read())) do
 			if settings[k] ~= nil then
 				settings[k] = v
+			elseif k == "hide-dpad" then
+				settings["enable-dpad"] = not v
+				log.debug("[CONFIG] Converting old config setting %q", k)
 			elseif k == "slippi-netplay" and v == true then
 				settings["slippi-mode"] = SLIPPI_NETPLAY
 				log.debug("[CONFIG] Converting old config setting %q", k)
@@ -323,9 +381,13 @@ function PANEL:LoadSettings()
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
-	self.DPAD:SetToggle(settings["hide-dpad"] or false, true)
-	if self.DEBUG then self.DEBUG:SetToggle(settings["debugging"] or false) end
-	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
+	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"] or false, true)
+	if settings["enable-dpad"] ~= nil then
+		self.DPAD:SetToggle(settings["enable-dpad"], true)
+	end
+	self.START:SetToggle(settings["enable-start"] or false, true)
+	if self.DEBUG then self.DEBUG:SetToggle(love.isConsoleOpened() or settings["debugging"] or false) end
+	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)

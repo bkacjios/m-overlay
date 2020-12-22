@@ -1,12 +1,37 @@
--- Format ["CLONED GAME ID"] = { id = "ORIGINAL GAME ID", version = REVISION NUMBER }
+--[[
+-- Clone table format
+["CLONED GAME ID"] = {
+	[CLONE REVISION] = { id = "ORIGINAL GAME ID", version = REVISION }
+}
+]]
 
 return {
-	--[string.char(0x47, 0x41, 0x02, 0x21, 0x21, 0x31)] = { id = "GALE01", version = 2 }, -- Slippi netplay
-	--[string.char(0x47, 0x41, 0x14, 0x21, 0x21, 0x31)] = { id = "GALE01", version = 2 }, -- Slippi netplay
-	["GTME01"] = { id = "GALE01", version = 2 }, -- UnclePunch Training Mode
-	["MNCE02"] = { id = "GALE01", version = 2 }, -- Melee Netplay Community Build
-	["SDRE32"] = { id = "GALE01", version = 2 }, -- SSBM SD Remix
-	["RSBE01"] = { id = "RSBE01", version = 2 }, -- Super Smash Bros. Brawl
-	["G2ME0R"] = { id = "G2ME01", version = 0 }, -- Metroid Prime 2: Echoes Randomizer
-	["KHPE01"] = { id = "GKYE01", version = 0 }, -- Kirby Air Ride Hack Pack
+	["GTME01"] = {
+		[2] = { id = "GALE01", version = 2 }, -- UnclePunch Training Mode
+	},
+	["MNCE02"] = {
+		[2] = { id = "GALE01", version = 2 }, -- Melee Netplay Community Build
+	},
+	["SDRE32"] = {
+		[3] = { id = "GALE01", version = 2 }, -- SSBM SD Remix
+	},
+	["RSBE01"] = {
+		-- Brawl versions 1.0, 1.1 have the same memory locations for controller data as 1.2
+		[0] = { id = "RSBE01", version = 2 }, -- Super Smash Bros. Brawl (v1.0)
+		[1] = { id = "RSBE01", version = 2 }, -- Super Smash Bros. Brawl (v1.1)
+	},
+	["G2ME0R"] = {
+		[0] = { id = "G2ME01", version = 0 }, -- Metroid Prime 2: Echoes Randomizer
+	},
+	["KHPE01"] = {
+		[0] = { id = "GKYE01", version = 0 }, -- Kirby Air Ride Hack Pack
+	},
+	["GZLE99"] = {
+		[0] = { id = "GZLE01", version = 0 }, -- The Legend of Zelda: The Wind Waker Randomizer
+	},
+	["GALJ01"] = {
+		[0] = { id = "GALE01", version = 0 }, -- Dairantou Smash Brothers DX (Japan) (v1.0)
+		[1] = { id = "GALE01", version = 1 }, -- Dairantou Smash Brothers DX (Japan) (v1.1)
+		[2] = { id = "GALE01", version = 2 }, -- Dairantou Smash Brothers DX (Japan) (v1.2)
+	},
 }

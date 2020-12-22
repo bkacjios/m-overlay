@@ -35,12 +35,26 @@ if not exist %RELEASES_DIR% mkdir %RELEASES_DIR%
 if not exist %BUILD_OUTPUT_DIR% mkdir %BUILD_OUTPUT_DIR%
 
 SET BRANCH=dirty
-SET VERSION=1
+SET COMMIT=1
+SET VERSION=v0.0.0
 
 REM Get GIT commit number
 FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-list --count --first-parent HEAD`) DO (
+	SET COMMIT=%%F
+)
+
+REM Get latest tag
+FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% describe --tags`) DO (
+	echo %%F
 	SET VERSION=%%F
 )
+
+IF "%VERSION:~0,1%"=="v" (
+	echo Stripping 'v' from VERSION
+	SET VERSION=%VERSION:~1%
+)
+
+echo %VERSION% > "%SOURCE_DIR%\version.txt"
 
 REM Get GIT branch
 FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-parse --abbrev-ref HEAD`) DO (
@@ -52,7 +66,7 @@ SET PATH=%PATH%;%INNO_SETUP_DIR%;%TOOLS_DIR%
 SET EXE_NAME=%NAME%-%BIT%.exe
 SET EXE_PATH=%BUILD_OUTPUT_DIR%\%EXE_NAME%
 
-SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%VERSION%).love"
+SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%COMMIT%).love"
 REM SET ZIP=%BUILD_DIR%\%NAME%.love
 
 echo Zipping files in %SOURCE_DIR% into %ZIP%
@@ -74,7 +88,7 @@ copy /b %LOVE_DIR%\love.exe+,, %BUILD_DIR%
 echo Customizing love.exe
 rcedit-x64 "%BUILD_DIR%\love.exe" --set-icon "%INSTALLER_DIR%\icon.ico"
 rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "FileDescription" "M'Overlay"
-rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "FileVersion" "%VERSION%"
+rcedit-x64 "%BUILD_DIR%\love.exe" --set-file-version "%VERSION%"
 rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "InternalName" "%NAME%-%BIT%"
 rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "OriginalFilename" "%EXE_NAME%"
 
@@ -82,7 +96,7 @@ REM We have to merge AFTER rcedit, since rcedit destroys the merged data
 echo Merging love.exe + %ZIP% into %EXE_PATH%
 copy /b "%BUILD_DIR%\love.exe"+%ZIP% %EXE_PATH%
 
-SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%VERSION%).zip"
+SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%COMMIT%).zip"
 
 REM Remove old zip if it exists
 if exist %ZIP% del %ZIP%
