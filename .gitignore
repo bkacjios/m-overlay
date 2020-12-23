@@ -5,3 +5,6 @@ releases/
 nativefiledialog-master/
 *.psd
 nativefiledialog/
+LuaJIT-2.0.5/
+openssl-1.1.1i/
+source/version.txt
