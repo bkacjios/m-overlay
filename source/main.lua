@@ -351,6 +351,7 @@ local BUTTON_TEXTURES = {
 	},
 	START = {
 		OUTLINE = newImage("textures/buttons/start-outline.png"),
+		FILLED = newImage("textures/buttons/start-filled.png"),
 		PRESSED = newImage("textures/buttons/start-pressed.png"),
 		COLOR = color(255, 255, 255, 255),
 		POSITION = {
