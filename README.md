@@ -16,6 +16,8 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 
 ### Supported Gamecube games:
 
+* Disney's Donald Duck Goin' Quackers (NTSC-U)
+* F-Zero GX (NTSC-U)
 * Gotcha Force (NTSC-U, PAL, NTSC-J)
 * Super Smash Bros. Melee (NTSC-U, PAL, NTSC-J)
   - [20XX](https://smashboards.com/threads/the-20xx-melee-training-hack-pack-v4-07-7-04-17.351221/)
