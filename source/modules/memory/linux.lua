@@ -124,6 +124,7 @@ end
 
 local valid_process_names = {
 	["AppRun"] = true,
+	["AppRun.wrapped"] = true,
 	["dolphin-emu"] = true,
 	["dolphin-emu-qt2"] = true,
 	["dolphin-emu-wx"] = true,
