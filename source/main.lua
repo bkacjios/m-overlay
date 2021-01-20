@@ -1,5 +1,4 @@
 love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lua")
-io.stdout:setvbuf("no")
 
 math.randomseed(love.timer.getTime())
 

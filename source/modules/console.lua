@@ -3,6 +3,8 @@ if jit.os ~= "Windows" then return end
 local ffi = require("ffi")
 local kernel = ffi.load("Kernel32.dll")
 
+io.stdout:setvbuf("no")
+
 local INVALID_HANDLE_VALUE = -1
 
 local STD_INPUT_HANDLE  = -10
