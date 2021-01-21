@@ -776,7 +776,7 @@ function love.draw()
 			graphics.setColor(portColor)
 			melee.drawSeries(port + 1, 8, 256 - 72 - 4, 0, 72, 72)
 			graphics.setColor(255, 255, 255, 255)
-			melee.drawStock(port + 1, 36, 256 - 42 - 8, 0, 32, 32)
+			melee.drawStock(port + 1, 40, 256 - 42, 0, 24, 24)
 			graphics.easyDraw(PORT_TEXTURES[port], 12, 256 - 42 - 24, 0, 33, 14)
 		else
 			graphics.setFont(PORT_FONT)

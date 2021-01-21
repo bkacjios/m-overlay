@@ -340,157 +340,157 @@ MENU_SINGLE_BUTTON_MODE = 0x2C
 local character_selections = {
 	[0x00] = {
 		name = "captain",
-		skin = {"original", "black", "red", "white", "green", "blue"},
+		skin = {"original", "black", "red", "white", "green", "blue", "teal"},
 		team_skin = {3, 6, 5},
 		series = "fzero"
 	},
 	[0x01] = {
 		name = "donkey",
-		skin = {"original", "black", "red", "blue", "green"},
+		skin = {"original", "black", "red", "blue", "green", "gold"},
 		team_skin = {3, 4, 5},
 		series = "donkey_kong"
 	},
 	[0x02] = {
 		name = "fox",
-		skin = {"original", "red", "blue", "green"},
+		skin = {"original", "red", "blue", "green", "gold"},
 		team_skin = {2, 3, 4},
 		series = "star_fox"
 	},
 	[0x03] = {
 		name = "gamewatch",
-		skin = {"original", "red", "blue", "green"},
+		skin = {"original", "red", "blue", "green", "white"},
 		team_skin = {2, 3, 4},
 		series = "game_and_watch"
 	},
 	[0x04] = {
 		name = "kirby",
-		skin = {"original", "yellow", "blue", "red", "green", "white"},
+		skin = {"original", "yellow", "blue", "red", "green", "white", "purple"},
 		team_skin = {4, 3, 5},
 		series = "kirby"
 	},
 	[0x05] = {
 		name = "koopa",
-		skin = {"green", "red", "blue", "black"},
+		skin = {"green", "red", "blue", "black", "orange"},
 		team_skin = {2, 3, 1},
 		series = "mario"
 	},
 	[0x06] = {
 		name = "link",
-		skin = {"green", "red", "blue", "black", "white"},
+		skin = {"green", "red", "blue", "black", "white", "gold"},
 		team_skin = {2, 3, 1},
 		series = "zelda"
 	},
 	[0x07] = {
 		name = "luigi",
-		skin = {"green", "white", "blue", "red"},
+		skin = {"green", "white", "blue", "red", "purple"},
 		team_skin = {4, 3, 1},
 		series = "mario"
 	},
 	[0x08] = {
 		name = "mario",
-		skin = {"red", "yellow", "black", "blue", "green"},
+		skin = {"red", "yellow", "black", "blue", "green", "teal"},
 		team_skin = {1, 4, 5},
 		series = "mario"
 	},
 	[0x09] = {
 		name = "marth",
-		skin = {"original", "red", "green", "black", "white"},
+		skin = {"original", "red", "green", "black", "white", "gold"},
 		team_skin = {2, 1, 3},
 		series = "fire_emblem"
 	},
 	[0x10] = {
 		name = "samus",
-		skin = {"red", "pink", "black", "green", "blue"},
+		skin = {"red", "pink", "black", "green", "blue", "teal"},
 		team_skin = {1, 5, 4},
 		series = "metroid"
 	},
 	[0x11] = {
 		name = "yoshi",
-		skin = {"green", "red", "blue", "yellow", "pink", "light_blue"},
+		skin = {"green", "red", "blue", "yellow", "pink", "light_blue", "black"},
 		team_skin = {2, 3, 1},
 		series = "yoshi"
 	},
 	[0x12] = {
 		name = "zelda",
-		skin = {"original", "red", "blue", "green", "white"},
+		skin = {"original", "red", "blue", "green", "white", "gold"},
 		team_skin = {2, 3, 4},
 		series = "zelda"
 	},
 	[0x13] = {
 		name = "sheik",
-		skin = {"original", "red", "blue", "green", "white"},
+		skin = {"original", "red", "blue", "green", "white", "gold"},
 		team_skin = {2, 3, 4},
 		series = "zelda"
 	},
 	[0x14] = {
 		name = "falco",
-		skin = {"original", "red", "blue", "green"},
+		skin = {"original", "red", "blue", "green", "pink"},
 		team_skin = {2, 3, 4},
 		series = "star_fox"
 	},
 	[0x15] = {
 		name = "younglink",
-		skin = {"green", "red", "blue", "white", "black"},
+		skin = {"green", "red", "blue", "white", "black", "purple"},
 		team_skin = {2, 3, 1},
 		series = "zelda"
 	},
 	[0x16] = {
 		name = "mariod",
-		skin = {"white", "red", "blue", "green", "black"},
+		skin = {"white", "red", "blue", "green", "black", "purple"},
 		team_skin = {2, 3, 4},
 		series = "mario"
 	},
 	[0x17] = {
 		name = "roy",
-		skin = {"original", "red", "blue", "green", "yellow"},
+		skin = {"original", "red", "blue", "green", "yellow", "purple"},
 		team_skin = {2, 3, 4},
 		series = "fire_emblem"
 	},
 	[0x18] = {
 		name = "pichu",
-		skin = {"original", "red", "blue", "green"},
+		skin = {"original", "red", "blue", "green", "hat"},
 		team_skin = {2, 3, 4},
 		series = "pokemon"
 	},
 	[0x19] = {
 		name = "ganon",
-		skin = {"original", "red", "blue", "green", "purple"},
+		skin = {"original", "red", "blue", "green", "purple", "gold"},
 		team_skin = {2, 3, 4},
 		series = "zelda"
 	},
 	[0x0A] = {
 		name = "mewtwo",
-		skin = {"original", "red", "blue", "green"},
+		skin = {"original", "red", "blue", "green", "black"},
 		team_skin = {2, 3, 4},
 		series = "pokemon"
 	},
 	[0x0B] = {
 		name = "ness",
-		skin = {"original", "yellow", "blue", "green"},
+		skin = {"original", "yellow", "blue", "green", "pink"},
 		team_skin = {1, 3, 4},
 		series = "earthbound"
 	},
 	[0x0C] = {
 		name = "peach",
-		skin = {"original", "daisy", "white", "blue", "green"},
+		skin = {"original", "daisy", "white", "blue", "green", "red"},
 		team_skin = {1, 4, 5},
 		series = "mario"
 	},
 	[0x0D] = {
 		name = "pikachu",
-		skin = {"original", "red", "blue", "green"},
+		skin = {"original", "red", "blue", "green", "detective"},
 		team_skin = {2, 3, 4},
 		series = "pokemon"
 	},
 	[0x0E] = {
 		name = "ice_climber",
-		skin = {"original", "green", "orange", "red"},
+		skin = {"original", "green", "orange", "red", "blue"},
 		team_skin = {4, 1, 2},
 		series = "ice_climbers"
 	},
 	[0x0F] = {
 		name = "purin",
-		skin = {"original", "red", "blue", "green", "crown"},
+		skin = {"original", "red", "blue", "green", "crown", "pink"},
 		team_skin = {2, 3, 4},
 		series = "pokemon"
 	},
@@ -581,7 +581,7 @@ function melee.getStockTexture(id, skin)
 		return textures.stocks[id]
 	end
 	if not textures.stocks[id] or not textures.stocks[id][skin] then
-		return textures.stocks[0x21]
+		return textures.stocks[id] and textures.stocks[id][0] or textures.stocks[0x21]
 	end
 	return textures.stocks[id][skin]
 end
