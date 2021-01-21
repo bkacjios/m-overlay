@@ -75,6 +75,10 @@ function music.init()
 	moveFolderContentsTo("Melee/Series Music/All", "Melee/Series Music")
 
 	love.filesystem.createDirectory("Melee/Single Player Music/Break the Targets")
+
+	for stageid, name in pairs(melee.getAkaneiaStages()) do
+		love.filesystem.createDirectory(("Melee/Akaneia Stage Music/%s"):format(name))
+	end
 end
 
 function music.kill()
@@ -333,14 +337,19 @@ function music.loadForStage(stageid)
 	local name = melee.getStageName(stageid)
 	local series = melee.getStageSeries(stageid)
 	local sp = melee.isSinglePlayerStage(stageid)
+	local aka = melee.isAkaneiaStage(stageid)
 
 	if not name then STAGE_ID = nil return end
 
 	if sp then
-		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stages folder
+		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stage specific folder
 		music.loadStageMusicInDir(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well
+	elseif aka then
+		music.loadStageMusicInDir(stageid, ("Melee/Akaneia Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadStageMusicInDir(stageid, "Melee/Akaneia Stage Music") -- Load everything in the akaneia folder
+		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	else
-		music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stages folder
+		music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
 		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	end
 

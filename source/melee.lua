@@ -779,7 +779,26 @@ local BREAK_THE_TARGETS_STAGES = {
 	[0x3F] = "Mr. G&W Target Test",
 	[0x40] = "Roy Target Test",
 	[0x41] = "Ganondorf Target Test",
+}
 
+local AKANEIA_STAGES = {
+	[0x47] = "Peach's Castle 64",
+	[0x48] = "Hyrule Castle 64",
+	[0x49] = "Saffron City 64",
+	[0x4A] = "Planet Zebes 64",
+	[0x4B] = "Mushroom Kingdom 64",
+	[0x4C] = "Metal Cavern",
+	[0x4D] = "Volleyball",
+}
+
+local AKANEIA_SERIES = {
+	[0x47] = "Super Mario",
+	[0x48] = "The Legend of Zelda",
+	[0x49] = "Pokémon",
+	[0x4A] = "Metroid",
+	[0x4B] = "Super Mario",
+	[0x4C] = "Super Mario",
+	[0x4D] = "Super Smash Bros",
 }
 
 local SINGLEPLAYER_STAGES = {
@@ -825,8 +844,20 @@ function melee.getAllStages()
 	return STAGE_NAMES
 end
 
+function melee.getAkaneiaStages()
+	return AKANEIA_STAGES
+end
+
+function melee.getAkaneiaSeries()
+	return AKANEIA_SERIES
+end
+
+function melee.isAkaneiaStage(id)
+	return AKANEIA_STAGES[id] ~= nil
+end
+
 function melee.getStageName(id)
-	return STAGE_NAMES[id] or SINGLEPLAYER_STAGES[id] or BREAK_THE_TARGETS_STAGES[id]
+	return STAGE_NAMES[id] or SINGLEPLAYER_STAGES[id] or BREAK_THE_TARGETS_STAGES[id] or AKANEIA_STAGES[id]
 end
 
 function melee.getAllStageSeries()
@@ -834,7 +865,7 @@ function melee.getAllStageSeries()
 end
 
 function melee.getStageSeries(id)
-	return STAGE_SERIES[id]
+	return STAGE_SERIES[id] or AKANEIA_SERIES[id]
 end
 
 function melee.matchFinsihed()
