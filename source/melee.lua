@@ -779,6 +779,23 @@ local BREAK_THE_TARGETS_STAGES = {
 	[0x3F] = "Mr. G&W Target Test",
 	[0x40] = "Roy Target Test",
 	[0x41] = "Ganondorf Target Test",
+
+	-- Akaneia
+	[0x4E] = "Wolf Target Test",
+}
+
+local SINGLEPLAYER_STAGES = {
+	[0x1F] = "Mushroom Kingdom",
+	[0x20] = "Underground Maze",
+	[0x21] = "Escape Zebes",
+	[0x22] = "F-Zero Grand Prix",
+	[0x26] = "Trophy Collection",
+	[0x27] = "Race to the Finish",
+	[0x42] = "All-Star Rest Area",
+	[0x43] = "Home-Run Contest",
+	[0x44] = "Trophy Tussle - Goomba",
+	[0x45] = "Trophy Tussle - Entei",
+	[0x46] = "Trophy Tussle - Majora's Mask",
 }
 
 local AKANEIA_STAGES = {
@@ -799,20 +816,6 @@ local AKANEIA_SERIES = {
 	[0x4B] = "Super Mario",
 	[0x4C] = "Super Mario",
 	[0x4D] = "Super Smash Bros",
-}
-
-local SINGLEPLAYER_STAGES = {
-	[0x1F] = "Mushroom Kingdom",
-	[0x20] = "Underground Maze",
-	[0x21] = "Escape Zebes",
-	[0x22] = "F-Zero Grand Prix",
-	[0x26] = "Trophy Collection",
-	[0x27] = "Race to the Finish",
-	[0x42] = "All-Star Rest Area",
-	[0x43] = "Home-Run Contest",
-	[0x44] = "Trophy Tussle - Goomba",
-	[0x45] = "Trophy Tussle - Entei",
-	[0x46] = "Trophy Tussle - Majora's Mask",
 }
 
 function melee.isNetplayGame()
