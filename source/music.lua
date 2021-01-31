@@ -4,6 +4,7 @@ local log = require("log")
 local melee = require("melee")
 local memory = require("memory")
 local notification = require("notification")
+local wav = require("wav")
 
 require("extensions.math")
 
@@ -12,6 +13,9 @@ local STAGE_TRACKS = {}
 local TRACK_NUMBER = {}
 local STAGE_ID = 0
 local PLAYING_SONG = nil
+local SOURCE_SONG_LOOPS = {}
+local SONG_FINISHED_PLAYING = true
+local SONG_SHOULD_LOOP = false
 
 local function moveFolderContentsTo(from, to)
 	local info = love.filesystem.getInfo(from)
@@ -26,6 +30,40 @@ local function moveFolderContentsTo(from, to)
 		end
 
 		love.filesystem.remove(from)
+	end
+end
+
+function music.update()
+	if not PLAYING_SONG or SONG_FINISHED_PLAYING then return end
+
+	local duration = PLAYING_SONG:getDuration("samples")
+	local position = PLAYING_SONG:tell("samples")
+
+	if SONG_SHOULD_LOOP then
+		local finished = not PLAYING_SONG:isPlaying()
+
+		if finished then
+			-- If the song is no longer playing, that means it reached the end
+			-- Immediately play it again
+			PLAYING_SONG:play()
+		end
+
+		local info = SOURCE_SONG_LOOPS[PLAYING_SONG]
+
+		if info then
+			for k, loop in pairs(info.loops) do
+				if finished or position >= loop.sample_end then
+					-- If the song finished playing or reached the looping point, loop back to the start?
+					PLAYING_SONG:seek(loop.sample_start, "samples")
+					break -- Only handle the first loop for now..
+				end
+			end
+		end
+	else
+		if position >= duration then
+			-- We mark that the song has completed, allowing the next game frame hook to play the next song in the playlist
+			SONG_FINISHED_PLAYING = true
+		end
 	end
 end
 
@@ -84,6 +122,7 @@ end
 function music.kill()
 	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
 		PLAYING_SONG:stop()
+		SONG_FINISHED_PLAYING = true
 	end
 end
 
@@ -110,7 +149,8 @@ function music.onLoopChange(mode)
 		elseif mode == LOOPING_ALL then
 			loop = true
 		end
-		PLAYING_SONG:setLooping(loop)
+		--PLAYING_SONG:setLooping(loop)
+		SONG_SHOULD_LOOP = loop
 	end
 end
 
@@ -161,7 +201,7 @@ end
 
 function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
-	if PLAYING_SONG ~= nil and PLAYING_SONG:isPlaying() then return end
+	if PLAYING_SONG ~= nil and not SONG_FINISHED_PLAYING then return end
 	if not STAGE_ID or not STAGE_TRACKS[STAGE_ID] then return end
 	if not music.shouldPlayMusic() then return end
 
@@ -188,13 +228,16 @@ function music.playNextTrack()
 			local loop = PANEL_SETTINGS:GetMusicLoopMode()
 
 			if STAGE_ID == 0 then
-				PLAYING_SONG:setLooping(loop == LOOPING_MENU or loop == LOOPING_ALL)
+				SONG_SHOULD_LOOP = loop == LOOPING_MENU or loop == LOOPING_ALL
+				--PLAYING_SONG:setLooping(loop == LOOPING_MENU or loop == LOOPING_ALL)
 			else
-				PLAYING_SONG:setLooping(loop == LOOPING_STAGE or loop == LOOPING_ALL)
+				SONG_SHOULD_LOOP = loop == LOOPING_STAGE or loop == LOOPING_ALL
+				--PLAYING_SONG:setLooping(loop == LOOPING_STAGE or loop == LOOPING_ALL)
 			end
 
 			PLAYING_SONG:setVolume((PANEL_SETTINGS:GetVolume()/100) * (memory.match.paused and 0.35 or 1))
 			PLAYING_SONG:play()
+			SONG_FINISHED_PLAYING = false
 		end
 	end
 end
@@ -291,20 +334,28 @@ function music.loadStageMusicInDir(stageid, name)
 	for k, file in ipairs(files) do
 		local filepath = ("%s/%s"):format(name, file)
 		local info = love.filesystem.getInfo(filepath)
-		local ext = string.getFileExtension(file)
-		if info.type == "file" and valid_music_ext[ext:lower()] and not STAGE_TRACKS_LOADED[stageid][file] then
-			local success, source = pcall(love.audio.newSource, filepath, "stream")
-			if success and source then
-				loaded = loaded + 1
-				STAGE_TRACKS_LOADED[stageid][file] = true
+		if info.type == "file" then
+			local ext = string.getFileExtension(file):lower()
 
-				-- Insert the newly loaded track into a random position in the playlist
-				local pos = math.random(1, #STAGE_TRACKS[stageid])
-				table.insert(STAGE_TRACKS[stageid], pos, source)
-			else
-				local err = ("invalid music file \"%s/%s\""):format(name, file)
-				log.error("[MUSIC] %s", err)
-				notification.error(err)
+			if valid_music_ext[ext:lower()] and not STAGE_TRACKS_LOADED[stageid][file] then
+				local success, source = pcall(love.audio.newSource, filepath, "stream")
+				if success and source then
+					loaded = loaded + 1
+					STAGE_TRACKS_LOADED[stageid][file] = true
+
+					-- Insert the newly loaded track into a random position in the playlist
+					local pos = math.random(1, #STAGE_TRACKS[stageid])
+					table.insert(STAGE_TRACKS[stageid], pos, source)
+
+					if ext == "wav" then
+						print("GOT WAV DATA", filepath)
+						SOURCE_SONG_LOOPS[source] = wav.parse(filepath)
+					end
+				else
+					local err = ("invalid music file \"%s/%s\""):format(name, file)
+					log.error("[MUSIC] %s", err)
+					notification.error(err)
+				end
 			end
 		end
 	end
