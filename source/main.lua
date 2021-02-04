@@ -8,6 +8,7 @@ require("extensions.love")
 
 local log = require("log")
 local melee = require("melee")
+local zce = require("zce")
 local memory = require("memory")
 local perspective = require("perspective")
 local notification = require("notification")
@@ -433,7 +434,20 @@ local function drawButtons(buttons, controller)
 end
 
 function love.drawControllerOverlay()
-	local controller = memory.controller[PORT + 1]
+	local controller
+
+	-- Check if ZCE (dynamic controller address swapping)
+	if zce.isZce() then
+		if zce.isOot() then
+			controller = memory.controller.oot[PORT + 1]
+		elseif zce.isMajora() then
+			controller = memory.controller.mm[PORT + 1]
+		else
+			controller = memory.controller.menu[PORT + 1]
+		end
+	else
+		controller = memory.controller[PORT + 1]
+	end
 
 	if PANEL_SETTINGS:IsSlippiReplay() and melee.isInGame() then
 		local player = memory.player[PORT + 1]

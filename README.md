@@ -26,6 +26,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * The Legend of Zelda: The Wind Waker (NTSC-U v1.0)
   - [Randomizer](https://github.com/LagoLunatic/wwrando)
 * The Legend of Zelda: Twilight Princess (NTSC-U v1.0, PAL v1.0)
+* The Legend of Zelda: Collector's Edition (NTSC-U v1.0)
 * Super Mario Sunshine. (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0)
 * Luigi's Mansion (NTSC-U v1.0)
 * Metroid Prime (NTSC-U v1.0, NTSC-U v1.2)
