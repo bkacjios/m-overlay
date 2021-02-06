@@ -442,6 +442,10 @@ function love.drawControllerOverlay()
 			controller = memory.controller.oot[PORT + 1]
 		elseif zce.isMajora() then
 			controller = memory.controller.mm[PORT + 1]
+		elseif zce.isZ1() then
+			controller = memory.controller.z1[PORT + 1]
+		elseif zce.isZ2() then
+			controller = memory.controller.z2[PORT + 1]
 		else
 			controller = memory.controller.menu[PORT + 1]
 		end

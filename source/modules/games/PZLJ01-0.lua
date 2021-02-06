@@ -1,21 +1,21 @@
--- The Legend of Zelda: Collectors Edition (NTSC-U v1.0)
+-- Zelda Collection (NTSC-J v1.0)
 
 local core = require("games.core")
 
-local controllerLocations = { -- these could be pointers, i'm not sure yet
-	menu = 0x801337B8,
-	oot = 0x80134C58,
-	mm = 0x8013E1B8,
-	z1 = 0x800AAF60,
-	z2 = 0x800CA6A0,
+local controllerLocations = {
+	menu = 0x80141918,
+	oot = 0x80132758,
+	mm = 0x80142458,
+	z1 = 0x800AD1C0,
+	z2 = 0x800ACAA0,
 }
 
 local game = {
 	memorymap = {
-		[0x80BDA3CB] = { type = "u8", name = "oot.ucode" },
-		[0x80CB033B] = { type = "u8", name = "mm.ucode" },
-		[0x80080644] = { type = "u8", name = "z1.qfc"},
-		[0x800A0544] = { type = "u8", name = "z2.qfc"},
+		[0x80BD7ECB] = { type = "u8", name = "oot.ucode" },
+		[0x80CB4B0B] = { type = "u8", name = "mm.ucode" },
+		[0x80081CE4] = { type = "u8", name = "z1.qfc"},
+		[0x80081D44] = { type = "u8", name = "z2.qfc"},
 	}
 }
 
