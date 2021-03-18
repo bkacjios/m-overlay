@@ -60,7 +60,7 @@ function music.update()
 			end
 		end
 	else
-		if position >= duration then
+		if position >= duration or not PLAYING_SONG:isPlaying() then
 			-- We mark that the song has completed, allowing the next game frame hook to play the next song in the playlist
 			SONG_FINISHED_PLAYING = true
 		end
