@@ -57,6 +57,41 @@ typedef struct {
 
 local wav = {}
 
+local function newChunkCue(f, chunk)
+	local data = f:read(chunk.chunk_size)
+	local points = {}
+	local cue = ffi.cast("CUE_CHUNK*", data)
+	for i=0, cue.num_points-1 do
+		local point = cue.points[i]
+		table.insert(points, {
+			id = point.id,
+			position = point.position,
+			chunk_start = point.chunk_start,
+			block_start = point.block_start,
+			sample_offset = point.sample_offset
+		})
+	end
+	return points
+end
+
+local function newChunkSmpl(f, chunk)
+	local data = f:read(chunk.chunk_size)
+	local loops = {}
+	local smpl = ffi.cast("SAMPLE_CHUNK*", data)
+	for i=0, smpl.sample_loops-1 do
+		local loop = smpl.loops[i]
+		table.insert(loops, {
+			id = loop.id,
+			type = loop.type,
+			sample_start = loop.sample_start,
+			sample_end = loop.sample_end,
+			fraction = loop.fraction,
+			play_count = loop.play_count
+		})
+	end
+	return loops
+end
+
 function wav.parse(file)
 	local f = assert(love.filesystem.newFile(file, "r"))
 
@@ -75,35 +110,15 @@ function wav.parse(file)
 
 		if size <= 0 then break end -- EOF
 
-		local data = f:read(chunk.chunk_size)
-
 		if name == "cue " then
-			local cue = ffi.cast("CUE_CHUNK*", data)
-			for i=0, cue.num_points-1 do
-				local point = cue.points[i]
-				table.insert(parsed.points, {
-					id = point.id,
-					position = point.position,
-					chunk_start = point.chunk_start,
-					block_start = point.block_start,
-					sample_offset = point.sample_offset
-				})
-			end
+			parsed.points = newChunkCue(f, chunk)
 		elseif name == "smpl" then
-			local smpl = ffi.cast("SAMPLE_CHUNK*", data)
-			for i=0, smpl.sample_loops-1 do
-				local loop = smpl.loops[i]
-				table.insert(parsed.loops, {
-					id = loop.id,
-					type = loop.type,
-					sample_start = loop.sample_start,
-					sample_end = loop.sample_end,
-					fraction = loop.fraction,
-					play_count = loop.play_count
-				})
-			end
-		elseif name == "data" then
-			break -- Stop parsing wav file when encountering PCM data
+			parsed.loops = newChunkSmpl(f, chunk)
+		else
+			-- Seek without reading data..
+			local pos = f:tell() + chunk.chunk_size
+			if pos >= f:getSize() then break end
+			f:seek(pos)
 		end
 	end
 

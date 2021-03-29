@@ -20,7 +20,7 @@ function string.getFilePath(path)
 end
 
 function string.getFileExtension(path)
-	return match(path, "%.([^%.]+)$")
+	return match(path, "%.([^%.]+)$") or ""
 end
 
 function string.stripFileExtension(path)

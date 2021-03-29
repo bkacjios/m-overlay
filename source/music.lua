@@ -53,6 +53,7 @@ function music.update()
 		if info then
 			for k, loop in pairs(info.loops) do
 				if finished or position >= loop.sample_end then
+					log.debug("[MUSIC] Loop point reached, seeking to %d", loop.sample_start)
 					-- If the song finished playing or reached the looping point, loop back to the start?
 					PLAYING_SONG:seek(loop.sample_start, "samples")
 					break -- Only handle the first loop for now..
@@ -337,7 +338,7 @@ function music.loadStageMusicInDir(stageid, name)
 		if info.type == "file" then
 			local ext = string.getFileExtension(file):lower()
 
-			if valid_music_ext[ext:lower()] and not STAGE_TRACKS_LOADED[stageid][file] then
+			if valid_music_ext[ext] and not STAGE_TRACKS_LOADED[stageid][file] then
 				local success, source = pcall(love.audio.newSource, filepath, "stream")
 				if success and source then
 					loaded = loaded + 1
@@ -348,8 +349,8 @@ function music.loadStageMusicInDir(stageid, name)
 					table.insert(STAGE_TRACKS[stageid], pos, source)
 
 					if ext == "wav" then
-						print("GOT WAV DATA", filepath)
 						SOURCE_SONG_LOOPS[source] = wav.parse(filepath)
+						log.debug("[MUSIC] Parsed %q for loop points: %d found", filepath, #SOURCE_SONG_LOOPS[source].loops)
 					end
 				else
 					local err = ("invalid music file \"%s/%s\""):format(name, file)
