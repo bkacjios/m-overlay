@@ -169,6 +169,9 @@ function SKIN:PaintCheckbox(panel, w, h)
 	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
 	graphics.rectangle("fill", 4, 4, 16, 16)
 	
+	graphics.setLineStyle("rough")
+	graphics.setLineWidth(1)
+	
 	graphics.setColor(self.CheckboxBorder)
 	graphics.rectangle("line", 4, 4, 16, 16)
 end

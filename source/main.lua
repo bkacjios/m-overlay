@@ -34,19 +34,22 @@ end
 --PANEL_SETTINGS
 
 local MAX_PORTS = 4
-local PORT = 0
 local PORT_DISPLAY_OVERRIDE = nil
 local CONTROLLER_PORT_DISPLAY = 0
 
 function love.getPort()
-	return PORT+1
+	return PANEL_PORT_SELECT:GetPort()
+end
+
+function love.setPort(port)
+	PANEL_PORT_SELECT:ChangePort(((port-1) % MAX_PORTS) + 1)
 end
 
 local PORT_TEXTURES = {
-	[0] = newImage("textures/player1_color.png"),
-	[1] = newImage("textures/player2_color.png"),
-	[2] = newImage("textures/player3_color.png"),
-	[3] = newImage("textures/player4_color.png")
+	[1] = newImage("textures/player1_color.png"),
+	[2] = newImage("textures/player2_color.png"),
+	[3] = newImage("textures/player3_color.png"),
+	[4] = newImage("textures/player4_color.png")
 }
 
 local BUTTONS = {
@@ -72,7 +75,7 @@ function love.updateTitle(str)
 	local title = str
 	portless_title = str
 	if PANEL_SETTINGS:IsPortTitleEnabled() then
-		title = string.format("%s (Port %d)", str, PORT + 1)
+		title = string.format("%s (Port %d)", str, love.getPort())
 	end
 	love.window.setTitle(title)
 end
@@ -85,6 +88,9 @@ function love.load(args, unfilteredArg)
 	melee.loadtextures()
 	gui.init()
 	love.keyboard.setKeyRepeat(true)
+
+	PANEL_PORT_SELECT = gui.create("PortSelect")
+	PANEL_PORT_SELECT:SetVisible(false)
 
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:LoadSettings()
@@ -109,7 +115,7 @@ function love.load(args, unfilteredArg)
 		end
 
 		if portn then -- A port number was specified..
-			PORT = (portn - 1) % MAX_PORTS -- Clamp the number between 0-3
+			love.setPort(portn)
 			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 3 seconds
 			break -- Done
 		end
@@ -118,16 +124,16 @@ end
 
 memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)
 	if melee.isSinglePlayerGame() or (memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
-		PORT = port
-		log.debug("[AUTOPORT] Player \"one\" port changed %d", PORT+1)
+		love.setPort(port+1)
+		log.debug("[AUTOPORT] Player \"one\" port changed %d", love.getPort())
 	end
 end)
 
 memory.hook("menu.major", "Slippi Auto Port Switcher", function(major)
 	if melee.isSinglePlayerGame() or (major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
 		-- Switch back to whatever controller is controlling port 1, when not in a match
-		PORT = memory.menu.player_one_port
-		log.debug("[AUTOPORT] Forcing port %d in menus", PORT+1)
+		love.setPort(memory.menu.player_one_port+1)
+		log.debug("[AUTOPORT] Forcing port %d in menus", love.getPort())
 	end
 end)
 
@@ -136,28 +142,27 @@ memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
 	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() then
 		if minor == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
 			-- Switch back to whatever controller is controlling port 1, when not in a match
-			PORT = memory.menu.player_one_port
-			log.debug("[AUTOPORT] Forcing port %d in menus", PORT+1)
+			love.setPort(memory.menu.player_one_port+1)
+			log.debug("[AUTOPORT] Forcing port %d in menus", love.getPort())
 			if minor == MENU_VS_UNKNOWN_CSS then
 				-- Display the port info only when swiching back to CSS
 				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 			end
 		elseif minor == MENU_VS_UNKNOWN_VERSUS then
-			local port = memory.slippi.local_player.index % 4
-			PORT_DISPLAY_OVERRIDE = port
-			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 1.5 seconds
-			log.debug("[AUTOPORT] Switching display icon to use port %d", PORT+1)
+			PORT_DISPLAY_OVERRIDE = (memory.slippi.local_player.index % MAX_PORTS) + 1
+			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 3 seconds
+			log.debug("[AUTOPORT] Switching display icon to use port %d", love.getPort())
 		elseif minor == MENU_VS_UNKNOWN_INGAME then
 			-- Switch to the local player index whenever else
 			PORT_DISPLAY_OVERRIDE = nil
-			PORT = memory.slippi.local_player.index % 4
-			log.debug("[AUTOPORT] Switching to slippi local player index %d", PORT+1)
+			love.setPort(memory.slippi.local_player.index+1)
+			log.debug("[AUTOPORT] Switching to slippi local player index %d", love.getPort())
 		end
 	end
 end)
 
 memory.hook("player.*.character", "Show port on character select", function(port, character)
-	if memory.menu.minor == MENU_VS_CSS and port-1 == PORT then
+	if memory.menu.minor == MENU_VS_CSS and port == love.getPort() then
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
 	end
 end)
@@ -184,6 +189,7 @@ end
 function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
 		PANEL_SETTINGS:Toggle()
+		PANEL_PORT_SELECT:Toggle()
 	end
 
 	gui.keyPressed(key, scancode, isrepeat)
@@ -191,7 +197,7 @@ function love.keypressed(key, scancode, isrepeat)
 	local num = tonumber(string.match(key, "kp(%d)") or key)
 
 	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
-		PORT = num - 1
+		love.setPort(num)
 		PORT_DISPLAY_OVERRIDE = nil
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 		love.updateTitle(love.getTitleNoPort())
@@ -223,13 +229,15 @@ function love.wheelmoved(x, y)
 		gui.mouseWheeled(x, y)
 		return
 	end
+
+	local port = love.getPort()
 	
 	if y > 0 then
-		PORT = PORT - 1
+		port = port - 1
 	elseif y < 0 then
-		PORT = PORT + 1
+		port = port + 1
 	end
-	PORT = PORT % MAX_PORTS
+	love.setPort(port)
 	PORT_DISPLAY_OVERRIDE = nil
 	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 	love.updateTitle(love.getTitleNoPort())
@@ -435,26 +443,27 @@ end
 
 function love.drawControllerOverlay()
 	local controller
+	local port = love.getPort()
 
 	-- Check if ZCE (dynamic controller address swapping)
 	if zce.isZce() then
 		if zce.isOot() then
-			controller = memory.controller.oot[PORT + 1]
+			controller = memory.controller.oot[port]
 		elseif zce.isMajora() then
-			controller = memory.controller.mm[PORT + 1]
+			controller = memory.controller.mm[port]
 		elseif zce.isZ1() then
-			controller = memory.controller.z1[PORT + 1]
+			controller = memory.controller.z1[port]
 		elseif zce.isZ2() then
-			controller = memory.controller.z2[PORT + 1]
+			controller = memory.controller.z2[port]
 		else
-			controller = memory.controller.menu[PORT + 1]
+			controller = memory.controller.menu[port]
 		end
 	else
-		controller = memory.controller[PORT + 1]
+		controller = memory.controller[port]
 	end
 
 	if PANEL_SETTINGS:IsSlippiReplay() and melee.isInGame() then
-		local player = memory.player[PORT + 1]
+		local player = memory.player[port]
 
 		if not player then return end
 
@@ -783,26 +792,27 @@ function love.draw()
 
 	-- Draw a temporary number to show that the user changed controller port
 	if memory.isSupportedGame() and ((PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime()) then
+		local port = love.getPort()
 		if memory.isMelee() then
-			local port = PORT_DISPLAY_OVERRIDE or PORT
+			local port = PORT_DISPLAY_OVERRIDE or port
 			local portColor
 			if memory.teams then
-				portColor = melee.getPlayerTeamColor(port + 1)
+				portColor = melee.getPlayerTeamColor(port)
 			else
-				portColor = melee.getPlayerColor(port + 1)
+				portColor = melee.getPlayerColor(port)
 			end
 			portColor.a = 200
 			graphics.setColor(portColor)
-			melee.drawSeries(port + 1, 8, 256 - 72 - 4, 0, 72, 72)
+			melee.drawSeries(port, 8, 256 - 72 - 4, 0, 72, 72)
 			graphics.setColor(255, 255, 255, 255)
-			melee.drawStock(port + 1, 40, 256 - 42, 0, 24, 24)
+			melee.drawStock(port, 40, 256 - 42, 0, 24, 24)
 			graphics.easyDraw(PORT_TEXTURES[port], 12, 256 - 42 - 24, 0, 33, 14)
 		else
 			graphics.setFont(PORT_FONT)
 			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(PORT + 1, 3, 16, 256 - 42 - 16)
+			graphics.textOutline(port, 3, 16, 256 - 42 - 16)
 			graphics.setColor(255, 255, 255, 255)
-			graphics.print(PORT + 1, 16, 256 - 42 - 16)
+			graphics.print(port, 16, 256 - 42 - 16)
 		end
 	end
 

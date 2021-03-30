@@ -1,6 +1,7 @@
 function PANEL:Initialize()
 	self:super()
 
+	self:MakeAccessor("Toggleable", "m_bToggleable", true)
 	self:MakeAccessor("Toggled", "m_bToggled", false)
 
 	self.m_pLabel = self:Add("Label")
@@ -31,8 +32,12 @@ end
 
 function PANEL:OnMousePressed(x, y, but)
 	if not self:IsEnabled() or but ~= 1 then return end
-	self:SetToggled(not self:GetToggled())
-	self:OnToggle(self:GetToggled())
+	if self.m_bToggleable then
+		self:SetToggled(not self:GetToggled())
+		self:OnToggle(self:GetToggled())
+	else
+		self:OnPressed()
+	end
 	return true
 end
 
@@ -42,6 +47,10 @@ function PANEL:OnMouseReleased(x, y, but)
 end
 
 function PANEL:OnToggle(on)
+	-- Override
+end
+
+function PANEL:OnPressed()
 	-- Override
 end
 

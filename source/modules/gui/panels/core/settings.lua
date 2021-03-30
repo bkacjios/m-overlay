@@ -233,6 +233,7 @@ end
 
 function PANEL:GetSaveTable()
 	return {
+		["port"] = love.getPort(),
 		["slippi-mode"] = self:GetSlippiMode(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
@@ -369,6 +370,8 @@ function PANEL:LoadSettings()
 	end
 
 	self.m_tSettings = settings
+
+	love.setPort(settings["port"] or 1)
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
