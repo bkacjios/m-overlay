@@ -48,32 +48,32 @@ function PANEL:Initialize()
 
 	self.SLIPPI = RIGHT:Add("Panel")
 	self.SLIPPI:DockMargin(0,0,0,0)
-	self.SLIPPI:DockPadding(4,30,4,4)
+	self.SLIPPI:DockPadding(4,34,4,4)
 	self.SLIPPI:SetBorderColor(color_clear)
 	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 150))
 	self.SLIPPI:SetWidth(164)
-	self.SLIPPI:SetHeight(90)
+	self.SLIPPI:SetHeight(66)
 	self.SLIPPI:Dock(DOCK_TOP)
 
 	local SLIPPIICON = self.SLIPPI:Add("Image")
 	SLIPPIICON:SetImage("textures/SlippiLogo.png")
 	SLIPPIICON:SetPos(0, 4)
-	SLIPPIICON:SetSize(32, 24)
+	SLIPPIICON:SetSize(36, 28)
 	SLIPPIICON:Center(false, true)
 
 	self.MELEE = RIGHT:Add("Panel")
 	self.MELEE:DockMargin(0,0,0,0)
-	self.MELEE:DockPadding(4,34,4,4)
+	self.MELEE:DockPadding(4,38,4,4)
 	self.MELEE:SetBorderColor(color_clear)
 	self.MELEE:SetBackgroundColor(color(189, 15, 23, 150))
 	self.MELEE:SetWidth(164)
-	self.MELEE:SetHeight(132+34)
+	self.MELEE:SetHeight(132+38)
 	self.MELEE:Dock(DOCK_TOP)
 
 	local MELEEICON = self.MELEE:Add("Image")
 	MELEEICON:SetImage("textures/melee.png")
 	MELEEICON:SetPos(0, 4)
-	MELEEICON:SetSize(160, 32)
+	MELEEICON:SetSize(164, 36)
 	MELEEICON:Center(false, true)
 
 	self.SLIPPI.MODE = self.SLIPPI:Add("HorizontalSelect")
@@ -85,13 +85,7 @@ function PANEL:Initialize()
 
 	function self.SLIPPI.MODE:OnSelectOption(num)
 		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100, 150) or color(33, 186, 69, 150))
-		self:GetParent().AUTOPORT:SetEnabled(num == SLIPPI_NETPLAY)
 	end
-
-	self.SLIPPI.AUTOPORT = self.SLIPPI:Add("Checkbox")
-	self.SLIPPI.AUTOPORT:SetEnabled(false)
-	self.SLIPPI.AUTOPORT:SetText("Auto detect port")
-	self.SLIPPI.AUTOPORT:Dock(DOCK_TOP)
 
 	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
 	self.MELEE.MUSIC:SetText("Music")
@@ -159,16 +153,18 @@ function PANEL:Initialize()
 	local BUTTONS = LEFT:Add("Panel")
 	BUTTONS:Dock(DOCK_TOP)
 	BUTTONS:DockPadding(0,0,0,0)
+	BUTTONS:SetBackgroundColor(color_clear)
+	BUTTONS:SetBorderColor(color_clear)
 
 	self.DPAD = BUTTONS:Add("Checkbox")
 	self.DPAD:SetText("D-Pad")
-	self.DPAD:SetWidth(77)
+	self.DPAD:SetWidth(74)
 	self.DPAD:Dock(DOCK_LEFT)
 	self.DPAD:DockMargin(0,0,0,0)
 
 	self.START = BUTTONS:Add("Checkbox")
 	self.START:SetText("Start")
-	self.START:SetWidth(76)
+	self.START:SetWidth(74)
 	self.START:Dock(DOCK_RIGHT)
 	self.START:DockMargin(0,0,0,0)
 
@@ -215,11 +211,11 @@ function PANEL:Initialize()
 
 	self.m_sFileName = "config.json"
 
-	local VLABEL = LEFT:Add("Label")
+	local VLABEL = RIGHT:Add("Label")
 	VLABEL:SetText(love.getMOverlayVersion())
 	VLABEL:SetTextAlignment("center")
 	VLABEL:SizeToText()
-	VLABEL:SetHeight(14)
+	VLABEL:SetHeight(18)
 	VLABEL:Dock(DOCK_TOP)
 	VLABEL:SetTextColor(color_white)
 	VLABEL:SetShadowDistance(1)
@@ -238,7 +234,6 @@ end
 function PANEL:GetSaveTable()
 	return {
 		["slippi-mode"] = self:GetSlippiMode(),
-		["slippi-auto-detect-port"] = self:IsSlippiAutoPortEnabled(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
 		["high-contrast"] = self:IsHighContrast(),
@@ -287,10 +282,6 @@ end
 
 function PANEL:IsSlippiReplay()
 	return self.SLIPPI.MODE:GetSelection() == SLIPPI_REPLAY
-end
-
-function PANEL:IsSlippiAutoPortEnabled()
-	return self.SLIPPI.AUTOPORT:IsToggled()
 end
 
 function PANEL:IsPortTitleEnabled()
@@ -389,7 +380,6 @@ function PANEL:LoadSettings()
 	if self.DEBUG then self.DEBUG:SetToggle(love.isConsoleOpened() or settings["debugging"] or false) end
 	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
-	self.SLIPPI.AUTOPORT:SetToggle(settings["slippi-auto-detect-port"] or false, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
 	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0004)

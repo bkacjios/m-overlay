@@ -117,14 +117,14 @@ function love.load(args, unfilteredArg)
 end
 
 memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)
-	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+	if melee.isSinglePlayerGame() or (memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
 		PORT = port
 		log.debug("[AUTOPORT] Player \"one\" port changed %d", PORT+1)
 	end
 end)
 
 memory.hook("menu.major", "Slippi Auto Port Switcher", function(major)
-	if major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+	if melee.isSinglePlayerGame() or (major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
 		-- Switch back to whatever controller is controlling port 1, when not in a match
 		PORT = memory.menu.player_one_port
 		log.debug("[AUTOPORT] Forcing port %d in menus", PORT+1)
@@ -133,7 +133,7 @@ end)
 
 memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
 	-- MENU_VS_UNKNOWN = Slippi online
-	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() and PANEL_SETTINGS:IsSlippiAutoPortEnabled() then
+	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() then
 		if minor == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
 			-- Switch back to whatever controller is controlling port 1, when not in a match
 			PORT = memory.menu.player_one_port
