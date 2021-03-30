@@ -200,7 +200,6 @@ function love.keypressed(key, scancode, isrepeat)
 		love.setPort(num)
 		PORT_DISPLAY_OVERRIDE = nil
 		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
-		love.updateTitle(love.getTitleNoPort())
 	end
 end
 
@@ -240,7 +239,6 @@ function love.wheelmoved(x, y)
 	love.setPort(port)
 	PORT_DISPLAY_OVERRIDE = nil
 	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
-	love.updateTitle(love.getTitleNoPort())
 end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")

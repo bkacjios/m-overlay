@@ -33,49 +33,38 @@ function PANEL:Initialize()
 	self.PORT4:SetToggleable(false)
 
 	self.PORT1.OnPressed = function()
-		self:SetPort(1)
-		self.PORT1:SetToggled(true)
-		self.PORT2:SetToggled(false)
-		self.PORT3:SetToggled(false)
-		self.PORT4:SetToggled(false)
+		self:ChangePort(1)
 	end
 
 	self.PORT2.OnPressed = function()
-		self:SetPort(2)
-		self.PORT1:SetToggled(false)
-		self.PORT2:SetToggled(true)
-		self.PORT3:SetToggled(false)
-		self.PORT4:SetToggled(false)
+		self:ChangePort(2)
 	end
 
 	self.PORT3.OnPressed = function()
-		self:SetPort(3)
-		self.PORT1:SetToggled(false)
-		self.PORT2:SetToggled(false)
-		self.PORT3:SetToggled(true)
-		self.PORT4:SetToggled(false)
+		self:ChangePort(3)
 	end
 
 	self.PORT4.OnPressed = function()
-		self:SetPort(4)
-		self.PORT1:SetToggled(false)
-		self.PORT2:SetToggled(false)
-		self.PORT3:SetToggled(false)
-		self.PORT4:SetToggled(true)
+		self:ChangePort(4)
 	end
 end
 
 function PANEL:ChangePort(port)
+	self.PORT1:SetToggled(false)
+	self.PORT2:SetToggled(false)
+	self.PORT3:SetToggled(false)
+	self.PORT4:SetToggled(false)
 	if port == 1 then
-		self.PORT1:OnPressed()
+		self.PORT1:SetToggled(true)
 	elseif port == 2 then
-		self.PORT2:OnPressed()
+		self.PORT2:SetToggled(true)
 	elseif port == 3 then
-		self.PORT3:OnPressed()
+		self.PORT3:SetToggled(true)
 	elseif port == 4 then
-		self.PORT4:OnPressed()
+		self.PORT4:SetToggled(true)
 	end
 	self:SetPort(port)
+	love.updateTitle(love.getTitleNoPort())
 end
 
 function PANEL:Toggle()
