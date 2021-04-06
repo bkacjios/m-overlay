@@ -5,30 +5,34 @@ function PANEL:Initialize()
 
 	self:MakeAccessor("Port", "m_iPort", 1)
 
-	self:DockPadding(0, 0, 0, 0)
-	self:SetSize(80, 112)
+	self:DockPadding(1, 1, 1, 1)
+	self:SetSize(80, 106)
 	self:SetBorderColor(color_clear)
 	self:SetBackgroundColor(color(0, 0, 0, 100))
 	self:CenterVertical()
 
 	self.PORT1 = self:Add("Checkbox")
 	self.PORT1:SetText("Port 1")
+	self.PORT1:DockMargin(1, 1, 1, 1)
 	self.PORT1:Dock(DOCK_TOP)
 	self.PORT1:SetToggleable(false)
 	self.PORT1:SetToggled(true)
 
 	self.PORT2 = self:Add("Checkbox")
 	self.PORT2:SetText("Port 2")
+	self.PORT2:DockMargin(1, 1, 1, 1)
 	self.PORT2:Dock(DOCK_TOP)
 	self.PORT2:SetToggleable(false)
 
 	self.PORT3 = self:Add("Checkbox")
 	self.PORT3:SetText("Port 3")
+	self.PORT3:DockMargin(1, 1, 1, 1)
 	self.PORT3:Dock(DOCK_TOP)
 	self.PORT3:SetToggleable(false)
 
 	self.PORT4 = self:Add("Checkbox")
 	self.PORT4:SetText("Port 4")
+	self.PORT4:DockMargin(1, 1, 1, 1)
 	self.PORT4:Dock(DOCK_TOP)
 	self.PORT4:SetToggleable(false)
 
