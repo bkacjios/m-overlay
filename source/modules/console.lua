@@ -2,6 +2,7 @@ if jit.os ~= "Windows" then return end
 
 local ffi = require("ffi")
 local kernel = ffi.load("Kernel32.dll")
+local user = ffi.load("User32.dll")
 
 io.stdout:setvbuf("no")
 
@@ -17,6 +18,9 @@ local ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
 local ATTACH_PARENT_PROCESS = 0x1
 
 local ERROR_ACCESS_DENIED = 0x5
+
+local SW_HIDE = 0x0
+local SW_SHOW = 0x5
 
 ffi.cdef [[
 // Windows types
@@ -34,8 +38,14 @@ BOOL AttachConsole(
   DWORD dwProcessId
 );
 
+HANDLE GetConsoleWindow(void);
 BOOL AllocConsole(void);
 BOOL FreeConsole(void);
+
+BOOL ShowWindow(
+  HANDLE hWnd,
+  int  nCmdShow
+);
 
 HANDLE GetStdHandle(
   DWORD nStdHandle
@@ -76,14 +86,13 @@ function love.setConsoleTitle(title)
 end
 
 function love.enableConsoleFlag(flag)
-	local mode = ffi.new("DWORD[1]")
-
 	local hStdOut = kernel.GetStdHandle(STD_OUTPUT_HANDLE)
 
 	if (hStdOut == INVALID_HANDLE_VALUE) then
 		return false, "could not get stdhandle for console."
 	end
 
+	local mode = ffi.new("DWORD[1]")
 	kernel.GetConsoleMode(hStdOut, mode)
 	kernel.SetConsoleMode(hStdOut, bit.bor(mode[0], flag))
 	return true
@@ -93,12 +102,12 @@ function love.enableConsoleColors()
 	love.enableConsoleFlag(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
 end
 
-function love.isConsoleOpened()
+function love.hasConsole()
 	kernel.AttachConsole(ATTACH_PARENT_PROCESS)
 	return kernel.GetLastError() == ERROR_ACCESS_DENIED
 end
 
-function love.openConsole()
+function love.createConsole()
 	if kernel.AttachConsole(ATTACH_PARENT_PROCESS) == 0 then
 		local winerr = kernel.GetLastError()
 
@@ -136,25 +145,20 @@ function love.openConsole()
 	end
 
 	--local MAX_CONSOLE_LINES = 5000
-	love.console(true)
 	return true
 end
 
-function love.closeConsole()
-	ffi.C.fclose(io.stdout)
-	ffi.C.fclose(io.stdin)
-	ffi.C.fclose(io.stderr)
-	kernel.FreeConsole()
-	love.console(false)
-end
-
 function love.console(opened)
+	if not love.hasConsole() then
+		love.createConsole()
+	end
+	local chdl = kernel.GetConsoleWindow()
+	if not chdl then return end
 	if opened then
 		love.setConsoleTitle("M'Overlay Console")
 		love.enableConsoleColors()
+		user.ShowWindow(chdl, SW_SHOW)
+	else
+		user.ShowWindow(chdl, SW_HIDE)
 	end
-end
-
-if love.isConsoleOpened() then
-	love.console(true)
 end

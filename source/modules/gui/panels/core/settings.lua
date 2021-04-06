@@ -174,11 +174,7 @@ function PANEL:Initialize()
 		self.DEBUG:Dock(DOCK_TOP)
 
 		function self.DEBUG:OnToggle(on)
-			if on then
-				love.openConsole()
-			else
-				love.closeConsole()
-			end
+			love.console(on)
 		end
 	end
 
@@ -380,7 +376,7 @@ function PANEL:LoadSettings()
 		self.DPAD:SetToggle(settings["enable-dpad"], true)
 	end
 	self.START:SetToggle(settings["enable-start"] or false, true)
-	if self.DEBUG then self.DEBUG:SetToggle(love.isConsoleOpened() or settings["debugging"] or false) end
+	if self.DEBUG then self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false) end
 	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
