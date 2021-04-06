@@ -61,7 +61,8 @@ local function newChunkCue(f, chunk)
 	local data = f:read(chunk.chunk_size)
 	local points = {}
 	local cue = ffi.cast("CUE_CHUNK*", data)
-	for i=0, cue.num_points-1 do
+	local np = cue.num_points-1
+	for i=0, np do
 		local point = cue.points[i]
 		table.insert(points, {
 			id = point.id,
@@ -78,7 +79,8 @@ local function newChunkSmpl(f, chunk)
 	local data = f:read(chunk.chunk_size)
 	local loops = {}
 	local smpl = ffi.cast("SAMPLE_CHUNK*", data)
-	for i=0, smpl.sample_loops-1 do
+	local ns = smpl.sample_loops-1
+	for i=0, ns do
 		local loop = smpl.loops[i]
 		table.insert(loops, {
 			id = loop.id,

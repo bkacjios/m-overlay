@@ -330,7 +330,8 @@ function MEMORY:read(addr, output, size)
 		return false
 	end
 
-	local success = kernel.ReadProcessMemory(self.process_handle, ffi.cast("LPCVOID", self.dolphin_base_addr + CAST_ADDR), output, size, read)
+	local raddr = cast("LPCVOID", self.dolphin_base_addr + CAST_ADDR)
+	local success = kernel.ReadProcessMemory(self.process_handle, raddr, output, size, read)
 	if not success then
 		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", CAST_ADDR, tonumber(kernel.GetLastError()))
 	--else
@@ -342,7 +343,8 @@ end
 function MEMORY:write(addr, input, size)
 	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
 	local written = new("SIZE_T[1]") -- How many bytes are written to memory
-	local success = kernel.WriteProcessMemory(self.process_handle, ffi.cast("LPVOID", self.dolphin_base_addr + (addr % 0x80000000)), input, size, written)
+	local waddr = cast("LPVOID", self.dolphin_base_addr + (addr % 0x80000000))
+	local success = kernel.WriteProcessMemory(self.process_handle, waddr, input, size, written)
 	if not success then
 		log.debug("[MEMORY] Failed writing to address [%08X = %08X] ERROR #%d", addr, tonumber(input), tonumber(kernel.GetLastError()))
 	end
