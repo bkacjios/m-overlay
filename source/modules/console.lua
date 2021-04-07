@@ -162,3 +162,7 @@ function love.console(opened)
 		user.ShowWindow(chdl, SW_HIDE)
 	end
 end
+
+print(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
+print(_VERSION)
+print(jit.version)

@@ -65,11 +65,11 @@ local function newChunkCue(f, chunk)
 	for i=0, np do
 		local point = cue.points[i]
 		table.insert(points, {
-			id = point.id,
-			position = point.position,
-			chunk_start = point.chunk_start,
-			block_start = point.block_start,
-			sample_offset = point.sample_offset
+			id = tonumber(point.id),
+			position = tonumber(point.position),
+			chunk_start = tonumber(point.chunk_start),
+			block_start = tonumber(point.block_start),
+			sample_offset = tonumber(point.sample_offset)
 		})
 	end
 	return points
@@ -83,12 +83,12 @@ local function newChunkSmpl(f, chunk)
 	for i=0, ns do
 		local loop = smpl.loops[i]
 		table.insert(loops, {
-			id = loop.id,
-			type = loop.type,
-			sample_start = loop.sample_start,
-			sample_end = loop.sample_end,
-			fraction = loop.fraction,
-			play_count = loop.play_count
+			id = tonumber(loop.id),
+			type = tonumber(loop.type),
+			sample_start = tonumber(loop.sample_start),
+			sample_end = tonumber(loop.sample_end),
+			fraction = tonumber(loop.fraction),
+			play_count = tonumber(loop.play_count)
 		})
 	end
 	return loops

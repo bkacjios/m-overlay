@@ -209,41 +209,47 @@ local valid_process_names = {
 	["DolphinQt2.exe"] = true,
 }
 
-local status = new("DWORD[1]")
+do
+	local status = new("DWORD[1]")
 
-function MEMORY:findprocess()
-	if self:hasProcess() then return false end
+	function MEMORY:findprocess()
+		if self:hasProcess() then return false end
 
-	local handle
-	local snapshot = kernel.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) -- Create the snapshot
+		local handle
+		local snapshot = kernel.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) -- Create the snapshot
 
-	local pe32 = PROCESSENTRY32_PTR()[0] -- Will store the info about the process
-	pe32.dwSize = sizeof(pe32)
+		local pe32 = PROCESSENTRY32_PTR()[0] -- Will store the info about the process
+		pe32.dwSize = sizeof(pe32)
 
-	repeat
-		local name = string(pe32.szExeFile)
-		if valid_process_names[name] then
-			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
+		repeat
+			local name = string(pe32.szExeFile)
+			if valid_process_names[name] then
+				local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
 
-			-- Check if the process is active, we don't want to rehook the closing application
-			if handle ~= nil and kernel.GetExitCodeProcess(handle, status) and status[0] == STILL_ACTIVE then
-				-- We have an active process that matches, let's use it
-				self.process_handle = handle
-				break
-			elseif handle then
-				-- Dolphin is closing.. ignore and close the handle..
-				kernel.CloseHandle(handle)
+				-- Check if the process is active, we don't want to rehook the closing application
+				if handle ~= nil and kernel.GetExitCodeProcess(handle, status) and status[0] == STILL_ACTIVE then
+					-- We have an active process that matches, let's use it
+					self.process_handle = handle
+					break
+				elseif handle then
+					-- Dolphin is closing.. ignore and close the handle..
+					kernel.CloseHandle(handle)
+				end
 			end
-		end
-	until kernel.Process32Next(snapshot, pe32) == 0
-	
-	kernel.CloseHandle(snapshot)
+		until kernel.Process32Next(snapshot, pe32) == 0
+		
+		kernel.CloseHandle(snapshot)
 
-	return self:hasProcess()
+		return self:hasProcess()
+	end
 end
 
-function MEMORY:isProcessActive()
-	return self.process_handle ~= nil and kernel.GetExitCodeProcess(self.process_handle, status) and status[0] == STILL_ACTIVE
+do
+	local status = new("DWORD[1]")
+	
+	function MEMORY:isProcessActive()
+		return self.process_handle ~= nil and kernel.GetExitCodeProcess(self.process_handle, status) and status[0] == STILL_ACTIVE
+	end
 end
 
 function MEMORY:hasProcess()
@@ -316,7 +322,6 @@ local WII_RAM_END = cast("uint32_t", 0x94000000)
 local WII_RAM_LOCAL_START = cast("uint32_t", 0x02000000)
 
 local CAST_ADDR = ffi.new("uint32_t", 0x00000000)
-
 local memread = ffi.new("SIZE_T[1]") -- How many bytes are read from memory
 
 function MEMORY:read(addr, output, size)
@@ -325,9 +330,9 @@ function MEMORY:read(addr, output, size)
 	CAST_ADDR = cast("uint32_t", addr)
 
 	if CAST_ADDR >= WII_RAM_START and CAST_ADDR <= WII_RAM_END then
-		CAST_ADDR = WII_RAM_LOCAL_START + (CAST_ADDR % WII_RAM_START)
+		CAST_ADDR = cast("uint32_t", WII_RAM_LOCAL_START + (addr % WII_RAM_START))
 	elseif CAST_ADDR >= GC_RAM_START and CAST_ADDR <= GC_RAM_END then
-		CAST_ADDR = (CAST_ADDR % GC_RAM_START)
+		CAST_ADDR = cast("uint32_t", addr % GC_RAM_START)
 	else
 		log.warn("[MEMORY] Attempt to read from invalid address %08X", tonumber(CAST_ADDR))
 		return false

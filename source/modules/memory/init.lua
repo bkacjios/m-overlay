@@ -73,7 +73,6 @@ local function cache(typ, len)
 		return typecache[typ][len]
 	end
 	local cached = ffi.new(string.format("%s[?]", typ), len)
-	print(typ, len)
 	typecache[typ][len] = cached
 	return cached
 end

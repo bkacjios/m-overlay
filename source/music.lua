@@ -36,6 +36,9 @@ end
 function music.update()
 	if not PLAYING_SONG or SONG_FINISHED_PLAYING then return end
 
+	local duration = PLAYING_SONG:getDuration("samples")
+	local position = PLAYING_SONG:tell("samples")
+
 	if SONG_SHOULD_LOOP then
 		local finished = not PLAYING_SONG:isPlaying()
 
@@ -46,9 +49,6 @@ function music.update()
 		end
 
 		local info = SOURCE_SONG_LOOPS[PLAYING_SONG]
-
-		local duration = PLAYING_SONG:getDuration("samples")
-		local position = PLAYING_SONG:tell("samples")
 
 		if info then
 			for k, loop in pairs(info.loops) do
