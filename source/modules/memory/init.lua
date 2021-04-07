@@ -63,8 +63,23 @@ function memory.readGameVersion()
 	return memory.readUByte(GAME_VER_ADDR)
 end
 
+local typecache = {}
+
+local function cache(typ, len)
+	len = len or 1
+	if not typecache[typ] then
+		typecache[typ] = {}
+	elseif typecache[typ][len] then
+		return typecache[typ][len]
+	end
+	local cached = ffi.new(string.format("%s[?]", typ), len)
+	print(typ, len)
+	typecache[typ][len] = cached
+	return cached
+end
+
 function memory.read(addr, len)
-	local output = ffi.new("char[?]", len)
+	local output = cache("char", len)
 	local size = ffi.sizeof(output)
 	process:read(addr, output, size)
 	return ffi.string(output, size)
@@ -72,14 +87,14 @@ end
 
 function memory.readByte(addr)
 	if not process:hasProcess() then return 0 end
-	local output = ffi.new("int8_t[1]")
+	local output = cache("int8_t")
 	process:read(addr, output, ffi.sizeof(output))
 	return output[0]
 end
 
 function memory.writeByte(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("int8_t[1]", value)
+	local input = cache("int8_t")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 
@@ -95,40 +110,40 @@ end
 
 function memory.readUByte(addr)
 	if not process:hasProcess() then return 0 end
-	local output = ffi.new("uint8_t[1]")
+	local output = cache("uint8_t")
 	process:read(addr, output, ffi.sizeof(output))
 	return output[0]
 end
 
 function memory.writeUByte(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("uint8_t[1]", value)
+	local input = cache("uint8_t")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 
 function memory.readShort(addr)
 	if not process:hasProcess() then return 0 end
-	local output = ffi.new("int16_t[1]")
+	local output = cache("int16_t")
 	process:read(addr, output, ffi.sizeof(output))
 	return bswap16(output[0])
 end
 
 function memory.writeShort(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("int16_t[1]", value)
+	local input = cache("int16_t")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 
 function memory.readUShort(addr)
 	if not process:hasProcess() then return 0 end
-	local output = ffi.new("uint16_t[1]")
+	local output = cache("uint16_t")
 	process:read(addr, output, ffi.sizeof(output))
 	return bswap16(output[0])
 end
 
 function memory.writeUShort(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("uint16_t[1]", value)
+	local input = cache("uint16_t")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 
@@ -137,7 +152,7 @@ do
 
 	function memory.readFloat(addr)
 		if not process:hasProcess() then return 0 end
-		local output = ffi.new("uint32_t[1]")
+		local output = cache("uint32_t")
 		process:read(addr, output, ffi.sizeof(output))
 		floatconversion.i = bswap(output[0])
 		return floatconversion.f, floatconversion.i
@@ -146,33 +161,33 @@ end
 
 function memory.writeFloat(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("float[1]", value)
+	local input = cache("float")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 
 function memory.readInt(addr)
 	if not process:hasProcess() then return 0 end
-	local output = ffi.new("int32_t[1]")
+	local output = cache("int32_t")
 	process:read(addr, output, ffi.sizeof(output))
 	return bswap(output[0])
 end
 
 function memory.writeInt(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("int32_t[1]", value)
+	local input = cache("int32_t")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 
 function memory.readUInt(addr)
 	if not process:hasProcess() then return 0 end
-	local output = ffi.new("uint32_t[1]")
+	local output = cache("uint32_t")
 	process:read(addr, output, ffi.sizeof(output))
 	return bswap(output[0])
 end
 
 function memory.writeUInt(addr, value)
 	if not process:hasProcess() then return end
-	local input = ffi.new("uint32_t[1]", value)
+	local input = cache("uint32_t")
 	return process:write(addr, input, ffi.sizeof(input))
 end
 

@@ -209,6 +209,8 @@ local valid_process_names = {
 	["DolphinQt2.exe"] = true,
 }
 
+local status = new("DWORD[1]")
+
 function MEMORY:findprocess()
 	if self:hasProcess() then return false end
 
@@ -223,7 +225,6 @@ function MEMORY:findprocess()
 		if valid_process_names[name] then
 			local handle = kernel.OpenProcess(PROCESS_VM_OPERATION + PROCESS_VM_READ + PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID)
 
-			local status = new("DWORD[1]")
 			-- Check if the process is active, we don't want to rehook the closing application
 			if handle ~= nil and kernel.GetExitCodeProcess(handle, status) and status[0] == STILL_ACTIVE then
 				-- We have an active process that matches, let's use it
@@ -242,7 +243,6 @@ function MEMORY:findprocess()
 end
 
 function MEMORY:isProcessActive()
-	local status = new("DWORD[1]")
 	return self.process_handle ~= nil and kernel.GetExitCodeProcess(self.process_handle, status) and status[0] == STILL_ACTIVE
 end
 
@@ -278,10 +278,12 @@ function MEMORY:__gc()
 	self:close()
 end
 
+local regionptr = new("unsigned char*[1]", nil)
+
 function MEMORY:findGamecubeRAMOffset()
 	local info = MEMORY_BASIC_INFORMATION_PTR()[0]
 
-	local p = new("unsigned char*[1]", nil)[0]
+	local p = regionptr[0]
 
 	while kernel.VirtualQueryEx(self.process_handle, p, info, sizeof(info)) == sizeof(info) do
 		p = p + info.RegionSize
@@ -315,9 +317,10 @@ local WII_RAM_LOCAL_START = cast("uint32_t", 0x02000000)
 
 local CAST_ADDR = ffi.new("uint32_t", 0x00000000)
 
+local memread = ffi.new("SIZE_T[1]") -- How many bytes are read from memory
+
 function MEMORY:read(addr, output, size)
 	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
-	local read = new("SIZE_T[1]") -- How many bytes are read from memory
 
 	CAST_ADDR = cast("uint32_t", addr)
 
@@ -331,24 +334,25 @@ function MEMORY:read(addr, output, size)
 	end
 
 	local raddr = cast("LPCVOID", self.dolphin_base_addr + CAST_ADDR)
-	local success = kernel.ReadProcessMemory(self.process_handle, raddr, output, size, read)
+	local success = kernel.ReadProcessMemory(self.process_handle, raddr, output, size, memread)
 	if not success then
 		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", CAST_ADDR, tonumber(kernel.GetLastError()))
 	--else
-	--	log.debug("[MEMORY] read 0x%X size 0x%X bytes from 0x%08X = %q", tonumber(read[0]), size, tonumber(CAST_ADDR), tohex(ffi.string(output, read[0])))
+	--	log.debug("[MEMORY] read 0x%X size 0x%X bytes from 0x%08X = %q", tonumber(memread[0]), size, tonumber(CAST_ADDR), tohex(ffi.string(output, memread[0])))
 	end
-	return success and read[0] == size
+	return success and memread[0] == size
 end
+
+local memwritten = ffi.new("SIZE_T[1]")
 
 function MEMORY:write(addr, input, size)
 	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
-	local written = new("SIZE_T[1]") -- How many bytes are written to memory
 	local waddr = cast("LPVOID", self.dolphin_base_addr + (addr % 0x80000000))
-	local success = kernel.WriteProcessMemory(self.process_handle, waddr, input, size, written)
+	local success = kernel.WriteProcessMemory(self.process_handle, waddr, input, size, memwritten)
 	if not success then
 		log.debug("[MEMORY] Failed writing to address [%08X = %08X] ERROR #%d", addr, tonumber(input), tonumber(kernel.GetLastError()))
 	end
-	return success and written[0] == size
+	return success and memwritten[0] == size
 end
 
 return MEMORY

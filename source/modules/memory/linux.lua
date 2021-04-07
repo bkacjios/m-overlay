@@ -236,10 +236,10 @@ function MEMORY:findGamecubeRAMOffset()
 	return false
 end
 
-function MEMORY:read(addr, output, size)
-	local localvec = new("iovec[1]")
-	local remotevec = new("iovec[1]")
+local localvec = new("iovec[1]")
+local remotevec = new("iovec[1]")
 
+function MEMORY:read(addr, output, size)
 	local ramaddr = self.dolphin_base_addr + (addr % 0x80000000)	
 
 	localvec[0].iov_base = output
@@ -260,9 +260,6 @@ function MEMORY:read(addr, output, size)
 end
 
 function MEMORY:write(addr, input, size)
-	local localvec = new("iovec[1]")
-	local remotevec = new("iovec[1]")
-
 	local ramaddr = self.dolphin_base_addr + (addr % 0x80000000)	
 
 	localvec[0].iov_base = input

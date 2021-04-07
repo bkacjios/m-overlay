@@ -10,6 +10,7 @@ local log = {
 	color = true,
 	date = "%H:%M:%S",
 	level = "trace",
+	file = assert(love.filesystem.newFile(os.time(os.date("!*t")) .. ".txt", "a"))
 }
 
 function log.setColor(b)
@@ -34,12 +35,15 @@ for level, cfg in ipairs(log.levels) do
 		end
 
 		local date = os.date(log.date)
-		local message
+		local message = format("[%-5s - %s] %s", upname, date, text)
+
+		if log.file then
+			log.file:write(string.format("%s\r\n", message))
+			log.file:flush()
+		end
 
 		if log.color then
 			message = format("[%s%-5s\27[0m - %s] %s", cfg.color, upname, date, text)
-		else
-			message = format("[%-5s - %s] %s", upname, date, text)
 		end
 
 		print(message)
