@@ -66,13 +66,20 @@ end
 local typecache = {}
 
 local function cache(typ, len)
+	-- This stops us from constantly calling ffi.new by recycling old variables
 	len = len or 1
 	if not typecache[typ] then
+		-- Create new cache for this type
 		typecache[typ] = {}
 	elseif typecache[typ][len] then
+		-- Set the cached value to all 0's so it can be reused safely
+		ffi.fill(typecache[typ][len], len)
+		-- Return the cached value
 		return typecache[typ][len]
 	end
+	-- Create a new variable
 	local cached = ffi.new(string.format("%s[?]", typ), len)
+	-- Store it in the cache
 	typecache[typ][len] = cached
 	return cached
 end
