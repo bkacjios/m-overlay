@@ -1,6 +1,7 @@
 function PANEL:Initialize()
 	self:super()
 
+	self:MakeAccessor("Radio", "m_bRadio", false)
 	self:MakeAccessor("Toggleable", "m_bToggleable", true)
 	self:MakeAccessor("Toggled", "m_bToggled", false)
 
@@ -27,7 +28,11 @@ end
 
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
-	gui.skinHook("Paint", "Checkbox", self, w, h)
+	if self.m_bRadio then
+		gui.skinHook("Paint", "Radio", self, w, h)
+	else
+		gui.skinHook("Paint", "Checkbox", self, w, h)
+	end
 end
 
 function PANEL:OnMousePressed(x, y, but)

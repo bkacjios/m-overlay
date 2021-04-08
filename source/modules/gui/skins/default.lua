@@ -176,6 +176,14 @@ function SKIN:PaintCheckbox(panel, w, h)
 	graphics.rectangle("line", 4, 4, 16, 16)
 end
 
+function SKIN:PaintRadio(panel, w, h)
+	graphics.setColor(self.CheckboxBorder)
+	graphics.circle("fill", 12, 12, 9, 32)
+
+	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
+	graphics.circle("fill", 12, 12, 8, 32)
+end
+
 function SKIN:InitHorizontalSelect(panel)
 	panel:SetBGColor(self.PanelBackground)
 	panel:SetBorderColor(self.PanelBorder)

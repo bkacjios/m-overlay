@@ -1,6 +1,7 @@
 if jit.os ~= "Windows" then return end
 
 local ffi = require("ffi")
+local log = require("log")
 local kernel = ffi.load("Kernel32.dll")
 local user = ffi.load("User32.dll")
 
@@ -163,6 +164,10 @@ function love.console(opened)
 	end
 end
 
-print(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
-print(_VERSION)
-print(jit.version)
+if love.hasConsole() then
+	love.setConsoleTitle("M'Overlay Console")
+	love.enableConsoleColors()
+end
+
+log.debug(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
+log.debug("%s (%s)", _VERSION, jit.version)
