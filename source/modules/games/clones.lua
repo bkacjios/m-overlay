@@ -34,4 +34,7 @@ return {
 		[1] = { id = "GALE01", version = 1 }, -- Dairantou Smash Brothers DX (Japan) (v1.1)
 		[2] = { id = "GALE01", version = 2 }, -- Dairantou Smash Brothers DX (Japan) (v1.2)
 	},
+	["PIKE25"] = {
+		[0] = { id = "GPVE01", version = 0 }, -- Pikmin 251
+	},
 }
