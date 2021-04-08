@@ -1,3 +1,7 @@
+local LOG_FILE = "console.log"
+
+love.filesystem.remove(LOG_FILE)
+
 local log = {
 	levels = {
 		{ name = "trace", color = "\27[34m" },
@@ -10,7 +14,7 @@ local log = {
 	color = true,
 	date = "%H:%M:%S",
 	level = "trace",
-	file = assert(love.filesystem.newFile(os.time(os.date("!*t")) .. ".txt", "a"))
+	file = assert(love.filesystem.newFile(LOG_FILE, "a"))
 }
 
 function log.setColor(b)
