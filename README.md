@@ -41,6 +41,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
   - [UnclePunch Hack Pack](https://www.kirbyairri.de/hpinfo.html)
 * Pikmin (NTSC-U v1.0, NTSC-U v1.1)
 * Pikmin 2 (NTSC-U v1.0, DEMO v1.0)
+  - [Pikmin 251](https://www.youtube.com/watch?v=7ylu9ogW88w)
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
 * Rayman 3: Hoodlum Havoc (NTSC-U v1.0)
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC v1.0)
