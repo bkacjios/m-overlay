@@ -67,7 +67,7 @@ function PANEL:OnButtonPressed(port, buttons)
 	end
 
 	-- Only allow addition of buttons (Once the button is pressed it is locked in for this session)
-	if buttons > self.m_bButtonCombo then
+	if buttons > self.m_bButtonCombo or buttons >= PANEL.BUTTONS.UP then
 		self.m_bButtonCombo = buttons
 		self:UpdateButtonLabel()
 	end

@@ -330,9 +330,9 @@ function MEMORY:read(addr, output, size)
 	CAST_ADDR = cast("uint32_t", addr)
 
 	if CAST_ADDR >= WII_RAM_START and CAST_ADDR <= WII_RAM_END then
-		CAST_ADDR = cast("uint32_t", WII_RAM_LOCAL_START + (addr % WII_RAM_START))
+		CAST_ADDR = cast("uint32_t", WII_RAM_LOCAL_START + (CAST_ADDR % WII_RAM_START))
 	elseif CAST_ADDR >= GC_RAM_START and CAST_ADDR <= GC_RAM_END then
-		CAST_ADDR = cast("uint32_t", addr % GC_RAM_START)
+		CAST_ADDR = cast("uint32_t", CAST_ADDR % GC_RAM_START)
 	else
 		log.warn("[MEMORY] Attempt to read from invalid address %08X", tonumber(CAST_ADDR))
 		return false
