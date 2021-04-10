@@ -64,6 +64,7 @@ function music.update()
 		if finished then
 			-- If the song is no longer playing, that means it reached the end
 			-- Immediately play it again
+			log.debug("[MUSIC] End of song reached, replaying")
 			PLAYING_SONG:play()
 		end
 
