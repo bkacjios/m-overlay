@@ -359,7 +359,7 @@ function music.loadStageMusicInDir(stageid, name)
 
 					-- Insert the newly loaded track into a random position in the playlist
 					local pos = math.random(1, #STAGE_TRACKS[stageid])
-					local prob = tonumber(string.sub(string.match(filepath, "[^%._\n]+(_%d+)%.%w+$") or "_1", 2))
+					local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
 					table.insert(STAGE_TRACKS[stageid], pos, {source, prob})
 
 					if ext == "wav" then
