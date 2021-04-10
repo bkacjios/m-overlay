@@ -17,6 +17,23 @@ local SOURCE_SONG_LOOPS = {}
 local SONG_FINISHED_PLAYING = true
 local SONG_SHOULD_LOOP = false
 
+-- Given a list of {element, weight} pairs, do a weighted random sample
+-- of the elements (returns an index, not the element itself)
+local function weightedRandomChoice(list)
+	if #list == 1 then return list[1][1] end
+	local weight_sum = 0
+	for idx=1,#list do
+		weight_sum = weight_sum + list[idx][2]
+	end
+	local choice = math.random(1, weight_sum)
+	local choice_idx = 1
+	while choice > 0 do
+		choice = choice - list[choice_idx][2]
+		choice_idx = choice_idx + 1
+	end
+	return choice_idx
+end
+
 local function moveFolderContentsTo(from, to)
 	local info = love.filesystem.getInfo(from)
 
@@ -209,15 +226,9 @@ function music.playNextTrack()
 	local songs = STAGE_TRACKS[STAGE_ID]
 
 	if songs and #songs > 0 then
-		TRACK_NUMBER[STAGE_ID] = ((TRACK_NUMBER[STAGE_ID] or -1) + 1) % #songs
-		local track = TRACK_NUMBER[STAGE_ID] + 1
+		local track = weightedRandomChoice(STAGE_TRACKS)
+		TRACK_NUMBER[STAGE_ID] = track
 		PLAYING_SONG = songs[track]
-
-		-- Every time we play a song, we randomly place it towards the start of the playlist
-		local newpos = math.random(1, track)
-
-		table.remove(songs, track)
-		table.insert(songs, newpos, PLAYING_SONG)
 
 		if PLAYING_SONG then
 			if STAGE_ID == 0x0 then
@@ -346,7 +357,8 @@ function music.loadStageMusicInDir(stageid, name)
 
 					-- Insert the newly loaded track into a random position in the playlist
 					local pos = math.random(1, #STAGE_TRACKS[stageid])
-					table.insert(STAGE_TRACKS[stageid], pos, source)
+					local prob = tonumber(string.sub(string.match(filepath, "[^%._\n]+(_%d+)%.%w+$") or "_1", 2))
+					table.insert(STAGE_TRACKS[stageid], pos, {source, prob})
 
 					if ext == "wav" then
 						SOURCE_SONG_LOOPS[source] = wav.parse(filepath)
