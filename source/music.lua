@@ -10,7 +10,6 @@ require("extensions.math")
 
 local STAGE_TRACKS_LOADED = {}
 local STAGE_TRACKS = {}
-local TRACK_NUMBER = {}
 local STAGE_ID = 0
 local PLAYING_SONG = nil
 local SOURCE_SONG_LOOPS = {}
@@ -230,7 +229,7 @@ function music.playNextTrack()
 
 	if songs and #songs > 0 then
 		local track = weightedRandomChoice(songs)
-		TRACK_NUMBER[STAGE_ID] = track
+		if not track or not songs[track] then return end
 		PLAYING_SONG = songs[track][1]
 
 		if PLAYING_SONG then
