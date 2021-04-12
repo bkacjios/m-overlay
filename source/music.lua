@@ -8,9 +8,8 @@ local wav = require("wav")
 
 require("extensions.math")
 
-local STAGE_TRACKS_LOADED = {}
 local STAGE_TRACKS = {}
-local STAGE_ID = 0
+local STAGE_ID = -1
 local PLAYING_SONG = nil
 local SOURCE_SONG_LOOPS = {}
 local SONG_FINISHED_PLAYING = true
@@ -88,8 +87,6 @@ function music.update()
 end
 
 function music.init()
-	love.filesystem.setSymlinksEnabled(true)
-
 	love.filesystem.createDirectory("Melee")
 
 	local info = love.filesystem.getInfo("Stage Music")
@@ -222,10 +219,10 @@ end
 function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if PLAYING_SONG ~= nil and not SONG_FINISHED_PLAYING then return end
-	if not STAGE_ID or not STAGE_TRACKS[STAGE_ID] then return end
+	if not STAGE_ID then return end
 	if not music.shouldPlayMusic() then return end
 
-	local songs = STAGE_TRACKS[STAGE_ID]
+	local songs = STAGE_TRACKS
 
 	if songs and #songs > 0 then
 		local track = weightedRandomChoice(songs)
@@ -244,10 +241,8 @@ function music.playNextTrack()
 
 			if STAGE_ID == 0 then
 				SONG_SHOULD_LOOP = loop == LOOPING_MENU or loop == LOOPING_ALL
-				--PLAYING_SONG:setLooping(loop == LOOPING_MENU or loop == LOOPING_ALL)
 			else
 				SONG_SHOULD_LOOP = loop == LOOPING_STAGE or loop == LOOPING_ALL
-				--PLAYING_SONG:setLooping(loop == LOOPING_STAGE or loop == LOOPING_ALL)
 			end
 
 			PLAYING_SONG:setVolume((PANEL_SETTINGS:GetVolume()/100) * (memory.match.paused and 0.35 or 1))
@@ -330,7 +325,7 @@ end)
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
 	if PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
 	local mask = PANEL_SETTINGS:GetMusicSkipMask()
-	if mask ~= 0x0 and port == love.getPort() and bit.band(pressed, mask) == mask and #STAGE_TRACKS[STAGE_ID] > 1 then
+	if mask ~= 0x0 and port == love.getPort() and bit.band(pressed, mask) == mask and #STAGE_TRACKS > 1 then
 		log.debug("[MUSIC] [MASK = 0x%X] Button combo pressed, stopping music.", mask)
 		music.kill()
 	end
@@ -352,21 +347,20 @@ function music.loadStageMusicInDir(stageid, name)
 		if info.type == "file" then
 			local ext = string.getFileExtension(file):lower()
 
-			if valid_music_ext[ext] and not STAGE_TRACKS_LOADED[stageid][file] then
+			if valid_music_ext[ext] then
 				local success, source = pcall(love.audio.newSource, filepath, "stream")
 				if success and source then
 					loaded = loaded + 1
-					STAGE_TRACKS_LOADED[stageid][file] = true
 
 					-- Insert the newly loaded track into a random position in the playlist
-					local pos = math.random(1, #STAGE_TRACKS[stageid])
+					local pos = math.random(1, #STAGE_TRACKS)
 					local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
 
-					table.insert(STAGE_TRACKS[stageid], pos, {source = source, weight = prob})
+					table.insert(STAGE_TRACKS, pos, {source = source, weight = prob})
 
 					if ext == "wav" then
 						SOURCE_SONG_LOOPS[source] = wav.parse(filepath)
-						log.debug("[MUSIC] Parsed %q for loop points: %d found", filepath, #SOURCE_SONG_LOOPS[source].loops)
+						log.debug("[MUSIC] Parsed %q for loop points: %d found", file, #SOURCE_SONG_LOOPS[source].loops)
 					end
 				else
 					local err = ("invalid music file \"%s/%s\""):format(name, file)
@@ -382,15 +376,19 @@ function music.loadStageMusicInDir(stageid, name)
 end
 
 function music.loadForStage(stageid)
-	if STAGE_ID ~= stageid then
-		music.kill()
-	end
+	if STAGE_ID == stageid then return end
 
+	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
 	STAGE_ID = stageid
-	STAGE_TRACKS[stageid] = STAGE_TRACKS[stageid] or {}
-	STAGE_TRACKS_LOADED[stageid] = STAGE_TRACKS_LOADED[stageid] or {}
+
+	for k,v in pairs(STAGE_TRACKS) do
+		v.source:release()
+	end
+
+	PLAYING_SONG = nil
+	STAGE_TRACKS = {}
 
 	music.loadStageMusicInDir(stageid, "Melee")
 
