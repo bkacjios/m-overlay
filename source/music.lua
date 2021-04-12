@@ -377,7 +377,7 @@ function music.loadStageMusicInDir(stageid, name)
 		end
 	end
 	if loaded > 0 then
-		log.debug("[MUSIC] Loaded %d songs in %q", loaded, name)
+		log.info("[MUSIC] Loaded %d songs in %q", loaded, name)
 	end
 end
 

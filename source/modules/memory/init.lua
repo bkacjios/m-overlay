@@ -474,7 +474,7 @@ function memory.findGame()
 		memory.ingame = true
 		memory.vcid = vcid
 
-		log.debug("[DOLPHIN] Game: %s", vcid)
+		log.info("[DOLPHIN] Game: %s", vcid)
 		love.updateTitle(("M'Overlay - Dolphin hooked (%s)"):format(vcid))
 
 		-- Check for VC clones
@@ -488,7 +488,7 @@ function memory.findGame()
 		memory.gameid = gid
 		memory.version = version
 
-		log.debug("[DOLPHIN] Game: %s revision %i", gid, version)
+		log.info("[DOLPHIN] Game: %s revision %i", gid, version)
 		love.updateTitle(("M'Overlay - Dolphin hooked (%s-%i)"):format(gid, version))
 
 		-- See if this GameID is a clone of another
@@ -539,7 +539,7 @@ function memory.update()
 				love.updateTitle("M'Overlay - Dolphin hooked")
 				memory.hooked = true
 			elseif not process:hasGamecubeRAMOffset() and process:findGamecubeRAMOffset() then
-				log.info("[DOLPHIN] Watching ram: %X [%X]", process:getGamecubeRAMOffset(), process:getGamecubeRAMSize())
+				log.debug("[DOLPHIN] Watching ram: %X [%X]", process:getGamecubeRAMOffset(), process:getGamecubeRAMSize())
 			end
 		end
 	else
@@ -554,9 +554,9 @@ function memory.update()
 end
 
 function memory.init(map)
-	log.info("[MEMORY] Mapping game memory..")
 	memory.initialized = true
 	memory.loadmap(map)
+	log.info("[MEMORY] Mapped game memory structure")
 end
 
 function memory.reset()
