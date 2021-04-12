@@ -604,7 +604,7 @@ end
 function memory.runhooks()
 	local pop
 	while true do
-		pop = table.remove(memory.hook_queue, #memory.hook_queue)
+		pop = table.remove(memory.hook_queue, 1)
 		if not pop then break end
 		memory.runhook(pop.name, pop.value)
 	end

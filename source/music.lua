@@ -1,4 +1,12 @@
-local music = {}
+local music = {
+	PLAYLIST = {},
+	PLAYLIST_ID = -1,
+	PLAYING = nil,
+	FINISHED = true,
+	LOOP = false,
+	USE_WEIGHTS = false,
+	TRACK_NUMBER = {},
+}
 
 local log = require("log")
 local melee = require("melee")
@@ -8,30 +16,25 @@ local wav = require("wav")
 
 require("extensions.math")
 
-local STAGE_TRACKS = {}
-local STAGE_ID = -1
-local PLAYING_SONG = nil
-local SOURCE_SONG_LOOPS = {}
-local SONG_FINISHED_PLAYING = true
-local SONG_SHOULD_LOOP = false
-
 -- Given a list of {element, weight} pairs, do a weighted random sample
 -- of the elements (returns an index, not the element itself)
 local function weightedRandomChoice(list)
 	if not list or #list == 0 then return nil end
 	if #list == 1 then return 1 end
-	local weight_sum = 0
-	for idx=1,#list do
-		weight_sum = weight_sum + list[idx].weight
+
+	local sum = 0
+	for i=1, #list do
+		sum = sum + list[i].WEIGHT
 	end
-	local choice = math.random(1, weight_sum)
+
+	local choice = math.random(1, sum)
 	for idx=1,#list do
-		choice = choice - list[idx].weight
+		choice = choice - list[idx].WEIGHT
 		if choice <= 0 then
 			return idx
 		end
 	end
-	return choice_idx
+	return choice
 end
 
 local function moveFolderContentsTo(from, to)
@@ -51,37 +54,37 @@ local function moveFolderContentsTo(from, to)
 end
 
 function music.update()
-	if not PLAYING_SONG or SONG_FINISHED_PLAYING then return end
+	if not music.PLAYING or music.FINISHED then return end
 
-	local duration = PLAYING_SONG:getDuration("samples")
-	local position = PLAYING_SONG:tell("samples")
+	local duration = music.PLAYING.STREAM:getDuration("samples")
+	local position = music.PLAYING.STREAM:tell("samples")
 
-	if SONG_SHOULD_LOOP then
-		local finished = not PLAYING_SONG:isPlaying()
+	if music.LOOP then
+		local finished = not music.PLAYING.STREAM:isPlaying()
 
 		if finished then
 			-- If the song is no longer playing, that means it reached the end
 			-- Immediately play it again
 			log.debug("[MUSIC] End of song reached, replaying")
-			PLAYING_SONG:play()
+			music.PLAYING.STREAM:play()
 		end
 
-		local info = SOURCE_SONG_LOOPS[PLAYING_SONG]
+		local info = music.PLAYING.WAV
 
 		if info then
 			for k, loop in pairs(info.loops) do
 				if finished or position >= loop.sample_end then
 					log.debug("[MUSIC] Loop point reached, seeking to %d", loop.sample_start)
 					-- If the song finished playing or reached the looping point, loop back to the start?
-					PLAYING_SONG:seek(loop.sample_start, "samples")
+					music.PLAYING.STREAM:seek(loop.sample_start, "samples")
 					break -- Only handle the first loop for now..
 				end
 			end
 		end
 	else
-		if not PLAYING_SONG:isPlaying() or position >= duration then
+		if not music.PLAYING.STREAM:isPlaying() or position >= duration then
 			-- We mark that the song has completed, allowing the next game frame hook to play the next song in the playlist
-			SONG_FINISHED_PLAYING = true
+			music.FINISHED = true
 		end
 	end
 end
@@ -137,9 +140,9 @@ function music.init()
 end
 
 function music.kill()
-	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:stop()
-		SONG_FINISHED_PLAYING = true
+	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
+		music.PLAYING.STREAM:stop()
+		music.FINISHED = true
 	end
 end
 
@@ -156,7 +159,7 @@ function music.shouldPlayMusic()
 end
 
 function music.onLoopChange(mode)
-	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
+	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
 		local loop = false
 		-- Handle the different loop settings properly
 		if mode == LOOPING_MENU and melee.isInMenus() then
@@ -166,8 +169,8 @@ function music.onLoopChange(mode)
 		elseif mode == LOOPING_ALL then
 			loop = true
 		end
-		--PLAYING_SONG:setLooping(loop)
-		SONG_SHOULD_LOOP = loop
+		--music.PLAYING.STREAM:setLooping(loop)
+		music.LOOP = loop
 	end
 end
 
@@ -211,43 +214,58 @@ function music.setVolume(vol)
 		memory.writeByte(0x804D3887, (vol/100) * 127)
 	end
 
-	if PLAYING_SONG and PLAYING_SONG:isPlaying() then
-		PLAYING_SONG:setVolume((vol/100) * (memory.match.paused and 0.35 or 1))
+	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
+		music.PLAYING.STREAM:setVolume((vol/100) * (memory.match.paused and 0.35 or 1))
 	end
 end
 
 function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
-	if PLAYING_SONG ~= nil and not SONG_FINISHED_PLAYING then return end
-	if not STAGE_ID then return end
+	if music.PLAYING ~= nil and not music.FINISHED then return end
+	if not music.PLAYLIST_ID then return end
 	if not music.shouldPlayMusic() then return end
 
-	local songs = STAGE_TRACKS
+	local songs = music.PLAYLIST
 
-	if songs and #songs > 0 then
-		local track = weightedRandomChoice(songs)
-		if not track or not songs[track] then return end
+	if #music.PLAYLIST > 0 then
+		local track
 
-		PLAYING_SONG = songs[track].source
+		if music.USE_WEIGHTS then
+			track = weightedRandomChoice(songs)
+			if not track or not songs[track] then return end
+			music.PLAYING = songs[track]
 
-		if PLAYING_SONG then
-			if STAGE_ID == 0x0 then
+		else
+			music.TRACK_NUMBER[music.PLAYLIST_ID] = ((music.TRACK_NUMBER[music.PLAYLIST_ID] or -1) + 1) % #songs
+			track = music.TRACK_NUMBER[music.PLAYLIST_ID] + 1
+			music.PLAYING = songs[track]
+
+			-- Every time we play a song, we randomly place it towards the start of the playlist
+			local newpos = math.random(1, track)
+
+			table.remove(songs, track)
+			table.insert(songs, newpos, music.PLAYING)
+		end
+
+		
+		if music.PLAYING then
+			if music.PLAYLIST_ID == 0x0 then
 				log.info("[MUSIC] Playing track #%d for menu", track)
 			else
-				log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(STAGE_ID))
+				log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(music.PLAYLIST_ID))
 			end
 
 			local loop = PANEL_SETTINGS:GetMusicLoopMode()
 
-			if STAGE_ID == 0 then
-				SONG_SHOULD_LOOP = loop == LOOPING_MENU or loop == LOOPING_ALL
+			if music.PLAYLIST_ID == 0 then
+				music.LOOP = loop == LOOPING_MENU or loop == LOOPING_ALL
 			else
-				SONG_SHOULD_LOOP = loop == LOOPING_STAGE or loop == LOOPING_ALL
+				music.LOOP = loop == LOOPING_STAGE or loop == LOOPING_ALL
 			end
 
-			PLAYING_SONG:setVolume((PANEL_SETTINGS:GetVolume()/100) * (memory.match.paused and 0.35 or 1))
-			PLAYING_SONG:play()
-			SONG_FINISHED_PLAYING = false
+			music.PLAYING.STREAM:setVolume((PANEL_SETTINGS:GetVolume()/100) * (memory.match.paused and 0.35 or 1))
+			music.PLAYING.STREAM:play()
+			music.FINISHED = false
 		end
 	end
 end
@@ -325,7 +343,7 @@ end)
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
 	if PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
 	local mask = PANEL_SETTINGS:GetMusicSkipMask()
-	if mask ~= 0x0 and port == love.getPort() and bit.band(pressed, mask) == mask and #STAGE_TRACKS > 1 then
+	if mask ~= 0x0 and port == love.getPort() and pressed == mask and #music.PLAYLIST > 1 then
 		log.debug("[MUSIC] [MASK = 0x%X] Button combo pressed, stopping music.", mask)
 		music.kill()
 	end
@@ -353,15 +371,18 @@ function music.loadStageMusicInDir(stageid, name)
 					loaded = loaded + 1
 
 					-- Insert the newly loaded track into a random position in the playlist
-					local pos = math.random(1, #STAGE_TRACKS)
+					local pos = math.random(1, #music.PLAYLIST)
 					local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
 
-					table.insert(STAGE_TRACKS, pos, {source = source, weight = prob})
-
-					if ext == "wav" then
-						SOURCE_SONG_LOOPS[source] = wav.parse(filepath)
-						log.debug("[MUSIC] Parsed %q for loop points: %d found", file, #SOURCE_SONG_LOOPS[source].loops)
+					if prob > 1 then
+						music.USE_WEIGHTS = true
 					end
+
+					local wavinfo
+					if ext == "wav" then
+						wavinfo = wav.parse(filepath)
+					end
+					table.insert(music.PLAYLIST, pos, {STREAM = source, WEIGHT = prob, WAV = wavinfo})
 				else
 					local err = ("invalid music file \"%s/%s\""):format(name, file)
 					log.error("[MUSIC] %s", err)
@@ -376,19 +397,20 @@ function music.loadStageMusicInDir(stageid, name)
 end
 
 function music.loadForStage(stageid)
-	if STAGE_ID == stageid then return end
+	if music.PLAYLIST_ID == stageid then return end
 
 	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
-	STAGE_ID = stageid
+	music.PLAYLIST_ID = stageid
 
-	for k,v in pairs(STAGE_TRACKS) do
-		v.source:release()
+	for k,v in pairs(music.PLAYLIST) do
+		v.STREAM:release()
 	end
 
-	PLAYING_SONG = nil
-	STAGE_TRACKS = {}
+	music.PLAYING = nil
+	music.PLAYLIST = {}
+	music.USE_WEIGHTS = false
 
 	music.loadStageMusicInDir(stageid, "Melee")
 
@@ -405,7 +427,7 @@ function music.loadForStage(stageid)
 	local sp = melee.isSinglePlayerStage(stageid)
 	local aka = melee.isAkaneiaStage(stageid)
 
-	if not name then STAGE_ID = nil return end
+	if not name then music.PLAYLIST_ID = nil return end
 
 	if sp then
 		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stage specific folder
