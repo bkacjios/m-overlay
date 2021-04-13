@@ -179,8 +179,6 @@ function music.getVolume()
 end
 
 local LOADED = false
-local IGNORE_CHANGE = false
-
 local ALLOW_INGAME_VOLUME = false
 
 memory.hook("OnGameClosed", "Set state unloaded", function()
