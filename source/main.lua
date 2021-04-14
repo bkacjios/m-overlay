@@ -18,6 +18,8 @@ local music = require("music")
 local color = require("util.color")
 local gui = require("gui")
 
+local ease = require("ease")
+
 local graphics = love.graphics
 local newImage = graphics.newImage
 
@@ -26,6 +28,9 @@ local WAITING_FONT = graphics.newFont("fonts/melee-bold.otf", 24)
 local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
 local VERSION = love.filesystem.read("version.txt")
+
+local GRADIENT = newImage("textures/gradient.png")
+local DOLPHIN = newImage("textures/dolphin.png")
 
 function love.getMOverlayVersion()
 	return VERSION or "0.0.0"
@@ -714,24 +719,82 @@ function love.drawControllerOverlay()
 	end
 end
 
-local ellipses = {".", "..", "..."}
+do
+	local icon_time_start
+	local icon_time_show
+	local icon_time_next
 
-function love.drawWaitingForGameSplash()
-	local msg = "WAITING FOR GAME"
-	local w = WAITING_FONT:getWidth(msg)
-	local h = WAITING_FONT:getHeight()
-	local x = 256 - (w/2)
-	local y = 128 - (h/2)
+	local canvas = love.graphics.newCanvas()
 
-	local i = math.floor(love.timer.getTime() % #ellipses) + 1
+	function love.drawDolphinLogo()
+		local t = love.timer.getTime()
 
-	msg = msg .. ellipses[i]
+		if not icon_time_start or icon_time_next < t then
+			icon_time_start = t
+			icon_time_show = t + 1
+			icon_time_next = t + 2
+		end
 
-	graphics.setFont(WAITING_FONT)
-	graphics.setColor(0, 0, 0, 255)
-	graphics.textOutline(msg, 3, x, y)
-	graphics.setColor(255, 255, 255, 255)
-	graphics.print(msg, x, y)
+		local lx
+		local ly
+		local rx
+		local anim
+		if icon_time_show > t then
+			anim = ease.sigmoid(math.min(1, (t - icon_time_start)/1))
+			lx = ease.lerp(0, -160, anim)
+			ly = ease.lerp(0, 40, anim)
+			rx = ease.lerp(0, -90, anim)
+		else
+			anim = ease.outback(math.min(1, (t - icon_time_show)/1))
+			lx = ease.lerp(160, 0, anim)
+			ly = ease.lerp(40, 0, anim)
+			rx = ease.lerp(90, 0, anim)
+		end
+
+		graphics.setColor(255, 255, 255, 255)
+
+		graphics.setCanvas(canvas)
+
+		graphics.clear(0,0,0,0)
+		graphics.setBlendMode('replace', 'premultiplied')
+
+		graphics.setScissor(256-80-20, 64, 160+40, 80)
+		graphics.easyDraw(DOLPHIN, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
+		graphics.setScissor()
+
+		graphics.setBlendMode('multiply', 'premultiplied')
+
+		graphics.easyDraw(GRADIENT, 256-80-20, 64, 0, 80, 80)
+		graphics.easyDraw(GRADIENT, 256+80+20, 64, math.rad(180), 80, 80, 0, 1)
+
+		graphics.setCanvas()
+
+		graphics.setBlendMode('alpha', 'alphamultiply')
+		graphics.draw(canvas)
+	end
+end
+
+do
+	local ellipses = {".", "..", "..."}
+
+	function love.drawNotificationText(msg)
+		local t = love.timer.getTime()
+
+		local w = WAITING_FONT:getWidth(msg)
+		local h = WAITING_FONT:getHeight()
+		local x = 256 - (w/2)
+		local y = 128+32
+
+		local i = math.floor(t % #ellipses) + 1
+
+		msg = msg .. ellipses[i]
+
+		graphics.setFont(WAITING_FONT)
+		graphics.setColor(0, 0, 0, 255)
+		graphics.textOutline(msg, 3, x, y)
+		graphics.setColor(255, 255, 255, 255)
+		graphics.print(msg, x, y)
+	end
 end
 
 function love.supportsGameCapture()
@@ -740,7 +803,7 @@ end
 
 function love.draw()
 	if not love.supportsGameCapture() then
-		graphics.setBackgroundColor(255, 0, 255, 255)
+		graphics.setBackgroundColor(125, 125, 125, 255)
 	else
 		-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 		local alpha = 0
@@ -784,8 +847,13 @@ function love.draw()
 
 	if memory.initialized and memory.game and memory.controller then
 		love.drawControllerOverlay()
-	elseif memory.hooked then
-		love.drawWaitingForGameSplash()
+	else
+		love.drawDolphinLogo()
+		if memory.hooked then
+			love.drawNotificationText("WAITING FOR GAME")
+		else
+			love.drawNotificationText("WAITING FOR DOLPHIN")
+		end
 	end
 
 	-- Draw a temporary number to show that the user changed controller port
