@@ -741,14 +741,17 @@ do
 	local icon_time_show
 	local icon_time_next
 
+	local icon_rotate = 0
+
 	local canvas = love.graphics.newCanvas()
 
 	function love.drawTrobber(game)
 		local t = love.timer.getTime()
+		local dt = love.timer.getDelta()
 
 		local lx = 0
 		local ly = math.sin(t*3) * 4
-		local rx = t * 360
+		local rx = icon_rotate
 		
 		if not game then
 			if not icon_time_start or icon_time_next < t then
@@ -769,6 +772,8 @@ do
 				ly = ease.lerp(64, 0, anim)
 				rx = ease.lerp(90, 0, anim)
 			end
+		else
+			icon_rotate = (icon_rotate + math.sinlerp(0, 360*4*dt/2, t/2)) % 360
 		end
 
 		graphics.setColor(255, 255, 255, 255)
@@ -776,24 +781,25 @@ do
 		graphics.setCanvas(canvas)
 
 		graphics.clear(0,0,0,0)
-		graphics.setBlendMode('replace', 'premultiplied')
+		graphics.setBlendMode("replace", "premultiplied")
 
 		graphics.setScissor(256-80-20, 0, 160+40, 256)
 
 		local slippi = PANEL_SETTINGS:IsSlippiNetplay() or PANEL_SETTINGS:IsSlippiReplay()
 		local icon = game and (slippi and MELEE or GAME) or DOLPHIN
+
 		graphics.easyDraw(icon, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
 
 		graphics.setScissor()
 
-		graphics.setBlendMode('multiply', 'premultiplied')
+		graphics.setBlendMode("multiply", "premultiplied")
 
 		graphics.easyDraw(GRADIENT, 256-80-20, 0, 0, 80, 256)
 		graphics.easyDraw(GRADIENT, 256+80+20, 0, math.rad(180), 80, 256, 0, 1)
 
 		graphics.setCanvas()
 
-		graphics.setBlendMode('alpha', 'alphamultiply')
+		graphics.setBlendMode("alpha", "alphamultiply")
 
 		if game then
 			local sw = math.sinlerp(0.5, 1, t*3)
