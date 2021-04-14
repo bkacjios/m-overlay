@@ -31,6 +31,7 @@ local VERSION = love.filesystem.read("version.txt")
 
 local GRADIENT = newImage("textures/gradient.png")
 local DOLPHIN = newImage("textures/dolphin.png")
+local GAME = newImage("textures/game.png")
 
 function love.getMOverlayVersion()
 	return VERSION or "0.0.0"
@@ -726,29 +727,32 @@ do
 
 	local canvas = love.graphics.newCanvas()
 
-	function love.drawDolphinLogo()
+	function love.drawTrobber(game)
 		local t = love.timer.getTime()
 
-		if not icon_time_start or icon_time_next < t then
-			icon_time_start = t
-			icon_time_show = t + 1
-			icon_time_next = t + 2
-		end
+		local lx = 0
+		local ly = math.sin(t*10) * 4
+		local rx = t * 180
+		
+		if not game then
+			if not icon_time_start or icon_time_next < t then
+				icon_time_start = t
+				icon_time_show = t + 1
+				icon_time_next = t + 2
+			end
 
-		local lx
-		local ly
-		local rx
-		local anim
-		if icon_time_show > t then
-			anim = ease.sigmoid(math.min(1, (t - icon_time_start)/1))
-			lx = ease.lerp(0, -160, anim)
-			ly = ease.lerp(0, 40, anim)
-			rx = ease.lerp(0, -90, anim)
-		else
-			anim = ease.outback(math.min(1, (t - icon_time_show)/1))
-			lx = ease.lerp(160, 0, anim)
-			ly = ease.lerp(40, 0, anim)
-			rx = ease.lerp(90, 0, anim)
+			local anim = 0
+			if icon_time_show > t then
+				anim = ease.sigmoid(math.min(1, (t - icon_time_start)/1))
+				lx = ease.lerp(0, -160, anim)
+				ly = ease.lerp(0, 64, anim)
+				rx = ease.lerp(0, -90, anim)
+			else
+				anim = ease.outback(math.min(1, (t - icon_time_show)/1))
+				lx = ease.lerp(160, 0, anim)
+				ly = ease.lerp(64, 0, anim)
+				rx = ease.lerp(90, 0, anim)
+			end
 		end
 
 		graphics.setColor(255, 255, 255, 255)
@@ -758,14 +762,14 @@ do
 		graphics.clear(0,0,0,0)
 		graphics.setBlendMode('replace', 'premultiplied')
 
-		graphics.setScissor(256-80-20, 64, 160+40, 80)
-		graphics.easyDraw(DOLPHIN, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
+		graphics.setScissor(256-80-20, 0, 160+40, 256)
+		graphics.easyDraw(game and GAME or DOLPHIN, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
 		graphics.setScissor()
 
 		graphics.setBlendMode('multiply', 'premultiplied')
 
-		graphics.easyDraw(GRADIENT, 256-80-20, 64, 0, 80, 80)
-		graphics.easyDraw(GRADIENT, 256+80+20, 64, math.rad(180), 80, 80, 0, 1)
+		graphics.easyDraw(GRADIENT, 256-80-20, 0, 0, 80, 256)
+		graphics.easyDraw(GRADIENT, 256+80+20, 0, math.rad(180), 80, 256, 0, 1)
 
 		graphics.setCanvas()
 
@@ -848,11 +852,12 @@ function love.draw()
 	if memory.initialized and memory.game and memory.controller then
 		love.drawControllerOverlay()
 	else
-		love.drawDolphinLogo()
 		if memory.hooked then
-			love.drawNotificationText("WAITING FOR GAME")
+			love.drawTrobber(true)
+			love.drawNotificationText("Waiting for game")
 		else
-			love.drawNotificationText("WAITING FOR DOLPHIN")
+			love.drawTrobber()
+			love.drawNotificationText("Waiting for Dolphin")
 		end
 	end
 
