@@ -32,6 +32,7 @@ local VERSION = love.filesystem.read("version.txt")
 local GRADIENT = newImage("textures/gradient.png")
 local DOLPHIN = newImage("textures/dolphin.png")
 local GAME = newImage("textures/game.png")
+local MELEE = newImage("textures/meleedisk.png")
 local SHADOW = newImage("textures/shadow.png")
 
 function love.getMOverlayVersion()
@@ -496,8 +497,8 @@ function love.drawControllerOverlay()
 		local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
 
 		--[[if PANEL_SETTINGS:IsDebugging() then
-			local strx = ("JOY_X: %f"):format(x)
-			local stry = ("JOY_Y: %f"):format(y)
+			local strx = ("JOY_X: % f"):format(x)
+			local stry = ("JOY_Y: % f"):format(y)
 			local btts = ("BUTTONS: %X"):format(controller.buttons.pressed)
 			graphics.setFont(DEBUG_FONT)
 
@@ -507,10 +508,10 @@ function love.drawControllerOverlay()
 			graphics.textOutline(stry, 2, 96, 256 - 4 - 12)
 
 			graphics.setColor(255, 255, 255, 255)
-			graphics.print(btts, 96, 256 - 4 - 36)
+			graphics.print(btts, 96, 256 - 8 - 36 )
 			graphics.print(strx, 96, 256 - 4 - 24)
 			graphics.print(stry, 96, 256 - 4 - 12)
-		--end]]
+		end]]
 
 		local vx, vy = x, 1 - y
 
@@ -558,18 +559,18 @@ function love.drawControllerOverlay()
 		local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
 
 		--[[if PANEL_SETTINGS:IsDebugging() then
-			local strx = ("C_X: %f"):format(x)
-			local stry = ("C_Y: %f"):format(y)
+			local strx = ("C_X: % f"):format(x)
+			local stry = ("C_Y: % f"):format(y)
 			graphics.setFont(DEBUG_FONT)
 
 			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(strx, 2, 256, 256 - 4 - 24)
-			graphics.textOutline(stry, 2, 256, 256 - 4 - 12)
+			graphics.textOutline(strx, 2, 224, 256 - 4 - 24)
+			graphics.textOutline(stry, 2, 224, 256 - 4 - 12)
 
 			graphics.setColor(255, 255, 255, 255)
-			graphics.print(strx, 256, 256 - 4 - 24)
-			graphics.print(stry, 256, 256 - 4 - 12)
-		--end]]
+			graphics.print(strx, 224, 256 - 4 - 24)
+			graphics.print(stry, 224, 256 - 4 - 12)
+		end]]
 
 		local vx, vy = x, 1 - y
 
@@ -708,6 +709,20 @@ function love.drawControllerOverlay()
 				-- R Analog
 				graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 20, 88 * ar, 12)
 			graphics.setStencilTest()
+			
+			--[[if PANEL_SETTINGS:IsDebugging() then
+				local strl = ("L: %f"):format(al)
+				local strr = ("R: %f"):format(ar)
+				graphics.setFont(DEBUG_FONT)
+
+				graphics.setColor(0, 0, 0, 255)
+				graphics.textOutline(strl, 2, 340, 256 - 4 - 24)
+				graphics.textOutline(strr, 2, 340, 256 - 4 - 12)
+
+				graphics.setColor(255, 255, 255, 255)
+				graphics.print(strl, 340, 256 - 4 - 24)
+				graphics.print(strr, 340, 256 - 4 - 12)
+			end]]
 		end
 
 		-- Draw buttons
@@ -765,7 +780,9 @@ do
 
 		graphics.setScissor(256-80-20, 0, 160+40, 256)
 
-		graphics.easyDraw(game and GAME or DOLPHIN, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
+		local slippi = PANEL_SETTINGS:IsSlippiNetplay() or PANEL_SETTINGS:IsSlippiReplay()
+		local icon = game and (slippi and MELEE or GAME) or DOLPHIN
+		graphics.easyDraw(icon, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
 
 		graphics.setScissor()
 
@@ -865,10 +882,11 @@ function love.draw()
 	else
 		if memory.hooked then
 			love.drawTrobber(true)
-			love.drawNotificationText("Waiting for game")
+			local slippi = PANEL_SETTINGS:IsSlippiNetplay() or PANEL_SETTINGS:IsSlippiReplay()
+			love.drawNotificationText(slippi and "Waiting for melee" or "Waiting for game")
 		else
 			love.drawTrobber()
-			love.drawNotificationText("Waiting for Dolphin")
+			love.drawNotificationText("Waiting for dolphin")
 		end
 	end
 
