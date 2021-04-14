@@ -32,6 +32,7 @@ local VERSION = love.filesystem.read("version.txt")
 local GRADIENT = newImage("textures/gradient.png")
 local DOLPHIN = newImage("textures/dolphin.png")
 local GAME = newImage("textures/game.png")
+local SHADOW = newImage("textures/shadow.png")
 
 function love.getMOverlayVersion()
 	return VERSION or "0.0.0"
@@ -731,8 +732,8 @@ do
 		local t = love.timer.getTime()
 
 		local lx = 0
-		local ly = math.sin(t*10) * 4
-		local rx = t * 180
+		local ly = math.sin(t*3) * 4
+		local rx = t * 360
 		
 		if not game then
 			if not icon_time_start or icon_time_next < t then
@@ -763,7 +764,9 @@ do
 		graphics.setBlendMode('replace', 'premultiplied')
 
 		graphics.setScissor(256-80-20, 0, 160+40, 256)
+
 		graphics.easyDraw(game and GAME or DOLPHIN, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
+
 		graphics.setScissor()
 
 		graphics.setBlendMode('multiply', 'premultiplied')
@@ -774,6 +777,14 @@ do
 		graphics.setCanvas()
 
 		graphics.setBlendMode('alpha', 'alphamultiply')
+
+		if game then
+			local sw = math.sinlerp(0.5, 1, t*3)
+			graphics.setColor(125, 125, 125, 150)
+			graphics.easyDraw(SHADOW, 256, 154, 0, 64*sw, 6*sw, 0.5, 0.5)
+		end
+
+		graphics.setColor(255, 255, 255, 255)
 		graphics.draw(canvas)
 	end
 end
