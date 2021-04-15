@@ -841,7 +841,7 @@ end
 
 function love.draw()
 	if not love.supportsGameCapture() then
-		graphics.setBackgroundColor(125, 125, 125, 255)
+		graphics.setBackgroundColor(100, 100, 100, 255)
 	else
 		-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 		local alpha = 0
@@ -970,7 +970,7 @@ function love.run()
  
 		if love.timer then
 			local frame_time = love.timer.getTime() - frame_start
-			love.timer.sleep(1 / FPS_LIMIT- frame_time)
+			love.timer.sleep(1 / FPS_LIMIT - frame_time)
 		end
 	end
 end

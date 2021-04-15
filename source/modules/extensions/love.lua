@@ -1,6 +1,21 @@
 local graphics = love.graphics
 
+local clear = graphics.clear
 local setColor = graphics.setColor
+local getColor = graphics.getColor
+local setBackgroundColor = graphics.setBackgroundColor
+local getBackgroundColor = graphics.getBackgroundColor
+
+-- Love2D changed color values to be 0-1
+-- Allow 0-255 values again..
+function graphics.clear(r,g,b,a)
+	if type(r) == "table" then
+		r, g, b, a = r.r, r.g, r.b, r.a
+	else
+		r, g, b, a = r or 255, g or 255, b or 255, a or 255
+	end
+	clear(r/255,g/255,b/255,a/255)
+end
 
 -- Love2D changed color values to be 0-1
 -- Allow 0-255 values again..
@@ -11,6 +26,27 @@ function graphics.setColor(r,g,b,a)
 		r, g, b, a = r or 255, g or 255, b or 255, a or 255
 	end
 	setColor(r/255,g/255,b/255,a/255)
+end
+
+function graphics.getColor()
+	local r,g,b,a = getColor()
+	return r*255, g*255, b*255, a*255
+end
+
+-- Love2D changed color values to be 0-1
+-- Allow 0-255 values again..
+function graphics.setBackgroundColor(r,g,b,a)
+	if type(r) == "table" then
+		r, g, b, a = r.r, r.g, r.b, r.a
+	else
+		r, g, b, a = r or 255, g or 255, b or 255, a or 255
+	end
+	setBackgroundColor(r/255,g/255,b/255,a/255)
+end
+
+function graphics.getBackgroundColor()
+	local r,g,b,a = getBackgroundColor()
+	return r*255, g*255, b*255, a*255
 end
 
 -- Draw an image using width and height in pixels

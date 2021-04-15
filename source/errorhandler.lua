@@ -77,7 +77,7 @@ function love.errorhandler(msg)
  
 	local function draw()
 		local pos = 8
-		love.graphics.clear(89/255, 157/255, 220/255)
+		love.graphics.clear(89, 157, 220)
 		love.graphics.printf(p, pos, pos, love.graphics.getWidth() - pos)
 		love.graphics.present()
 	end
