@@ -902,7 +902,7 @@ function love.draw()
 		if memory.isMelee() then
 			local port = PORT_DISPLAY_OVERRIDE or port
 			local portColor
-			if memory.teams then
+			if melee.isTeams() then
 				portColor = melee.getPlayerTeamColor(port)
 			else
 				portColor = melee.getPlayerColor(port)

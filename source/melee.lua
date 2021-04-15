@@ -596,12 +596,21 @@ end
 function melee.drawSeries(port, ...)
 	local id = melee.getCharacterID(port)
 	if not id then return end
-	local series = melee.getSeriesTexture(id)
+	local series = melee.getSeriesTexture(melee.isPortEnabled(port) and id or 0x21)
 	if not series then return end
 	graphics.easyDraw(series, ...)
 end
 
+function melee.getSinglePlayerPort()
+	if melee.isSinglePlayerGame() and not melee.isNetplayGame() then
+		return 1
+	else
+		return memory.menu.player_one_port+1
+	end
+end
+
 function melee.drawStock(port, ...)
+	if not melee.isPortEnabled(port) then return end
 	local id = melee.getCharacterID(port)
 	if id == 0x21 or not memory.player then return end
 	local player = melee.getPlayer(port)
@@ -612,15 +621,16 @@ function melee.drawStock(port, ...)
 end
 
 local TEAM_COLORS = {
-	[0x00] = color(255, 0, 0, 255),		-- Red
-	[0x01] = color(0, 100, 255, 255),	-- Blue
-	[0x02] = color(0, 255, 0, 255),		-- Green
+	[0x00] = color(245, 46, 46, 255),	-- Red
+	[0x01] = color(84, 99, 255, 255),	-- Blue
+	[0x02] = color(31, 158, 64, 255),	-- Green
 	[0x04] = color(200, 200, 200, 255),	-- CPU/Disabled
 }
 
 function melee.getPlayerTeamColor(port)
-	if not memory.player then return end
-	local player = memory.player[port]
+	if not melee.isPortEnabled(port) then return TEAM_COLORS[0x04] end
+	local player = melee.isInGame() and melee.getPlayer(port) or memory.player[port].card
+	if not player then return TEAM_COLORS[0x04] end
 	return TEAM_COLORS[player.team] or color_white
 end
 
@@ -631,8 +641,22 @@ local PLAYER_COLORS = {
 	[4] = color(31, 158, 64, 255),
 }
 
+local PORT_PLAYER = 0x0
+local PORT_CPU = 0x1
+local PORT_DISABLED = 0x3
+
+function melee.isPortEnabled(port)
+	if not port then return false end
+	if melee.isInMenus() and melee.isSinglePlayerGame() and port ~= (memory.menu.player_one_port+1) then return false end
+	return memory.player[port].card.mode ~= PORT_DISABLED
+end
+
+function melee.isPortCPU(port)
+	return memory.player[port].card.mode == PORT_CPU
+end
+
 function melee.getPlayerColor(port)
-	return PLAYER_COLORS[port] or color_white
+	return melee.isPortEnabled(port) and (PLAYER_COLORS[port] or color_white) or TEAM_COLORS[0x04]
 end
 
 local char_replacement_map = {
@@ -820,6 +844,14 @@ local AKANEIA_SERIES = {
 
 function melee.isNetplayGame()
 	return memory.menu.major == MENU_VS_UNKNOWN and (memory.menu.minor == MENU_VS_UNKNOWN_INGAME or memory.menu.minor == MENU_VS_UNKNOWN_VERSUS)
+end
+
+function melee.isTeams()
+	if melee.isSinglePlayerGame() and not melee.isNetplayGame() then
+		return false
+	else
+		return memory.teams
+	end
 end
 
 function melee.isSinglePlayerGame()

@@ -60,9 +60,14 @@ local player_static_addresses = {
 	0x80457950, -- Player 6
 }
 
+local entity_pointer_offsets = {
+	[0xB0] = "entity",
+	[0xB4] = "partner", -- Partner entity (For sheik/zelda/iceclimbers)
+}
+
 local player_static_struct = {
 	[0x004] = { type = "u32", name = "character" },
-	--[0x008] = { type = "u32", name = "mode" },
+	[0x008] = { type = "u32", name = "mode", debug = true },
 	[0x00C] = { type = "u16", name = "transformed" },
 	[0x044] = { type = "u8", name = "skin" },
 	--[0x045] = { type = "u8", name = "port" },
@@ -81,14 +86,7 @@ for id, address in ipairs(player_static_addresses) do
 			name = ("player.%i.%s"):format(id, info.name),
 		}
 	end
-end
 
-local entity_pointer_offsets = {
-	[0xB0] = "entity",
-	[0xB4] = "partner", -- Partner entity (For sheik/zelda/iceclimbers)
-}
-
-for id, address in ipairs(player_static_addresses) do
 	for offset, name in pairs(entity_pointer_offsets) do
 		game.memorymap[address + offset] = {
 			type = "pointer",
@@ -151,10 +149,8 @@ local player_select_external_addresses = {
 }
 
 local player_select_external = {
-	--[0x00] = "unknown",
 	[0x04] = "character",
 	[0x05] = "skin",
-	--[0x08] = "mode"
 }
 
 for id, address in ipairs(player_select_external_addresses) do
@@ -162,6 +158,31 @@ for id, address in ipairs(player_select_external_addresses) do
 		game.memorymap[address + offset] = {
 			type = "u8",
 			name = ("player.%i.select.%s"):format(id, name),
+		}
+	end
+end
+
+local player_card_addresses = {
+	0x803F0E06,
+	0x803F0E2A,
+	0x803F0E4E,
+	0x803F0E72,
+}
+
+local player_card = {
+	[0x00] = "team",
+	[0x01] = "mode",
+	--[0x02] = "mode", -- Duplicate?
+	[0x03] = "skin",
+	[0x04] = "character",
+	[0x05] = "hovered",
+}
+
+for id, address in ipairs(player_card_addresses) do
+	for offset, name in pairs(player_card) do
+		game.memorymap[address + offset] = {
+			type = "byte",
+			name = ("player.%i.card.%s"):format(id, name),
 		}
 	end
 end
