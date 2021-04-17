@@ -16,7 +16,7 @@ game.memorymap[0x8049E753] = { type = "u8", name = "stage", debug = true }
 game.memorymap[0x80479D30] = { type = "u8", name = "menu.major", debug = true }
 game.memorymap[0x80479D33] = { type = "u8", name = "menu.minor", debug = true }
 game.memorymap[0x804D6598] = { type = "u8", name = "menu.player_one_port", debug = true } -- What port is currently acting as "Player 1" in single player games
-game.memorymap[0x804807C8] = { type = "bool", name = "teams" }
+game.memorymap[0x804807C8] = { type = "bool", name = "menu.teams" }
    
 local controllers = {
 	[1] = 0x804C1FAC + 0x44 * 0,
@@ -67,7 +67,7 @@ local entity_pointer_offsets = {
 
 local player_static_struct = {
 	[0x004] = { type = "u32", name = "character" },
-	[0x008] = { type = "u32", name = "mode", debug = true },
+	[0x008] = { type = "u32", name = "mode" },
 	[0x00C] = { type = "u16", name = "transformed" },
 	[0x044] = { type = "u8", name = "skin" },
 	--[0x045] = { type = "u8", name = "port" },
@@ -185,6 +185,23 @@ for id, address in ipairs(player_card_addresses) do
 			name = ("player.%i.card.%s"):format(id, name),
 		}
 	end
+end
+
+local startmatch_addr = 0x80480530
+
+local startmatch_struct = {
+	[0x00] = { type = "u8", name = "match.flags.game" },
+	[0x01] = { type = "u8", name = "match.flags.friendlyfire" },
+	[0x02] = { type = "u8", name = "match.flags.other" },
+	[0x07] = { type = "bool", name = "match.bombrain" },
+	[0x08] = { type = "bool", name = "match.teams" },
+	[0x0B] = { type = "s8", name = "match.settings.item_frequency" },
+	[0x0C] = { type = "s8", name = "match.settings.self_destruct" },
+	[0x0E] = { type = "short", name = "match.stage" },
+}
+
+for offset, info in pairs(startmatch_struct) do
+	game.memorymap[startmatch_addr + offset] = info
 end
 
 game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }

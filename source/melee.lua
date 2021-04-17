@@ -849,8 +849,10 @@ end
 function melee.isTeams()
 	if melee.isSinglePlayerGame() and not melee.isNetplayGame() then
 		return false
+	elseif melee.isInGame() then
+		return memory.match.teams
 	else
-		return memory.teams
+		return memory.menu.teams
 	end
 end
 
