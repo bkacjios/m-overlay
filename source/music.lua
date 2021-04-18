@@ -232,7 +232,6 @@ function music.playNextTrack()
 			track = weightedRandomChoice(songs)
 			if not track or not songs[track] then return end
 			music.PLAYING = songs[track]
-
 		else
 			music.TRACK_NUMBER[music.PLAYLIST_ID] = ((music.TRACK_NUMBER[music.PLAYLIST_ID] or -1) + 1) % #songs
 			track = music.TRACK_NUMBER[music.PLAYLIST_ID] + 1
@@ -244,7 +243,6 @@ function music.playNextTrack()
 			table.remove(songs, track)
 			table.insert(songs, newpos, music.PLAYING)
 		end
-
 		
 		if music.PLAYING then
 			if music.PLAYLIST_ID == 0x0 then

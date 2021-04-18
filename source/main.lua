@@ -33,6 +33,7 @@ local GRADIENT = newImage("textures/gradient.png")
 local DOLPHIN = newImage("textures/dolphin.png")
 local GAME = newImage("textures/game.png")
 local MELEE = newImage("textures/meleedisk.png")
+local MELEELABEL = newImage("textures/meleedisklabel.png")
 local SHADOW = newImage("textures/shadow.png")
 
 function love.getMOverlayVersion()
@@ -752,6 +753,8 @@ do
 		local lx = 0
 		local ly = math.sin(t*3) * 4
 		local rx = icon_rotate
+
+		local rotate_speed = 0
 		
 		if not game then
 			if not icon_time_start or icon_time_next < t then
@@ -773,7 +776,8 @@ do
 				rx = ease.lerp(90, 0, anim)
 			end
 		else
-			icon_rotate = (icon_rotate + math.sinlerp(0, 360*4*dt/2, t/2)) % 360
+			rotate_speed = math.sinlerp(0, 360*4*dt/2, t/2)
+			icon_rotate = (icon_rotate + rotate_speed) % 360
 		end
 
 		graphics.setColor(255, 255, 255, 255)
@@ -781,21 +785,36 @@ do
 		graphics.setCanvas(canvas)
 
 		graphics.clear(0,0,0,0)
-		graphics.setBlendMode("replace", "premultiplied")
+		if not game then
+			graphics.setBlendMode("replace", "premultiplied")
+		end
 
 		graphics.setScissor(256-80-20, 0, 160+40, 256)
 
 		local slippi = PANEL_SETTINGS:IsSlippiNetplay() or PANEL_SETTINGS:IsSlippiReplay()
 		local icon = game and (slippi and MELEE or GAME) or DOLPHIN
 
+		graphics.setColor(255, 255, 255, 255)
 		graphics.easyDraw(icon, 256+lx, 64+40+ly, math.rad(rx), 80, 80, 0.5, 0.5)
+		
+		if game then
+			local p = rotate_speed/13
+
+			for i=0, 16 do
+				local j = rotate_speed - i
+				graphics.setColor(255, 255, 255, rotate_speed*4)
+				graphics.easyDraw(slippi and MELEELABEL or icon, 256+lx, 64+40+ly, math.rad(rx-(i*p*4)), 80, 80, 0.5, 0.5)
+			end
+		end
 
 		graphics.setScissor()
 
-		graphics.setBlendMode("multiply", "premultiplied")
+		if not game then
+			graphics.setBlendMode("multiply", "premultiplied")
 
-		graphics.easyDraw(GRADIENT, 256-80-20, 0, 0, 80, 256)
-		graphics.easyDraw(GRADIENT, 256+80+20, 0, math.rad(180), 80, 256, 0, 1)
+			graphics.easyDraw(GRADIENT, 256-80-20, 0, 0, 80, 256)
+			graphics.easyDraw(GRADIENT, 256+80+20, 0, math.rad(180), 80, 256, 0, 1)
+		end
 
 		graphics.setCanvas()
 
