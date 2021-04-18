@@ -875,8 +875,7 @@ function love.draw()
 
 		-- Show a preview for transparency
 		if PANEL_SETTINGS:IsVisible() then
-			graphics.setColor(255, 255, 255, 255)
-			graphics.rectangle("fill", 0, 0, 512, 256)
+			graphics.setBackgroundColor(255, 255, 255, alpha)
 
 			for x=0, 512/32 do
 				for y=0, 256/32 do
