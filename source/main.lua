@@ -865,9 +865,9 @@ function love.draw()
 		-- Default to completely transparent, makes the overlay completely invisible when not in a game!
 		local alpha = 0
 
-		if memory.initialized and memory.game then
+		if (memory.initialized and memory.game) or PANEL_SETTINGS:IsVisible() then
 			-- Only apply transparency when we are watching a games memory.
-			alpha = 1 - (PANEL_SETTINGS:GetTransparency() / 100)
+			alpha = 255 - ((PANEL_SETTINGS:GetTransparency() / 100) * 255)
 		end
 
 		-- Transparent background for OBS
@@ -884,8 +884,7 @@ function love.draw()
 				end
 			end
 
-			alpha = 1 - (PANEL_SETTINGS:GetTransparency() / 100)
-			graphics.setColor(0, 0, 0, alpha*255)
+			graphics.setColor(0, 0, 0, alpha)
 			graphics.rectangle("fill", 0, 0, 512, 256)
 
 			--[[graphics.setColor(0, 0, 0, 100)
