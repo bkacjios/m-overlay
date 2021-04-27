@@ -44,6 +44,8 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Pikmin 2 (NTSC-U v1.0, DEMO v1.0)
   - [Pikmin 251](https://www.youtube.com/watch?v=7ylu9ogW88w)
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
+* Super Monkey Ball 2 (NTSC-U v1.0)
+  - Super Monkey Ball Gaiden
 * Rayman 3: Hoodlum Havoc (NTSC-U v1.0)
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC v1.0)
 * The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
