@@ -2,6 +2,13 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 
 math.randomseed(love.timer.getTime())
 
+-- Read version file and strip any trailing whitespace
+local VERSION = love.filesystem.read("version.txt"):match("^(%S+)")
+
+function love.getMOverlayVersion()
+	return VERSION or "0.0.0"
+end
+
 require("console")
 require("errorhandler")
 require("extensions.love")
@@ -27,18 +34,12 @@ local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
 local WAITING_FONT = graphics.newFont("fonts/melee-bold.otf", 24)
 local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
-local VERSION = love.filesystem.read("version.txt")
-
 local GRADIENT = newImage("textures/gradient.png")
 local DOLPHIN = newImage("textures/dolphin.png")
 local GAME = newImage("textures/game.png")
 local MELEE = newImage("textures/meleedisk.png")
 local MELEELABEL = newImage("textures/meleedisklabel.png")
 local SHADOW = newImage("textures/shadow.png")
-
-function love.getMOverlayVersion()
-	return VERSION or "0.0.0"
-end
 
 --PANEL_SETTINGS
 
