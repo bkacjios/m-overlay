@@ -37,4 +37,7 @@ return {
 	["PIKE25"] = {
 		[0] = { id = "GPVE01", version = 0 }, -- Pikmin 251
 	},
+    ["GM2EGD"] = {
+        [0] = { id = "GM2E8P", version = 0 }, -- Super Monkey Ball Gaiden
+    }
 }
