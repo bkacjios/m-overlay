@@ -279,6 +279,21 @@ function memory.newvalue(addr, offset, struct, name)
 	}, ADDRESS)
 end
 
+local function handleNumTargetChange(numTargetsLeft, prevNumTargetsLeft)
+	isPlaying = memory.readBool(0x8046B6A0 + 0x0005, 0)
+	if not isPlaying and (numTargetsLeft == 0 or numTargetsLeft == 10) then return end
+
+	targetNum = 10 - numTargetsLeft
+	frame = memory.readUInt(0x80479D60, 0) - 84 - 40 -- ready and go frames...roughly
+	if frame < 1 then
+		log.debug("Target %d hit on frame %d", targetNum, frame + 40)
+	else
+		seconds = math.floor((frame / 60) % 60)
+		centis = math.floor((frame % 60) * 99 / 59)
+		log.debug("Target %d hit at %d.%02d", targetNum, seconds, centis)
+	end
+end
+
 function ADDRESS:update()
 	if self.address == NULL then return end
 
@@ -288,12 +303,15 @@ function ADDRESS:update()
 
 	-- Check if there has been a value change
 	if self.cache_value ~= value then
+		if self.address == 0x8049e6c8 + 0x06D4 then
+			handleNumTargetChange(value, self.cache_value)
+		end
 		self.cache_value = value
 		self.cache[self.cache_key] = self.cache_value
 
 		if self.debug then
 			local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
-			log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)
+			-- log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)
 		end
 
 		-- Queue up a hook event

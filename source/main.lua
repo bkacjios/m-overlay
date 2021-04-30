@@ -3,7 +3,7 @@ love.filesystem.setRequirePath("?.lua;?/init.lua;modules/?.lua;modules/?/init.lu
 math.randomseed(love.timer.getTime())
 
 -- Read version file and strip any trailing whitespace
-local VERSION = love.filesystem.read("version.txt"):match("^(%S+)")
+local VERSION = nil -- love.filesystem.read("version.txt"):match("^(%S+)")
 
 function love.getMOverlayVersion()
 	return VERSION or "0.0.0"

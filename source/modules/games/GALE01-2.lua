@@ -236,6 +236,14 @@ for offset, info in pairs(match_info_struct) do
 	game.memorymap[match_info + offset] = info
 end
 
+local stage_info_addr = 0x8049e6c8
+local stage_info_struct = {
+	[0x06D4] = { type = "short", name = "targets_left" },
+}
+for offset, info in pairs(stage_info_struct) do
+	game.memorymap[stage_info_addr + offset] = info
+end
+
 function game.translateAxis(x, y)
 	return x, y
 end
