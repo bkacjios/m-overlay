@@ -64,7 +64,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 ### Supported VC games:
 
 * Super Mario 64 (NTSC-U)
-* The Legend of Zelda: Ocarina of Time (NTSC-U)
+* The Legend of Zelda: Ocarina of Time (NTSC-U, NTSC-J)
 * The Legend of Zelda: Majora's Mask (NTSC-U)
 * Paper Mario (NTSC-U)
 
