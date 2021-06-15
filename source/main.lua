@@ -55,6 +55,14 @@ function love.setPort(port)
 	PANEL_PORT_SELECT:ChangePort(((port-1) % MAX_PORTS) + 1)
 end
 
+function love.getSkin()
+	return PANEL_SKIN_SELECT:GetSkin()
+end
+
+function love.setSkin(skin)
+	return PANEL_SKIN_SELECT:ChangeSkin(skin)
+end
+
 local PORT_TEXTURES = {
 	[1] = newImage("textures/player1_color.png"),
 	[2] = newImage("textures/player2_color.png"),
@@ -101,6 +109,9 @@ function love.load(args, unfilteredArg)
 
 	PANEL_PORT_SELECT = gui.create("PortSelect")
 	PANEL_PORT_SELECT:SetVisible(false)
+
+	PANEL_SKIN_SELECT = gui.create("SkinSelect")
+	PANEL_SKIN_SELECT:SetVisible(false)
 
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:LoadSettings()
@@ -200,6 +211,7 @@ function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
 		PANEL_SETTINGS:Toggle()
 		PANEL_PORT_SELECT:Toggle()
+		PANEL_SKIN_SELECT:Toggle()
 	end
 
 	gui.keyPressed(key, scancode, isrepeat)
@@ -449,6 +461,354 @@ local function drawButtons(buttons, controller)
 	end
 end
 
+function love.drawDefaultDisplay(controller)
+	-- Draw Joystick
+
+	local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
+
+	--[[if PANEL_SETTINGS:IsDebugging() then
+		local strx = ("JOY_X: % f"):format(x)
+		local stry = ("JOY_Y: % f"):format(y)
+		local btts = ("BUTTONS: %X"):format(controller.buttons.pressed)
+		graphics.setFont(DEBUG_FONT)
+
+		graphics.setColor(0, 0, 0, 255)
+		graphics.textOutline(btts, 2, 96, 256 - 4 - 36)
+		graphics.textOutline(strx, 2, 96, 256 - 4 - 24)
+		graphics.textOutline(stry, 2, 96, 256 - 4 - 12)
+
+		graphics.setColor(255, 255, 255, 255)
+		graphics.print(btts, 96, 256 - 8 - 36 )
+		graphics.print(strx, 96, 256 - 4 - 24)
+		graphics.print(stry, 96, 256 - 4 - 12)
+	end]]
+
+	local vx, vy = x, 1 - y
+
+	local angle = math.atan2(x, y)
+	local mag = math.sqrt(x*x + y*y)
+
+	local far = mag * 12
+	local near = mag * 20
+
+	-- Make the rectangle look like its fading into the horizon
+
+	-- Top left
+	vertices[1][1] = far
+	-- Top right
+	vertices[2][1] = 128 - far
+
+	-- Bottom left
+	vertices[1][2] = near
+	-- Bottom right
+	vertices[2][2] = near
+
+	local rotated = transformVertices(vertices, 64 + 22 + (40 * vx), 64 + 12 + (40 * vy), angle, 64, 64)
+
+	graphics.setColor(255, 255, 255, 255)
+
+	if PANEL_SETTINGS:IsHighContrast() then
+		graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE_FILLED, 22, 52, 0, 128, 128)
+	else
+		graphics.stencil(function()
+			perspective.on()
+			perspective.quad(BUTTON_TEXTURES.JOYSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
+			perspective.off()
+		end, "replace", 1)
+		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
+			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 22, 52, 0, 128, 128)
+		graphics.setStencilTest()
+	end
+
+	perspective.on()
+	perspective.quad(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.JOYSTICK.FILLED or BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
+	perspective.off()
+
+	-- Draw C-Stick
+
+	local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
+
+	--[[if PANEL_SETTINGS:IsDebugging() then
+		local strx = ("C_X: % f"):format(x)
+		local stry = ("C_Y: % f"):format(y)
+		graphics.setFont(DEBUG_FONT)
+
+		graphics.setColor(0, 0, 0, 255)
+		graphics.textOutline(strx, 2, 224, 256 - 4 - 24)
+		graphics.textOutline(stry, 2, 224, 256 - 4 - 12)
+
+		graphics.setColor(255, 255, 255, 255)
+		graphics.print(strx, 224, 256 - 4 - 24)
+		graphics.print(stry, 224, 256 - 4 - 12)
+	end]]
+
+	local vx, vy = x, 1 - y
+
+	local angle = math.atan2(x, y)
+	local mag = math.sqrt(x*x + y*y)
+
+	local far = mag * 12
+	local near = mag * 20
+
+	-- Make the rectangle look like its fading into the horizon
+
+	-- Top left
+	vertices[1][1] = far
+	-- Top right
+	vertices[2][1] = 128 - far
+
+	-- Bottom left
+	vertices[1][2] = near
+	-- Bottom right
+	vertices[2][2] = near
+
+	local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 18 + (32 * vy), angle, 64, 64)
+
+	graphics.setColor(255, 235, 0, 255)
+
+	if PANEL_SETTINGS:IsHighContrast() then
+		graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE_FILLED, 48 + 128, 52, 0, 128, 128)
+	else
+		graphics.stencil(function()
+			perspective.on()
+			perspective.quad(BUTTON_TEXTURES.CSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
+			perspective.off()
+		end, "replace", 1)
+		graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
+			graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
+		graphics.setStencilTest()
+	end
+
+	perspective.on()
+	perspective.quad(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.CSTICK.FILLED or BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
+	perspective.off()
+
+	graphics.setColor(255, 255, 255, 255)
+
+	-- Draw L
+
+	if PANEL_SETTINGS:IsSlippiReplay() then
+		graphics.setLineStyle("smooth")
+		love.graphics.setLineWidth(4)
+
+		-- Draw outline
+		graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 108 + 6, 14, 0, 116, 24)
+
+		-- Draw L segment for button press
+		graphics.line(108 + 14 + 88, 20, 108 + 14 + 88, 20 + 12)
+
+		-- Draw R segment for button press
+		graphics.line(108 + 14 + 12, 20, 108 + 14 + 12, 20 + 12)
+
+		graphics.stencil(function()
+			-- Create a rounded rectangle mask
+			graphics.rectangle("fill", 108 + 14, 20, 100, 12, 6, 6)
+		end, "replace", 1)
+		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
+			-- Analog
+
+			local analog = controller.analog and controller.analog.float or 0
+
+			if not melee.isInGame() then
+				local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
+
+				analog = math.max(al, ar)
+			end
+
+	 		-- L Button
+			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
+				graphics.rectangle("fill", 108 + 14, 20, 12, 12)
+				analog = 1
+			end
+
+			-- R Button
+			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
+				graphics.rectangle("fill", 108 + 14 + 12 + 76, 20, 12, 12)
+				analog = 1
+			end
+
+			local w = 76 * analog
+			graphics.rectangle("fill", 108 + 14 + 12 + 76/2 - (w/2), 20, w, 12)
+		graphics.setStencilTest()
+	else
+		local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
+
+		graphics.setLineStyle("smooth")
+		love.graphics.setLineWidth(4)
+
+		-- Draw L
+
+		-- Draw outline
+		graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 24 + 6, 14, 0, 116, 24)
+		-- Draw segment for button press
+		graphics.line(24 + 14 + 88, 20, 24 + 14 + 88, 20 + 12)
+
+		graphics.stencil(function()
+			-- Create a rounded rectangle mask
+			graphics.rectangle("fill", 24 + 14, 20, 100, 12, 6, 6)
+		end, "replace", 1)
+		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
+	 		-- L Button
+			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
+				graphics.rectangle("fill", 24 + 14 + 88, 20, 12, 12)
+				al = 1
+			end
+
+			-- L Analog
+			graphics.rectangle("fill", 24 + 14, 20, 88 * al, 12)
+		graphics.setStencilTest()
+
+		-- Draw R
+
+		-- Draw outline
+		graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 48 + 128 + 6, 14, 0, 116, 24)
+		-- Draw segment for button press
+		graphics.line(48 + 128 + 14 + 12, 20, 48 + 128 + 14 + 12, 20 + 12)
+
+		graphics.stencil(function()
+			-- Create a rounded rectangle mask
+			graphics.rectangle("fill", 48 + 128 + 14, 20, 100, 12, 6, 6)
+		end, "replace", 1)
+		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
+			-- R Button
+			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
+				graphics.rectangle("fill", 48 + 128 + 14, 20, 12, 12)
+				ar = 1
+			end
+
+			-- R Analog
+			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 20, 88 * ar, 12)
+		graphics.setStencilTest()
+		
+		--[[if PANEL_SETTINGS:IsDebugging() then
+			local strl = ("L: %f"):format(al)
+			local strr = ("R: %f"):format(ar)
+			graphics.setFont(DEBUG_FONT)
+
+			graphics.setColor(0, 0, 0, 255)
+			graphics.textOutline(strl, 2, 340, 256 - 4 - 24)
+			graphics.textOutline(strr, 2, 340, 256 - 4 - 12)
+
+			graphics.setColor(255, 255, 255, 255)
+			graphics.print(strl, 340, 256 - 4 - 24)
+			graphics.print(strr, 340, 256 - 4 - 12)
+		end]]
+	end
+
+	-- Draw buttons
+
+	if PANEL_SETTINGS:IsDPadEnabled() then
+		graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.DPAD.GATE_FILLED or BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
+		drawButtons(DPAD, controller)
+	end
+
+	drawButtons(BUTTONS, controller)
+end
+
+local grey = color(100, 100, 100, 225)
+
+local function draw20XXShadow(x, y, w, h, c)
+	graphics.setColor(c.r/4, c.g/4, c.b/4, 75)
+	graphics.rectangle("fill", x, y, w, 8)
+	graphics.rectangle("fill", x, y + 8, 12, h - 8)
+end
+
+local function draw20XXBox(x, y, w, h, c)
+	graphics.setColor(c.r, c.g, c.b, c.a)
+	graphics.rectangle("fill", x, y, w, h)
+
+	draw20XXShadow(x, y, w, h, c)
+end
+
+local function draw20XXButton(x, y, w, h, c, controller, flag)
+	draw20XXBox(x, y, w, h, c)
+	if bit.band(controller.buttons.pressed, flag) == flag then
+		graphics.setColor(255, 255, 255, 255)
+		graphics.rectangle("fill", x, y, w, h)
+	end
+end
+
+local function draw20XXAnalog(x, y, w, h, c, controller, value, flag, flipped)
+	graphics.setColor(c.r, c.g, c.b, c.a)
+	graphics.rectangle("fill", x, y, w, h)
+
+	if bit.band(controller.buttons.pressed, flag) == flag then
+		graphics.setColor(255, 255, 255, 255)
+		graphics.rectangle("fill", x, y, w, h)
+	else
+		graphics.setColor(200, 200, 200, 255)
+		if flipped then
+			graphics.rectangle("fill", w + x, y, w*-value, h)
+		else
+			graphics.rectangle("fill", x, y, w*value, h)
+		end
+		draw20XXShadow(x, y, w, h, c)
+	end
+end
+
+local white = color(255, 255, 255, 225)
+local red = color(200, 0, 0, 225)
+local green = color(0, 200, 0, 225)
+local purple = color(125, 0, 125, 225)
+local dyellow = color(125, 125, 0, 225)
+local yellow = color(255, 255, 0, 225)
+
+local root2 = math.sqrt(2)
+
+function love.draw20XXDisplay(controller)
+	draw20XXBox(56, 56, 96, 96, grey) -- Joystick
+
+	local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
+
+	-- Map circular coordiantes onto a square
+	-- https://stackoverflow.com/a/32391780
+
+	local sx = 0.5 * math.sqrt(2 + x*x - y*y + 2*x*root2) - 0.5 * math.sqrt(2 + x*x - y*y - 2*x*root2)
+	local sy = 0.5 * math.sqrt(2 - x*x + y*y + 2*y*root2) - 0.5 * math.sqrt(2 - x*x + y*y - 2*y*root2)
+
+	draw20XXBox((56 + 48 - 8) + 40 * sx, (56 + 48 - 8) + 40 * (-sy), 16, 16, white)
+
+	draw20XXButton(256, 56+32, 64, 64, green, controller, BUTTONS.A) -- A
+	draw20XXButton(256-40, 56+64+16, 32, 32, red, controller, BUTTONS.B) -- B
+
+	if PANEL_SETTINGS:IsStartEnabled() then
+		draw20XXButton(256-64, 56+32, 24, 24, grey, controller, BUTTONS.START) -- Start
+	end
+
+	draw20XXButton(256, 56, 64, 24, grey, controller, BUTTONS.Y) -- Y
+	draw20XXButton(256 + 64 + 8, 56, 24, 24, purple, controller, BUTTONS.Z) -- Z
+	draw20XXButton(256 + 64 + 8, 56 + 32, 24, 64, grey, controller, BUTTONS.X) -- X
+
+	draw20XXBox(256 + 64 + 40, 56, 96, 96, dyellow) -- C-Stick
+
+	if PANEL_SETTINGS:IsDPadEnabled() then
+		draw20XXButton(128, 168, 24, 24, grey, controller, DPAD.DPAD_UP)
+		draw20XXButton(128 - 28, 168 + 28, 24, 24, grey, controller, DPAD.DPAD_LEFT)
+		draw20XXButton(128 + 28, 168 + 28, 24, 24, grey, controller, DPAD.DPAD_RIGHT)
+		draw20XXButton(128, 168 + 56, 24, 24, grey, controller, DPAD.DPAD_DOWN)
+	end
+
+	local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
+
+	local sx = 0.5 * math.sqrt(2 + x*x - y*y + 2*x*root2) - 0.5 * math.sqrt(2 + x*x - y*y - 2*x*root2)
+	local sy = 0.5 * math.sqrt(2 - x*x + y*y + 2*y*root2) - 0.5 * math.sqrt(2 - x*x + y*y - 2*y*root2)
+
+	draw20XXBox((256 + 64 + 80) + 40 * sx, (56 + 48 - 8) + 40 * (-sy), 16, 16, yellow)
+
+	local al, ar = 0, 0
+
+	if PANEL_SETTINGS:IsSlippiReplay() and melee.isInGame() then
+		local analog = controller.analog and controller.analog.float or 0
+		al = analog
+		ar = analog
+	else
+		al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
+	end
+
+	draw20XXAnalog(56 + 12, 24, 84, 24, grey, controller, al, BUTTONS.L) -- L
+	draw20XXAnalog(256, 24, 84, 24, grey, controller, ar, BUTTONS.R, true) -- R
+end
+
 function love.drawControllerOverlay()
 	local controller
 	local port = love.getPort()
@@ -488,253 +848,17 @@ function love.drawControllerOverlay()
 	end
 
 	if controller then
-		-- Draw Joystick
-
 		if controller.plugged and controller.plugged ~= (memory.game.pluggedValue or 0x00) then
 			local sin = 128 + math.sin(love.timer.getTime()*2) * 128
 			graphics.setColor(255, 0, 0, sin)
 			graphics.easyDraw(DC_CON, 512-42-16, 256-42-16, 0, 42, 42)
 		end
 
-		local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
-
-		--[[if PANEL_SETTINGS:IsDebugging() then
-			local strx = ("JOY_X: % f"):format(x)
-			local stry = ("JOY_Y: % f"):format(y)
-			local btts = ("BUTTONS: %X"):format(controller.buttons.pressed)
-			graphics.setFont(DEBUG_FONT)
-
-			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(btts, 2, 96, 256 - 4 - 36)
-			graphics.textOutline(strx, 2, 96, 256 - 4 - 24)
-			graphics.textOutline(stry, 2, 96, 256 - 4 - 12)
-
-			graphics.setColor(255, 255, 255, 255)
-			graphics.print(btts, 96, 256 - 8 - 36 )
-			graphics.print(strx, 96, 256 - 4 - 24)
-			graphics.print(stry, 96, 256 - 4 - 12)
-		end]]
-
-		local vx, vy = x, 1 - y
-
-		local angle = math.atan2(x, y)
-		local mag = math.sqrt(x*x + y*y)
-
-		local far = mag * 12
-		local near = mag * 20
-
-		-- Make the rectangle look like its fading into the horizon
-
-		-- Top left
-		vertices[1][1] = far
-		-- Top right
-		vertices[2][1] = 128 - far
-
-		-- Bottom left
-		vertices[1][2] = near
-		-- Bottom right
-		vertices[2][2] = near
-
-		local rotated = transformVertices(vertices, 64 + 22 + (40 * vx), 64 + 12 + (40 * vy), angle, 64, 64)
-
-		graphics.setColor(255, 255, 255, 255)
-
-		if PANEL_SETTINGS:IsHighContrast() then
-			graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE_FILLED, 22, 52, 0, 128, 128)
+		if love.getSkin() == 1 then
+			love.drawDefaultDisplay(controller)
 		else
-			graphics.stencil(function()
-				perspective.on()
-				perspective.quad(BUTTON_TEXTURES.JOYSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
-				perspective.off()
-			end, "replace", 1)
-			graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
-				graphics.easyDraw(BUTTON_TEXTURES.JOYSTICK.GATE, 22, 52, 0, 128, 128)
-			graphics.setStencilTest()
+			love.draw20XXDisplay(controller)
 		end
-
-		perspective.on()
-		perspective.quad(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.JOYSTICK.FILLED or BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
-		perspective.off()
-
-		-- Draw C-Stick
-
-		local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
-
-		--[[if PANEL_SETTINGS:IsDebugging() then
-			local strx = ("C_X: % f"):format(x)
-			local stry = ("C_Y: % f"):format(y)
-			graphics.setFont(DEBUG_FONT)
-
-			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(strx, 2, 224, 256 - 4 - 24)
-			graphics.textOutline(stry, 2, 224, 256 - 4 - 12)
-
-			graphics.setColor(255, 255, 255, 255)
-			graphics.print(strx, 224, 256 - 4 - 24)
-			graphics.print(stry, 224, 256 - 4 - 12)
-		end]]
-
-		local vx, vy = x, 1 - y
-
-		local angle = math.atan2(x, y)
-		local mag = math.sqrt(x*x + y*y)
-
-		local far = mag * 12
-		local near = mag * 20
-
-		-- Make the rectangle look like its fading into the horizon
-
-		-- Top left
-		vertices[1][1] = far
-		-- Top right
-		vertices[2][1] = 128 - far
-
-		-- Bottom left
-		vertices[1][2] = near
-		-- Bottom right
-		vertices[2][2] = near
-
-		local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 18 + (32 * vy), angle, 64, 64)
-
-		graphics.setColor(255, 235, 0, 255)
-
-		if PANEL_SETTINGS:IsHighContrast() then
-			graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE_FILLED, 48 + 128, 52, 0, 128, 128)
-		else
-			graphics.stencil(function()
-				perspective.on()
-				perspective.quad(BUTTON_TEXTURES.CSTICK.MASK, rotated[1], rotated[2], rotated[3], rotated[4])
-				perspective.off()
-			end, "replace", 1)
-			graphics.setStencilTest("equal", 0) -- Mask out the gate behind the joystick
-				graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
-			graphics.setStencilTest()
-		end
-
-		perspective.on()
-		perspective.quad(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.CSTICK.FILLED or BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
-		perspective.off()
-
-		graphics.setColor(255, 255, 255, 255)
-
-		-- Draw L
-
-		if PANEL_SETTINGS:IsSlippiReplay() then
-			graphics.setLineStyle("smooth")
-			love.graphics.setLineWidth(4)
-
-			-- Draw outline
-			graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 108 + 6, 14, 0, 116, 24)
-
-			-- Draw L segment for button press
-			graphics.line(108 + 14 + 88, 20, 108 + 14 + 88, 20 + 12)
-
-			-- Draw R segment for button press
-			graphics.line(108 + 14 + 12, 20, 108 + 14 + 12, 20 + 12)
-
-			graphics.stencil(function()
-				-- Create a rounded rectangle mask
-				graphics.rectangle("fill", 108 + 14, 20, 100, 12, 6, 6)
-			end, "replace", 1)
-			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-				-- Analog
-
-				local analog = controller.analog and controller.analog.float or 0
-
-				if not melee.isInGame() then
-					local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
-
-					analog = math.max(al, ar)
-				end
-
-		 		-- L Button
-				if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-					graphics.rectangle("fill", 108 + 14, 20, 12, 12)
-					analog = 1
-				end
-
-				-- R Button
-				if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-					graphics.rectangle("fill", 108 + 14 + 12 + 76, 20, 12, 12)
-					analog = 1
-				end
-
-				local w = 76 * analog
-				graphics.rectangle("fill", 108 + 14 + 12 + 76/2 - (w/2), 20, w, 12)
-			graphics.setStencilTest()
-		else
-			local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
-
-			graphics.setLineStyle("smooth")
-			love.graphics.setLineWidth(4)
-
-			-- Draw L
-
-			-- Draw outline
-			graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 24 + 6, 14, 0, 116, 24)
-			-- Draw segment for button press
-			graphics.line(24 + 14 + 88, 20, 24 + 14 + 88, 20 + 12)
-
-			graphics.stencil(function()
-				-- Create a rounded rectangle mask
-				graphics.rectangle("fill", 24 + 14, 20, 100, 12, 6, 6)
-			end, "replace", 1)
-			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-		 		-- L Button
-				if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-					graphics.rectangle("fill", 24 + 14 + 88, 20, 12, 12)
-					al = 1
-				end
-
-				-- L Analog
-				graphics.rectangle("fill", 24 + 14, 20, 88 * al, 12)
-			graphics.setStencilTest()
-
-			-- Draw R
-
-			-- Draw outline
-			graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 48 + 128 + 6, 14, 0, 116, 24)
-			-- Draw segment for button press
-			graphics.line(48 + 128 + 14 + 12, 20, 48 + 128 + 14 + 12, 20 + 12)
-
-			graphics.stencil(function()
-				-- Create a rounded rectangle mask
-				graphics.rectangle("fill", 48 + 128 + 14, 20, 100, 12, 6, 6)
-			end, "replace", 1)
-			graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-				-- R Button
-				if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-					graphics.rectangle("fill", 48 + 128 + 14, 20, 12, 12)
-					ar = 1
-				end
-
-				-- R Analog
-				graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 20, 88 * ar, 12)
-			graphics.setStencilTest()
-			
-			--[[if PANEL_SETTINGS:IsDebugging() then
-				local strl = ("L: %f"):format(al)
-				local strr = ("R: %f"):format(ar)
-				graphics.setFont(DEBUG_FONT)
-
-				graphics.setColor(0, 0, 0, 255)
-				graphics.textOutline(strl, 2, 340, 256 - 4 - 24)
-				graphics.textOutline(strr, 2, 340, 256 - 4 - 12)
-
-				graphics.setColor(255, 255, 255, 255)
-				graphics.print(strl, 340, 256 - 4 - 24)
-				graphics.print(strr, 340, 256 - 4 - 12)
-			end]]
-		end
-
-		-- Draw buttons
-
-		if PANEL_SETTINGS:IsDPadEnabled() then
-			graphics.easyDraw(PANEL_SETTINGS:IsHighContrast() and BUTTON_TEXTURES.DPAD.GATE_FILLED or BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
-			drawButtons(DPAD, controller)
-		end
-
-		drawButtons(BUTTONS, controller)
 	end
 end
 

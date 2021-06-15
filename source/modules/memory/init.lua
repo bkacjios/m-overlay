@@ -444,6 +444,7 @@ function memory.loadGameScript(path)
 		memory.supportedgame = true
 		memory.game = game
 		log.info("[DOLPHIN] Loaded game config: %s", path)
+		notification.info(("Game %s detected"):format(path))
 		memory.init(game.memorymap)
 	else
 		memory.supportedgame = false

@@ -8,8 +8,8 @@ PANEL.BUTTONS = {
 	B = 0x0200,
 	X = 0x0400,
 	Y = 0x0800,
-	D_L = 0x0001,
-	D_R = 0x0002,
+	D_LEFT = 0x0001,
+	D_RIGHT = 0x0002,
 	D_DOWN = 0x0004,
 	D_UP = 0x0008,
 	START = 0x1000,
@@ -19,8 +19,8 @@ PANEL.BUTTONS = {
 	RIGHT = 0x80000,
 	C_UP = 0x100000,
 	C_DOWN = 0x200000,
-	C_L = 0x400000,
-	C_R = 0x800000,
+	C_LEFT = 0x400000,
+	C_RIGHT = 0x800000,
 }
 
 function PANEL:Initialize()

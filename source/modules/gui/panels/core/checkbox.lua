@@ -6,7 +6,7 @@ function PANEL:Initialize()
 	self:MakeAccessor("Toggled", "m_bToggled", false)
 
 	self.m_pLabel = self:Add("Label")
-	self.m_pLabel:DockMargin(32, 0, 0, 0)
+	self.m_pLabel:DockMargin(28, 0, 0, 0)
 	self.m_pLabel:Dock(DOCK_FILL)
 	self.m_pLabel:SetText("Checkbox")
 

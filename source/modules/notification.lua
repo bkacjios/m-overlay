@@ -106,6 +106,15 @@ function notification.warning(text)
 	end)
 end
 
+function notification.info(text)
+	notification.add(14, 5, 0.75, function(height, fade)
+		graphics.setColor(0, 0, 0, 255 * fade)
+		graphics.textOutline(text, 1, 1, 1)
+		graphics.setColor(79, 202, 255, 255 * fade)
+		graphics.print(text, 0, 0)
+	end)
+end
+
 function notification.coloredMessage(...)
 	local args = {...}
 	notification.add(14, 5, 0.75, function(height, fade)

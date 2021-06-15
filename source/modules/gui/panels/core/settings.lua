@@ -67,7 +67,7 @@ function PANEL:Initialize()
 	self.MELEE:SetBorderColor(color_clear)
 	self.MELEE:SetBackgroundColor(color(189, 15, 23, 150))
 	self.MELEE:SetWidth(164)
-	self.MELEE:SetHeight(132+38)
+	self.MELEE:SetHeight(132+38+24)
 	self.MELEE:Dock(DOCK_TOP)
 
 	local MELEEICON = self.MELEE:Add("Image")
@@ -112,6 +112,16 @@ function PANEL:Initialize()
 	function self.MELEE.MUSICLOOP:OnSelectOption(num)
 		music.onLoopChange(num)
 	end
+
+	local SKIPLABEL = self.MELEE:Add("Label")
+	SKIPLABEL:SetText("Skip track combo")
+	SKIPLABEL:SetTextAlignment("center")
+	SKIPLABEL:SizeToText()
+	SKIPLABEL:Dock(DOCK_TOP)
+	SKIPLABEL:SetTextColor(color_white)
+	SKIPLABEL:SetShadowDistance(1)
+	SKIPLABEL:SetShadowColor(color_black)
+	SKIPLABEL:SetFont("fonts/melee-bold.otf", 12)
 
 	self.MELEE.MUSICSKIP = self.MELEE:Add("GCBind")
 	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
@@ -207,7 +217,7 @@ function PANEL:Initialize()
 
 	self.m_sFileName = "config.json"
 
-	local VLABEL = RIGHT:Add("Label")
+	local VLABEL = LEFT:Add("Label")
 	VLABEL:SetText(love.getMOverlayVersion())
 	VLABEL:SetTextAlignment("center")
 	VLABEL:SizeToText()
@@ -230,6 +240,7 @@ end
 function PANEL:GetSaveTable()
 	return {
 		["port"] = love.getPort(),
+		["skin"] = love.getSkin(),
 		["slippi-mode"] = self:GetSlippiMode(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
@@ -368,6 +379,7 @@ function PANEL:LoadSettings()
 	self.m_tSettings = settings
 
 	love.setPort(settings["port"] or 1)
+	love.setSkin(settings["skin"] or 1)
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
@@ -381,7 +393,7 @@ function PANEL:LoadSettings()
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
 	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
-	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0004)
+	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0041)
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
 end
 
