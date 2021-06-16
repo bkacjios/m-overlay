@@ -1,50 +1,53 @@
 local PANEL = {}
 
+local overlay = require("overlay")
+
 function PANEL:Initialize()
 	self:super()
 
-	self:MakeAccessor("Skin", "m_iSkin", 1)
+	self:MakeAccessor("Skin", "m_strSkin", "default")
 
 	self:DockPadding(1, 1, 1, 1)
-	self:SetSize(80, 53)
+	self:SetSize(80, 24)
 	self:SetPos(512-80, 0)
 	self:SetBorderColor(color_clear)
 	self:SetBackgroundColor(color(0, 0, 0, 100))
 	self:CenterVertical()
 
-	self.DEFAULT = self:Add("Checkbox")
-	self.DEFAULT:SetText("Default")
-	self.DEFAULT:DockMargin(1, 1, 1, 1)
-	self.DEFAULT:Dock(DOCK_TOP)
-	self.DEFAULT:SetToggleable(false)
-	self.DEFAULT:SetToggled(true)
-	self.DEFAULT:SetRadio(true)
+	self.SKIN_BUTTONS = {}
+end
 
-	self.TWENTY = self:Add("Checkbox")
-	self.TWENTY:SetText("20XX")
-	self.TWENTY:DockMargin(1, 1, 1, 1)
-	self.TWENTY:Dock(DOCK_TOP)
-	self.TWENTY:SetToggleable(false)
-	self.TWENTY:SetRadio(true)
+function PANEL:UpdateSkins()
+	local numskins = 0
+	for skin, tbl in pairs(overlay.getSkins()) do
+		local SKIN = self:Add("Checkbox")
+		SKIN:SetText(skin)
+		SKIN:DockMargin(1, 1, 1, 1)
+		SKIN:Dock(DOCK_TOP)
+		SKIN:SetToggleable(false)
+		SKIN:SetToggled(false)
+		SKIN:SetRadio(true)
 
-	self.DEFAULT.OnPressed = function()
-		self:ChangeSkin(1)
+		SKIN.OnPressed = function()
+			self:ChangeSkin(skin)
+		end
+
+		self.SKIN_BUTTONS[skin] = SKIN
+		numskins = numskins + 1
 	end
 
-	self.TWENTY.OnPressed = function()
-		self:ChangeSkin(2)
-	end
+	self:SetSize(80, 26*numskins + 2)
 end
 
 function PANEL:ChangeSkin(skin)
-	self.DEFAULT:SetToggled(false)
-	self.TWENTY:SetToggled(false)
-	if skin == 1 then
-		self.DEFAULT:SetToggled(true)
-	elseif skin == 2 then
-		self.TWENTY:SetToggled(true)
+	skin = self.SKIN_BUTTONS[skin] and skin or "default"
+	if self.SKIN_BUTTONS[skin] then
+		for name, pnl in pairs(self.SKIN_BUTTONS) do
+			pnl:SetToggled(false)
+		end
+		self.SKIN_BUTTONS[skin]:SetToggled(true)
+		self:SetSkin(skin)
 	end
-	self:SetSkin(skin)
 end
 
 function PANEL:Toggle()

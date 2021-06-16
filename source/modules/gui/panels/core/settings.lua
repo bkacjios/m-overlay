@@ -4,6 +4,7 @@ local log = require("log")
 local json = require("serializer.json")
 local notification = require("notification")
 local music = require("music")
+local overlay = require("overlay")
 
 require("extensions.math")
 
@@ -239,8 +240,8 @@ end
 
 function PANEL:GetSaveTable()
 	return {
-		["port"] = love.getPort(),
-		["skin"] = love.getSkin(),
+		["port"] = overlay.getPort(),
+		["skin"] = overlay.getSkin(),
 		["slippi-mode"] = self:GetSlippiMode(),
 		["port-in-title"] = self:IsPortTitleEnabled(),
 		["always-show-port"] = self:AlwaysShowPort(),
@@ -378,8 +379,8 @@ function PANEL:LoadSettings()
 
 	self.m_tSettings = settings
 
-	love.setPort(settings["port"] or 1)
-	love.setSkin(settings["skin"] or 1)
+	overlay.setPort(settings["port"] or 1)
+	overlay.setSkin(settings["skin"] or "default")
 
 	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
 	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)

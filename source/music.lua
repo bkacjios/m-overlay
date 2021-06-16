@@ -339,7 +339,7 @@ end)
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
 	if PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
 	local mask = PANEL_SETTINGS:GetMusicSkipMask()
-	if mask ~= 0x0 and port == love.getPort() and pressed == mask and #music.PLAYLIST > 1 then
+	if mask ~= 0x0 and port == overlay.getPort() and pressed == mask and #music.PLAYLIST > 1 then
 		log.debug("[MUSIC] [MASK = 0x%X] Button combo pressed, stopping music.", mask)
 		music.kill()
 	end
