@@ -12,6 +12,7 @@ local log = require("log")
 local melee = require("melee")
 local memory = require("memory")
 local notification = require("notification")
+local overlay = require("overlay")
 local wav = require("wav")
 
 require("extensions.math")

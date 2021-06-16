@@ -66,7 +66,7 @@ function SKIN:Paint(controller)
 	draw20XXButton(256, 56+32, 64, 64, green, controller, BUTTONS.A) -- A
 	draw20XXButton(256-40, 56+64+16, 32, 32, red, controller, BUTTONS.B) -- B
 
-	if PANEL_SETTINGS:IsStartEnabled() then
+	if SETTINGS:IsStartEnabled() then
 		draw20XXButton(256-64, 56+32, 24, 24, grey, controller, BUTTONS.START) -- Start
 	end
 
@@ -76,7 +76,7 @@ function SKIN:Paint(controller)
 
 	draw20XXBox(256 + 64 + 40, 56, 96, 96, dyellow) -- C-Stick
 
-	if PANEL_SETTINGS:IsDPadEnabled() then
+	if SETTINGS:IsDPadEnabled() then
 		draw20XXButton(128, 168, 24, 24, grey, controller, DPAD.UP)
 		draw20XXButton(128 - 28, 168 + 28, 24, 24, grey, controller, DPAD.LEFT)
 		draw20XXButton(128 + 28, 168 + 28, 24, 24, grey, controller, DPAD.RIGHT)
@@ -92,7 +92,7 @@ function SKIN:Paint(controller)
 
 	local al, ar = 0, 0
 
-	if PANEL_SETTINGS:IsSlippiReplay() and melee.isInGame() then
+	if SETTINGS:IsSlippiReplay() and melee.isInGame() then
 		local analog = controller.analog and controller.analog.float or 0
 		al = analog
 		ar = analog

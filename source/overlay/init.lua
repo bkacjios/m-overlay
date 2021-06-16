@@ -2,7 +2,6 @@ local overlay = {
 	m_tRegisteredSkins = {},
 }
 
-local music = require("music")
 local gui = require("gui")
 
 function overlay.init()
