@@ -25,6 +25,7 @@ function PANEL:Initialize()
 		but:SetRadio(true)
 
 		but.OnPressed = function()
+			overlay.showPort(1)
 			self:ChangePort(i)
 		end
 
@@ -39,7 +40,6 @@ function PANEL:ChangePort(port)
 
 	self.PORT_BUTTONS[port]:SetToggled(true)
 	self:SetPort(port)
-	overlay.showPort(1)
 	love.updateTitle(love.getTitleNoPort())
 end
 
