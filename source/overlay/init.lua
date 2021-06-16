@@ -1,8 +1,10 @@
 local overlay = {
 	m_tRegisteredSkins = {},
+	m_fDisplayPortTime = 0,
 }
 
 local gui = require("gui")
+local timer = love.timer
 
 function overlay.init()
 	PANEL_PORT_SELECT = gui.create("PortSelect")
@@ -19,6 +21,14 @@ function overlay.init()
 	PANEL_SKIN_SELECT:UpdateSkins()
 	
 	PANEL_SETTINGS:LoadSettings()
+end
+
+function overlay.showPort(time)
+	overlay.m_fDisplayPortTime = timer.getTime() + time
+end
+
+function overlay.isPortShowing()
+	return overlay.m_fDisplayPortTime >= timer.getTime()
 end
 
 function overlay.getPort()

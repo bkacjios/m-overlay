@@ -1,5 +1,7 @@
 local PANEL = {}
 
+local overlay = require("overlay")
+
 function PANEL:Initialize()
 	self:super()
 
@@ -11,67 +13,33 @@ function PANEL:Initialize()
 	self:SetBackgroundColor(color(0, 0, 0, 100))
 	self:CenterVertical()
 
-	self.PORT1 = self:Add("Checkbox")
-	self.PORT1:SetText("Port 1")
-	self.PORT1:DockMargin(1, 1, 1, 1)
-	self.PORT1:Dock(DOCK_TOP)
-	self.PORT1:SetToggleable(false)
-	self.PORT1:SetToggled(true)
-	self.PORT1:SetRadio(true)
+	self.PORT_BUTTONS = {}
 
-	self.PORT2 = self:Add("Checkbox")
-	self.PORT2:SetText("Port 2")
-	self.PORT2:DockMargin(1, 1, 1, 1)
-	self.PORT2:Dock(DOCK_TOP)
-	self.PORT2:SetToggleable(false)
-	self.PORT2:SetRadio(true)
+	for i=1,4 do
+		local but = self:Add("Checkbox")
+		but:SetText("Port "..i)
+		but:DockMargin(1, 1, 1, 1)
+		but:Dock(DOCK_TOP)
+		but:SetToggleable(false)
+		but:SetToggled(false)
+		but:SetRadio(true)
 
-	self.PORT3 = self:Add("Checkbox")
-	self.PORT3:SetText("Port 3")
-	self.PORT3:DockMargin(1, 1, 1, 1)
-	self.PORT3:Dock(DOCK_TOP)
-	self.PORT3:SetToggleable(false)
-	self.PORT3:SetRadio(true)
+		but.OnPressed = function()
+			self:ChangePort(i)
+		end
 
-	self.PORT4 = self:Add("Checkbox")
-	self.PORT4:SetText("Port 4")
-	self.PORT4:DockMargin(1, 1, 1, 1)
-	self.PORT4:Dock(DOCK_TOP)
-	self.PORT4:SetToggleable(false)
-	self.PORT4:SetRadio(true)
-
-	self.PORT1.OnPressed = function()
-		self:ChangePort(1)
-	end
-
-	self.PORT2.OnPressed = function()
-		self:ChangePort(2)
-	end
-
-	self.PORT3.OnPressed = function()
-		self:ChangePort(3)
-	end
-
-	self.PORT4.OnPressed = function()
-		self:ChangePort(4)
+		self.PORT_BUTTONS[i] = but
 	end
 end
 
 function PANEL:ChangePort(port)
-	self.PORT1:SetToggled(false)
-	self.PORT2:SetToggled(false)
-	self.PORT3:SetToggled(false)
-	self.PORT4:SetToggled(false)
-	if port == 1 then
-		self.PORT1:SetToggled(true)
-	elseif port == 2 then
-		self.PORT2:SetToggled(true)
-	elseif port == 3 then
-		self.PORT3:SetToggled(true)
-	elseif port == 4 then
-		self.PORT4:SetToggled(true)
+	for i=1,4 do
+		self.PORT_BUTTONS[i]:SetToggled(false)
 	end
+
+	self.PORT_BUTTONS[port]:SetToggled(true)
 	self:SetPort(port)
+	overlay.showPort(1)
 	love.updateTitle(love.getTitleNoPort())
 end
 

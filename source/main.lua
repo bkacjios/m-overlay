@@ -44,7 +44,6 @@ local SHADOW = newImage("textures/shadow.png")
 MAX_PORTS = 4
 
 local PORT_DISPLAY_OVERRIDE = nil
-local CONTROLLER_PORT_DISPLAY = 0
 
 local PORT_TEXTURES = {
 	[1] = newImage("textures/player1_color.png"),
@@ -111,7 +110,6 @@ function love.load(args, unfilteredArg)
 
 		if portn then -- A port number was specified..
 			overlay.setPort(portn)
-			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 3 seconds
 			break -- Done
 		end
 	end
@@ -141,11 +139,11 @@ memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
 			log.debug("[AUTOPORT] Forcing port %d in menus", overlay.getPort())
 			if minor == MENU_VS_UNKNOWN_CSS then
 				-- Display the port info only when swiching back to CSS
-				CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
+				overlay.showPort(1.5) -- Show the port display number for 1.5 seconds
 			end
 		elseif minor == MENU_VS_UNKNOWN_VERSUS then
 			PORT_DISPLAY_OVERRIDE = (memory.slippi.local_player.index % MAX_PORTS) + 1
-			CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 3 -- Show the port display number for 3 seconds
+			overlay.showPort(3) -- Show the port display number for 3 seconds
 			log.debug("[AUTOPORT] Switching display icon to use port %d", overlay.getPort())
 		elseif minor == MENU_VS_UNKNOWN_INGAME then
 			-- Switch to the local player index whenever else
@@ -158,7 +156,7 @@ end)
 
 memory.hook("player.*.character", "Show port on character select", function(port, character)
 	if memory.menu.minor == MENU_VS_CSS and port == overlay.getPort() then
-		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5 -- Show the port display number for 1.5 seconds
+		overlay.showPort(1.5) -- Show the port display number for 1.5 seconds
 	end
 end)
 
@@ -195,7 +193,7 @@ function love.keypressed(key, scancode, isrepeat)
 	if not PANEL_SETTINGS:IsVisible() and num and num >= 1 and num <= 4 then
 		overlay.setPort(num)
 		PORT_DISPLAY_OVERRIDE = nil
-		CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
+		overlay.showPort(1.5) -- Show the port display number for 1.5 seconds
 	end
 end
 
@@ -233,8 +231,8 @@ function love.wheelmoved(x, y)
 		port = port + 1
 	end
 	overlay.setPort(port)
+	overlay.showPort(1.5)
 	PORT_DISPLAY_OVERRIDE = nil
-	CONTROLLER_PORT_DISPLAY = love.timer.getTime() + 1.5
 end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")
@@ -465,7 +463,7 @@ function love.draw()
 	end
 
 	-- Draw a temporary number to show that the user changed controller port
-	if ((PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or CONTROLLER_PORT_DISPLAY >= love.timer.getTime()) then
+	if ((PANEL_SETTINGS:AlwaysShowPort() and memory.isInGame()) or overlay.isPortShowing()) then
 		local port = overlay.getPort()
 		if memory.isMelee() then
 			local port = PORT_DISPLAY_OVERRIDE or port

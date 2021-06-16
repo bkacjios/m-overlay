@@ -12,7 +12,6 @@ function PANEL:Initialize()
 	self:SetPos(512-80, 0)
 	self:SetBorderColor(color_clear)
 	self:SetBackgroundColor(color(0, 0, 0, 100))
-	self:CenterVertical()
 
 	self.SKIN_BUTTONS = {}
 end
@@ -37,6 +36,7 @@ function PANEL:UpdateSkins()
 	end
 
 	self:SetSize(80, 26*numskins + 2)
+	self:CenterVertical()
 end
 
 function PANEL:ChangeSkin(skin)
