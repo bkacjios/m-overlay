@@ -19,7 +19,6 @@ function overlay.init()
 	overlay.loadSkins("overlay/skins")
 
 	PANEL_SKIN_SELECT:UpdateSkins()
-	
 	PANEL_SETTINGS:LoadSettings()
 end
 

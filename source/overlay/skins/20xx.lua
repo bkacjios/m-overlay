@@ -104,4 +104,4 @@ function SKIN:Paint(controller)
 	draw20XXAnalog(256, 24, 84, 24, grey, controller, ar, BUTTONS.R, true) -- R
 end
 
-overlay.registerSkin("20xx", SKIN)
+overlay.registerSkin("20XX", SKIN)
