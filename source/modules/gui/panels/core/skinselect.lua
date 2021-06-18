@@ -19,7 +19,6 @@ end
 function PANEL:UpdateSkins()
 	local numskins = 0
 	for skin, tbl in pairs(overlay.getSkins()) do
-		local lskin = skin:lower()
 		local SKIN = self:Add("Checkbox")
 		SKIN:SetText(skin)
 		SKIN:DockMargin(1, 1, 1, 1)
@@ -29,10 +28,10 @@ function PANEL:UpdateSkins()
 		SKIN:SetRadio(true)
 
 		SKIN.OnPressed = function()
-			self:ChangeSkin(lskin)
+			self:ChangeSkin(skin)
 		end
 
-		self.SKIN_BUTTONS[lskin] = SKIN
+		self.SKIN_BUTTONS[skin] = SKIN
 		numskins = numskins + 1
 	end
 
@@ -41,7 +40,7 @@ function PANEL:UpdateSkins()
 end
 
 function PANEL:ChangeSkin(skin)
-	skin = (self.SKIN_BUTTONS[skin] and skin or "Default"):lower()
+	skin = self.SKIN_BUTTONS[skin] and skin or "Default"
 	if self.SKIN_BUTTONS[skin] then
 		for name, pnl in pairs(self.SKIN_BUTTONS) do
 			pnl:SetToggled(false)
