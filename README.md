@@ -34,6 +34,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * Mario Party 5 (NTSC-U v1.0)
 * Mario Party 6 (NTSC-U v1.0)
 * Mario Party 7 (NTSC-U v1.1)
+* Metal Gear Solid - The Twin Snakes (NTSC-U v1.0)
 * Metroid Prime (NTSC-U v1.0, NTSC-U v1.2)
 * Metroid Prime 2 - Echoes (NTSC-U v1.0)
   - [Randomizer](https://github.com/randovania/randovania)
