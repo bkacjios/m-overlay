@@ -28,7 +28,7 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * The Legend of Zelda: Twilight Princess (NTSC-U v1.0, PAL v1.0)
 * The Legend of Zelda: Collector's Edition (NTSC-U v1.0, NTSC-J v1.0)
 * Super Mario Sunshine. (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0)
-* Luigi's Mansion (NTSC-U v1.0, NTSC-J v1.0)
+* Luigi's Mansion (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0, PAL v1.01)
 * Mario Kart Double Dash! (NTSC v1.0)
 * Mario Party 4 (NTSC-U v1.1)
 * Mario Party 5 (NTSC-U v1.0)
