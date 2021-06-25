@@ -1,4 +1,4 @@
--- Luigi's Mansion (JP v1.0)
+-- Luigi's Mansion (PAL v1.1)
 
 local core = require("games.core")
 
