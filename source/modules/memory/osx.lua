@@ -82,9 +82,9 @@ typedef struct proc_bsdshortinfo {
         uint32_t                pbsi_pid;		/* process id */
         uint32_t                pbsi_ppid;		/* process parent id */
         uint32_t                pbsi_pgid;		/* process perp id */
-		uint32_t                pbsi_status;	/* p_stat value, SZOMB, SRUN, etc */
-		char                    pbsi_comm[MAXCOMLEN];	/* upto 16 characters of process name */
-		uint32_t                pbsi_flags;		/* 64bit; emulated etc */
+        uint32_t                pbsi_status;		/* p_stat value, SZOMB, SRUN, etc */
+        char                    pbsi_comm[MAXCOMLEN];	/* upto 16 characters of process name */
+        uint32_t                pbsi_flags;		/* 64bit; emulated etc */
         uid_t                   pbsi_uid;		/* current uid on process */
         gid_t                   pbsi_gid;		/* current gid on process */
         uid_t                   pbsi_ruid;		/* current ruid on process */

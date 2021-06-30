@@ -41,10 +41,10 @@ local env = {
 	},
 
 	DPAD = {
-		LEFT = 0x0001,
-		RIGHT = 0x0002,
-		DOWN = 0x0004,
-		UP = 0x0008,
+		DPAD_LEFT = 0x0001,
+		DPAD_RIGHT = 0x0002,
+		DPAD_DOWN = 0x0004,
+		DPAD_UP = 0x0008,
 	},
 
 	overlay = overlay,

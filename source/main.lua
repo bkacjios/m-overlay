@@ -52,24 +52,6 @@ local PORT_TEXTURES = {
 	[4] = newImage("textures/player4_color.png")
 }
 
-local BUTTONS = {
-	Z = 0x0010,
-	R = 0x0020,
-	L = 0x0040,
-	A = 0x0100,
-	B = 0x0200,
-	X = 0x0400,
-	Y = 0x0800,
-	START = 0x1000,
-}
-
-local DPAD = {
-	LEFT = 0x0001,
-	RIGHT = 0x0002,
-	DOWN = 0x0004,
-	UP = 0x0008,
-}
-
 local portless_title = ""
 function love.updateTitle(str)
 	local title = str
