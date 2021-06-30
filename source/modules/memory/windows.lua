@@ -286,6 +286,8 @@ end
 
 local regionptr = new("unsigned char*[1]", nil)
 
+local NULL = cast("uint32_t", 0x00000000)
+
 function MEMORY:findGamecubeRAMOffset()
 	local info = MEMORY_BASIC_INFORMATION_PTR()[0]
 
@@ -301,10 +303,13 @@ function MEMORY:findGamecubeRAMOffset()
 			if psapi.QueryWorkingSetEx(self.process_handle, wsinfo, sizeof(wsinfo)) == 1 then
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
 
-				if band(flags, lshift(1, 0)) == 1 then -- Check if the Valid flag is set
-					--log.debug("%08X %x", tonumber(cast("ULONG_PTR", info.BaseAddress)), tonumber(cast("ULONG_PTR", info.RegionSize)))
-					self.dolphin_base_addr = cast("ULONG_PTR", info.BaseAddress)
-					self.dolphin_addr_size = cast("ULONG_PTR", info.RegionSize)
+				local base = cast("ULONG_PTR", info.BaseAddress)
+				local region = cast("ULONG_PTR", info.RegionSize)
+
+				if band(flags, lshift(1, 0)) == 1 and cast("uint32_t", info.BaseAddress) ~= NULL then -- Check if the Valid flag is set
+					--log.debug("%08X %x", tonumber(base), tonumber(region))
+					self.dolphin_base_addr = base
+					self.dolphin_addr_size = region
 					return true
 				end
 			end

@@ -221,8 +221,8 @@ function SKIN:Paint(controller)
 	local angle = math.atan2(x, y)
 	local mag = math.sqrt(x*x + y*y)
 
-	local far = mag * 12
-	local near = mag * 20
+	local far = mag * 12 -- Higher value = headed towards infinity
+	local near = mag * 20 -- Higher value = more rotation into the horizon
 
 	-- Make the rectangle look like its fading into the horizon
 
@@ -236,7 +236,7 @@ function SKIN:Paint(controller)
 	-- Bottom right
 	vertices[2][2] = near
 
-	local rotated = transformVertices(vertices, 64 + 22 + (40 * vx), 64 + 12 + (40 * vy), angle, 64, 64)
+	local rotated = transformVertices(vertices, 64 + 22 + (44 * vx), 64 + 8 + (44 * vy), angle, 64, 64)
 
 	graphics.setColor(255, 255, 255, 255)
 
