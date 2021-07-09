@@ -58,6 +58,7 @@ local BUTTON_TEXTURES = {
 	},
 	CSTICK = {
 		GATE = graphics.newImage("textures/buttons/c-stick-gate.png"),
+		GATE_FILLED = graphics.newImage("textures/buttons/c-stick-gate-filled.png"),
 		STICK = graphics.newImage("textures/buttons/c-stick-solid.png"),
 	},
 	A = {
@@ -296,7 +297,7 @@ function SKIN:Paint(controller)
 
 	graphics.setColor(255, 235, 0, 255)
 
-	graphics.easyDraw(BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
+	graphics.easyDraw(SETTINGS:IsHighContrast() and BUTTON_TEXTURES.CSTICK.GATE_FILLED or BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
 
 	perspective.on()
 	perspective.quad(BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
