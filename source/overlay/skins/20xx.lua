@@ -77,10 +77,10 @@ function SKIN:Paint(controller)
 	draw20XXBox(256 + 64 + 40, 56, 96, 96, dyellow) -- C-Stick
 
 	if SETTINGS:IsDPadEnabled() then
-		draw20XXButton(128, 168, 24, 24, grey, controller, DPAD.UP)
-		draw20XXButton(128 - 28, 168 + 28, 24, 24, grey, controller, DPAD.LEFT)
-		draw20XXButton(128 + 28, 168 + 28, 24, 24, grey, controller, DPAD.RIGHT)
-		draw20XXButton(128, 168 + 56, 24, 24, grey, controller, DPAD.DOWN)
+		draw20XXButton(128, 168, 24, 24, grey, controller, DPAD.DPAD_UP)
+		draw20XXButton(128 - 28, 168 + 28, 24, 24, grey, controller, DPAD.DPAD_LEFT)
+		draw20XXButton(128 + 28, 168 + 28, 24, 24, grey, controller, DPAD.DPAD_RIGHT)
+		draw20XXButton(128, 168 + 56, 24, 24, grey, controller, DPAD.DPAD_DOWN)
 	end
 
 	local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
