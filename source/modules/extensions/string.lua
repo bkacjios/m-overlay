@@ -243,6 +243,7 @@ function string.fromhex(str)
 end
 
 function string.tohex(str)
+	if str == "" then return "00" end
 	return (str:gsub('.', function (c)
 		return string.format('%02X', string.byte(c))
 	end))

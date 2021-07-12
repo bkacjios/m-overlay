@@ -137,7 +137,23 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 				[0x03] = { type = "u8", name = "local_player.index", debug = true },
 				[0x04] = { type = "u8", name = "remote_player.index" },
 				[0x05] = { type = "u32", name = "rng_offset" },
-				[0x06] = { type = "u8", name = "delay_frames" },
+				[0x09] = { type = "u8", name = "delay_frames" },
+				[0x0A] = { type = "u8", name = "local_player.chatmsg_id" },
+				[0x0B] = { type = "u8", name = "opponent.chatmsg_id" },
+				[0x0C] = { type = "u8", name = "chatmsg.index" },
+				[0x0D] = { type = "u32", name = "vs.left_names" },
+				[0x11] = { type = "u32", name = "vs.right_names" },
+				[0x15] = { type = "data", len = 31, name = "local_player.name" },
+				[0x34] = { type = "data", len = 31, name = "players.1.name" },
+				[0x53] = { type = "data", len = 31, name = "players.2.name" },
+				[0x72] = { type = "data", len = 31, name = "players.3.name" },
+				[0x91] = { type = "data", len = 31, name = "players.4.name" },
+				[0xB0] = { type = "data", len = 63, name = "opponent.name" },
+				[0xEF] = { type = "data", len = 10, name = "players.1.code" },
+				[0xF9] = { type = "data", len = 10, name = "players.2.code" },
+				[0x103] = { type = "data", len = 10, name = "players.3.code" },
+				[0x10D] = { type = "data", len = 10, name = "players.4.code" },
+				[0x117] = { type = "data", len = 241, name = "error_msg" },
 			}
 		},
 	}
@@ -161,7 +177,6 @@ for id, address in ipairs(player_select_external_addresses) do
 		game.memorymap[address + offset] = {
 			type = "u8",
 			name = ("player.%i.select.%s"):format(id, name),
-			debug = true,
 		}
 	end
 end

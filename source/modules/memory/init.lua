@@ -295,7 +295,8 @@ function ADDRESS:update()
 
 		if self.debug then
 			if self.type == "data" then
-				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %s", self.address + self.offset, string.tohex(value), self.name, value)
+				value = value:match("(.-)%z") -- Strip trailing 0's
+				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %q", self.address + self.offset, string.tohex(value), self.name, value)
 			else
 				local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
 				log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)

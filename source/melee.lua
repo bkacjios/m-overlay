@@ -648,23 +648,17 @@ do
 			if info.skin then
 				for sid, skin in ipairs(info.skin) do
 					local stockf = ("textures/stocks/%s-%s.png"):format(info.name, skin)
-					if love.filesystem.getInfo(stockf) then
+					local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
+					local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
+
+					if melee.isAkaneia() and love.filesystem.getInfo(stockakf) then
+						-- Akaneia icon override
+						textures.stocks[cid][sid-1] = newImage(stockakf)
+					elseif melee.isBeyondMelee() and love.filesystem.getInfo(stockbmf) then
+						-- Beyond Melee icon override
+						textures.stocks[cid][sid-1] = newImage(stockbmf)
+					elseif love.filesystem.getInfo(stockf) then
 						textures.stocks[cid][sid-1] = newImage(stockf)
-					end
-					if melee.isAkaneia() then
-						local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
-						if love.filesystem.getInfo(stockakf) then
-							-- Akaneia icon override
-							-- Previous texture should be garbage collected..
-							textures.stocks[cid][sid-1] = newImage(stockakf)
-						end
-					elseif melee.isBeyondMelee() then
-						local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
-						if love.filesystem.getInfo(stockbmf) then
-							-- Beyond Melee icon override
-							-- Previous texture should be garbage collected..
-							textures.stocks[cid][sid-1] = newImage(stockbmf)
-						end
 					end
 				end
 			else
@@ -992,6 +986,70 @@ local AKANEIA_SERIES = {
 	[0x4D] = "Super Smash Bros",
 }
 
+local BEYOND_MELEE_STAGES = {
+	[0x47] = "Volleyball",
+	[0x48] = "Smashville",
+	[0x49] = "Sprout Tower",
+	[0x4A] = "Fountain of Dreams",
+	[0x4B] = "Flipper Field",
+	[0x4C] = "Brinstar Lab",
+	[0x4D] = "Metal Cavern", -- Metal Cavern? (Currently broken in BM-1.0)
+	[0x4E] = "Mute Circuit",
+	[0x4F] = "Kongo Falls",
+	[0x50] = "Town Greens",
+	[0x51] = "Kongle Jungle 64",
+	[0x52] = "Poké Float Stadium 2",
+	[0x53] = "Rainbow Ride",
+	[0x54] = "Island Zone",
+	[0x55] = "Wasteland",
+	[0x56] = "Baby Bowser's Castle",
+	[0x57] = "Midnight Destination",
+	[0x58] = "Midnight Battlefield",
+	[0x59] = "Dual Zone",
+	[0x5A] = "Fountain of Dreams", -- Diet (Currently broken in BM-1.0)
+	[0x5B] = "Stadium-ville", -- Diet (Currently broken in BM-1.0)
+	[0x5C] = "Yoshi's Story", -- Diet
+	[0x5D] = "Treasure Hunt",
+	[0x5E] = "Realgam Colosseum",
+	[0x5F] = "Vapor Story",
+	[0x60] = "Final Destination", -- Diet
+	[0x61] = "Battlefield", -- Diet
+	[0x62] = "Pokémon Stadium", -- Diet
+	[0x63] = "Galacta Battleground",
+}
+
+local BEYOND_MELEE_SERIES = {
+	[0x47] = "Super Smash Bros", -- Volleyball
+	[0x48] = "Animal Crossing", -- Smashville
+	[0x49] = "Pokémon", -- Sprout Tower
+	[0x4A] = "Kirby", -- Fountain of Dreams
+	[0x4B] = "Super Smash Bros", -- Flipper Field
+	[0x4C] = "Metroid", -- Brinstar Lab
+	[0x4D] = "Super Mario", -- Metal Cavern? (Currently broken in BM-1.0)
+	[0x4E] = "F-Zero", -- Mute Circuit
+	[0x4F] = "Donkey Kong", -- Kongo Falls
+	[0x50] = "Kirby", -- Town Greens
+	[0x51] = "Donkey Kong", -- Kongle Jungle 64
+	[0x52] = "Pokémon", -- Poké Float Stadium 2
+	[0x53] = "Super Mario", -- Rainbow Ride
+	[0x54] = "Yoshi", -- Island Zone
+	[0x55] = "Kirby", -- Wasteland
+	[0x56] = "Yoshi", -- Baby Bowser's Castle
+	[0x57] = "Super Smash Bros", -- Midnight Destination
+	[0x58] = "Super Smash Bros", -- Midnight Battlefield
+	[0x59] = "Super Smash Bros", -- Dual Zone
+	[0x5A] = "Kirby", -- Fountain of Dreams (Diet) (Currently broken in BM-1.0)
+	[0x5B] = "Pokémon", -- Stadium-ville (Diet) (Currently broken in BM-1.0)
+	[0x5C] = "Yoshi", -- Yoshi's Story (Diet)
+	[0x5D] = "Yoshi", -- Treasure Hunt
+	[0x5E] = "Pokémon", -- Realgam Colosseum
+	[0x5F] = "Yoshi", -- Vapor Story
+	[0x60] = "Super Smash Bros", -- Final Destination (Diet)
+	[0x61] = "Super Smash Bros", -- Battlefield (Diet)
+	[0x62] = "Pokémon", -- Pokémon Stadium (Diet)
+	[0x63] = "Kirby", -- Galacta Battleground
+}
+
 function melee.isNetplayGame()
 	return memory.menu.major == MENU_VS_UNKNOWN and (memory.menu.minor == MENU_VS_UNKNOWN_INGAME or memory.menu.minor == MENU_VS_UNKNOWN_VERSUS)
 end
@@ -1040,11 +1098,34 @@ function melee.getAkaneiaSeries()
 end
 
 function melee.isAkaneiaStage(id)
-	return AKANEIA_STAGES[id] ~= nil
+	if melee.isAkaneia() then
+		return AKANEIA_STAGES[id] ~= nil
+	end
+	return false
+end
+
+function melee.getBeyondMeleeStages()
+	return BEYOND_MELEE_STAGES
+end
+
+function melee.getBeyondMeleeSeries()
+	return BEYOND_MELEE_SERIES
+end
+
+function melee.isBeyondMeleeStage(id)
+	if melee.isBeyondMelee() then
+		return BEYOND_MELEE_STAGES[id] ~= nil
+	end
+	return false
 end
 
 function melee.getStageName(id)
-	return STAGE_NAMES[id] or SINGLEPLAYER_STAGES[id] or BREAK_THE_TARGETS_STAGES[id] or AKANEIA_STAGES[id]
+	if melee.isAkaneia() and AKANEIA_STAGES[id] then
+		return AKANEIA_STAGES[id]
+	elseif melee.isBeyondMelee() and BEYOND_MELEE_STAGES[id] then
+		return BEYOND_MELEE_STAGES[id]
+	end
+	return STAGE_NAMES[id] or SINGLEPLAYER_STAGES[id] or BREAK_THE_TARGETS_STAGES[id]
 end
 
 function melee.getAllStageSeries()
@@ -1052,7 +1133,12 @@ function melee.getAllStageSeries()
 end
 
 function melee.getStageSeries(id)
-	return STAGE_SERIES[id] or AKANEIA_SERIES[id]
+	if melee.isAkaneia() and AKANEIA_SERIES[id] then
+		return AKANEIA_SERIES[id]
+	elseif melee.isBeyondMelee() and BEYOND_MELEE_SERIES[id] then
+		return BEYOND_MELEE_SERIES[id]
+	end
+	return STAGE_SERIES[id]
 end
 
 function melee.matchFinsihed()
