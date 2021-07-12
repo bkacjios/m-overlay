@@ -534,6 +534,12 @@ local beyondmelee_selection = {
 		team_skin = {2, 3, 1},
 		series = "zelda"
 	},
+	[0x08] = {
+		name = "mario",
+		skin = {"red", "yellow", "black", "blue", "green", "builder"},
+		team_skin = {1, 4, 5},
+		series = "mario"
+	},
 	[0x0D] = {
 		name = "pikachu",
 		skin = {"original", "red", "blue", "green", "luchador"},
@@ -551,6 +557,12 @@ local beyondmelee_selection = {
 		skin = {"white", "red", "blue", "green", "black", "hazmat"},
 		team_skin = {2, 3, 4},
 		series = "mario"
+	},
+	[0x18] = {
+		name = "pichu",
+		skin = {"original", "red", "blue", "green", "hat"},
+		team_skin = {2, 3, 4},
+		series = "pokemon"
 	},
 	[0x19] = {
 		name = "ganon",
@@ -636,19 +648,21 @@ do
 			if info.skin then
 				for sid, skin in ipairs(info.skin) do
 					local stockf = ("textures/stocks/%s-%s.png"):format(info.name, skin)
-
+					if love.filesystem.getInfo(stockf) then
+						textures.stocks[cid][sid-1] = newImage(stockf)
+					end
 					if melee.isAkaneia() then
 						local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
-						if love.filesystem.getInfo(stockf) then
-							textures.stocks[cid][sid-1] = newImage(stockf)
-						elseif love.filesystem.getInfo(stockakf) then
+						if love.filesystem.getInfo(stockakf) then
+							-- Akaneia icon override
+							-- Previous texture should be garbage collected..
 							textures.stocks[cid][sid-1] = newImage(stockakf)
 						end
 					elseif melee.isBeyondMelee() then
 						local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
-						if love.filesystem.getInfo(stockf) then
-							textures.stocks[cid][sid-1] = newImage(stockf)
-						elseif love.filesystem.getInfo(stockbmf) then
+						if love.filesystem.getInfo(stockbmf) then
+							-- Beyond Melee icon override
+							-- Previous texture should be garbage collected..
 							textures.stocks[cid][sid-1] = newImage(stockbmf)
 						end
 					end
