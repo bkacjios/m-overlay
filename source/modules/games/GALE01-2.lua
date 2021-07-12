@@ -17,6 +17,9 @@ game.memorymap[0x80479D30] = { type = "u8", name = "menu.major", debug = true }
 game.memorymap[0x80479D33] = { type = "u8", name = "menu.minor", debug = true }
 game.memorymap[0x804D6598] = { type = "u8", name = "menu.player_one_port", debug = true } -- What port is currently acting as "Player 1" in single player games
 game.memorymap[0x804807C8] = { type = "bool", name = "menu.teams" }
+
+game.memorymap[0x8066A2DF] = { type = "data", len = 7, name = "romstring.akaneia", debug = true }
+game.memorymap[0x8066A2C3] = { type = "data", len = 12, name = "romstring.beyondmelee", debug = true }
    
 local controllers = {
 	[1] = 0x804C1FAC + 0x44 * 0,
@@ -66,7 +69,7 @@ local entity_pointer_offsets = {
 }
 
 local player_static_struct = {
-	[0x004] = { type = "u32", name = "character" },
+	[0x004] = { type = "u32", name = "character", debug = true },
 	[0x008] = { type = "u32", name = "mode" },
 	[0x00C] = { type = "u16", name = "transformed" },
 	[0x044] = { type = "u8", name = "skin" },
@@ -92,7 +95,7 @@ for id, address in ipairs(player_static_addresses) do
 			type = "pointer",
 			name = ("player.%i.%s"):format(id, name),
 			struct = {
-				[0x60 + 0x0004] = { type = "u32", name = "character" },
+				[0x60 + 0x0004] = { type = "u32", name = "character", debug = true },
 				--[0x60 + 0x000C] = { type = "u8", name = "port" },
 				--[0x60 + 0x0618] = { type = "u8", name = "index" },
 				[0x60 + 0x0619] = { type = "u8", name = "skin" },

@@ -267,8 +267,10 @@ function memory.newvalue(addr, offset, struct, name)
 		address = addr, -- Where in memory this value is located
 		offset = offset, -- How far past the address value we should get the value from
 
+		type = struct.type,
 		-- Assign the function we will be using to read from memory
 		read = TYPES_READ[struct.type],
+		len = struct.len,
 
 		-- Setup the cache
 		cache = tbl,
@@ -284,7 +286,7 @@ function ADDRESS:update()
 
 	-- value = converted value
 	-- orig = Non-converted value (Only available for floats)
-	local value, orig = self.read(self.address + self.offset)
+	local value, orig = self.read(self.address + self.offset, self.len)
 
 	-- Check if there has been a value change
 	if self.cache_value ~= value then
@@ -292,8 +294,12 @@ function ADDRESS:update()
 		self.cache[self.cache_key] = self.cache_value
 
 		if self.debug then
-			local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
-			log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)
+			if self.type == "data" then
+				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %s", self.address + self.offset, string.tohex(value), self.name, value)
+			else
+				local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
+				log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)
+			end
 		end
 
 		-- Queue up a hook event

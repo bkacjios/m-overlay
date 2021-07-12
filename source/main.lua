@@ -52,6 +52,31 @@ local PORT_TEXTURES = {
 	[4] = newImage("textures/player4_color.png")
 }
 
+local CODE_ENTERED = false
+
+local CODE_POSITION = {
+	[1] = 1,
+	[2] = 1,
+	[3] = 1,
+	[4] = 1
+}
+
+local CODE = { -- Konami code
+	0x0008, 0x0008,
+	0x0004, 0x0004,
+	0x0001, 0x0002,
+	0x0001, 0x0002,
+	0x0200, 0x0100, 0x1000
+}
+
+--[[local CODE2 = { -- Konami code using joysticks
+	0x10000, 0x10000,
+	0x20000, 0x20000,
+	0x40000, 0x80000,
+	0x40000, 0x80000,
+	0x0200, 0x0100, 0x1000
+}]]
+
 local portless_title = ""
 function love.updateTitle(str)
 	local title = str
@@ -142,6 +167,25 @@ memory.hook("player.*.character", "Show port on character select", function(port
 	end
 end)
 
+local snd = love.audio.newSource("sounds/main7b.wav", "static")
+
+memory.hook("controller.*.buttons.pressed", "Konami code check", function(port, pressed)
+	if pressed == 0x0 or port ~= overlay.getPort() then return end
+	local pos = CODE_POSITION[port]
+	if CODE[pos] == pressed then
+		CODE_POSITION[port] = pos + 1
+		if pos >= #CODE then
+			CODE_ENTERED = not CODE_ENTERED
+			snd:setVolume(0.5)
+			snd:setPitch(CODE_ENTERED and 1 or 0.75)
+			snd:play()
+			log.warn("[KONAMI] %s developer stats..", CODE_ENTERED and "Showing" or "Hiding")
+		end
+	else
+		CODE_POSITION[port] = 1
+	end
+end)
+
 function love.update(dt)
 	music.update()
 	memory.update() -- Look for Dolphin.exe
@@ -215,6 +259,30 @@ function love.wheelmoved(x, y)
 	overlay.setPort(port)
 	overlay.showPort(1.5)
 	PORT_DISPLAY_OVERRIDE = nil
+end
+
+function love.drawDeveloperInfo()
+	local stats = love.graphics.getStats()
+	stats.memory = collectgarbage("count")
+
+	graphics.setFont(DEBUG_FONT)
+	local i = 0
+	for stat, val in pairs(stats) do
+		local str
+
+		if stat == "memory" or stat == "texturememory" then
+			str = string.format("%s: %s", stat, string.toSize(val))
+		else
+			str = string.format("%s: %d", stat, val)
+		end
+
+		graphics.setColor(0, 0, 0, 255)
+		graphics.textOutline(str, 2, 8, 8 + 14 * i)
+		graphics.setColor(0, 255, 0, 255)
+		graphics.print(str, 8, 8 + 14 * i)
+
+		i = i + 1
+	end
 end
 
 local DC_CON = newImage("textures/buttons/disconnected.png")
@@ -472,6 +540,9 @@ function love.draw()
 
 	gui.render()
 	notification.draw()
+	if CODE_ENTERED then
+		love.drawDeveloperInfo()
+	end
 end
 
 local FPS_LIMIT = 60

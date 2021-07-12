@@ -336,7 +336,6 @@ MENU_EVENT_MATCH = 0x2B
 
 MENU_SINGLE_BUTTON_MODE = 0x2C
 
-
 local character_selections = {
 	[0x00] = {
 		name = "captain",
@@ -532,7 +531,16 @@ function melee.loadtextures()
 		if info.skin then
 			for sid, skin in ipairs(info.skin) do
 				textures.stocks[cid] = textures.stocks[cid] or {}
-				textures.stocks[cid][sid-1] = newImage(("textures/stocks/%s-%s.png"):format(info.name, skin))
+				local stockf = ("textures/stocks/%s-%s.png"):format(info.name, skin)
+				local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
+				local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
+				if love.filesystem.getInfo(stockf) then
+					textures.stocks[cid][sid-1] = newImage(stockf)
+				elseif love.filesystem.getInfo(stockakf) then
+					textures.stocks[cid][sid-1] = newImage(stockakf)
+				elseif love.filesystem.getInfo(stockbmf) then
+					textures.stocks[cid][sid-1] = newImage(stockbmf)
+				end
 			end
 		else
 			textures.stocks[cid] = newImage(("textures/stocks/%s.png"):format(info.name))
