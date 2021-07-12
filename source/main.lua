@@ -91,10 +91,14 @@ function love.getTitleNoPort()
 	return portless_title
 end
 
+memory.hook("romstring.akaneia", "Load Game Specific Textures", function(romname, romvalue)
+	melee.loadRomSpecificTextures()
+end)
+
 function love.load(args, unfilteredArg)
 	love.keyboard.setKeyRepeat(true)
 
-	melee.loadtextures()
+	melee.loadTextures()
 	gui.init()
 	overlay.init()
 	music.init()
@@ -176,7 +180,7 @@ memory.hook("controller.*.buttons.pressed", "Konami code check", function(port, 
 		CODE_POSITION[port] = pos + 1
 		if pos >= #CODE then
 			CODE_ENTERED = not CODE_ENTERED
-			snd:setVolume(0.5)
+			snd:setVolume(0.25)
 			snd:setPitch(CODE_ENTERED and 1 or 0.75)
 			snd:play()
 			log.warn("[KONAMI] %s developer stats..", CODE_ENTERED and "Showing" or "Hiding")

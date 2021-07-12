@@ -515,9 +515,94 @@ local character_selections = {
 	},
 }
 
+local beyondmelee_selection = {
+	[0x00] = {
+		name = "captain",
+		skin = {"original", "black", "red", "white", "green", "blue", "maskless"},
+		team_skin = {3, 6, 5},
+		series = "fzero"
+	},
+	[0x05] = {
+		name = "koopa",
+		skin = {"green", "red", "blue", "black", "bones"},
+		team_skin = {2, 3, 1},
+		series = "mario"
+	},
+	[0x06] = {
+		name = "link",
+		skin = {"green", "red", "blue", "black", "white", "fierce"},
+		team_skin = {2, 3, 1},
+		series = "zelda"
+	},
+	[0x0D] = {
+		name = "pikachu",
+		skin = {"original", "red", "blue", "green", "luchador"},
+		team_skin = {2, 3, 4},
+		series = "pokemon"
+	},
+	[0x10] = {
+		name = "samus",
+		skin = {"red", "pink", "black", "green", "blue", "white"},
+		team_skin = {1, 5, 4},
+		series = "metroid"
+	},
+	[0x16] = {
+		name = "mariod",
+		skin = {"white", "red", "blue", "green", "black", "hazmat"},
+		team_skin = {2, 3, 4},
+		series = "mario"
+	},
+	[0x19] = {
+		name = "ganon",
+		skin = {"original", "red", "blue", "green", "purple", "spirit"},
+		team_skin = {2, 3, 4},
+		series = "zelda"
+	},
+	[0x1A] = {
+		name = "wolf",
+		skin = {"neutral", "red", "blue", "green"},
+		team_skin = {2, 3, 4},
+		series = "star_fox"
+	},
+	[0x1B] = {
+		name = "raichu",
+		skin = {"neutral", "king", "beach", "vomit", "warlock"},
+		team_skin = {2, 3, 4},
+		series = "pokemon"
+	},
+	[0x1C] = {
+		name = "shadowm2",
+		skin = {"black", "red", "blue", "green", "purple"},
+		team_skin = {2, 3, 4},
+		series = "pokemon"
+	},
+	[0x1D] = {
+		name = "fay",
+		skin = {"neutral", "red", "blue", "green"},
+		team_skin = {2, 3, 4},
+		series = "star_fox"
+	},
+	[0x1E] = {
+		name = "skullkid",
+		skin = {"neutral", "blue", "green", "black"},
+		team_skin = {1, 2, 3},
+		series = "zelda"
+	},
+}
+
+local akaneia_selection = {
+	[0x1A] = {
+		name = "wolf",
+		skin = {"neutral", "pink", "blue", "green", "brown"},
+		team_skin = {2, 3, 4},
+		series = "star_fox"
+	},
+}
+
 local textures = {
 	series = {},
 	stocks = {},
+	skinless = {}
 }
 
 local graphics = love.graphics
@@ -525,25 +610,61 @@ local newImage = graphics.newImage
 
 local melee = {}
 
-function melee.loadtextures()
-	for cid, info in pairs(character_selections) do
-		textures.series[cid] = newImage(("textures/series/%s.png"):format(info.series))
-		if info.skin then
-			for sid, skin in ipairs(info.skin) do
-				textures.stocks[cid] = textures.stocks[cid] or {}
-				local stockf = ("textures/stocks/%s-%s.png"):format(info.name, skin)
-				local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
-				local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
-				if love.filesystem.getInfo(stockf) then
-					textures.stocks[cid][sid-1] = newImage(stockf)
-				elseif love.filesystem.getInfo(stockakf) then
-					textures.stocks[cid][sid-1] = newImage(stockakf)
-				elseif love.filesystem.getInfo(stockbmf) then
-					textures.stocks[cid][sid-1] = newImage(stockbmf)
+function melee.isAkaneia()
+	return memory.romstring and memory.romstring.akaneia == "Akaneia"
+end
+
+function melee.isBeyondMelee()
+	return memory.romstring and memory.romstring.beyondmelee == "Beyond Melee"
+end
+
+do
+	local function doload(tbl)
+		for cid, info in pairs(tbl) do
+			if textures.series[cid] then textures.series[cid]:release() end
+			textures.series[cid] = newImage(("textures/series/%s.png"):format(info.series))
+
+			if textures.stocks[cid] then
+				for skin, text in pairs(textures.stocks[cid]) do
+					text:release()
 				end
 			end
-		else
-			textures.stocks[cid] = newImage(("textures/stocks/%s.png"):format(info.name))
+
+			textures.stocks[cid] = {}
+			textures.skinless[cid] = info.skinless
+
+			if info.skin then
+				for sid, skin in ipairs(info.skin) do
+					local stockf = ("textures/stocks/%s-%s.png"):format(info.name, skin)
+					local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
+					local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
+					if love.filesystem.getInfo(stockf) then
+						textures.stocks[cid][sid-1] = newImage(stockf)
+					elseif love.filesystem.getInfo(stockakf) then
+						textures.stocks[cid][sid-1] = newImage(stockakf)
+					elseif love.filesystem.getInfo(stockbmf) then
+						textures.stocks[cid][sid-1] = newImage(stockbmf)
+					end
+				end
+			else
+				if textures.stocks[cid][1] then textures.stocks[cid][1]:release() end
+				textures.stocks[cid][1] = newImage(("textures/stocks/%s.png"):format(info.name))
+			end
+		end
+	end
+
+	function melee.loadTextures()
+		doload(character_selections)
+	end
+
+	function melee.loadRomSpecificTextures()
+		doload(character_selections)
+		if melee.isAkaneia() then
+			print("LOADED AKANEIA TEXTURES")
+			doload(akaneia_selection)
+		elseif melee.isBeyondMelee() then
+			print("LOADED BEYOND MELEE TEXTURES")
+			doload(beyondmelee_selection)
 		end
 	end
 end
@@ -585,11 +706,11 @@ function melee.getCharacterID(port)
 end
 
 function melee.getStockTexture(id, skin)
-	if character_selections[id] and character_selections[id].skinless == true then
-		return textures.stocks[id]
+	if textures.skinless[id] == true then
+		skin = 1
 	end
 	if not textures.stocks[id] or not textures.stocks[id][skin] then
-		return textures.stocks[id] and textures.stocks[id][0] or textures.stocks[0x21]
+		return textures.stocks[id] and textures.stocks[id][0] or textures.stocks[0x21][1]
 	end
 	return textures.stocks[id][skin]
 end
