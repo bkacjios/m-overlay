@@ -636,14 +636,21 @@ do
 			if info.skin then
 				for sid, skin in ipairs(info.skin) do
 					local stockf = ("textures/stocks/%s-%s.png"):format(info.name, skin)
-					local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
-					local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
-					if love.filesystem.getInfo(stockf) then
-						textures.stocks[cid][sid-1] = newImage(stockf)
-					elseif love.filesystem.getInfo(stockakf) then
-						textures.stocks[cid][sid-1] = newImage(stockakf)
-					elseif love.filesystem.getInfo(stockbmf) then
-						textures.stocks[cid][sid-1] = newImage(stockbmf)
+
+					if melee.isAkaneia() then
+						local stockakf = ("textures/stocks/ak/%s-%s.png"):format(info.name, skin)
+						if love.filesystem.getInfo(stockf) then
+							textures.stocks[cid][sid-1] = newImage(stockf)
+						elseif love.filesystem.getInfo(stockakf) then
+							textures.stocks[cid][sid-1] = newImage(stockakf)
+						end
+					elseif melee.isBeyondMelee() then
+						local stockbmf = ("textures/stocks/bm/%s-%s.png"):format(info.name, skin)
+						if love.filesystem.getInfo(stockf) then
+							textures.stocks[cid][sid-1] = newImage(stockf)
+						elseif love.filesystem.getInfo(stockbmf) then
+							textures.stocks[cid][sid-1] = newImage(stockbmf)
+						end
 					end
 				end
 			else
