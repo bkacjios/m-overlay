@@ -20,6 +20,8 @@ Latest downloads can be found in [releases](https://github.com/bkacjios/m-overla
 * F-Zero GX (NTSC-U)
 * Gotcha Force (NTSC-U, PAL, NTSC-J)
 * Super Smash Bros. Melee (NTSC-U, PAL, NTSC-J)
+  - [Akaneia](https://github.com/akaneia/akaneia-build/releases)
+  - [Beyond Melee](https://beyondmelee.com/home/)
   - [20XX](https://smashboards.com/threads/the-20xx-melee-training-hack-pack-v4-07-7-04-17.351221/)
   - [UnclePunch Training Mode](https://github.com/UnclePunch/Training-Mode)
   - [Slippi](https://slippi.gg)
