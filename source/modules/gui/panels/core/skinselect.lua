@@ -13,6 +13,17 @@ function PANEL:Initialize()
 	self:SetBorderColor(color_clear)
 	self:SetBackgroundColor(color(0, 0, 0, 100))
 
+	local LABEL = self:Add("Label")
+	LABEL:SetText("Themes")
+	LABEL:SetTextAlignment("center")
+	LABEL:SizeToText()
+	LABEL:Dock(DOCK_TOP)
+	LABEL:SetTextColor(color_white)
+	LABEL:SetShadowDistance(1)
+	LABEL:SetShadowColor(color_black)
+	LABEL:SetFont("fonts/melee-bold.otf", 12)
+	self.LABEL = LABEL
+
 	self.SKIN_BUTTONS = {}
 end
 
@@ -35,7 +46,7 @@ function PANEL:UpdateSkins()
 		numskins = numskins + 1
 	end
 
-	self:SetSize(80, 26*numskins + 2)
+	self:SetSize(80, self.LABEL:GetHeight() + 26*numskins + 7)
 	self:CenterVertical()
 end
 

@@ -8,9 +8,21 @@ function PANEL:Initialize()
 	self:MakeAccessor("Port", "m_iPort", 1)
 
 	self:DockPadding(1, 1, 1, 1)
-	self:SetSize(80, 106)
 	self:SetBorderColor(color_clear)
 	self:SetBackgroundColor(color(0, 0, 0, 100))
+
+	local LABEL = self:Add("Label")
+	LABEL:SetText("Ports")
+	LABEL:SetTextAlignment("center")
+	LABEL:SizeToText()
+	LABEL:Dock(DOCK_TOP)
+	LABEL:SetTextColor(color_white)
+	LABEL:SetShadowDistance(1)
+	LABEL:SetShadowColor(color_black)
+	LABEL:SetFont("fonts/melee-bold.otf", 12)
+	self.LABEL = LABEL
+
+	self:SetSize(80, 106 + LABEL:GetHeight() + 5)
 	self:CenterVertical()
 
 	self.PORT_BUTTONS = {}
