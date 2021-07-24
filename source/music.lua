@@ -362,33 +362,37 @@ function music.loadStageMusicInDir(stageid, name)
 	for k, file in ipairs(files) do
 		local filepath = ("%s/%s"):format(name, file)
 		local info = love.filesystem.getInfo(filepath)
-		if info.type == "file" then
-			local ext = string.getFileExtension(file):lower()
+		if info then
+			if info.type == "file" then
+				local ext = string.getFileExtension(file):lower()
 
-			if valid_music_ext[ext] then
-				local success, source = pcall(love.audio.newSource, filepath, "stream")
-				if success and source then
-					loaded = loaded + 1
+				if valid_music_ext[ext] then
+					local success, source = pcall(love.audio.newSource, filepath, "stream")
+					if success and source then
+						loaded = loaded + 1
 
-					-- Insert the newly loaded track into a random position in the playlist
-					local pos = math.random(1, #music.PLAYLIST)
-					local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
+						-- Insert the newly loaded track into a random position in the playlist
+						local pos = math.random(1, #music.PLAYLIST)
+						local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
 
-					if prob > 1 then
-						music.USE_WEIGHTS = true
+						if prob > 1 then
+							music.USE_WEIGHTS = true
+						end
+
+						local wavinfo
+						if ext == "wav" then
+							wavinfo = wav.parse(filepath)
+						end
+						table.insert(music.PLAYLIST, pos, {STREAM = source, WEIGHT = prob, WAV = wavinfo})
+					else
+						local err = ("invalid music file \"%s/%s\""):format(name, file)
+						log.error("[MUSIC] %s", err)
+						notification.error(err)
 					end
-
-					local wavinfo
-					if ext == "wav" then
-						wavinfo = wav.parse(filepath)
-					end
-					table.insert(music.PLAYLIST, pos, {STREAM = source, WEIGHT = prob, WAV = wavinfo})
-				else
-					local err = ("invalid music file \"%s/%s\""):format(name, file)
-					log.error("[MUSIC] %s", err)
-					notification.error(err)
 				end
 			end
+		else
+			log.warn("[MUSIC] Unable to get file information for file %q", filepath)
 		end
 	end
 	if loaded > 0 then
