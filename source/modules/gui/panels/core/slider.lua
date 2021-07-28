@@ -23,7 +23,7 @@ function PANEL:Paint(w,h)
 	graphics.line(0, h/2, w, h/2)
 
 	local x = 0
-	local range = self.m_iMax - self.m_iMin
+	local range = self:GetRange()
 
 	local notches = (range/self.m_iIncrements)
 

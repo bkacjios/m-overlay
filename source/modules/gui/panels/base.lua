@@ -495,7 +495,7 @@ function PANEL:Render()
 		parent = parent:GetParent()
 	end
 
-	graphics.push() -- Push the current graphics state
+	graphics.push("all") -- Push the current graphics state
 		if self.m_bScissorEnabled then
 			graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
 		end
@@ -520,7 +520,7 @@ function PANEL:Render()
 		child:Render()
 	end
 
-	graphics.push()
+	graphics.push("all")
 		if self.m_bScissorEnabled then
 			graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
 		end

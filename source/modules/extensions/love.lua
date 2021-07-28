@@ -8,13 +8,13 @@ local getBackgroundColor = graphics.getBackgroundColor
 
 -- Love2D changed color values to be 0-1
 -- Allow 0-255 values again..
-function graphics.clear(r,g,b,a)
+function graphics.clear(r,g,b,a,...)
 	if type(r) == "table" then
 		r, g, b, a = r.r, r.g, r.b, r.a
 	else
 		r, g, b, a = r or 255, g or 255, b or 255, a or 255
 	end
-	clear(r/255,g/255,b/255,a/255)
+	clear(r/255,g/255,b/255,a/255,...)
 end
 
 -- Love2D changed color values to be 0-1

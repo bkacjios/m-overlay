@@ -228,6 +228,9 @@ function PANEL:Initialize()
 	VLABEL:SetShadowDistance(1)
 	VLABEL:SetShadowColor(color_black)
 	VLABEL:SetFont("fonts/melee-bold.otf", 12)
+
+	--local test = self:Add("ColorPicker")
+	--test:SetSize(256, 256)
 end
 
 function PANEL:Toggle()

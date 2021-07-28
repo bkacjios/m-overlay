@@ -1,19 +1,28 @@
 function PANEL:Initialize()
 	self:super()
 
-	self.RIGHT = self:Add("Panel")
-	self.RIGHT:SetWidth(128)
-	self.RIGHT:Dock(DOCK_RIGHT)
+	self.m_txtColorValue = self:Add("TextEntry")
+	self.m_txtColorValue:Dock(DOCK_TOP)
 
-	self.m_txtColorValue = self.RIGHT:Add("TextEntry")
+	self.m_pColorShade = self:Add("ColorShade")
+	self.m_pColorShade:Dock(DOCK_FILL)
 
-	self.m_pColorGradient = self:Add("ColorGradient")
-	self.m_pColorGradient:Dock(DOCK_FILL)
+	self.m_pColorShade.OnShadeChanged = function(this, shade)
+		self.m_txtColorValue:SetText(string.format("#%06X", shade:hex()))
+	end
 
+	self.m_pColorHue = self:Add("ColorHue")
+	self.m_pColorHue:Dock(DOCK_RIGHT)
+
+	self.m_pColorHue.OnHueChanged = function(this, hue)
+		self.m_pColorShade:SetColor(hue)
+	end
+
+	self.m_pColorHue:SetHue(180)
 end
 
 function PANEL:SetColor(c)
-	self.m_pColorGradient:SetColor(c)
+	self.m_pColorShade:SetColor(c)
 end
 
 function PANEL:Paint(w, h)
