@@ -40,6 +40,7 @@ function PANEL:DrawGradient()
 
 	graphics.setCanvas(self.m_pCanvas)
 		graphics.clear() -- Clear whatever was drawn previously
+		graphics.setColor(255, 255, 255, 255)
 		graphics.easyDraw(self.m_pImage, -w/2.5, -h/2.5, 0, w*1.8, h*1.8) -- Draw our gradient image
 	graphics.setCanvas()
 
@@ -84,6 +85,7 @@ end
 
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
+	graphics.setColor(255, 255, 255, 255)
 	graphics.easyDraw(self.m_pCanvas, 0, 0, 0, w, h)
 end
 

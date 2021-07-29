@@ -28,7 +28,7 @@ function PANEL:Initialize()
 
 	self.m_bBinding = false
 
-	self:MakeAccessor("ButtonCombo", "m_bButtonCombo", self.BUTTONS.D_DOWN)
+	self:MakeAccessor("ButtonCombo", "m_bButtonCombo", 0x0041)
 	
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
 end

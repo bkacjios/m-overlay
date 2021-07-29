@@ -193,6 +193,12 @@ function MEMORY:findGamecubeRAMOffset()
 	if self:hasProcess() then
 		local err = libc.task_for_pid(libc.mach_task_self(), self.pid, self.task)
 
+		if error == 0 then
+			log.info("task_for_pid SUCCESS: valid permissions")
+		else
+			log.warn("task_for_pid FAILED: invalid permissions")
+		end
+
 		if error ~= 0 then
 			return false
 		end

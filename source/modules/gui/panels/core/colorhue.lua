@@ -34,6 +34,7 @@ function PANEL:DrawGradient()
 
 	graphics.setCanvas(self.m_pCanvas)
 		graphics.clear() -- Clear whatever was drawn previously
+		graphics.setColor(255, 255, 255, 255)
 		graphics.easyDraw(self.m_pImage, 0, -h/10, 0, w, h*1.2) -- Draw our gradient image
 	graphics.setCanvas()
 end
@@ -59,7 +60,7 @@ end
 
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
-
+	graphics.setColor(255, 255, 255, 255)
 	graphics.easyDraw(self.m_pCanvas, 0, 0, 0, w, h)
 end
 
@@ -71,10 +72,11 @@ end
 function PANEL:OnMousePressed(x, y, but)
 	if not self:IsEnabled() or but ~= 1 then return end
 
-	local h = self:GetHeight()
+	local w, h = self:GetSize()
 	local ypos = self.m_iHue/360*h
+	h = h / 2
 
-	if y <= ypos + 8 and y >= ypos - 8 then
+	if y <= ypos + h and y >= ypos - h then
 		self.m_bGrabbed = true
 	else
 		self:SetValueFromMouseY(y)
