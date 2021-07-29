@@ -218,7 +218,8 @@ function PANEL:Initialize()
 
 	self.m_sFileName = "config.json"
 
-	local VLABEL = LEFT:Add("Label")
+	local VLABEL = LEFT:Add("Button")
+	VLABEL:SetDrawPanel(false)
 	VLABEL:SetText(love.getMOverlayVersion())
 	VLABEL:SetTextAlignment("center")
 	VLABEL:SizeToText()
@@ -228,6 +229,10 @@ function PANEL:Initialize()
 	VLABEL:SetShadowDistance(1)
 	VLABEL:SetShadowColor(color_black)
 	VLABEL:SetFont("fonts/melee-bold.otf", 12)
+
+	function VLABEL:OnClick()
+		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/%s"):format(love.getMOverlayVersion()))
+	end
 
 	--local test = self:Add("ColorPicker")
 	--test:SetSize(256, 256)

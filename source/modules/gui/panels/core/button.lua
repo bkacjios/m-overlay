@@ -1,4 +1,5 @@
 ACCESSOR(PANEL, "DrawLabel", "m_bDrawLabel", true)
+ACCESSOR(PANEL, "DrawPanel", "m_bDrawPanel", true)
 ACCESSOR(PANEL, "PressedColor", "m_cPressedColor")
 ACCESSOR(PANEL, "HoveredColor", "m_cHoveredColor")
 
@@ -13,7 +14,9 @@ function PANEL:Initialize()
 end
 
 function PANEL:Paint(w, h)
-	gui.skinHook("Paint", "Button", self, w, h)
+	if self.m_bDrawPanel then
+		gui.skinHook("Paint", "Button", self, w, h)
+	end
 	if self.m_bDrawLabel then
 		self:super("Paint", w, h)
 	end
