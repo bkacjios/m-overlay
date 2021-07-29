@@ -58,14 +58,11 @@ function SKIN:PaintSlider(panel, w, h)
 	graphics.innerRectangle(0, 0, w, h)
 end
 
-function SKIN:PaintFocusPanel(panel, w, h)
-	graphics.setColor(panel:GetBGColor())
-	graphics.rectangle("fill", 0, 0, w, h)
-
+function SKIN:PaintOverlayFocusPanel(panel, w, h)
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
 
-	if panel:HasFocus() then
+	if panel:IsEnabled() and panel:HasFocus() then
 		graphics.setColor(self.PanelFocused)
 		graphics.innerRectangle(0, 0, w, h)
 	else
@@ -111,9 +108,7 @@ end
 function SKIN:PaintButton(panel, w, h)
 	local color = self.ButtonBackground
 
-	if not panel:IsEnabled() then
-		color = self.ButtonDisabled
-	elseif panel:IsPressed() then
+	if panel:IsPressed() then
 		color = panel:GetPressedColor() or self.ButtonPressed
 	elseif panel:IsHovered() then
 		color = panel:GetHoveredColor() or self.ButtonHover
@@ -130,6 +125,13 @@ function SKIN:PaintButton(panel, w, h)
 
 	graphics.setColor(panel:GetBorderColor())
 	graphics.innerRectangle(0, 0, w, h)
+end
+
+function SKIN:PaintOverlayButton(panel, w, h)
+	if not panel:IsEnabled() then
+		graphics.setColor(self.ButtonDisabled)
+		graphics.rectangle("fill", 0, 0, w, h)
+	end
 end
 
 function SKIN:PaintFrame(panel, w, h)

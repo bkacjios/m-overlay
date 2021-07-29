@@ -1,11 +1,11 @@
 local PANEL = {}
 
+ACCESSOR(PANEL, "Skin", "m_strSkin", "default")
+
 local overlay = require("overlay")
 
 function PANEL:Initialize()
 	self:super()
-
-	self:MakeAccessor("Skin", "m_strSkin", "default")
 
 	self:DockPadding(1, 1, 1, 1)
 	self:SetSize(80, 24)

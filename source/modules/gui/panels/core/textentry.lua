@@ -82,6 +82,10 @@ function PANEL:Paint(w, h)
 	end
 end
 
+function PANEL:PaintOverlay(w, h)
+	gui.skinHook("PaintOverlay", "FocusPanel", self, w, h)
+end
+
 function PANEL:SetTextColor(c)
 	self.m_cTextColor = c
 end

@@ -1,3 +1,15 @@
+ACCESSOR(PANEL, "Text", "m_sText", "Label")
+ACCESSOR(PANEL, "TextColor", "m_cTextColor", color_black)
+ACCESSOR(PANEL, "FontFile", "m_sFontFile")
+ACCESSOR(PANEL, "FontSize", "m_iFontSize")
+ACCESSOR(PANEL, "FontHint", "m_iFontHint")
+ACCESSOR(PANEL, "ShadowDistance", "m_iShadowDistance", 1)
+ACCESSOR(PANEL, "ShadowColor", "m_cShadowColor", color_lightgrey)
+ACCESSOR(PANEL, "OutlineThickness", "m_iOutlineThickness")
+ACCESSOR(PANEL, "OutlineColor", "m_cOutlineColor", color_black)
+ACCESSOR(PANEL, "Wrapped", "m_bWrapped", false)
+ACCESSOR(PANEL, "TextAlignment", "m_sAlignment", "left")
+
 function PANEL:Initialize()
 	self:super()
 
@@ -6,19 +18,6 @@ function PANEL:Initialize()
 	self:SetFocusable(false)
 	
 	self.m_pFont = graphics.newFont("fonts/melee.otf", 12)
-
-	self:MakeAccessor("Text", "m_sText", "Label")
-	self:MakeAccessor("TextColor", "m_cTextColor", color_black)
-	self:MakeAccessor("FontFile", "m_sFontFile")
-	self:MakeAccessor("FontSize", "m_iFontSize")
-	self:MakeAccessor("FontHint", "m_iFontHint")
-	self:MakeAccessor("ShadowDistance", "m_iShadowDistance", 1)
-	self:MakeAccessor("ShadowColor", "m_cShadowColor", color_lightgrey)
-	self:MakeAccessor("OutlineThickness", "m_iOutlineThickness")
-	self:MakeAccessor("OutlineColor", "m_cOutlineColor", color_black)
-
-	self:MakeAccessor("Wrapped", "m_bWrapped", false)
-	self:MakeAccessor("TextAlignment", "m_sAlignment", "left")
 end
 
 function PANEL:Think(dt)

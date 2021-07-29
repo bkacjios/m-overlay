@@ -1,11 +1,11 @@
 local PANEL = {}
 
+ACCESSOR(PANEL, "Port", "m_iPort", 1)
+
 local overlay = require("overlay")
 
 function PANEL:Initialize()
 	self:super()
-
-	self:MakeAccessor("Port", "m_iPort", 1)
 
 	self:DockPadding(1, 1, 1, 1)
 	self:SetBorderColor(color_clear)

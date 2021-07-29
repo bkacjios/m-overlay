@@ -47,6 +47,10 @@ function PANEL:Paint(w,h)
 	graphics.rectangle("fill", xpos - 4, 4, 8, h - 8)
 end
 
+function PANEL:PaintOverlay(w, h)
+	gui.skinHook("PaintOverlay", "FocusPanel", self, w, h)
+end
+
 function PANEL:SetValue(i)
 	self.m_iValue = math.min(self.m_iMax, math.max(self.m_iMin, i))
 	self:OnValueChanged(self.m_iValue)

@@ -23,18 +23,16 @@ PANEL.BUTTONS = {
 	C_RIGHT = 0x800000,
 }
 
+ACCESSOR(PANEL, "ButtonCombo", "m_bButtonCombo", 0x0041)
+ACCESSOR(PANEL, "Binding", "m_bBinding", false)
+
 function PANEL:Initialize()
-	self:super()
-
-	self.m_bBinding = false
-
-	self:MakeAccessor("ButtonCombo", "m_bButtonCombo", 0x0041)
-	
+	self:super()	
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
 end
 
-function PANEL:IsBinding()
-	return self.m_bBinding
+function PANEL:Think()
+	self:SetEnabled(memory.isInGame())
 end
 
 function PANEL:UpdateButtonCombo(buttons)
@@ -75,11 +73,13 @@ end
 
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
+end
+
+function PANEL:PaintOverlay(w, h)
+	gui.skinHook("PaintOverlay", "Panel", self, w, h)
 	if self.m_bBinding then
 		graphics.setLineStyle("rough")
 		graphics.setLineWidth(3)
-		graphics.setColor(color(0, 162, 232))
-		graphics.innerRectangle(0, 0, w, h)
 	end
 end
 

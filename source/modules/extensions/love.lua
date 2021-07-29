@@ -106,8 +106,8 @@ end
 function graphics.innerRectangle(x, y, w, h, ...)
 	local lw = graphics.getLineWidth()
 
-	x = x + math.ceil(lw/2)
-	y = y + math.floor(lw/2)
+	x = x + lw/2
+	y = y + lw/2
 	w = w - lw
 	h = h - lw
 
@@ -118,10 +118,10 @@ end
 function graphics.outlineRectangle(x, y, w, h, ...)
 	local lw = graphics.getLineWidth()
 
-	x = x + math.ceil(lw/2)	 - lw
-	y = y + math.floor(lw/2) - lw
-	w = w + lw * 2
-	h = h + lw * 2
+	x = x - lw/2
+	y = y - lw/2
+	w = w + lw
+	h = h + lw
 
 	graphics.rectangle("line", x, y, w, h, ...)
 end

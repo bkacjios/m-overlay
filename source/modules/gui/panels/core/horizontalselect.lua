@@ -1,17 +1,18 @@
 local PANEL = {}
 
+ACCESSOR(PANEL, "Selection", "m_iSelection", 1)
+
 function PANEL:Initialize()
 	self:super()
+	self:SetFocusable(true)
+
 	self:DockPadding(0,0,0,0)
 
 	self:SetBGColor(color_blank)
 	self:SetBorderColor(color_blank)
-
 	self:SetTextAlignment("center")
 
 	self.m_tOptions = {}
-	self.m_iSelection = 1
-	self.m_bFocusable = true
 
 	self.m_pButLeft = self:Add("Button")
 	--self.m_pButLeft:SetDrawLabel(false)
@@ -34,9 +35,20 @@ function PANEL:Initialize()
 	gui.skinHook("Init", "HorizontalSelect", self)
 end
 
+-- Override base class SetEnabled with our own
+-- Toggle the left/right buttons at the same time
+function PANEL:SetEnabled(b)
+	self.m_bEnabled = b
+	self.m_pButLeft:SetEnabled(b)
+	self.m_pButRight:SetEnabled(b)
+end
+
 function PANEL:Paint(w, h)
-	gui.skinHook("Paint", "FocusPanel", self, w, h)
 	self:super("Paint", w, h) -- Paint our label
+end
+
+function PANEL:PaintOverlay(w, h)
+	gui.skinHook("PaintOverlay", "FocusPanel", self, w, h)
 end
 
 function PANEL:AddOption(str, default)
@@ -53,10 +65,6 @@ function PANEL:SelectOption(num, force)
 	self.m_iSelection = num
 	self:UpdateSelection()
 	self:OnSelectOption(self.m_iSelection)
-end
-
-function PANEL:GetSelection()
-	return self.m_iSelection
 end
 
 function PANEL:OnSelectOption(num)
@@ -81,7 +89,7 @@ function PANEL:SelectRight()
 end
 
 function PANEL:OnMouseWheeled(x, y)
-	--if not self:HasFocus() then return end
+	if not self:HasFocus() or not self:IsEnabled() then return end
 	if y > 0 then
 		self:SelectLeft()
 	else

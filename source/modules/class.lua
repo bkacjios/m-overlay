@@ -7,31 +7,12 @@ local constructor_method = "Initialize"
 
 local OBJECT = {}
 
-function OBJECT:__newindex(key, value)
-	local accessors = rawget(self, "__accessors")
-	if accessors and rawget(accessors, key) ~= nil then
-		rawset(accessors, key, value)
-	else
-		rawset(self, key, value)
-	end
-end
-
 function OBJECT:__index(key)
 	-- Check for any specific, class-based, methods like "super"
 	local meta_index = rawget(getmetatable(self), key) -- OBJECT
 	if meta_index ~= nil then
 		-- Only return if not nil
 		return meta_index
-	end
-
-	local accessors = rawget(self, "__accessors")
-	if accessors then
-		-- Only do the lookup once to prevent multiple __index calls
-		local value = accessors[key]
-		if value ~= nil then
-			-- Only return if not nil
-			return value
-		end
 	end
 
 	-- Try the base class next
@@ -77,13 +58,13 @@ function OBJECT:super(method, ...)
 	self.__superscope = self.__superscope - 1
 end
 
-function OBJECT:MakeAccessor(name, internal, default)
-	self.__accessors[internal] = default
+function ACCESSOR(panel, name, internal, default)
+	panel[internal] = default
 	if type(default) == "boolean" then
-		self["Is" .. name] = function(this) return this.__accessors[internal] end
+		panel["Is" .. name] = function(this) return this[internal] end
 	end
-	self["Get" .. name] = function(this) return this.__accessors[internal] end
-	self["Set" .. name] = function(this, value) this.__accessors[internal] = value end
+	panel["Get" .. name] = function(this) return this[internal] end
+	panel["Set" .. name] = function(this, value) this[internal] = value end
 end
 
 function OBJECT:getBaseClass()
@@ -103,7 +84,6 @@ function class.new(name, ...)
 		local obj = table.copy(struct)
 		-- Set values that are unique to this instance
 		obj.__superscope = 1
-		obj.__accessors = {}
 
 		-- Try to call the initializer
 		if obj[constructor_method] then

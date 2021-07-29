@@ -1,9 +1,9 @@
+ACCESSOR(PANEL, "Radio", "m_bRadio", false)
+ACCESSOR(PANEL, "Toggleable", "m_bToggleable", true)
+ACCESSOR(PANEL, "Toggled", "m_bToggled", false)
+
 function PANEL:Initialize()
 	self:super()
-
-	self:MakeAccessor("Radio", "m_bRadio", false)
-	self:MakeAccessor("Toggleable", "m_bToggleable", true)
-	self:MakeAccessor("Toggled", "m_bToggled", false)
 
 	self.m_pLabel = self:Add("Label")
 	self.m_pLabel:DockMargin(28, 0, 0, 0)

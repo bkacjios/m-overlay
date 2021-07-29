@@ -1,13 +1,12 @@
 local PANEL = {}
 
+ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
+ACCESSOR(PANEL, "BorderColor", "m_cBorderColor", color_blank)
+ACCESSOR(PANEL, "BackgroundColor", "m_cBackgroundColor", color_blank)
+ACCESSOR(PANEL, "BGColor", "m_cBackgroundColor", color_blank)
+
 function PANEL:Initialize()
 	self:super()
-
-	self:MakeAccessor("Enabled", "m_bEnabled", true)
-	self:MakeAccessor("BorderColor", "m_cBorderColor", color_blank)
-	self:MakeAccessor("BackgroundColor", "m_cBackgroundColor", color_blank)
-	self:MakeAccessor("BGColor", "m_cBackgroundColor", color_blank)
-
 	gui.skinHook("Init", "Panel", self)
 end
 

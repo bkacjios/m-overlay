@@ -1,13 +1,10 @@
+ACCESSOR(PANEL, "DrawLabel", "m_bDrawLabel", true)
+ACCESSOR(PANEL, "PressedColor", "m_cPressedColor")
+ACCESSOR(PANEL, "HoveredColor", "m_cHoveredColor")
+
 function PANEL:Initialize()
 	self:super()
-
 	self:SetFocusable(true)
-
-	self:MakeAccessor("DrawLabel", "m_bDrawLabel", true)
-	self:MakeAccessor("Enabled", "m_bEnabled", true)
-
-	self:MakeAccessor("PressedColor", "m_cPressedColor")
-	self:MakeAccessor("HoveredColor", "m_cHoveredColor")
 
 	self:SetTextAlignment("center")
 	self:SetText("Button")
@@ -20,6 +17,10 @@ function PANEL:Paint(w, h)
 	if self.m_bDrawLabel then
 		self:super("Paint", w, h)
 	end
+end
+
+function PANEL:PaintOverlay(w, h)
+	gui.skinHook("PaintOverlay", "Button", self, w, h)
 end
 
 function PANEL:IsPressed()

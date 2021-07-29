@@ -1,12 +1,11 @@
 local PANEL = {}
 
+ACCESSOR(PANEL, "Grabbed", "m_bGrabbed", false)
+ACCESSOR(PANEL, "Draggable", "m_bDraggable", true)
+ACCESSOR(PANEL, "HideOnClose", "m_bHideOnClose", false)
+
 function PANEL:Initialize()
 	self:super()
-	
-	self.m_bGrabbed = false
-
-	self:MakeAccessor("Draggable", "m_bDraggable", true)
-	self:MakeAccessor("HideOnClose", "m_bHideOnClose", false)
 
 	self:DockPadding(4, 36, 4, 4)
 	
@@ -16,6 +15,7 @@ function PANEL:Initialize()
 	
 	self.m_pClose = self:Add("Button")
 	self.m_pClose:SetText("x")
+	
 	gui.skinHook("Init", "ExitButton", self.m_pClose)
 	
 	self.m_pClose.OnClick = function(this, but)
@@ -48,17 +48,17 @@ function PANEL:OnMousePressed(x, y, but)
 	self:BringToFront()
 	if not self.m_bDraggable or not self:HasFocus() then return end
 	if y > 32 then return end -- Only allow them to move using the top bar
-	self.m_bGrabbed = true
+	self:SetGrabbed(true)
 	self.m_tGrabbedOffset = { x = x, y = y }
 end
 
 function PANEL:OnMouseReleased(x, y, but)
 	if not self.m_bDraggable then return end
-	self.m_bGrabbed = false
+	self:SetGrabbed(false)
 end
 
 function PANEL:Think(dt)
-	if not self.m_bGrabbed then return end
+	if not self:IsGrabbed() then return end
 
 	local mx, my = love.mouse.getPosition()
 	local gx, gy = self.m_tGrabbedOffset.x, self.m_tGrabbedOffset.y
