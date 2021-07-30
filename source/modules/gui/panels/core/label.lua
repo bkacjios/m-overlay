@@ -38,7 +38,7 @@ local floor = math.floor
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
 
-	graphics.setColor(unpackcolor(self.m_cTextColor))
+	graphics.setColor(self.m_cTextColor)
 	graphics.setFont(self.m_pFont)
 
 	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent() 
@@ -61,18 +61,18 @@ function PANEL:Paint(w, h)
 		local ol = tonumber(self.m_iOutlineThickness)
 
 		if ol and ol > 0 then
-			graphics.setColor(unpackcolor(self.m_cOutlineColor))
+			graphics.setColor(self.m_cOutlineColor)
 			graphics.textOutline(self.m_sText, ol, x, y)
 		end
 
 		local sd = tonumber(self.m_iShadowDistance)
 
 		if sd and sd > 0 then
-			graphics.setColor(unpackcolor(self.m_cShadowColor))
+			graphics.setColor(self.m_cShadowColor)
 			graphics.print(self.m_sText, x + sd, y + sd)
 		end
 
-		graphics.setColor(unpackcolor(self.m_cTextColor))
+		graphics.setColor(self.m_cTextColor)
 		graphics.print(self.m_sText, x, y)
 	end
 end

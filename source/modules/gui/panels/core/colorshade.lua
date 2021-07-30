@@ -1,9 +1,13 @@
+ACCESSOR(PANEL, "Color", "m_cColor", color(255, 0, 0))
+ACCESSOR(PANEL, "Shade", "m_cShade", color(255, 255, 255))
+
 function PANEL:Initialize()
 	self:super()
 	self:SetFocusable(true)
 
 	self.m_pPickLine = graphics.newImage("textures/colorring.png")
 	self.m_pPickImage = graphics.newImage("textures/colorpick.png")
+	self.m_pGradient = graphics.newImage("textures/gradient.png")
 
 	self.m_bGrabbed = false
 
@@ -12,18 +16,7 @@ function PANEL:Initialize()
 		y = 0
 	}
 
-	self:CreateCanvas()
-
-	self.m_pData = love.image.newImageData(2, 2)
-	self.m_pData:setPixel(0, 0, 1, 1, 1, 1) -- Top left		= White
-	self.m_pData:setPixel(1, 0, 1, 0, 0, 1) -- Top Right	= Red -- This is set in PANEL:SetColor
-	self.m_pData:setPixel(0, 1, 0, 0, 0, 1) -- Bottom left 	= Black
-	self.m_pData:setPixel(1, 1, 0, 0, 0, 1) -- Bottom Right	= Black
-	self.m_pImage = graphics.newImage(self.m_pData) -- Create a new image from our image data
-
-	self:SetColor(color(255, 0, 0)) -- Set a default color so the image/imagedata is created
-
-	self:DrawGradient()
+	self:PerformLayout()
 end
 
 function PANEL:CreateCanvas()
@@ -40,8 +33,10 @@ function PANEL:DrawGradient()
 
 	graphics.setCanvas(self.m_pCanvas)
 		graphics.clear() -- Clear whatever was drawn previously
-		graphics.setColor(255, 255, 255, 255)
-		graphics.easyDraw(self.m_pImage, -w/2.5, -h/2.5, 0, w*1.8, h*1.8) -- Draw our gradient image
+		graphics.setColor(self:GetColor())
+		graphics.easyDraw(self.m_pGradient, 0, 0, 0, w, h)
+		graphics.setColor(0, 0, 0, 255)
+		graphics.easyDraw(self.m_pGradient, 0, 0, math.rad(90), w, h, 0, 1)
 	graphics.setCanvas()
 
 	self.m_pCanvasData  = self.m_pCanvas:newImageData()
@@ -52,16 +47,8 @@ function PANEL:UpdateShade()
 	self:OnShadeChanged(self.m_cShade)
 end
 
-function PANEL:GetShade()
-	return self.m_cShade
-end
-
 function PANEL:SetColor(c)
 	self.m_cColor = c
-
-	self.m_pData:setPixel(1, 0, c.r/255, c.g/255, c.b/255, c.a/255) -- Set the main color of our gradient picker
-	self.m_pImage = graphics.newImage(self.m_pData) -- Create a new image from our image data
-
 	self:DrawGradient() -- Draw our image to the canvas
 	self:UpdateShade()
 end
@@ -69,10 +56,6 @@ end
 function PANEL:GetShadeAt(x, y)
 	local r, g, b, a = self.m_pCanvasData:getPixel(x, y) -- Get the color of the pixel on the canvas
 	return color(r * 255, g * 255, b * 255, a * 255)
-end
-
-function PANEL:GetColor()
-	return self.m_cColor
 end
 
 function PANEL:PaintOverlay(w, h)

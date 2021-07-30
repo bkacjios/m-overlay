@@ -135,10 +135,10 @@ function SKIN:PaintOverlayButton(panel, w, h)
 end
 
 function SKIN:PaintFrame(panel, w, h)
-	graphics.setColor(unpackcolor(self.Background))
+	graphics.setColor(self.Background)
 	graphics.rectangle("fill", 0, 0, w, h)
 	
-	graphics.setColor(unpackcolor(panel:HasFocus(true) and self.FrameFocusedControlBar or self.FrameControlBar))
+	graphics.setColor(panel:HasFocus(true) and self.FrameFocusedControlBar or self.FrameControlBar)
 	graphics.rectangle("fill", 0, 0, w, 32)
 
 	graphics.setLineStyle("rough")

@@ -35,7 +35,7 @@ end
 function PANEL:Paint(w, h)
 	gui.skinHook("Paint", "TextEntry", self, w, h)
 
-	love.graphics.setColor(unpackcolor(self.m_cTextColor))
+	love.graphics.setColor(self.m_cTextColor)
 	love.graphics.setFont(self.m_pFont)
 
 	local height = self.m_pFont:getHeight()
@@ -52,7 +52,7 @@ function PANEL:Paint(w, h)
 		local pre = self:GetPreSelection()
 		local sel = self:GetSelection()
 		local px = self.m_pFont:getWidth(pre)
-		love.graphics.setColor(unpackcolor(self.m_cHighlightTextColor))
+		love.graphics.setColor(self.m_cHighlightTextColor)
 		if tw > pw then
 			love.graphics.rectangle("fill", px - tw + pw - 6, h/2 - (height/2), self.m_pFont:getWidth(sel), height)
 		else
