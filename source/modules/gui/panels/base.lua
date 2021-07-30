@@ -1,10 +1,6 @@
-local gui = require("gui")
-
-require("extensions.table")
-
 local PANEL = {}
 
-local graphics = love.graphics
+require("extensions.table")
 
 function PANEL:Initialize()
 	self.m_tChildren = {}
@@ -812,9 +808,9 @@ function PANEL:OnMouseWheeled(x, y)
 		Amount of vertical mouse wheel movement. Positive values indicate upward movement.
 
 	See an example in..
-	gui/panels/core/scrollpanel.lua 
+	gui/panels/scrollpanel.lua 
 	&
-	gui/panels/core/scrollbar.lua 
+	gui/panels/scrollbar.lua 
 
 	Returning true will stop the event from going up the family tree
 	Child->Parent->Parent->Parent->etc, etc..
