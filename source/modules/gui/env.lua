@@ -16,7 +16,10 @@ local env = {
 
 	unpackcolor = unpackcolor,
 	color = color,
-	hsl = hsl,
+	HSL = HSL,
+	HSV = HSV,
+	RGBToHSV = RGBToHSV,
+	ColorToHSV = ColorToHSV,
 
 	gui = require("gui"),
 }

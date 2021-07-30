@@ -15,14 +15,18 @@ function PANEL:Initialize()
 	self.m_pColorHue:Dock(DOCK_RIGHT)
 
 	self.m_pColorHue.OnHueChanged = function(this, hue)
-		self.m_pColorShade:SetColor(hue)
+		self.m_pColorShade:SetHue(hue)
 	end
 
-	self.m_pColorHue:SetHue(180)
+	self:SetColor(color(0, 255, 255))
 end
 
 function PANEL:SetColor(c)
-	self.m_pColorShade:SetColor(c)
+	local hue, saturation, value = ColorToHSV(c)
+	self.m_pColorHue:SetHue(hue)
+	self.m_pColorShade:SetHue(hue)
+	self.m_pColorShade:SetSaturation(saturation)
+	self.m_pColorShade:SetValue(value)
 end
 
 function PANEL:Paint(w, h)

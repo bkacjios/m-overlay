@@ -70,14 +70,40 @@ function color(r, g, b, a)
 	end
 end
 
-function hsl(h, s, l, a)
+function HSV(h, s, v, a)
+	s = s or 1
+	v = v or 1
+	a = a or 1
+
+	local r, g, b
+
+	local i = math.floor(h * 6)
+	local f = h * 6 - i
+	local p = v * (1 - s)
+	local q = v * (1 - f * s)
+	local t = v * (1 - (1 - f) * s)
+
+	i = i % 6
+
+	if i == 0 then r, g, b = v, t, p
+	elseif i == 1 then r, g, b = q, v, p
+	elseif i == 2 then r, g, b = p, v, t
+	elseif i == 3 then r, g, b = p, q, v
+	elseif i == 4 then r, g, b = t, p, v
+	elseif i == 5 then r, g, b = v, p, q
+	end
+
+	return color(r * 255, g * 255, b * 255, a * 255)
+end
+
+function HSL(h, s, l, a)
 	s = s or 1
 	l = l or 0.5
 	a = a or 1
 
 	if s == 0 then return color(l*255, l*255, l*255, a*255) end
 
-	h = h / 360 * 6
+	h = h * 6
 	s = math.min(math.max(0, s), 1)
 	l = math.min(math.max(0, l), 1)
 
@@ -94,6 +120,46 @@ function hsl(h, s, l, a)
 	end
 
 	return color((r+m)*255, (g+m)*255, (b+m)*255, a*255)
+end
+
+function ColorToHSV(col)
+	return RGBToHSV(col.r or 255, col.g or 255, col.b or 255, col.a or 255)
+end
+
+function RGBToHSV(red, green, blue, alpha)
+	red, green, blue, alpha = red / 255, green / 255, blue / 255, alpha / 255
+
+	local hue, saturation, value
+
+	local max, min = math.max(red, green, blue), math.min(red, green, blue)
+
+	value = max
+
+	local delta = max - min
+
+	if max == 0 then
+		saturation = 0
+	else
+		saturation = delta / max
+	end
+
+	if max == min then
+		hue = 0 -- achromatic
+	else
+		if max == red then
+			hue = (green - blue) / delta
+			if green < blue then
+				hue = hue + 6
+			end
+		elseif max == green then
+			hue = (blue - red) / delta + 2
+		elseif max == blue then
+			hue = (red - green) / delta + 4
+		end
+		hue = hue / 6
+	end
+
+	return hue, saturation, value, alpha
 end
 
 color_clear = color(0, 0, 0, 0)

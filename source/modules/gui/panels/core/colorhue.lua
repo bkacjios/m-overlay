@@ -1,3 +1,5 @@
+ACCESSOR(PANEL, "Hue", "m_iHue", 0)
+
 function PANEL:Initialize()
 	self:super()
 
@@ -12,16 +14,14 @@ function PANEL:Initialize()
 	-- Red Purple Blue Teal Green Yellow Red
 	self.m_pData = love.image.newImageData(1, 7)
 	self.m_pData:setPixel(0, 0, 1, 0, 0, 1)		-- 1 		= Red
-	self.m_pData:setPixel(0, 1, 1, 0, 1, 1)		-- 1 		= Purple
-	self.m_pData:setPixel(0, 2, 0, 0, 1, 1)		-- 3 		= Blue
+	self.m_pData:setPixel(0, 1, 1, 1, 0, 1)		-- 2 		= Yellow
+	self.m_pData:setPixel(0, 2, 0, 1, 0, 1)		-- 2 		= Green
 	self.m_pData:setPixel(0, 3, 0, 1, 1, 1)		-- 3 		= Teal
-	self.m_pData:setPixel(0, 4, 0, 1, 0, 1)		-- 2 		= Green
-	self.m_pData:setPixel(0, 5, 1, 1, 0, 1)		-- 2 		= Yellow
+	self.m_pData:setPixel(0, 4, 0, 0, 1, 1)		-- 3 		= Blue
+	self.m_pData:setPixel(0, 5, 1, 0, 1, 1)		-- 1 		= Purple
 	self.m_pData:setPixel(0, 6, 1, 0, 0, 1)		-- 1 		= Red
 
 	self.m_pImage = graphics.newImage(self.m_pData)
-
-	self:SetHue(0)
 end
 
 function PANEL:PerformLayout()
@@ -40,17 +40,17 @@ function PANEL:DrawGradient()
 end
 
 function PANEL:SetHue(h)
-	self.m_iHue = math.min(360, math.max(0, h))
-	self:OnHueChanged(self:GetColor())
+	self.m_iHue = math.min(1, math.max(0, h))
+	self:OnHueChanged(self.m_iHue)
 end
 
 function PANEL:GetColor()
-	local hue = math.min(360, math.max(0, self.m_iHue))
-	return hsl(360 - hue)
+	local hue = math.min(1, math.max(0, self.m_iHue))
+	return HSV(hue)
 end
 
 function PANEL:PaintOverlay(w, h)
-	local ypos = self.m_iHue/360*h
+	local ypos = self.m_iHue*h
 
 	graphics.setColor(self:GetColor())
 	graphics.easyDraw(self.m_pPickImage, 0, ypos - w/2, 0, w, w)
@@ -66,14 +66,14 @@ end
 
 function PANEL:SetValueFromMouseY(y)
 	local h = self:GetHeight()
-	self:SetHue(math.floor((y/h*360) + 0.5))
+	self:SetHue(y/h)
 end
 
 function PANEL:OnMousePressed(x, y, but)
 	if not self:IsEnabled() or but ~= 1 then return end
 
 	local w, h = self:GetSize()
-	local ypos = self.m_iHue/360*h
+	local ypos = self.m_iHue*h
 	h = h / 2
 
 	if y <= ypos + h and y >= ypos - h then

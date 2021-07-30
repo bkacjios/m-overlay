@@ -20,7 +20,10 @@ local env = {
 
 	unpackcolor = unpackcolor,
 	color = color,
-	hsl = hsl,
+	HSL = HSL,
+	HSV = HSV,
+	RGBToHSV = RGBToHSV,
+	ColorToHSV = ColorToHSV,
 
 	memory = memory,
 	melee = melee,

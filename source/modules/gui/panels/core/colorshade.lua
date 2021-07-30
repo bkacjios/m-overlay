@@ -1,5 +1,7 @@
-ACCESSOR(PANEL, "Color", "m_cColor", color(255, 0, 0))
+ACCESSOR(PANEL, "Hue", "m_iHue", 0)
 ACCESSOR(PANEL, "Shade", "m_cShade", color(255, 255, 255))
+ACCESSOR(PANEL, "Saturation", "m_iSaturation", 1)
+ACCESSOR(PANEL, "Value", "m_iValue", 0)
 
 function PANEL:Initialize()
 	self:super()
@@ -11,11 +13,6 @@ function PANEL:Initialize()
 
 	self.m_bGrabbed = false
 
-	self.m_vPickPos = {
-		x = 1,
-		y = 0
-	}
-
 	self:PerformLayout()
 end
 
@@ -24,16 +21,19 @@ function PANEL:CreateCanvas()
 end
 
 function PANEL:PerformLayout()
-	self:CreateCanvas()
-	self:DrawGradient()
+	self:CreateCanvas() -- Create a new canvas on resize
+	self:DrawGradient() -- Redraw our palette
+	self:UpdateShade() -- Recheck our color value
 end
 
 function PANEL:DrawGradient()
 	local w, h = self:GetSize()
 
+	local color = HSV(self.m_iHue)
+
 	graphics.setCanvas(self.m_pCanvas)
 		graphics.clear() -- Clear whatever was drawn previously
-		graphics.setColor(self:GetColor())
+		graphics.setColor(color)
 		graphics.easyDraw(self.m_pGradient, 0, 0, 0, w, h)
 		graphics.setColor(0, 0, 0, 255)
 		graphics.easyDraw(self.m_pGradient, 0, 0, math.rad(90), w, h, 0, 1)
@@ -43,19 +43,33 @@ function PANEL:DrawGradient()
 end
 
 function PANEL:UpdateShade()
-	self.m_cShade = self:GetShadeAt(self:GetPixelPickPos())
+	self.m_cShade = HSV(self.m_iHue, self.m_iSaturation, self.m_iValue)
 	self:OnShadeChanged(self.m_cShade)
 end
 
 function PANEL:SetColor(c)
-	self.m_cColor = c
+	local hue, saturation, value = ColorToHSV(c)
+	self.m_iHue = hue
+	self.m_iSaturation = saturation
+	self.m_iValue = value
 	self:DrawGradient() -- Draw our image to the canvas
 	self:UpdateShade()
 end
 
-function PANEL:GetShadeAt(x, y)
-	local r, g, b, a = self.m_pCanvasData:getPixel(x, y) -- Get the color of the pixel on the canvas
-	return color(r * 255, g * 255, b * 255, a * 255)
+function PANEL:SetHue(hue)
+	self.m_iHue = hue
+	self:DrawGradient()
+	self:UpdateShade()
+end
+
+function PANEL:SetSaturation(saturation)
+	self.m_iSaturation = saturation
+	self:UpdateShade()
+end
+
+function PANEL:SetValue(value)
+	self.m_iValue = value
+	self:UpdateShade()
 end
 
 function PANEL:PaintOverlay(w, h)
@@ -80,22 +94,15 @@ function PANEL:SetPickPos(x, y)
 	if y < 0 then y = 0 end
 	if y > h then y = h end
 
-	self.m_vPickPos.x = x/w
-	self.m_vPickPos.y = y/h
+	self.m_iSaturation = x/w
+	self.m_iValue = 1-(y/h)
 
 	self:UpdateShade()
 end
 
 function PANEL:GetPickPos()
 	local w,h = self:GetSize()
-	local pos = self.m_vPickPos
-	return pos.x*w, pos.y*h
-end
-
-function PANEL:GetPixelPickPos()
-	local w,h = self:GetSize()
-	local pos = self.m_vPickPos
-	return pos.x*(w-1), pos.y*(h-1)
+	return self.m_iSaturation*w, (1-self.m_iValue)*h
 end
 
 function PANEL:OnMousePressed(x, y, but)
