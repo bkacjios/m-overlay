@@ -1,7 +1,7 @@
 local PANEL = {}
 
 function PANEL:Initialize()	
-	self:super()
+	self:super() -- Initialize our baseclass
 	self:DockPadding(0,0,0,0)
 
 	self.m_pCanvas = self:Add("Panel")	

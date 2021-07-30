@@ -9,7 +9,7 @@ local overlay = require("overlay")
 require("extensions.math")
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 
 	--self:SetTitle("Settings")
 	--self:DockPadding(1, 32, 1, 1)
@@ -234,8 +234,8 @@ function PANEL:Initialize()
 		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/%s"):format(love.getMOverlayVersion()))
 	end
 
-	--local test = self:Add("ColorPicker")
-	--test:SetSize(256, 256)
+	local test = self:Add("ColorPicker")
+	test:SetSize(256, 256)
 end
 
 function PANEL:Toggle()

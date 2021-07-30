@@ -3,7 +3,7 @@ local PANEL = {}
 local utf8 = require("extensions.utf8")
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 	
 	self.m_sText = ""
 	self.m_iCaretPos = 0

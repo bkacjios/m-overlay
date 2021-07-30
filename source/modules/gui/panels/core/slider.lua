@@ -1,7 +1,7 @@
 local PANEL = {}
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 	self:SetWidth(128)
 
 	self:SetFocusable(true)

@@ -5,7 +5,7 @@ ACCESSOR(PANEL, "Skin", "m_strSkin", "default")
 local overlay = require("overlay")
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 
 	self:DockPadding(1, 1, 1, 1)
 	self:SetSize(80, 24)

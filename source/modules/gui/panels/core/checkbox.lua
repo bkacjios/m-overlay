@@ -3,6 +3,7 @@ ACCESSOR(PANEL, "Toggleable", "m_bToggleable", true)
 ACCESSOR(PANEL, "Toggled", "m_bToggled", false)
 
 function PANEL:Initialize()
+	-- Initialize our baseclass
 	self:super()
 
 	self.m_pLabel = self:Add("Label")

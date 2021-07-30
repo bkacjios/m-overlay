@@ -5,7 +5,7 @@ ACCESSOR(PANEL, "Draggable", "m_bDraggable", true)
 ACCESSOR(PANEL, "HideOnClose", "m_bHideOnClose", false)
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 
 	self:DockPadding(4, 36, 4, 4)
 	

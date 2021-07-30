@@ -1,7 +1,7 @@
 local PANEL = {}
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 end
 
 gui.register("DropdownSelect", PANEL, "Panel")
@@ -9,7 +9,7 @@ gui.register("DropdownSelect", PANEL, "Panel")
 local PANEL = {}
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 
 	self.m_tOptions = {}
 	self.m_iSelection = 1

@@ -18,7 +18,7 @@ function OBJECT:__index(key)
 	-- Try the base class next
 	local base = rawget(self, "__baseclass")
 	if base then
-		-- Only do the lookup once to prevent multiple __index calls
+		-- Only do the lookup once to prevent infinite __index calls
 		local value = base[key]
 		if value ~= nil then
 			-- Only return if not nil
@@ -58,13 +58,13 @@ function OBJECT:super(method, ...)
 	self.__superscope = self.__superscope - 1
 end
 
-function ACCESSOR(panel, name, internal, default)
-	panel[internal] = default
+function ACCESSOR(object, name, internal, default)
+	object[internal] = default
 	if type(default) == "boolean" then
-		panel["Is" .. name] = function(this) return this[internal] end
+		object["Is" .. name] = function(this) return this[internal] end
 	end
-	panel["Get" .. name] = function(this) return this[internal] end
-	panel["Set" .. name] = function(this, value) this[internal] = value end
+	object["Get" .. name] = function(this) return this[internal] end
+	object["Set" .. name] = function(this, value) this[internal] = value end
 end
 
 function OBJECT:getBaseClass()
@@ -107,7 +107,7 @@ end
 function class.init()
 	-- We need to do this after registering our classes rather than during,
 	-- since we don't know the order in which classes will be registered.
-	-- We wan't to be sure that every classes baseclass is ready.
+	-- We want to be sure that every classes baseclass is ready.
 
 	for classname, struct in pairs(class.structs) do
 		-- Set the baseclass

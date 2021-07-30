@@ -1,7 +1,7 @@
 ACCESSOR(PANEL, "Hue", "m_iHue", 0)
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 
 	self:SetWidth(24)
 	self:SetFocusable(true)
@@ -11,7 +11,8 @@ function PANEL:Initialize()
 
 	self.m_bGrabbed = false
 
-	-- Red Purple Blue Teal Green Yellow Red
+	-- Create a hue color gradient of all colors
+	-- red, yellow, green, teal, blue, purple, red
 	self.m_pData = love.image.newImageData(1, 7)
 	self.m_pData:setPixel(0, 0, 1, 0, 0, 1)		-- 1 		= Red
 	self.m_pData:setPixel(0, 1, 1, 1, 0, 1)		-- 2 		= Yellow
@@ -21,11 +22,12 @@ function PANEL:Initialize()
 	self.m_pData:setPixel(0, 5, 1, 0, 1, 1)		-- 1 		= Purple
 	self.m_pData:setPixel(0, 6, 1, 0, 0, 1)		-- 1 		= Red
 
+	-- Create a image from our pixel data
 	self.m_pImage = graphics.newImage(self.m_pData)
 end
 
 function PANEL:PerformLayout()
-	self.m_pCanvas = love.graphics.newCanvas(self:GetSize()) -- Create a new canvas to fix the panel size
+	self.m_pCanvas = love.graphics.newCanvas(self:GetSize()) -- Create a new canvas to fit the panel size
 	self:DrawGradient() -- Redraw our gradient to the canvas
 end
 
@@ -92,7 +94,7 @@ end
 
 function PANEL:OnMouseWheeled(x, y)
 	if not self:IsEnabled() then return end
-	self:SetHue(self.m_iHue - y)
+	self:SetHue(self.m_iHue - (y/360))
 end
 
 function PANEL:OnMouseReleased(x, y, but)

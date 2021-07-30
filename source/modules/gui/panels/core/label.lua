@@ -11,7 +11,7 @@ ACCESSOR(PANEL, "Wrapped", "m_bWrapped", false)
 ACCESSOR(PANEL, "TextAlignment", "m_sAlignment", "left")
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 
 	self:SetBGColor(color_blank)
 	self:SetBorderColor(color_blank)

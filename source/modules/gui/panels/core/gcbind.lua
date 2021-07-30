@@ -27,7 +27,8 @@ ACCESSOR(PANEL, "ButtonCombo", "m_bButtonCombo", 0x0041)
 ACCESSOR(PANEL, "Binding", "m_bBinding", false)
 
 function PANEL:Initialize()
-	self:super()	
+	self:super() -- Initialize our baseclass
+	
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
 end
 

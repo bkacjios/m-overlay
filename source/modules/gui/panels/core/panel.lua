@@ -6,7 +6,7 @@ ACCESSOR(PANEL, "BackgroundColor", "m_cBackgroundColor", color_blank)
 ACCESSOR(PANEL, "BGColor", "m_cBackgroundColor", color_blank)
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
 	gui.skinHook("Init", "Panel", self)
 end
 

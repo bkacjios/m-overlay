@@ -24,8 +24,8 @@ gui.register("ScrollBarGrip", PANEL, "Panel")
 
 local PANEL = {}
 
-function PANEL:Initialize()	
-	self:super()
+function PANEL:Initialize()
+	self:super() -- Initialize our baseclass
 	
 	self:SetWidth(16)
 	self.m_iOffset = 0

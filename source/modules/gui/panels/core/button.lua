@@ -4,7 +4,9 @@ ACCESSOR(PANEL, "PressedColor", "m_cPressedColor")
 ACCESSOR(PANEL, "HoveredColor", "m_cHoveredColor")
 
 function PANEL:Initialize()
+	-- Initialize our baseclass
 	self:super()
+	
 	self:SetFocusable(true)
 
 	self:SetTextAlignment("center")

@@ -3,11 +3,10 @@ local PANEL = {}
 ACCESSOR(PANEL, "Selection", "m_iSelection", 1)
 
 function PANEL:Initialize()
-	self:super()
+	self:super() -- Initialize our baseclass
+
 	self:SetFocusable(true)
-
 	self:DockPadding(0,0,0,0)
-
 	self:SetBGColor(color_blank)
 	self:SetBorderColor(color_blank)
 	self:SetTextAlignment("center")
