@@ -160,7 +160,7 @@ end
 
 function gui.init()
 	gui.loadSkins("modules/gui/skins")
-	gui.loadClasses("modules/gui/panels/core")
+	gui.loadClasses("modules/gui/panels")
 	class.init() -- Initialize all classes, sets inheritance
 
 	gui.m_pWorldPanel = gui.create("Panel")
@@ -210,7 +210,6 @@ do
 	end
 
 	function gui.loadClasses(folder)
-		require("gui.panels.base")
 		loadFilesWithGUIEnv(folder)
 	end
 end
