@@ -49,17 +49,29 @@ end
 
 function PANEL:UpdateColor()
 	-- Only call this function when updating hue, saturation or value
-	self.m_cColor = HSV(self.m_iHue, self.m_iSaturation, self.m_iValue)
-	self:OnColorChanged(self.m_cColor)
+	local color = HSV(self.m_iHue, self.m_iSaturation, self.m_iValue)
+	if self.m_cColor ~= color then
+		self.m_cColor = color
+		self:OnColorChanged(color)
+	end
 end
 
 -- Sets the hue of our gradient and redraws it
 -- Updates the saturation & value
 function PANEL:SetColor(c)
 	local hue, saturation, value = ColorToHSV(c)
-	self.m_iHue = hue
-	self.m_iSaturation = saturation
-	self.m_iValue = value
+	if saturation > 0 then
+		-- Only update hue if we aren't achromatic
+		self.m_iHue = hue
+	end
+	if saturation == 0 and value == 0 then
+		-- Color is black
+		-- There is no need to adjust saturation
+		self.m_iValue = value
+	else
+		self.m_iSaturation = saturation
+		self.m_iValue = value
+	end
 	self:DrawGradient() -- Setting the hue requires a redraw
 	self:UpdateColor() -- Recalculate color
 end

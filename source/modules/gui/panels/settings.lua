@@ -234,8 +234,8 @@ function PANEL:Initialize()
 		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/%s"):format(love.getMOverlayVersion()))
 	end
 
-	local test = self:Add("ColorPicker")
-	test:SetSize(256, 256)
+	--local test = self:Add("ColorPicker")
+	--test:SetSize(256, 256)
 end
 
 function PANEL:Toggle()

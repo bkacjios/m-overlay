@@ -1,9 +1,48 @@
 local PANEL = {}
 
+ACCESSOR(PANEL, "TextEntry", "m_pTextEntry")
+
+function PANEL:Initialize()
+	self:super() -- Initialize baseclass
+	self:DisableScissor()
+
+	self.COPY = self:Add("Button")
+	self.COPY:Dock(DOCK_TOP)
+	self.COPY:SetText("Copy")
+
+	self.COPY.OnClick = function(this)
+		self.m_pTextEntry:Copy()
+	end
+
+	self.PASTE = self:Add("Button")
+	self.PASTE:Dock(DOCK_TOP)
+	self.PASTE:SetText("Paste")
+
+	self.PASTE.OnClick = function(this)
+		self.m_pTextEntry:Paste()
+	end
+
+	self:SetSize(48, 60)
+end
+
+function PANEL:Think()
+	if not self:HasFocus() then
+		self:SetVisible(false)
+	end
+end
+
+gui.register("TextEntryContext", PANEL, "Panel")
+
+local PANEL = {}
+
 local utf8 = require("extensions.utf8")
 
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
+
+	self.m_pContext = gui.create("TextEntryContext")
+	self.m_pContext:SetTextEntry(self)
+	self.m_pContext:SetVisible(true)
 	
 	self.m_sText = ""
 	self.m_iCaretPos = 0
@@ -12,12 +51,19 @@ function PANEL:Initialize()
 	self.m_iSelectRight = 0
 	self.m_bInsert = false
 	self.m_cTextColor = color(0, 0, 0)
-	self.m_cHighlightTextColor = color(0, 0, 0, 100)
+	self.m_cHighlightTextColor = color(0, 150, 255, 100)
 	self.m_pFont = graphics.newFont() --love.graphics.newFont("resource/fonts/VeraMono.ttf", 12)
 	self.m_pMouseBeam = love.mouse.getSystemCursor("ibeam")
 	self.m_tCharacterSizes = {}
 	self.m_tUndoBuffer = {}
 	self.m_tRedoBuffer = {}
+end
+
+function PANEL:ShowContext()
+	self.m_pContext:SetVisible(true)
+	self.m_pContext:GiveFocus()
+	self.m_pContext:BringToFront()
+	self.m_pContext:SetPos(gui.getMousePosition())
 end
 
 function PANEL:Think(dt)
@@ -91,7 +137,9 @@ function PANEL:SetTextColor(c)
 end
 
 function PANEL:OnMousePressed(x, y, but)
-
+	if but == 2 then
+		self:ShowContext()
+	end
 end
 
 function PANEL:OnMouseReleased(x, y, but)
@@ -140,8 +188,16 @@ function PANEL:EnterSelectMode()
 	self.m_bSelectMode = true
 end
 
+function PANEL:SelectAll()
+	self:EnterSelectMode()
+	self.m_iSelectLeft = 0
+	self.m_iSelectRight = utf8.len(self.m_sText)
+	self.m_iCaretPos = self.m_iSelectRight
+end
+
 function PANEL:SetText(str)
 	self.m_sText = str
+	self:ResetSelection()
 	self:CaretGoToEnd()
 end
 
@@ -163,10 +219,20 @@ function PANEL:OnTextInput(text)
 	end
 	self:UpdateUndoBuffer()
 	self:ResetSelection()
+
+	self:OnTextChanged(self.m_sText, text)
 end
 
 function PANEL:UpdateUndoBuffer()
 	table.insert(self.m_tUndoBuffer, self.m_sText)
+end
+
+function PANEL:Copy()
+	love.system.setClipboardText(self:GetSelection())
+end
+
+function PANEL:Paste()
+	self:OnTextInput(love.system.getClipboardText())
 end
 
 function PANEL:OnKeyPressed(key, isrepeat)
@@ -245,20 +311,17 @@ function PANEL:OnKeyPressed(key, isrepeat)
 	elseif key == "down" then
 	elseif control then
 		if key == "a" then
-			self:EnterSelectMode()
-			self.m_iSelectLeft = 0
-			self.m_iSelectRight = utf8.len(self.m_sText)
-			self.m_iCaretPos = self.m_iSelectRight
+			self:SelectAll()
 		elseif key == "x" then
-			love.system.setClipboardText(self:GetSelection())
+			self:Copy()
 			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
 			self:UpdateUndoBuffer()
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
 			self:ResetSelection()
 		elseif key == "c" then
-			love.system.setClipboardText(self:GetSelection())
+			self:Copy()
 		elseif key == "v" then
-			self:OnTextInput(love.system.getClipboardText())
+			self:Paste()
 		elseif key == "y" then
 			local pop = table.remove(self.m_tRedoBuffer) or ""
 			if pop ~= "" then
@@ -280,6 +343,10 @@ function PANEL:OnKeyPressed(key, isrepeat)
 end
 
 function PANEL:OnKeyReleased(key)
+end
+
+function PANEL:OnTextChanged(text, add)
+
 end
 
 gui.register("TextEntry", PANEL, "Panel")

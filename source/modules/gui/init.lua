@@ -30,6 +30,10 @@ function gui.getHoveredPanel()
 	return gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
 end
 
+function gui.getMousePosition()
+	return gui.getWorldPanel():WorldToLocal(love.mouse.getPosition())
+end
+
 function gui.resize(w, h)
 	gui.getWorldPanel():SizeToScreen()
 	gui.getWorldPanel():InvalidateLayout()
