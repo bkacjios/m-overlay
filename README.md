@@ -3,11 +3,10 @@
 # m-overlay
 *A gamecube controller input display, for use with Dolphin specifically.*
 
-## Downloads
+## Downloads - ([patch notes](https://github.com/bkacjios/m-overlay/releases))
 
 * [Installer](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-installer.exe)
 * [Portalable](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-portable.zip)
-* [Patch notes](https://github.com/bkacjios/m-overlay/releases)
 
 ## Information
 
