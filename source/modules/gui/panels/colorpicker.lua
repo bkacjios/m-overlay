@@ -3,6 +3,7 @@ function PANEL:Initialize()
 	
 	self.m_txtColorValue = self:Add("TextEntry")
 	self.m_txtColorValue:Dock(DOCK_TOP)
+	self.m_txtColorValue:SetHoveredInput(true)
 
 	self.m_txtColorValue.OnTextChanged = function(this, text, add)
 		if text:match("(#%x%x%x%x%x%x)") then

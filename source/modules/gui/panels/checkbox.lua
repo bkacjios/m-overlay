@@ -5,15 +5,8 @@ ACCESSOR(PANEL, "Toggled", "m_bToggled", false)
 function PANEL:Initialize()
 	-- Initialize our baseclass
 	self:super()
-
-	self.m_pLabel = self:Add("Label")
-	self.m_pLabel:DockMargin(28, 0, 0, 0)
-	self.m_pLabel:Dock(DOCK_FILL)
-	self.m_pLabel:SetText("Checkbox")
-
-	self:SetFocusable(true)
-
-	--gui.skinHook("Init", "Checkbox", self)
+	self:TextMargin(28, 0, 0, 0)
+	self:SetTextAlignment("left")
 end
 
 function PANEL:SetToggle(b, force)
@@ -21,10 +14,6 @@ function PANEL:SetToggle(b, force)
 		self.m_bToggled = b
 		self:OnToggle(b)
 	end
-end
-
-function PANEL:SetText(str)
-	self.m_pLabel:SetText(str)
 end
 
 function PANEL:Paint(w, h)
@@ -64,4 +53,4 @@ function PANEL:OnClick()
 	-- Override
 end
 
-gui.register("Checkbox", PANEL, "Panel")
+gui.register("Checkbox", PANEL, "Button")

@@ -56,10 +56,11 @@ function PANEL:Paint(w, h)
 
 	local x, y = self.m_tTextMargins.left, self.m_tTextMargins.top
 
-	w = self.m_tTextMargins.left + w - self.m_tTextMargins.right
-	h = self.m_tTextMargins.top + h - self.m_tTextMargins.bottom
+	w = w - self.m_tTextMargins.right - self.m_tTextMargins.left
+	h = h - self.m_tTextMargins.top - self.m_tTextMargins.bottom
 
-	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent() 
+	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent()
+
 	if self.m_bWrapped then
 		graphics.printf(self.m_sText, x, y, self:GetWidth(), self.m_sAlignment)
 	else
@@ -67,11 +68,11 @@ function PANEL:Paint(w, h)
 
 		-- Set alignment for non-wrapped text
 		if self.m_sAlignment == "center" then
-			x, y = floor(w/2 - (tw/2)), floor(h/2 - (th/2))
+			x, y = x + floor(w/2 - (tw/2)), y + floor(h/2 - (th/2))
 		elseif self.m_sAlignment == "right" then
-			x, y = w - tw, floor(h/2 - (th/2))
+			x, y = x + w - tw, y + floor(h/2 - (th/2))
 		else -- Assume left
-			x, y = 0, floor(h/2 - (th/2))
+			y = y + floor(h/2 - (th/2))
 		end
 
 		local ol = tonumber(self.m_iOutlineThickness)

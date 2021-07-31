@@ -20,7 +20,7 @@ function PANEL:Initialize()
 
 	self.OKAY = self.OPTIONS:Add("Button")
 	self.OKAY:Dock(DOCK_RIGHT)
-	self.OKAY:SetText("Save")
+	self.OKAY:SetText("Okay")
 	self.OKAY:SetWidth(56)
 
 	self.OKAY.OnClick = function(this)

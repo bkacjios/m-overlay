@@ -3,18 +3,12 @@ ACCESSOR(PANEL, "Color", "m_cColor", color_white)
 function PANEL:Initialize()
 	-- Initialize our baseclass
 	self:super()
-
-	self:TextMargin(24, 0, 0, 0)
+	self:TextMargin(28, 0, 0, 0)
+	self:SetTextAlignment("left")
 end
 
 function PANEL:Paint(w, h)
-	if self.m_bDrawPanel then
-		gui.skinHook("Paint", "Button", self, w, h)
-	end
-
-	if self.m_bDrawLabel then
-		self:super("Paint", w, h)
-	end
+	self:super("Paint", w, h)
 
 	graphics.setColor(self.m_cColor)
 	graphics.rectangle("fill", 4, 4, h-8, h-8)

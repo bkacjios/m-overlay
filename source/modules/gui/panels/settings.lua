@@ -130,6 +130,7 @@ function PANEL:Initialize()
 
 	local VOLLABEL = self.MELEE:Add("Label")
 	VOLLABEL:SetText("Music volume")
+	VOLLABEL:SetTextAlignment("center")
 	VOLLABEL:SizeToText()
 	VOLLABEL:Dock(DOCK_TOP)
 	VOLLABEL:SetTextColor(color_white)
