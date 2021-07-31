@@ -29,6 +29,8 @@ SKIN.CheckboxBorder = color(100, 100, 100)
 SKIN.CheckboxOff = color(200, 200, 200)
 SKIN.CheckboxOn = color(0, 162, 232)
 
+SKIN.CheckImage = graphics.newImage("textures/checkmark.png")
+
 function SKIN:InitPanel(panel)
 	panel:SetBGColor(self.PanelBackground)
 	panel:SetBorderColor(self.PanelBorder)
@@ -169,21 +171,29 @@ end
 
 function SKIN:PaintCheckbox(panel, w, h)
 	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
-	graphics.rectangle("fill", 4, 4, 16, 16)
+	graphics.rectangle("fill", 4, 4, h-8, h-8)
+
+	if panel:IsToggled() then
+		graphics.setColor(255, 255, 255, 255)
+		graphics.easyDraw(self.CheckImage, 4, 4, 0, h-8, h-8)
+	end
 	
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
 	
 	graphics.setColor(self.CheckboxBorder)
-	graphics.rectangle("line", 4, 4, 16, 16)
+	graphics.rectangle("line", 4, 4, h-8, h-8)
 end
 
 function SKIN:PaintRadio(panel, w, h)
-	graphics.setColor(self.CheckboxBorder)
-	graphics.circle("fill", 12, 12, 9, 32)
-
 	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
-	graphics.circle("fill", 12, 12, 8, 32)
+	graphics.circle("fill", 12, 12, h/2-8, 32)
+
+	graphics.setLineStyle("smooth")
+	graphics.setLineWidth(1)
+
+	graphics.setColor(self.CheckboxBorder)
+	graphics.circle("line", 12, 12, h/2-8, 32)
 end
 
 function SKIN:InitHorizontalSelect(panel)

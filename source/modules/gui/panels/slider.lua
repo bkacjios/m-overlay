@@ -1,5 +1,8 @@
 local PANEL = {}
 
+PANEL.NotchColor = color(100, 100, 100)
+PANEL.GrabberColor = color(0, 162, 232)
+
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
 	self:SetWidth(128)
@@ -19,7 +22,7 @@ end
 function PANEL:Paint(w,h)
 	gui.skinHook("Paint", "Slider", self, w, h)
 
-	graphics.setColor(color(100, 100, 100))
+	graphics.setColor(self.NotchColor)
 	graphics.line(0, h/2, w, h/2)
 
 	local x = 0
@@ -43,8 +46,11 @@ function PANEL:Paint(w,h)
 
 	local xpos = self.m_iValue/range*w
 
-	graphics.setColor(color(0, 162, 232))
+	graphics.setColor(self.GrabberColor)
 	graphics.rectangle("fill", xpos - 4, 4, 8, h - 8)
+
+	graphics.setColor(color_black)
+	graphics.rectangle("line", xpos - 4, 4, 8, h - 8)
 end
 
 function PANEL:PaintOverlay(w, h)

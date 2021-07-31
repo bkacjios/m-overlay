@@ -20,7 +20,10 @@ function PANEL:Initialize()
 end
 
 function PANEL:CreateCanvas()
-	self.m_pCanvas = love.graphics.newCanvas(self:GetSize()) -- Create a new canvas to fit the panel size
+	local w, h = self:GetSize()
+	if w <= 0 then w = 1 end
+	if h <= 0 then h = 1 end
+	self.m_pCanvas = love.graphics.newCanvas(w, h) -- Create a new canvas to fit the panel size
 end
 
 function PANEL:PerformLayout()
@@ -43,7 +46,7 @@ function PANEL:DrawGradient()
 		graphics.setColor(color)
 		graphics.easyDraw(self.m_pGradient, 0, 0, 0, w, h)
 		graphics.setColor(0, 0, 0, 255)
-		graphics.easyDraw(self.m_pGradient, 0, 0, math.rad(90), w, h, 0, 1)
+		graphics.easyDraw(self.m_pGradient, 0, 0, math.rad(90), h, w, 0, 1)
 	graphics.setCanvas()
 end
 
@@ -105,6 +108,8 @@ function PANEL:PaintOverlay(w, h)
 	-- Draw a high-contrast outline
 	graphics.setColor(255, 255, 255, 255)
 	graphics.easyDraw(self.m_pPickLine, xpos - hpsize, ypos - hpsize, 0, psize, psize)
+
+	self:super("PaintOverlay", w, h)
 end
 
 function PANEL:Paint(w, h)

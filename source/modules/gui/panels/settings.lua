@@ -18,6 +18,7 @@ function PANEL:Initialize()
 	self:SetSize(296 + 32, 256)
 	self:Center()
 	self:SetBackgroundColor(color(0, 0, 0, 100))
+	self:SetBorderColor(color_blank)
 
 	local LEFT = self:Add("Panel")
 	LEFT:DockMargin(0,0,0,0)
@@ -189,23 +190,40 @@ function PANEL:Initialize()
 		end
 	end
 
-	if love.supportsGameCapture() then
-		local TLABEL = LEFT:Add("Label")
-		TLABEL:SetText("Transparency")
-		TLABEL:SizeToText()
-		TLABEL:Dock(DOCK_TOP)
-		TLABEL:SetTextColor(color_white)
-		TLABEL:SetShadowDistance(1)
-		TLABEL:SetShadowColor(color_black)
-		TLABEL:SetFont("fonts/melee-bold.otf", 12)
+	local TLABEL = LEFT:Add("Label")
+	TLABEL:SetText("Transparency")
+	TLABEL:SizeToText()
+	TLABEL:Dock(DOCK_TOP)
+	TLABEL:SetTextColor(color_white)
+	TLABEL:SetShadowDistance(1)
+	TLABEL:SetShadowColor(color_black)
+	TLABEL:SetFont("fonts/melee-bold.otf", 12)
+	TLABEL:SetVisible(love.supportsGameCapture())
 
-		self.TRANSPARENCY = LEFT:Add("Slider")
-		self.TRANSPARENCY:SetValue(100)
-		self.TRANSPARENCY:Dock(DOCK_TOP)
+	self.TRANSPARENCY = LEFT:Add("Slider")
+	self.TRANSPARENCY:SetValue(100)
+	self.TRANSPARENCY:Dock(DOCK_TOP)
+	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
 
-		function self.TRANSPARENCY:OnValueChanged(i)
-			TLABEL:SetText(("Transparency - %d%%"):format(i))
-		end
+	function self.TRANSPARENCY:OnValueChanged(i)
+		TLABEL:SetText(("Transparency - %d%%"):format(i))
+	end
+
+	self.BACKGROUNDCOLOR = LEFT:Add("ColorButton")
+	self.BACKGROUNDCOLOR:SetText("Background color")
+	self.BACKGROUNDCOLOR:Dock(DOCK_TOP)
+	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
+
+	local colorSelect = self:Add("ColorSelector")
+	colorSelect:SetSize(296 + 32, 256)
+	colorSelect:Center()
+	colorSelect:SetVisible(false)
+	colorSelect:SetColorButton(self.BACKGROUNDCOLOR)
+
+	self.BACKGROUNDCOLOR.OnClick = function(this)
+		colorSelect:SetColor(self.BACKGROUNDCOLOR:GetColor())
+		colorSelect:SetVisible(true)
+		colorSelect:BringToFront()
 	end
 
 	self.CONFIGDIR = LEFT:Add("Button")
@@ -262,7 +280,12 @@ function PANEL:GetSaveTable()
 		["melee-stage-music-loop"] = self:GetMusicLoopMode(),
 		["melee-stage-music-skip-buttons"] = self:GetMusicSkipMask(),
 		["melee-music-volume"] = self:GetVolume(),
+		["background-color"] = self:GetBackgroundColor(),
 	}
+end
+
+function PANEL:GetBackgroundColor()
+	return self.BACKGROUNDCOLOR:GetColor()
 end
 
 function PANEL:IsBinding()
@@ -398,12 +421,13 @@ function PANEL:LoadSettings()
 	end
 	self.START:SetToggle(settings["enable-start"] or false, true)
 	if self.DEBUG then self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false) end
-	if self.TRANSPARENCY then self.TRANSPARENCY:SetValue(settings["transparency"] or 100) end
+	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
 	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0041)
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
+	self.BACKGROUNDCOLOR:SetColor(settings["background-color"] or color(119, 119, 119))
 end
 
 gui.register("Settings", PANEL, "Panel")

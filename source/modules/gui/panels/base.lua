@@ -420,11 +420,11 @@ function PANEL:SetSize(w, h)
 end
 
 function PANEL:GetSize()
-	return self.m_iWidth * self.m_fScaleX, self.m_iHeight * self.m_fScaleY
+	return math.max(0, self.m_iWidth * self.m_fScaleX), math.max(0, self.m_iHeight * self.m_fScaleY)
 end
 
 function PANEL:GetActualSize()
-	return self.m_iWidth, self.m_iHeight
+	return math.max(0, self.m_iWidth), math.max(0, self.m_iHeight)
 end
 
 function PANEL:SetWidth(w)
@@ -435,7 +435,7 @@ function PANEL:SetWidth(w)
 end
 
 function PANEL:GetWidth()
-	return self.m_iWidth * self.m_fScaleX
+	return math.max(0, self.m_iWidth * self.m_fScaleX)
 end
 
 function PANEL:SetHeight(h)
@@ -446,7 +446,7 @@ function PANEL:SetHeight(h)
 end
 
 function PANEL:GetHeight()
-	return self.m_iHeight * self.m_fScaleY
+	return math.max(0, self.m_iHeight * self.m_fScaleY)
 end
 
 function PANEL:IsWorldPointInside(x, y)

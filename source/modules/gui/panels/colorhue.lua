@@ -27,7 +27,10 @@ function PANEL:Initialize()
 end
 
 function PANEL:PerformLayout()
-	self.m_pCanvas = love.graphics.newCanvas(self:GetSize()) -- Create a new canvas to fit the panel size
+	local w, h = self:GetSize()
+	if w <= 0 then w = 1 end
+	if h <= 0 then h = 1 end
+	self.m_pCanvas = love.graphics.newCanvas(w, h) -- Create a new canvas to fit the panel size
 	self:DrawGradient() -- Redraw our gradient to the canvas
 end
 
@@ -58,6 +61,8 @@ function PANEL:PaintOverlay(w, h)
 	graphics.easyDraw(self.m_pPickImage, 0, ypos - w/2, 0, w, w)
 	graphics.setColor(255, 255, 255, 255)
 	graphics.easyDraw(self.m_pPickLine, 0, ypos - w/2, 0, w, w)
+
+	self:super("PaintOverlay", w, h)
 end
 
 function PANEL:Paint(w, h)
@@ -68,7 +73,7 @@ end
 
 function PANEL:SetValueFromMouseY(y)
 	local h = self:GetHeight()
-	self:SetHue(y/h)
+	self:SetHue((y/h*360)/360)
 end
 
 function PANEL:OnMousePressed(x, y, but)

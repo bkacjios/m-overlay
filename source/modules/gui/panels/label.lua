@@ -13,11 +13,24 @@ ACCESSOR(PANEL, "TextAlignment", "m_sAlignment", "left")
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
 
+	self.m_tTextMargins = { left = 0, top = 0, right = 0, bottom = 0 }
+
 	self:SetBGColor(color_blank)
 	self:SetBorderColor(color_blank)
 	self:SetFocusable(false)
 	
 	self.m_pFont = graphics.newFont("fonts/melee.otf", 12)
+end
+
+function PANEL:TextMargin(left, top, right, bottom)
+	self.m_tTextMargins.left = left
+	self.m_tTextMargins.top = top
+	self.m_tTextMargins.right = right
+	self.m_tTextMargins.bottom = bottom
+end
+
+function PANEL:GetDockMargin()
+	return self.m_tTextMargins
 end
 
 function PANEL:Think(dt)
@@ -41,13 +54,16 @@ function PANEL:Paint(w, h)
 	graphics.setColor(self.m_cTextColor)
 	graphics.setFont(self.m_pFont)
 
+	local x, y = self.m_tTextMargins.left, self.m_tTextMargins.top
+
+	w = self.m_tTextMargins.left + w - self.m_tTextMargins.right
+	h = self.m_tTextMargins.top + h - self.m_tTextMargins.bottom
+
 	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent() 
 	if self.m_bWrapped then
-		graphics.printf(self.m_sText, 0, 0, self:GetWidth(), self.m_sAlignment)
+		graphics.printf(self.m_sText, x, y, self:GetWidth(), self.m_sAlignment)
 	else
 		--print(self.m_pFont:getHeight(), self.m_pFont:getLineHeight(), self.m_pFont:getDescent(), self.m_pFont:getAscent(), self.m_pFont:getBaseline())
-
-		local x, y = 0, 0
 
 		-- Set alignment for non-wrapped text
 		if self.m_sAlignment == "center" then
