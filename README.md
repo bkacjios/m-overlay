@@ -3,6 +3,8 @@
 # m-overlay
 *A gamecube controller input display, for use with Dolphin specifically.*
 
+![M'Overlay in use](https://i.imgur.com/VZWta8H.gif)
+
 ## Downloads - ([patch notes](https://github.com/bkacjios/m-overlay/releases/latest))
 
 * Windows (x64)
@@ -10,10 +12,27 @@
   - Portable: [m-overlay-x64-portable.zip](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-portable.zip)
 * Linux ([LÖVE 11.3](https://love2d.org/) - x64)
   - Love2D: [m-overlay-x64.love](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64.love)
+* macOS
+  - [Currently unsupported and probably never will be](https://github.com/bkacjios/m-overlay/issues/97)
+
+## Usage
+
+* **You can change which controller port is displayed by using the scrollwheel or pressing 1-4 on the keyboard.**
+  - You can also press `escape` and change the port via the settings panel on the left
+* Access a settings menu by pressing the `escape` key (All settings are documented on the [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual) page)
+* Set what port is selected when opening with the launch command (--port=N or --port N) [Example](https://i.imgur.com/f9AkS2q.png)
+
+## Wiki pages
+
+* [Common issues](https://github.com/bkacjios/m-overlay/wiki/Common-issues-and-solutions)
+* [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual)
+* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup---Windows) (Windows)
+* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup---Linux) (Linux)
+* [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
+* [Super Smash Bros. Melee stage music tutorial](https://github.com/bkacjios/m-overlay/wiki/Stage-music-for-Project-Slippi)
+
 
 ## Information
-
-![M'Overlay in use](https://i.imgur.com/VZWta8H.gif)
 
 ### Known programs that interfere with M'Overlay:
 
@@ -79,18 +98,3 @@
 * Paper Mario (NTSC-U)
 
 *More games can be supported upon request!*
-
-### Usage
-
-- **You can change which controller port is displayed by using the scrollwheel or pressing 1-4 on the keyboard.**
-- Access a settings menu by pressing the `escape` key (All settings are documented on the [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual) page)
-- Set what port is selected when opening with the launch command (--port=N or --port N) [Example](https://i.imgur.com/f9AkS2q.png)
-
-### Wiki pages
-
-* [Common issues](https://github.com/bkacjios/m-overlay/wiki/Common-issues-and-solutions)
-* [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual)
-* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup---Windows) (Windows)
-* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup---Linux) (Linux)
-* [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
-* [Super Smash Bros. Melee stage music tutorial](https://github.com/bkacjios/m-overlay/wiki/Stage-music-for-Project-Slippi)
