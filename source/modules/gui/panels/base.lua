@@ -725,8 +725,21 @@ function PANEL:OnKeyReleased(key)
 	-- Called when the panel is focused, and a keyboard key has been released
 end
 
+function PANEL:OnHoveredKeyPressed(key, hex)
+	-- Called when the panel is hovered over, and a keyboard key has been pressed
+end
+
+function PANEL:OnHoveredKeyReleased(key)
+	-- Called when the panel is hovered over, and a keyboard key has been released
+end
+
 function PANEL:OnTextInput(text)
 	-- Called when the panel is focused.
+	-- Good for a text input panel.
+end
+
+function PANEL:OnHoveredTextInput(text)
+	-- Called when the panel is hovered.
 	-- Good for a text input panel.
 end
 

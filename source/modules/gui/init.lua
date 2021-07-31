@@ -84,14 +84,17 @@ function gui.keyPressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
 	end
 	gui.m_pFocusedPanel:OnKeyPressed(key, isrepeat)
+	gui.getHoveredPanel():OnHoveredKeyPressed(key, isrepeat)
 end
 
 function gui.keyReleased(key)
 	gui.m_pFocusedPanel:OnKeyReleased(key)
+	gui.getHoveredPanel():OnHoveredKeyReleased(key)
 end
 
 function gui.textInput(text)
 	gui.m_pFocusedPanel:OnTextInput(text)
+	gui.getHoveredPanel():OnHoveredTextInput(text)
 end
 
 function gui.render()

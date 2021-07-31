@@ -35,6 +35,8 @@ gui.register("TextEntryContext", PANEL, "Panel")
 
 local PANEL = {}
 
+ACCESSOR(PANEL, "HoveredInput", "m_bHoveredInput", false)
+
 local utf8 = require("extensions.utf8")
 
 function PANEL:Initialize()
@@ -201,6 +203,12 @@ function PANEL:SetText(str)
 	self:CaretGoToEnd()
 end
 
+function PANEL:OnHoveredTextInput(text)
+	if self.m_bHoveredInput then
+		self:OnTextInput(text)
+	end
+end
+
 function PANEL:OnTextInput(text)
 	if not self:IsEnabled() then return end
 	
@@ -233,6 +241,12 @@ end
 
 function PANEL:Paste()
 	self:OnTextInput(love.system.getClipboardText())
+end
+
+function PANEL:OnHoveredKeyPressed(key, isrepeat)
+	if self.m_bHoveredInput then
+		self:OnKeyPressed(key, isrepeat)
+	end
 end
 
 function PANEL:OnKeyPressed(key, isrepeat)
@@ -339,6 +353,12 @@ function PANEL:OnKeyPressed(key, isrepeat)
 				table.insert(self.m_tRedoBuffer, pop)
 			end
 		end
+	end
+end
+
+function PANEL:OnHoveredOnKeyReleased(key)
+	if self.m_bHoveredInput then
+		self:OnKeyReleased(key)
 	end
 end
 
