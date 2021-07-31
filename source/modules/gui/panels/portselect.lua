@@ -9,7 +9,7 @@ function PANEL:Initialize()
 
 	self:DockPadding(1, 1, 1, 1)
 	self:SetBorderColor(color_clear)
-	self:SetBackgroundColor(color(0, 0, 0, 100))
+	self:SetBackgroundColor(color(0, 0, 0, 200))
 
 	local LABEL = self:Add("Label")
 	LABEL:SetText("Ports")

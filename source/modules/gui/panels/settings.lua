@@ -23,7 +23,7 @@ function PANEL:Initialize()
 	self.MAIN:SetSize(296 + 32, 256)
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
-	self.MAIN:SetBackgroundColor(color(0, 0, 0, 100))
+	self.MAIN:SetBackgroundColor(color(0, 0, 0, 200))
 	self.MAIN:SetBorderColor(color_blank)
 
 	local LEFT = self.MAIN:Add("Panel")
@@ -187,14 +187,13 @@ function PANEL:Initialize()
 	self.START:Dock(DOCK_RIGHT)
 	self.START:DockMargin(0,0,0,0)
 
-	if love.system.getOS() == "Windows" then
-		self.DEBUG = LEFT:Add("Checkbox")
-		self.DEBUG:SetText("Debug console")
-		self.DEBUG:Dock(DOCK_TOP)
+	self.DEBUG = LEFT:Add("Checkbox")
+	self.DEBUG:SetText("Debug console")
+	self.DEBUG:Dock(DOCK_TOP)
+	self.DEBUG:SetVisible(love.system.getOS() == "Windows")
 
-		function self.DEBUG:OnToggle(on)
-			love.console(on)
-		end
+	function self.DEBUG:OnToggle(on)
+		love.console(on)
 	end
 
 	local TLABEL = LEFT:Add("Label")
@@ -220,6 +219,7 @@ function PANEL:Initialize()
 	self.BACKGROUNDCOLOR:SetText("Background color")
 	self.BACKGROUNDCOLOR:Dock(DOCK_TOP)
 	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
+	self.BACKGROUNDCOLOR:SetColor(color(119, 119, 119))
 
 	local colorSelect = self:Add("ColorSelector")
 	colorSelect:SetSize(296 + 32, 256)
@@ -397,12 +397,14 @@ function PANEL:SaveSettings()
 	if not self:NeedsWrite() then return end -- Stop if we don't need to write any changes
 	local f, err = filesystem.newFile(self.m_sFileName, "w")
 	if f then
+		log.warn("Writing to %s", self.m_sFileName)
 		notification.warning(("Writing to %s"):format(self.m_sFileName))
 		self.m_tSettings = self:GetSaveTable()
 		f:write(json.encode(self.m_tSettings, true))
 		f:flush()
 		f:close()
 	else
+		log.error("Failed writing to %s (%s)", self.m_sFileName, err)
 		notification.error(("Failed writing to %s (%s)"):format(self.m_sFileName, err))
 	end
 end
@@ -437,24 +439,22 @@ function PANEL:LoadSettings()
 
 	self.m_tSettings = settings
 
-	overlay.setPort(settings["port"] or 1)
-	overlay.setSkin(settings["skin"] or "default")
+	overlay.setPort(settings["port"])
+	overlay.setSkin(settings["skin"])
 
-	self.PORTTITLE:SetToggle(settings["port-in-title"] or false, true)
-	self.ALWAYSPORT:SetToggle(settings["always-show-port"] or false, true)
-	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"] or false, true)
-	if settings["enable-dpad"] ~= nil then
-		self.DPAD:SetToggle(settings["enable-dpad"], true)
-	end
-	self.START:SetToggle(settings["enable-start"] or false, true)
-	if self.DEBUG then self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false) end
-	self.TRANSPARENCY:SetValue(settings["transparency"] or 100)
-	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"] or 0, true)
-	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"] or false, true)
+	self.PORTTITLE:SetToggle(settings["port-in-title"], true)
+	self.ALWAYSPORT:SetToggle(settings["always-show-port"], true)
+	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"], true)
+	self.DPAD:SetToggle(settings["enable-dpad"], true)
+	self.START:SetToggle(settings["enable-start"], true)
+	self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false)
+	self.TRANSPARENCY:SetValue(settings["transparency"])
+	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"], true)
+	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"], true)
 	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
-	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"] or 0x0041)
-	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"] or 50)
-	self.BACKGROUNDCOLOR:SetColor(settings["background-color"] or color(119, 119, 119))
+	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"])
+	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
+	self.BACKGROUNDCOLOR:SetColor(settings["background-color"])
 end
 
 gui.register("Settings", PANEL, "Panel")

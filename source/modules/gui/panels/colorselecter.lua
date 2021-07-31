@@ -24,8 +24,8 @@ function PANEL:Initialize()
 	self.OKAY:SetWidth(56)
 
 	self.OKAY.OnClick = function(this)
-		self.m_pColorButton:SetColor(self.COLORPICKER:GetColor())
 		self:SetVisible(false)
+		self.m_pColorButton:SetColor(self.COLORPICKER:GetColor())
 	end
 
 	self.CANCEL = self.OPTIONS:Add("Button")

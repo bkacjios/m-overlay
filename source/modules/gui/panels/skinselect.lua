@@ -1,6 +1,6 @@
 local PANEL = {}
 
-ACCESSOR(PANEL, "Skin", "m_strSkin", "default")
+ACCESSOR(PANEL, "Skin", "m_strSkin", "Default")
 
 local overlay = require("overlay")
 
@@ -11,7 +11,7 @@ function PANEL:Initialize()
 	self:SetSize(80, 24)
 	self:SetPos(512-80, 0)
 	self:SetBorderColor(color_clear)
-	self:SetBackgroundColor(color(0, 0, 0, 100))
+	self:SetBackgroundColor(color(0, 0, 0, 200))
 
 	local LABEL = self:Add("Label")
 	LABEL:SetText("Themes")

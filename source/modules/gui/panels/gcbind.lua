@@ -23,7 +23,7 @@ PANEL.BUTTONS = {
 	C_RIGHT = 0x800000,
 }
 
-ACCESSOR(PANEL, "ButtonCombo", "m_bButtonCombo", 0x0041)
+ACCESSOR(PANEL, "ButtonCombo", "m_bButtonCombo", 0x0042)
 ACCESSOR(PANEL, "Binding", "m_bBinding", false)
 
 function PANEL:Initialize()
