@@ -90,6 +90,7 @@
 
 * [Common issues](https://github.com/bkacjios/m-overlay/wiki/Common-issues-and-solutions)
 * [Settings manual](https://github.com/bkacjios/m-overlay/wiki/Settings-manual)
-* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup)
+* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup---Windows) (Windows)
+* [OBS Setup](https://github.com/bkacjios/m-overlay/wiki/OBS-Setup---Linux) (Linux)
 * [Linux Setup](https://github.com/bkacjios/m-overlay/wiki/Linux)
 * [Super Smash Bros. Melee stage music tutorial](https://github.com/bkacjios/m-overlay/wiki/Stage-music-for-Project-Slippi)
