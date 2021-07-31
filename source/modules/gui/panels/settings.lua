@@ -219,7 +219,7 @@ function PANEL:Initialize()
 	self.BACKGROUNDCOLOR:SetText("Background color")
 	self.BACKGROUNDCOLOR:Dock(DOCK_TOP)
 	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
-	self.BACKGROUNDCOLOR:SetColor(color(119, 119, 119))
+	self.BACKGROUNDCOLOR:SetColor(color(34, 34, 34))
 
 	local colorSelect = self:Add("ColorSelector")
 	colorSelect:SetSize(296 + 32, 256)
