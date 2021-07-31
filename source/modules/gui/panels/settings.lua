@@ -11,16 +11,22 @@ require("extensions.math")
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
 
-	--self:SetTitle("Settings")
-	--self:DockPadding(1, 32, 1, 1)
-	--self:SetHideOnClose(true)
-	self:DockPadding(0, 0, 0, 0)
-	self:SetSize(296 + 32, 256)
-	self:Center()
-	self:SetBackgroundColor(color(0, 0, 0, 100))
+	self:DockMargin(0, 0, 0, 0)
+	self:SizeToScreen()
+	self:SetBackgroundColor(color_blank)
 	self:SetBorderColor(color_blank)
 
-	local LEFT = self:Add("Panel")
+	self.PORTSELECT = self:Add("PortSelect")
+	self.SKINSELECT = self:Add("SkinSelect")
+
+	self.MAIN = self:Add("Panel")
+	self.MAIN:SetSize(296 + 32, 256)
+	self.MAIN:DockPadding(0, 0, 0, 0)
+	self.MAIN:Center()
+	self.MAIN:SetBackgroundColor(color(0, 0, 0, 100))
+	self.MAIN:SetBorderColor(color_blank)
+
+	local LEFT = self.MAIN:Add("Panel")
 	LEFT:DockMargin(0,0,0,0)
 	LEFT:DockPadding(4,4,4,4)
 	LEFT:SetBorderColor(color_clear)
@@ -39,7 +45,7 @@ function PANEL:Initialize()
 	GLABEL:SetShadowColor(color_black)
 	GLABEL:SetFont("fonts/melee-bold.otf", 14)
 
-	local RIGHT = self:Add("Panel")
+	local RIGHT = self.MAIN:Add("Panel")
 	RIGHT:DockMargin(0,0,0,0)
 	RIGHT:DockPadding(0,0,0,0)
 	--RIGHT:DockPadding(4,28,4,4)
@@ -255,6 +261,26 @@ function PANEL:Initialize()
 
 	--local test = self:Add("ColorPicker")
 	--test:SetSize(256, 256)
+end
+
+function PANEL:UpdateSkins()
+	self.SKINSELECT:UpdateSkins()
+end
+
+function PANEL:ChangeSkin(skin)
+	self.SKINSELECT:ChangeSkin(skin)
+end
+
+function PANEL:GetSkin()
+	return self.SKINSELECT:GetSkin()
+end
+
+function PANEL:GetPort()
+	return self.PORTSELECT:GetPort()
+end
+
+function PANEL:ChangePort(port)
+	self.PORTSELECT:ChangePort(port)
 end
 
 function PANEL:Toggle()

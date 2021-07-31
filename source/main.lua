@@ -216,8 +216,6 @@ end
 function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
 		PANEL_SETTINGS:Toggle()
-		PANEL_PORT_SELECT:Toggle()
-		PANEL_SKIN_SELECT:Toggle()
 	end
 
 	gui.keyPressed(key, scancode, isrepeat)

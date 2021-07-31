@@ -7,18 +7,12 @@ local gui = require("gui")
 local timer = love.timer
 
 function overlay.init()
-	PANEL_PORT_SELECT = gui.create("PortSelect")
-	PANEL_PORT_SELECT:SetVisible(false)
-
-	PANEL_SKIN_SELECT = gui.create("SkinSelect")
-	PANEL_SKIN_SELECT:SetVisible(false)
-
 	PANEL_SETTINGS = gui.create("Settings")
 	PANEL_SETTINGS:SetVisible(false)
 
 	overlay.loadSkins("overlay/skins")
 
-	PANEL_SKIN_SELECT:UpdateSkins()
+	PANEL_SETTINGS:UpdateSkins()
 	PANEL_SETTINGS:LoadSettings()
 end
 
@@ -31,19 +25,19 @@ function overlay.isPortShowing()
 end
 
 function overlay.getPort()
-	return PANEL_PORT_SELECT:GetPort()
+	return PANEL_SETTINGS:GetPort()
 end
 
 function overlay.setPort(port)
-	PANEL_PORT_SELECT:ChangePort(((port-1) % MAX_PORTS) + 1)
+	PANEL_SETTINGS:ChangePort(((port-1) % MAX_PORTS) + 1)
 end
 
 function overlay.getSkin()
-	return PANEL_SKIN_SELECT:GetSkin()
+	return PANEL_SETTINGS:GetSkin()
 end
 
 function overlay.setSkin(skin)
-	return PANEL_SKIN_SELECT:ChangeSkin(skin)
+	return PANEL_SETTINGS:ChangeSkin(skin)
 end
 
 function overlay.draw(controller)
