@@ -256,7 +256,7 @@ function PANEL:Initialize()
 	VLABEL:SetFont("fonts/melee-bold.otf", 12)
 
 	function VLABEL:OnClick()
-		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/%s"):format(love.getMOverlayVersion()))
+		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/v%s"):format(love.getMOverlayVersion()))
 	end
 
 	--local test = self:Add("ColorPicker")
