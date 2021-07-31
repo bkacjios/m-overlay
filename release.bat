@@ -66,7 +66,7 @@ SET PATH=%PATH%;%INNO_SETUP_DIR%;%TOOLS_DIR%
 SET EXE_NAME=%NAME%-%BIT%.exe
 SET EXE_PATH=%BUILD_OUTPUT_DIR%\%EXE_NAME%
 
-SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%COMMIT%).love"
+SET ZIP="%RELEASES_DIR%\%VERSION%\%NAME%-%BIT%.love"
 REM SET ZIP=%BUILD_DIR%\%NAME%.love
 
 echo Zipping files in %SOURCE_DIR% into %ZIP%
@@ -96,7 +96,7 @@ REM We have to merge AFTER rcedit, since rcedit destroys the merged data
 echo Merging love.exe + %ZIP% into %EXE_PATH%
 copy /b "%BUILD_DIR%\love.exe"+%ZIP% %EXE_PATH%
 
-SET ZIP="%RELEASES_DIR%\%NAME%-%BIT% (%BRANCH%-%COMMIT%).zip"
+SET ZIP="%RELEASES_DIR%\%VERSION%\%NAME%-%BIT%-portable.zip"
 
 REM Remove old zip if it exists
 if exist %ZIP% del %ZIP%
@@ -107,6 +107,7 @@ REM Create a release zip
 if exist %INNO_SETUP_DIR% (
 	echo Building installer
 	iscc release.iss
+	move "%RELEASES_DIR%\m-overlay-x64-installer.exe" "%RELEASES_DIR%\%VERSION%"
 )
 
 :exit

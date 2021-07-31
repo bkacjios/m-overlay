@@ -1,13 +1,17 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/bkacjios)
 
 # m-overlay
-*A gamecube controller input display for use with Dolphin specifically.*
+*A gamecube controller input display, for use with Dolphin specifically.*
+
+## Downloads
+
+* [Installer](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-installer.exe)
+* [Portalable](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-portable.zip)
+* [Patch notes](https://github.com/bkacjios/m-overlay/releases)
+
+## Information
 
 ![M'Overlay in use](https://i.imgur.com/VZWta8H.gif)
-
-### Downloads
-
-Latest downloads can be found in [releases](https://github.com/bkacjios/m-overlay/releases)
 
 ### Known programs that interfere with M'Overlay:
 

@@ -484,7 +484,7 @@ function love.draw()
 
 			for x=0, 512/32 do
 				for y=0, 256/32 do
-					graphics.setColor(240, 240, 240, 255)
+					graphics.setColor(230, 230, 230, 255)
 					graphics.rectangle("fill", 32 * (x + (y%2)), 32 * (y + (x%2)), 32, 32)
 				end
 			end
