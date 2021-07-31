@@ -190,7 +190,7 @@ function PANEL:Initialize()
 	self.DEBUG = LEFT:Add("Checkbox")
 	self.DEBUG:SetText("Debug console")
 	self.DEBUG:Dock(DOCK_TOP)
-	self.DEBUG:SetVisible(love.system.getOS() == "Windows")
+	self.DEBUG:SetVisible(love.supportsAttachableConsole())
 
 	function self.DEBUG:OnToggle(on)
 		love.console(on)

@@ -459,9 +459,47 @@ do
 	end
 end
 
-function love.supportsGameCapture()
+function love.isWindows()
 	return jit.os:lower() == "windows"
 end
+
+function love.supportsGameCapture()
+	return love.isWindows()
+end
+
+function love.supportsAttachableConsole()
+	return love.isWindows()
+end
+
+--[=[local canvas = love.graphics.newCanvas()
+
+local stenciledCanvas =  {
+	canvas,
+	stencil = true,
+}
+
+local blur = graphics.newShader[[
+extern number radius;
+extern vec2 imageSize;
+
+vec4 effect(vec4 color, Image tex, vec2 tc, vec2 pc)
+{
+	color = vec4(0);
+	vec2 st;
+
+	for (float x = -radius; x <= radius; x++) {
+		for (float y = -radius; y <= radius; y++) {
+			// to texture coordinates
+			st.xy = vec2(x,y) / imageSize;
+			color += Texel(tex, tc + st);
+		}
+	}
+	return color / ((2.0 * radius + 1.0) * (2.0 * radius + 1.0));
+}
+]]
+
+blur:send("radius", 6)
+blur:send("imageSize", {canvas:getPixelDimensions()})]=]
 
 function love.draw()
 	if not love.supportsGameCapture() then
@@ -505,6 +543,11 @@ function love.draw()
 		end
 	end
 
+	--[[if PANEL_SETTINGS:IsVisible() then
+		graphics.setCanvas(stenciledCanvas)
+		graphics.clear(0, 0, 0, 0)
+	end]]
+
 	if memory.initialized and memory.game and memory.controller then
 		love.drawControllerOverlay()
 	else
@@ -543,6 +586,14 @@ function love.draw()
 			graphics.print(port, 16, 256 - 42 - 16)
 		end
 	end
+
+	--[[if PANEL_SETTINGS:IsVisible() then
+		graphics.setCanvas()
+
+		graphics.setShader(blur)
+			graphics.easyDraw(canvas, 0, 0, 0, 512, 256)
+		graphics.setShader()
+	end]]
 
 	gui.render()
 	notification.draw()
