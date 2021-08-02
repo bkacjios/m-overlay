@@ -30,7 +30,7 @@ If applicable, add screenshots to help explain your problem.
 **Debug console output**
 ```
 Open the settings menu by pressing the escape key on your keyboard.
-Check 'Debug console' and copy/paste the output from it here when replicating your issue.
+Click on 'Open config directory' and copy/paste the contents of 'console.log' here.
 ```
 **Additional context**
 Add any other context about the problem here.
