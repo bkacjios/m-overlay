@@ -4,14 +4,14 @@ ACCESSOR(PANEL, "Value", "m_iValue", 1)
 ACCESSOR(PANEL, "Color", "m_cColor", color(255, 0, 0))
 ACCESSOR(PANEL, "PickerSize", "m_iPickerSize", 32)
 
+PANEL.m_pPickLine = graphics.newImage("textures/colorring.png")
+PANEL.m_pPickImage = graphics.newImage("textures/colorpick.png")
+PANEL.m_pGradient = graphics.newImage("textures/gradient.png")
+
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
 	
 	self:SetFocusable(true)
-
-	self.m_pPickLine = graphics.newImage("textures/colorring.png")
-	self.m_pPickImage = graphics.newImage("textures/colorpick.png")
-	self.m_pGradient = graphics.newImage("textures/gradient.png")
 
 	self.m_bGrabbed = false
 

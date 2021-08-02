@@ -26,26 +26,25 @@ function PANEL:Paint(w, h)
 end
 
 function PANEL:OnMousePressed(x, y, but)
-	if not self:IsEnabled() or but ~= 1 then return end
-	if self.m_bToggleable then
-		self:SetToggled(not self:GetToggled())
-		self:OnToggle(self:GetToggled())
-	else
-		self:OnPressed()
-	end
+	if not self.m_bEnabled or but ~= 1 then return end
+	self.m_bPressed = true
 	return true
 end
 
 function PANEL:OnMouseReleased(x, y, but)
-	if not self:IsEnabled() or but ~= 1 then return end
-	self:OnClick()
+	if not self.m_bEnabled or but ~= 1 then return end
+	self.m_bPressed = false
+	if self:IsHovered() then
+		if self.m_bToggleable then
+			self:SetToggled(not self:GetToggled())
+			self:OnToggle(self:GetToggled())
+		else
+			self:OnClick()
+		end
+	end
 end
 
 function PANEL:OnToggle(on)
-	-- Override
-end
-
-function PANEL:OnPressed()
 	-- Override
 end
 

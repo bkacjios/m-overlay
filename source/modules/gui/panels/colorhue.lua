@@ -1,29 +1,29 @@
 ACCESSOR(PANEL, "Hue", "m_iHue", 0)
 
+PANEL.m_pPickLine = graphics.newImage("textures/colorring.png")
+PANEL.m_pPickImage = graphics.newImage("textures/colorpick.png")
+
+-- Create a hue color gradient of all colors
+-- red, yellow, green, teal, blue, purple, red
+local DATA = love.image.newImageData(1, 7)
+DATA:setPixel(0, 0, 1, 0, 0, 1)		-- 1 		= Red
+DATA:setPixel(0, 1, 1, 1, 0, 1)		-- 2 		= Yellow
+DATA:setPixel(0, 2, 0, 1, 0, 1)		-- 2 		= Green
+DATA:setPixel(0, 3, 0, 1, 1, 1)		-- 3 		= Teal
+DATA:setPixel(0, 4, 0, 0, 1, 1)		-- 3 		= Blue
+DATA:setPixel(0, 5, 1, 0, 1, 1)		-- 1 		= Purple
+DATA:setPixel(0, 6, 1, 0, 0, 1)		-- 1 		= Red
+
+-- Create a image from our pixel data
+PANEL.m_pImage = graphics.newImage(DATA)
+
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
 
 	self:SetWidth(24)
 	self:SetFocusable(true)
 
-	self.m_pPickLine = graphics.newImage("textures/colorring.png")
-	self.m_pPickImage = graphics.newImage("textures/colorpick.png")
-
 	self.m_bGrabbed = false
-
-	-- Create a hue color gradient of all colors
-	-- red, yellow, green, teal, blue, purple, red
-	self.m_pData = love.image.newImageData(1, 7)
-	self.m_pData:setPixel(0, 0, 1, 0, 0, 1)		-- 1 		= Red
-	self.m_pData:setPixel(0, 1, 1, 1, 0, 1)		-- 2 		= Yellow
-	self.m_pData:setPixel(0, 2, 0, 1, 0, 1)		-- 2 		= Green
-	self.m_pData:setPixel(0, 3, 0, 1, 1, 1)		-- 3 		= Teal
-	self.m_pData:setPixel(0, 4, 0, 0, 1, 1)		-- 3 		= Blue
-	self.m_pData:setPixel(0, 5, 1, 0, 1, 1)		-- 1 		= Purple
-	self.m_pData:setPixel(0, 6, 1, 0, 0, 1)		-- 1 		= Red
-
-	-- Create a image from our pixel data
-	self.m_pImage = graphics.newImage(self.m_pData)
 end
 
 function PANEL:PerformLayout()

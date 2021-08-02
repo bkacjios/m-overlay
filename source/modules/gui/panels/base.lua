@@ -9,6 +9,8 @@ function PANEL:Initialize()
 	self.m_iWorldPosY = 0
 	self.m_fScaleX = 1
 	self.m_fScaleY = 1
+	self.m_fRenderScaleX = 1
+	self.m_fRenderScaleY = 1
 	self.m_iPosX = 0
 	self.m_iPosY = 0
 	self.m_iWidth = 42
@@ -317,11 +319,12 @@ function PANEL:SizeToScreen()
 end
 
 function PANEL:SizeToChildren(doWidth, doHeight)
+	local all = doWidth == nil and doHeight == nil
 	local w,h = 0, 0
 	local padding = self:GetDockPadding()
 
-	w = padding.left	-- + padding.right
-	h = padding.top		-- + padding.bottom
+	w = padding.left + padding.right
+	h = padding.top + padding.bottom
 
 	local lw, lh = 0, 0
 
@@ -329,7 +332,7 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 		if child:IsVisible() then
 			local x, y = child:GetPos()
 			local margin = child:GetDockMargin()
-			local cw, ch = child:GetSize()
+			local cw, ch = child:GetActualSize()
 
 			-- Position + size + margins = maximum bounds
 			cw = x + cw + margin.left + margin.right
@@ -340,8 +343,9 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 			if ch > lh then lh = ch end
 		end
 	end
-	if doWidth then self:SetWidth(w + lw) end
-	if doHeight then self:SetHeight(h + lh) end
+	-- Don't use SetWidth/SetHeight so we don't invalidate the layout..
+	if all or doWidth then self.m_iWidth = w + lw end
+	if all or doHeight then self.m_iHeight = h + lh end
 end
 
 function PANEL:Add(class)
@@ -420,7 +424,7 @@ function PANEL:SetSize(w, h)
 end
 
 function PANEL:GetSize()
-	return math.max(0, self.m_iWidth * self.m_fScaleX), math.max(0, self.m_iHeight * self.m_fScaleY)
+	return self:GetWidth(), self:GetHeight()
 end
 
 function PANEL:GetActualSize()
@@ -428,25 +432,35 @@ function PANEL:GetActualSize()
 end
 
 function PANEL:SetWidth(w)
+	w = math.max(0, w)
 	if self.m_iWidth ~= w then
 		self.m_iWidth = w
 		self:InvalidateLayout()
 	end
 end
 
+function PANEL:GetActualWidth()
+	return math.max(0, self.m_iWidth)
+end
+
 function PANEL:GetWidth()
-	return math.max(0, self.m_iWidth * self.m_fScaleX)
+	return self:GetActualWidth() * self.m_fScaleX
 end
 
 function PANEL:SetHeight(h)
+	h = math.max(0, h)
 	if self.m_iHeight ~= h then
 		self.m_iHeight = h
 		self:InvalidateLayout()
 	end
 end
 
+function PANEL:GetActualHeight()
+	return math.max(0, self.m_iHeight)
+end
+
 function PANEL:GetHeight()
-	return math.max(0, self.m_iHeight * self.m_fScaleY)
+	return self:GetActualHeight() * self.m_fScaleY
 end
 
 function PANEL:IsWorldPointInside(x, y)
@@ -461,54 +475,24 @@ function PANEL:Render()
 	local w, h = self:GetSize()
 	
 	local parent = self:GetParent()
-	
-	-- Start the scissor position and size with our own values
-	local sx, sy = x, y
-	local sw, sh = w, h
 
-	while self.m_bScissorEnabled and parent do
-		-- If we have a parent, fit the scissor to fit inside their bounds
-		local px, py = parent:LocalToScreen(0, 0)
-		local pw, ph = parent:GetSize()
-
-		if sx < px then
-			sw = math.max(0, sw + sx - px)
-			sx = px
-		end
-		if sx + sw > px + pw then
-			sw = math.max(0, sw - ((sx + sw) - (px + pw)))
-			sx = math.min(sx, px + pw)
-		end
-		if sy < py then
-			sh = math.max(0, sh + sy - py)
-			sy = py
-		end
-		if sy + sh > py + ph then
-			sh = math.max(0, sh - ((sy + sh) - (py + ph)))
-			sy = math.min(sy, py + ph)
-		end
-
-		parent = parent:GetParent()
-	end
+	local sx, sy = self:GetScale()
 
 	graphics.push("all") -- Push the current graphics state
 		if self.m_bScissorEnabled then
-			graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+			graphics.intersectScissor(x, y, w, h)
 		end
-			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
-			graphics.scale(self:GetScale())
-				local uw, uh = self:GetActualSize()
-				self:SetWorldPos(x, y)
-				graphics.setColor(255, 255, 255, 255)
-				self:PrePaint(uw, uh)
-				graphics.setColor(255, 255, 255, 255)
-				self:Paint(uw, uh)
-				graphics.setColor(255, 255, 255, 255)
-				self:PostPaint(uw, uh)
-			graphics.origin()
-		if self.m_bScissorEnabled then
-			graphics.setScissor()
-		end
+		graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
+		graphics.scale(sx, sy)
+			local uw, uh = self:GetActualSize()
+			self:SetWorldPos(x, y)
+			graphics.setColor(255, 255, 255, 255)
+			self:PrePaint(uw, uh)
+			graphics.setColor(255, 255, 255, 255)
+			self:Paint(uw, uh)
+			graphics.setColor(255, 255, 255, 255)
+			self:PostPaint(uw, uh)
+		graphics.origin()
 	graphics.pop() -- Reset the graphics state to what it was
 
 	-- recently added panels are drawn last, thus, ontop of older panels
@@ -518,16 +502,13 @@ function PANEL:Render()
 
 	graphics.push("all")
 		if self.m_bScissorEnabled then
-			graphics.setScissor(sx, sy, sw, sh) -- Set our scissor so things can't be drawn outside the panel
+			graphics.intersectScissor(x, y, w, h)
 		end
-			graphics.translate(x, y)
-			graphics.scale(self:GetScale())
-				graphics.setColor(255, 255, 255, 255)
-				self:PaintOverlay(self:GetActualSize())
-			graphics.origin()
-		if self.m_bScissorEnabled then
-			graphics.setScissor()
-		end
+		graphics.translate(x, y)
+		graphics.scale(sx, sy)
+			graphics.setColor(255, 255, 255, 255)
+			self:PaintOverlay(self:GetActualSize())
+		graphics.origin()
 	graphics.pop() -- Reset the graphics state to what it was
 
 	if self.m_bDebug then
@@ -563,12 +544,12 @@ function PANEL:Center(vertical, horizontal)
 	end
 
 	-- If both vertical and horizontal aren't set, center to both?
-	local all = not vertical and not horizontal
+	local all = vertical == nil and horizontal == nil
 
-	if vertical or all then
+	if all or vertical == true then
 		self:SetY((ph / 2) - (h / 2))
 	end
-	if horizontal or all then
+	if all or horizontal == true then
 		self:SetX((pw / 2) - (w / 2))
 	end
 end
@@ -583,7 +564,7 @@ end
 
 function PANEL:DockLayout()
 	local x, y = 0, 0
-	local w, h = self:GetSize()
+	local w, h = self:GetActualSize()
 	
 	local padding = self.m_tDockPadding
 	
@@ -596,28 +577,37 @@ function PANEL:DockLayout()
 		local dh = h - (padding.top + padding.bottom)
 	
 		local dock = child.m_iDock
-		if dock ~= DOCK_NONE and child:IsVisible() then
+		if dock ~= DOCK_NONE then
+			local cw, ch = child:GetActualSize()
 			if(dock == DOCK_TOP) then
 				child:SetPos(dx + margin.left, dy + margin.top)
-				child:SetSize(dw - margin.left - margin.right, child:GetHeight())
-				local height = margin.top + margin.bottom + child:GetHeight()
-				y = y + height
-				h = h - height
+				child:SetSize(dw - margin.left - margin.right, ch)
+				if child:IsVisible() then
+					local height = margin.top + margin.bottom + ch
+					y = y + height
+					h = h - height
+				end
 			elseif(dock == DOCK_LEFT) then
 				child:SetPos(dx + margin.left, dy + margin.top)
-				child:SetSize(child:GetWidth(), dh - margin.top - margin.bottom)
-				local width = margin.left + margin.right + child:GetWidth()
-				x = x + width
-				w = w - width
+				child:SetSize(cw, dh - margin.top - margin.bottom)
+				if child:IsVisible() then
+					local width = margin.left + margin.right + cw
+					x = x + width
+					w = w - width
+				end
 			elseif(dock == DOCK_RIGHT) then
-				child:SetPos((dx + dw) - child:GetWidth() - margin.right, dy + margin.top)
-				child:SetSize(child:GetWidth(), dh - margin.top - margin.bottom)
-				local width = margin.left + margin.right + child:GetWidth()
-				w = w - width
+				child:SetPos((dx + dw) - cw - margin.right, dy + margin.top)
+				child:SetSize(cw, dh - margin.top - margin.bottom)
+				if child:IsVisible() then
+					local width = margin.left + margin.right + cw
+					w = w - width
+				end
 			elseif(dock == DOCK_BOTTOM) then
-				child:SetPos(dx + margin.left, (dy + dh) - child:GetHeight() - margin.bottom)
-				child:SetSize(dw - margin.left - margin.right, child:GetHeight())
-				h = h - (child:GetHeight() + margin.bottom + margin.top)
+				child:SetPos(dx + margin.left, (dy + dh) - ch - margin.bottom)
+				child:SetSize(dw - margin.left - margin.right, ch)
+				if child:IsVisible() then
+					h = h - (ch + margin.bottom + margin.top)
+				end
 			end
 		end
 	end

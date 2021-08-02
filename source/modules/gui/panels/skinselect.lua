@@ -38,7 +38,7 @@ function PANEL:UpdateSkins()
 		SKIN:SetToggled(false)
 		SKIN:SetRadio(true)
 
-		SKIN.OnPressed = function()
+		SKIN.OnClick = function()
 			self:ChangeSkin(skin)
 		end
 

@@ -5,6 +5,7 @@ ACCESSOR(PANEL, "TextEntry", "m_pTextEntry")
 function PANEL:Initialize()
 	self:super() -- Initialize baseclass
 	self:DisableScissor()
+	self:SetVisible(false)
 
 	self.COPY = self:Add("Button")
 	self.COPY:Dock(DOCK_TOP)
@@ -21,12 +22,15 @@ function PANEL:Initialize()
 	self.PASTE.OnClick = function(this)
 		self.m_pTextEntry:Paste()
 	end
-
-	self:SetSize(48, 60)
 end
 
-function PANEL:Think()
-	if not self:HasFocus() then
+function PANEL:PerformLayout()
+	self:SizeToChildren()
+end
+
+function PANEL:OnFocusChanged(focus)
+	if not focus then
+		-- Hide when clicking an option/clicking off
 		self:SetVisible(false)
 	end
 end
@@ -44,7 +48,6 @@ function PANEL:Initialize()
 
 	self.m_pContext = gui.create("TextEntryContext")
 	self.m_pContext:SetTextEntry(self)
-	self.m_pContext:SetVisible(true)
 	
 	self.m_sText = ""
 	self.m_iCaretPos = 0

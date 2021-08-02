@@ -1,12 +1,16 @@
 local PANEL = {}
 
 function PANEL:SetImage(file)
-	self.m_pImage = love.graphics.newImage(file)
+	self.m_pImage = graphics.newImage(file)
 end
 
 function PANEL:Paint(w, h)
 	if not self.m_pImage then return end
-	love.graphics.draw(self.m_pImage, 0, 0, 0, w / self.m_pImage:getWidth(), h / self.m_pImage:getHeight())
+	graphics.draw(self.m_pImage, 0, 0, 0, w / self.m_pImage:getWidth(), h / self.m_pImage:getHeight())
+end
+
+function PANEL:SizeToContentes()
+	self:SetSize(self.m_pImage:getDimensions())
 end
 
 gui.register("Image", PANEL, "Base")

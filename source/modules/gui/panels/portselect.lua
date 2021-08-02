@@ -36,7 +36,7 @@ function PANEL:Initialize()
 		but:SetToggled(false)
 		but:SetRadio(true)
 
-		but.OnPressed = function()
+		but.OnClick = function()
 			overlay.showPort(1)
 			self:ChangePort(i)
 		end

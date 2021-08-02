@@ -1,6 +1,7 @@
 local gui = {
 	m_tRegisteredSkins = {},
 	m_pWorldPanel = nil,
+	m_pHoveredPanel = nil,
 	m_pFocusedPanel = nil,
 	m_strSkin = "default",
 }
@@ -26,8 +27,12 @@ function gui.getFocusedPanel()
 	return gui.m_pFocusedPanel
 end
 
+function gui.updateHoveredPanel()
+	gui.m_pHoveredPanel = gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
+end
+
 function gui.getHoveredPanel()
-	return gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
+	return gui.m_pHoveredPanel
 end
 
 function gui.getMousePosition()
@@ -73,6 +78,7 @@ function gui.getWorldPanel()
 end
 
 function gui.joyPressed(joy, but)
+	gui.updateHoveredPanel()
 	gui.getHoveredPanel():OnJoyPressed(joy, but)
 end
 
@@ -104,6 +110,7 @@ function gui.render()
 end
 
 function gui.mouseMoved(x, y, dx, dy, istouch)
+	gui.updateHoveredPanel()
 	local panel = gui.getFocusedPanel()
 	local lx, ly = panel:WorldToLocal(x,y)
 	if not panel:OnMouseMoved(lx, ly, dx, dy, istouch) then

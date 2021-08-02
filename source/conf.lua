@@ -7,7 +7,7 @@ function love.conf(t)
 	t.gammacorrect = false              -- Enable gamma-correct rendering, when supported by the system (boolean)
 
 	t.window.title = "M'Overlay"        -- The window title (string)
-	t.window.icon = "textures/icon.png"      -- Filepath to an image to use as the window's icon (string)
+	t.window.icon = "textures/icon.png" -- Filepath to an image to use as the window's icon (string)
 	t.window.width = 512                -- The window width (number)
 	t.window.height = 256               -- The window height (number)
 	t.window.borderless = false         -- Remove all border visuals from the window (boolean)
