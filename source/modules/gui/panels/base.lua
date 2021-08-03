@@ -476,45 +476,78 @@ function PANEL:Render()
 	
 	local parent = self:GetParent()
 
-	local sx, sy = self:GetScale()
+	-- Start the scissor position and size with our own values
+	local sx, sy = x, y
+	local sw, sh = w, h
 
-	graphics.push("all") -- Push the current graphics state
-		if self.m_bScissorEnabled then
-			graphics.intersectScissor(x, y, w, h)
+	while self.m_bScissorEnabled and parent do
+		-- If we have a parent, fit the scissor to fit inside their bounds
+		local px, py = parent:LocalToScreen(0, 0)
+		local pw, ph = parent:GetSize()
+
+		if sx < px then
+			sw = math.max(0, sw + sx - px)
+			sx = px
 		end
-		graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
-		graphics.scale(sx, sy)
+		if sx + sw > px + pw then
+			sw = math.max(0, sw - ((sx + sw) - (px + pw)))
+			sx = math.min(sx, px + pw)
+		end
+		if sy < py then
+			sh = math.max(0, sh + sy - py)
+			sy = py
+		end
+		if sy + sh > py + ph then
+			sh = math.max(0, sh - ((sy + sh) - (py + ph)))
+			sy = math.min(sy, py + ph)
+		end
+
+		parent = parent:GetParent()
+	end
+
+	-- Only bother to render if the entire panel is visible within the scissor
+	if math.max(x, sx) < math.min(x + w, sx + sw) and math.max(y, sy) < math.min(y + h, sy + sh) then
+		local rsx, rsy = self:GetScale()
+
+		if self.m_bScissorEnabled then
+			graphics.setScissor(sx, sy, sw, sh)
+		end
+
+		graphics.push("all") -- Push the current graphics state
+			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
+			graphics.scale(rsx, rsy)
+
 			local uw, uh = self:GetActualSize()
-			self:SetWorldPos(x, y)
+			self:SetWorldPos(sx, sy)
 			graphics.setColor(255, 255, 255, 255)
 			self:PrePaint(uw, uh)
 			graphics.setColor(255, 255, 255, 255)
 			self:Paint(uw, uh)
 			graphics.setColor(255, 255, 255, 255)
 			self:PostPaint(uw, uh)
-		graphics.origin()
-	graphics.pop() -- Reset the graphics state to what it was
 
-	-- recently added panels are drawn last, thus, ontop of older panels
-	for _, child in ipairs(self.m_tChildren) do
-		child:Render()
-	end
+			graphics.origin()
 
-	graphics.push("all")
-		if self.m_bScissorEnabled then
-			graphics.intersectScissor(x, y, w, h)
-		end
-		graphics.translate(x, y)
-		graphics.scale(sx, sy)
+			-- recently added panels are drawn last, thus, ontop of older panels
+			for _, child in ipairs(self.m_tChildren) do
+				child:Render()
+			end
+
+			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
+			graphics.scale(rsx, rsy)
 			graphics.setColor(255, 255, 255, 255)
 			self:PaintOverlay(self:GetActualSize())
-		graphics.origin()
-	graphics.pop() -- Reset the graphics state to what it was
 
-	if self.m_bDebug then
-		-- Debug the scissor rect
-		graphics.setColor(255, 0, 0, 25)
-		graphics.rectangle("fill", sx, sy, sw, sh)
+			graphics.origin()
+		graphics.pop() -- Reset the graphics state to what it was
+
+		if self.m_bDebug then
+			-- Debug the scissor rect
+			graphics.setColor(255, 0, 0, 25)
+			graphics.rectangle("fill", sx, sy, sw, sh)
+		end
+		
+		graphics.setScissor()
 	end
 end
 

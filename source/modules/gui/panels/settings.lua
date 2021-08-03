@@ -19,6 +19,12 @@ function PANEL:Initialize()
 	self.PORTSELECT = self:Add("PortSelect")
 	self.SKINSELECT = self:Add("SkinSelect")
 
+	self.COLORSELECT = self:Add("ColorSelector")
+	self.COLORSELECT:SetSize(296 + 32, 256)
+	self.COLORSELECT:Center()
+	self.COLORSELECT:SetVisible(false)
+	self.COLORSELECT:SetColorButton(self.BACKGROUNDCOLOR)
+
 	self.MAIN = self:Add("Panel")
 	self.MAIN:SetSize(296 + 32, 256)
 	self.MAIN:DockPadding(0, 0, 0, 0)
@@ -221,16 +227,10 @@ function PANEL:Initialize()
 	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
 	self.BACKGROUNDCOLOR:SetColor(color(34, 34, 34))
 
-	local colorSelect = self:Add("ColorSelector")
-	colorSelect:SetSize(296 + 32, 256)
-	colorSelect:Center()
-	colorSelect:SetVisible(false)
-	colorSelect:SetColorButton(self.BACKGROUNDCOLOR)
-
 	self.BACKGROUNDCOLOR.OnClick = function(this)
-		colorSelect:SetColor(self.BACKGROUNDCOLOR:GetColor())
-		colorSelect:SetVisible(true)
-		colorSelect:BringToFront()
+		self.COLORSELECT:SetColor(self.BACKGROUNDCOLOR:GetColor())
+		self.COLORSELECT:SetVisible(true)
+		self.COLORSELECT:BringToFront()
 	end
 
 	self.CONFIGDIR = LEFT:Add("Button")
