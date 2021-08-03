@@ -29,7 +29,7 @@ function PANEL:TextMargin(left, top, right, bottom)
 	self.m_tTextMargins.bottom = bottom
 end
 
-function PANEL:GetDockMargin()
+function PANEL:GetTextMargin()
 	return self.m_tTextMargins
 end
 

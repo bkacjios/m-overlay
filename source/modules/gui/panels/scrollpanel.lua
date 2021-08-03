@@ -12,10 +12,14 @@ function PANEL:Initialize()
 	self.m_pVBar = self:Add("ScrollBar")
 	self.m_pVBar:DockMargin(-1,0,0,0)
 	self.m_pVBar:Dock(DOCK_RIGHT)
-end
 
-function PANEL:AddItem(class)
-	return self.m_pCanvas:Add(class)
+	-- Disable us from setting padding after creation
+	self.DockPadding = function() end
+
+	-- Adding things to the ScrollPanel will actually be adding it to the canvas
+	self.Add = function(this, class)
+		return this.m_pCanvas:Add(class)
+	end
 end
 
 function PANEL:OnChildAdded(child)
