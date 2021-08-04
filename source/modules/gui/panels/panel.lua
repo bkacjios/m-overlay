@@ -4,6 +4,8 @@ ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
 ACCESSOR(PANEL, "BorderColor", "m_cBorderColor", color_blank)
 ACCESSOR(PANEL, "BackgroundColor", "m_cBackgroundColor", color_blank)
 ACCESSOR(PANEL, "BGColor", "m_cBackgroundColor", color_blank)
+ACCESSOR(PANEL, "TooltipTitle", "m_strTooltipTitle", nil)
+ACCESSOR(PANEL, "TooltipBody", "m_strTooltipBody", nil)
 
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
@@ -22,6 +24,13 @@ function PANEL:PostPaint(w, h)
 	if not self:IsEnabled() then
 		graphics.setColor(color(0, 0, 0, 100))
 		graphics.rectangle("fill", 0, 0, w, h)
+	end
+end
+
+function PANEL:OnQuertyTooltip()
+	if self.m_strTooltipTitle and self.m_strTooltipBody then
+		gui.setTooltip(self.m_strTooltipTitle, self.m_strTooltipBody)
+		return true
 	end
 end
 

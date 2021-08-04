@@ -38,7 +38,7 @@ function PANEL:__tostring()
 end
 
 function PANEL:GetConfig()
-	local w, h = self:GetActualSize()
+	local w, h = self:GetPixelSize()
 	local sx, sy = self:GetScale()
 
 	local config = {
@@ -332,7 +332,7 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 		if child:IsVisible() then
 			local x, y = child:GetPos()
 			local margin = child:GetDockMargin()
-			local cw, ch = child:GetActualSize()
+			local cw, ch = child:GetPixelSize()
 
 			-- Position + size + margins = maximum bounds
 			cw = x + cw + margin.left + margin.right
@@ -427,7 +427,7 @@ function PANEL:GetSize()
 	return self:GetWidth(), self:GetHeight()
 end
 
-function PANEL:GetActualSize()
+function PANEL:GetPixelSize()
 	return math.max(0, self.m_iWidth), math.max(0, self.m_iHeight)
 end
 
@@ -517,7 +517,7 @@ function PANEL:Render()
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
 			graphics.scale(rsx, rsy)
 
-			local uw, uh = self:GetActualSize()
+			local uw, uh = self:GetPixelSize()
 			self:SetWorldPos(sx, sy)
 			graphics.setColor(255, 255, 255, 255)
 			self:PrePaint(uw, uh)
@@ -536,7 +536,7 @@ function PANEL:Render()
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
 			graphics.scale(rsx, rsy)
 			graphics.setColor(255, 255, 255, 255)
-			self:PaintOverlay(self:GetActualSize())
+			self:PaintOverlay(self:GetPixelSize())
 
 			graphics.origin()
 		graphics.pop() -- Reset the graphics state to what it was
@@ -597,7 +597,7 @@ end
 
 function PANEL:DockLayout()
 	local x, y = 0, 0
-	local w, h = self:GetActualSize()
+	local w, h = self:GetPixelSize()
 	
 	local padding = self.m_tDockPadding
 	
@@ -611,7 +611,7 @@ function PANEL:DockLayout()
 	
 		local dock = child.m_iDock
 		if dock ~= DOCK_NONE then
-			local cw, ch = child:GetActualSize()
+			local cw, ch = child:GetPixelSize()
 			if(dock == DOCK_TOP) then
 				child:SetPos(dx + margin.left, dy + margin.top)
 				child:SetSize(dw - margin.left - margin.right, ch)
@@ -738,6 +738,10 @@ end
 
 function PANEL:OnFocusChanged(b)
 	-- Called when the panels focus has either been gained or lost
+end
+
+function PANEL:OnHoveredChanged(b)
+	-- Called when the panels hovered state has either been gained or lost
 end
 
 function PANEL:OnKeyPressed(key, hex)
@@ -869,6 +873,10 @@ end
 
 function PANEL:Think(dt)
 	-- Called every frame
+end
+
+function PANEL:OnQuertyTooltip()
+	-- Called when the user has hovered over the panel for more than a second
 end
 
 gui.register("Base", PANEL)

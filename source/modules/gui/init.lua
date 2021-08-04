@@ -3,6 +3,7 @@ local gui = {
 	m_pWorldPanel = nil,
 	m_pHoveredPanel = nil,
 	m_pFocusedPanel = nil,
+	m_pTooltip = nil,
 	m_strSkin = "default",
 }
 
@@ -27,8 +28,42 @@ function gui.getFocusedPanel()
 	return gui.m_pFocusedPanel
 end
 
+function gui.getTooltip()
+	return gui.m_pTooltip
+end
+
+function gui.setTooltip(title, body)
+	gui.m_pTooltip:SetTitle(title)
+	gui.m_pTooltip:SetBody(body)
+	gui.m_pTooltip:SetPos(gui.getPosAround(gui.m_pHoveredPanel, gui.m_pTooltip))
+end
+
+function gui.showTooltip()
+	gui.m_pTooltip:SetVisible(true)
+end
+
+function gui.hideTooltip()
+	gui.m_pTooltip:SetVisible(false)
+	gui.m_fTooltipTimer = nil
+end
+
+function gui.isToolTipVisible()
+	return gui.m_pTooltip:IsVisible()
+end
+
 function gui.updateHoveredPanel()
-	gui.m_pHoveredPanel = gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
+	local hovered = gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
+	if gui.m_pHoveredPanel ~= hovered then
+		gui.hideTooltip()
+
+		gui.m_pHoveredPanel:OnHoveredChanged(false)
+		gui.m_pHoveredPanel = hovered
+		gui.m_pHoveredPanel:OnHoveredChanged(true)
+
+		if gui.m_pHoveredPanel:OnQuertyTooltip() then
+			gui.m_fTooltipTimer = love.timer.getTime() + 0.5
+		end
+	end
 end
 
 function gui.getHoveredPanel()
@@ -77,8 +112,48 @@ function gui.getWorldPanel()
 	return gui.m_pWorldPanel
 end
 
+function gui.getPosAround(panel, other)
+	local ow, oh = other:GetPixelSize()
+
+	local px, py = panel:GetWorldPos()
+	local pw, ph = panel:GetPixelSize()
+
+	local sx, sy = gui.m_pWorldPanel:GetWorldPos()
+	local sw, sh = gui.m_pWorldPanel:GetPixelSize()
+
+	local canFitAbove = (py - sy) >= oh
+	local canFitBelow = ((sy + sh) - (py + ph)) >= oh
+	local canFitLeft = (px - sx) >= ow
+	local canFitRight = ((sx + sw) - (px + pw)) >= ow
+
+	local finalX, finalY = 0, 0
+
+	if canFitAbove or canFitBelow then
+		finalX = math.min(sx + sw - ow, math.max(px + pw/2 - ow/2, sx))
+		if canFitAbove then
+			finalY = py - oh
+		else
+			finalY = py + ph
+		end
+
+		return finalX, finalY
+	end
+
+	if canFitLeft or canFitRight then
+		finalY = math.min(sy + sh - oh, math.max(py + ph/2 - oh/2, sy))
+		if canFitLeft then
+			finalX = px - ow
+		else
+			finalX = px + pw
+		end
+
+		return finalX, finalY
+	end
+
+	return finalX, finalY
+end
+
 function gui.joyPressed(joy, but)
-	gui.updateHoveredPanel()
 	gui.getHoveredPanel():OnJoyPressed(joy, but)
 end
 
@@ -152,6 +227,8 @@ function gui.mouseReleased(x, y, button, istouch, presses)
 end
 
 function gui.mouseWheeled(x, y)
+	gui.updateHoveredPanel()
+
 	local panel = gui.getHoveredPanel()
 	if not panel:OnMouseWheeled(x, y) then
 		local parent = panel:GetParent()
@@ -165,6 +242,11 @@ end
 function gui.update(dt)
 	gui.m_pWorldPanel:ValidateLayout()
 	gui.m_pWorldPanel:CallAll("Think", dt)
+
+	if gui.m_fTooltipTimer and gui.m_fTooltipTimer <= love.timer.getTime() and not gui.isToolTipVisible() then
+		gui.showTooltip()
+	end
+
 	gui.m_pWorldPanel:CleanupOrphans()
 	gui.m_pWorldPanel:CleanupDeleted()
 end
@@ -186,6 +268,11 @@ function gui.init()
 	gui.m_pWorldPanel:InvalidateLayout()
 	gui.m_pWorldPanel:ValidateLayout()
 
+	gui.m_pTooltip = gui.create("ToolTip")
+	gui.m_pTooltip:SetZPos(math.huge) -- Always on top
+	gui.m_pTooltip:SetVisible(false)
+
+	gui.m_pHoveredPanel = gui.m_pWorldPanel
 	gui.m_pFocusedPanel = gui.m_pWorldPanel
 end
 

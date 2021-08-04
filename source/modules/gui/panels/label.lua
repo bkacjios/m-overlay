@@ -20,6 +20,10 @@ function PANEL:Initialize()
 	self:SetFocusable(false)
 	
 	self.m_pFont = graphics.newFont("fonts/melee.otf", 12)
+
+	self:SetLineHeight(0.55)
+
+	self:SetText(self.m_sText)
 end
 
 function PANEL:TextMargin(left, top, right, bottom)
@@ -34,9 +38,30 @@ function PANEL:GetTextMargin()
 end
 
 function PANEL:Think(dt)
+	self:super("Think", dt)
 	if not self.m_pFont and self.m_sFontFile then
 		self.m_pFont = graphics.newFont(self.m_sFontFile, self.m_iFontSize, self.m_iFontHint)
 	end
+end
+
+function PANEL:SetText(text)
+	self.m_sText = text
+	if self.m_bWrapped then
+		self.m_iTextWidth, self.m_tTextWrap = self.m_pFont:getWrap(self.m_sText, self:GetWidth())
+	else
+		self.m_iTextWidth, self.m_tTextWrap = self.m_pFont:getWidth(self.m_sText), {self.m_sText}
+	end
+end
+
+function PANEL:PerformLayout()
+end
+
+function PANEL:SetLineHeight(height)
+	self.m_pFont:setLineHeight(height)
+end
+
+function PANEL:GetLineHeight()
+	return self.m_pFont:getLineHeight()
 end
 
 function PANEL:SetFont(filename, size, hinting)
@@ -62,6 +87,14 @@ function PANEL:Paint(w, h)
 	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent()
 
 	if self.m_bWrapped then
+		local sd = tonumber(self.m_iShadowDistance)
+
+		if sd and sd > 0 then
+			graphics.setColor(self.m_cShadowColor)
+			graphics.printf(self.m_sText, x + sd, y + sd, self:GetWidth(), self.m_sAlignment)
+		end
+
+		graphics.setColor(self.m_cTextColor)
 		graphics.printf(self.m_sText, x, y, self:GetWidth(), self.m_sAlignment)
 	else
 		--print(self.m_pFont:getHeight(), self.m_pFont:getLineHeight(), self.m_pFont:getDescent(), self.m_pFont:getAscent(), self.m_pFont:getBaseline())
@@ -95,11 +128,15 @@ function PANEL:Paint(w, h)
 end
 
 function PANEL:SizeToText()
-	self:SetSize(self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent() )
+	self:SetSize(self.m_iTextWidth, self.m_pFont:getHeight() * self:GetLineHeight() * #self.m_tTextWrap)
 end
 
 function PANEL:WidthToText()
 	self:SetWidth(self.m_pFont:getWidth(self.m_sText))
+end
+
+function PANEL:HeightToText()
+	self:SetHeight(self.m_pFont:getHeight() * self:GetLineHeight() * #self.m_tTextWrap)
 end
 
 gui.register("Label", PANEL, "Panel")

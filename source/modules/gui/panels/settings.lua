@@ -91,6 +91,13 @@ function PANEL:Initialize()
 
 	self.SLIPPI.MODE = self.SLIPPI:Add("HorizontalSelect")
 	self.SLIPPI.MODE:Dock(DOCK_TOP)
+	self.SLIPPI.MODE:SetTooltipTitle("SLIPPI MODE")
+	self.SLIPPI.MODE:SetTooltipBody([[- Off: Use normal game detection. Supported game list can be found on the github README.
+
+- Rollback/Netplay: Allows the overlay to work properly when playing Slippi online. Will also actively change the overylay to display your current port.
+
+- Replay/Mirror: Allows the overlay to work when viewing replays or mirroring gameplay from a console.
+]])
 
 	SLIPPI_OFF = self.SLIPPI.MODE:AddOption("Off", true) -- 1
 	SLIPPI_NETPLAY = self.SLIPPI.MODE:AddOption("Rollback/Netplay") -- 2
@@ -104,6 +111,9 @@ function PANEL:Initialize()
 	self.MELEE.MUSIC:SetText("Music")
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
 
+	self.MELEE.MUSIC:SetTooltipTitle("MELEE MUSIC")
+	self.MELEE.MUSIC:SetTooltipBody([[Enable/Disable custom music for Melee.]])
+
 	function self.MELEE.MUSIC:OnToggle(on)
 		if on then
 			music.onStateChange()
@@ -116,6 +126,16 @@ function PANEL:Initialize()
 
 	self.MELEE.MUSICLOOP = self.MELEE:Add("HorizontalSelect")
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
+
+	self.MELEE.MUSICLOOP:SetTooltipTitle("MUSIC LOOP MODE")
+	self.MELEE.MUSICLOOP:SetTooltipBody([[- Playlist mode: When a song ends, it will play another song in a random order.
+
+-Loop menu: Will play one random song on a loop when in menus.
+
+-Loop stage: Will play one random song on loop when playing on a stage.
+
+-Loop all: Will play one random song on a loop when in the menu system or playing on a stage.
+]])
 
 	LOOPING_OFF = self.MELEE.MUSICLOOP:AddOption("Playlist mode", true) -- 1
 	LOOPING_MENU = self.MELEE.MUSICLOOP:AddOption("Loop menu") -- 2
@@ -138,6 +158,10 @@ function PANEL:Initialize()
 
 	self.MELEE.MUSICSKIP = self.MELEE:Add("GCBind")
 	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
+	self.MELEE.MUSICSKIP:SetTooltipTitle("SKIP TRACK COMBO")
+	self.MELEE.MUSICSKIP:SetTooltipBody([[This button will allow you to a set a button combination on your controller to skip the currently playing music track.
+
+NOTE: This button is only usable when in a supported game.]])
 
 	local VOLLABEL = self.MELEE:Add("Label")
 	VOLLABEL:SetText("Music volume")
@@ -152,6 +176,8 @@ function PANEL:Initialize()
 	self.MELEE.VOLUME = self.MELEE:Add("Slider")
 	self.MELEE.VOLUME:SetValue(50)
 	self.MELEE.VOLUME:Dock(DOCK_TOP)
+	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
+	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
 
 	function self.MELEE.VOLUME:OnValueChanged(i)
 		music.setVolume(i)
@@ -161,10 +187,14 @@ function PANEL:Initialize()
 	self.PORTTITLE = LEFT:Add("Checkbox")
 	self.PORTTITLE:SetText("Port in title")
 	self.PORTTITLE:Dock(DOCK_TOP)
+	self.PORTTITLE:SetTooltipTitle("PORT IN TITLE")
+	self.PORTTITLE:SetTooltipBody([[Show the current port number being displayed in the application title.]])
 
 	self.ALWAYSPORT = LEFT:Add("Checkbox")
 	self.ALWAYSPORT:SetText("Always show port")
 	self.ALWAYSPORT:Dock(DOCK_TOP)
+	self.ALWAYSPORT:SetTooltipTitle("ALWAYS SHOW PORT")
+	self.ALWAYSPORT:SetTooltipBody([[Always show the current port in the bottom left of the overlay window.]])
 
 	function self.PORTTITLE:OnToggle()
 		love.updateTitle(love.getTitleNoPort())
@@ -173,6 +203,10 @@ function PANEL:Initialize()
 	self.HIGH_CONTRAST = LEFT:Add("Checkbox")
 	self.HIGH_CONTRAST:SetText("High-contrast")
 	self.HIGH_CONTRAST:Dock(DOCK_TOP)
+	self.HIGH_CONTRAST:SetTooltipTitle("HIGH-CONTRAST")
+	self.HIGH_CONTRAST:SetTooltipBody([[All buttons and joystick-gates with be filled with black for better viewing visibility.
+
+20XX theme is unsupported]])
 
 	local BUTTONS = LEFT:Add("Panel")
 	BUTTONS:Dock(DOCK_TOP)
@@ -185,17 +219,23 @@ function PANEL:Initialize()
 	self.DPAD:SetWidth(74)
 	self.DPAD:Dock(DOCK_LEFT)
 	self.DPAD:DockMargin(0,0,0,0)
+	self.DPAD:SetTooltipTitle("DIRECTIONAL-PAD")
+	self.DPAD:SetTooltipBody([[Enable/disable the directional pad on the overlay.]])
 
 	self.START = BUTTONS:Add("Checkbox")
 	self.START:SetText("Start")
 	self.START:SetWidth(74)
 	self.START:Dock(DOCK_RIGHT)
 	self.START:DockMargin(0,0,0,0)
+	self.START:SetTooltipTitle("START BUTTON")
+	self.START:SetTooltipBody([[Enable/disable the start button on the overlay.]])
 
 	self.DEBUG = LEFT:Add("Checkbox")
 	self.DEBUG:SetText("Debug console")
 	self.DEBUG:Dock(DOCK_TOP)
 	self.DEBUG:SetVisible(love.supportsAttachableConsole())
+	self.DEBUG:SetTooltipTitle("DEBUG CONSOLE")
+	self.DEBUG:SetTooltipBody([[Enable/disable a debug console for developer and debugging purposes.]])
 
 	function self.DEBUG:OnToggle(on)
 		love.console(on)
@@ -215,6 +255,8 @@ function PANEL:Initialize()
 	self.TRANSPARENCY:SetValue(100)
 	self.TRANSPARENCY:Dock(DOCK_TOP)
 	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
+	self.TRANSPARENCY:SetTooltipTitle("TRANSPARENCY")
+	self.TRANSPARENCY:SetTooltipBody([[Adjust how transparent the overlay is. This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
 
 	function self.TRANSPARENCY:OnValueChanged(i)
 		TLABEL:SetText(("Transparency - %d%%"):format(i))
@@ -225,6 +267,8 @@ function PANEL:Initialize()
 	self.BACKGROUNDCOLOR:Dock(DOCK_TOP)
 	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
 	self.BACKGROUNDCOLOR:SetColor(color(34, 34, 34))
+	self.BACKGROUNDCOLOR:SetTooltipTitle("BACKGROUND COLOR")
+	self.BACKGROUNDCOLOR:SetTooltipBody([[Pick a color to change the background color of the overlay window.]])
 
 	self.BACKGROUNDCOLOR.OnClick = function(this)
 		self.COLORSELECT:SetColor(self.BACKGROUNDCOLOR:GetColor())
@@ -235,6 +279,10 @@ function PANEL:Initialize()
 	self.CONFIGDIR = LEFT:Add("Button")
 	self.CONFIGDIR:SetText("Open config directory")
 	self.CONFIGDIR:Dock(DOCK_TOP)
+	self.CONFIGDIR:SetTooltipTitle("CONFIGURATION DIRECTORY")
+	self.CONFIGDIR:SetTooltipBody([[This button will open the file explorer to M'Overlay's config directory.
+
+This is also the same directory you use to place all your music for Melee.]])
 
 	function self.CONFIGDIR:OnClick()
 		love.system.openURL(("file://%s"):format(love.filesystem.getSaveDirectory()))
@@ -285,6 +333,7 @@ end
 function PANEL:Toggle()
 	self:SetVisible(not self:IsVisible())
 	if not self:IsVisible() then
+		gui.hideTooltip()
 		self:OnClosed()
 	end
 	self:Center()

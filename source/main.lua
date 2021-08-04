@@ -44,6 +44,10 @@ local GAME = newImage("textures/game.png")
 local MELEE = newImage("textures/meleedisk.png")
 local MELEELABEL = newImage("textures/meleedisklabel.png")
 local SHADOW = newImage("textures/shadow.png")
+local KEY = newImage("textures/key.png")
+
+local ESCAPE_MENU_HINT = love.timer.getTime() + 5
+local ESCAPE_MENU_HINT_FADE = ESCAPE_MENU_HINT + 1
 
 MAX_PORTS = 4
 
@@ -216,6 +220,8 @@ end
 function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" and not isrepeat then
 		PANEL_SETTINGS:Toggle()
+		ESCAPE_MENU_HINT = nil
+		ESCAPE_MENU_HINT_FADE = nil
 	end
 
 	gui.keyPressed(key, scancode, isrepeat)
@@ -594,6 +600,36 @@ function love.draw()
 			graphics.easyDraw(canvas, 0, 0, 0, 512, 256)
 		graphics.setShader()
 	end]]
+
+	local time = love.timer.getTime()
+
+	if ESCAPE_MENU_HINT_FADE and ESCAPE_MENU_HINT_FADE >= time then
+		local msg = "Press 'ESC' to access the settings!"
+
+		local w = DEBUG_FONT:getWidth(msg) + 40
+		local h = 32
+
+		local x = 512/2 - w/2
+		local y = 256-h-16
+
+		y = y + math.sin(time*5) * 4
+
+		local alpha = 255
+
+		if ESCAPE_MENU_HINT < time then
+			local fadeLen = ESCAPE_MENU_HINT_FADE - ESCAPE_MENU_HINT
+			local timeRem = ESCAPE_MENU_HINT_FADE - time
+			alpha = timeRem/fadeLen*255
+		end
+
+		graphics.setColor(255, 255, 255, alpha)
+		graphics.roundRect(x, y, w, h, 4)
+		graphics.easyDraw(KEY, x, y, 0, 32, 32)
+
+		graphics.setFont(DEBUG_FONT)
+		graphics.setColor(0, 0, 0, alpha)
+		graphics.print(msg, x + 36, y+(h/2)-6)
+	end
 
 	gui.render()
 	notification.draw()
