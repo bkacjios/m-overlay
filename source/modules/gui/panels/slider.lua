@@ -108,7 +108,7 @@ function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
 end
 
 function PANEL:OnMouseWheeled(x, y)
-	if not self:IsEnabled() or not self:HasFocus() then return end
+	if not self:IsEnabled() then return end
 	self:SetValue(self.m_iValue + (y * self.m_iSteps))
 	return true
 end
