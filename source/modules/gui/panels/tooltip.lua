@@ -6,7 +6,7 @@ PANEL.ToolTipColor = color(240, 240, 240)
 
 function PANEL:Initialize()
 	self:super() -- Initialize our baseclass
-	self:SetFocusable(false)
+	self:SetFocusable(false) -- Ignore focus
 
 	self:SetSize(256, 256)
 	self:DockPadding(8, 8, 8, 0)

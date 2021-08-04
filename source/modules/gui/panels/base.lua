@@ -393,13 +393,11 @@ function PANEL:LocalToWorld(x, y)
 	
 	return x, y
 end
-PANEL.LocalToScreen = PANEL.LocalToWorld
 
 function PANEL:WorldToLocal(x, y)
-	local sx, sy = self:LocalToScreen(0, 0)
+	local sx, sy = self:LocalToWorld(0, 0)
 	return x - sx, y - sy
 end
-PANEL.ScreenToLocal = PANEL.WorldToLocal
 
 function PANEL:SetX(x)
 	self.m_iPosX = x
@@ -464,14 +462,14 @@ function PANEL:GetHeight()
 end
 
 function PANEL:IsWorldPointInside(x, y)
-	local px, py = self:LocalToScreen(0, 0)
+	local px, py = self:LocalToWorld(0, 0)
 	return x > px and x < px + self:GetWidth() and y > py and y < py + self:GetHeight()
 end
 
 function PANEL:Render()
 	if not self:IsVisible() then return end
 
-	local x, y = self:LocalToScreen(0, 0)
+	local x, y = self:LocalToWorld(0, 0)
 	local w, h = self:GetSize()
 	
 	local parent = self:GetParent()
@@ -482,7 +480,7 @@ function PANEL:Render()
 
 	while self.m_bScissorEnabled and parent do
 		-- If we have a parent, fit the scissor to fit inside their bounds
-		local px, py = parent:LocalToScreen(0, 0)
+		local px, py = parent:LocalToWorld(0, 0)
 		local pw, ph = parent:GetSize()
 
 		if sx < px then
@@ -505,7 +503,9 @@ function PANEL:Render()
 		parent = parent:GetParent()
 	end
 
-	-- Only bother to render if the entire panel is visible within the scissor
+	self:SetWorldPos(sx, sy)
+
+	-- Only bother to render if the panel is visible within the scissor
 	if math.max(x, sx) < math.min(x + w, sx + sw) and math.max(y, sy) < math.min(y + h, sy + sh) then
 		local rsx, rsy = self:GetScale()
 
@@ -518,7 +518,6 @@ function PANEL:Render()
 			graphics.scale(rsx, rsy)
 
 			local uw, uh = self:GetPixelSize()
-			self:SetWorldPos(sx, sy)
 			graphics.setColor(255, 255, 255, 255)
 			self:PrePaint(uw, uh)
 			graphics.setColor(255, 255, 255, 255)
@@ -708,6 +707,59 @@ function PANEL:GetHoveredPanel(x, y, ignore)
 		end
 	end
 	return panel
+end
+
+function PANEL:SetPosAround(other, world)
+	self:SetPos(self:GetPosAround(other, world))
+end
+
+-- Tries to get find a position that can fit "other" somehwere around ourself without clipping outside our world
+function PANEL:GetPosAround(other, world)
+	world = world or gui.getWorldPanel()
+
+	local pw, ph = self:GetPixelSize()
+
+	local ox, oy = other:GetWorldPos()
+	local ow, oh = other:GetPixelSize()
+
+	local sx, sy = world:GetWorldPos()
+	local sw, sh = world:GetPixelSize()
+
+	local canFitAbove = (oy - sy) >= ph
+	local canFitBelow = ((sy + sh) - (oy + oh)) >= ph
+	local canFitLeft = (ox - sx) >= pw
+	local canFitRight = ((sx + sw) - (ox + ow)) >= pw
+
+	local finalX, finalY = 0, 0
+
+	if canFitAbove or canFitBelow then -- Prefer above or below
+		-- set our x position centered against our other
+		finalX = ox + ow/2 - pw/2
+		-- fit our x position within our world
+		finalX = math.min(sx + sw - pw, math.max(sx, finalX))
+		if canFitAbove then
+			-- set y above
+			finalY = oy - ph
+		else
+			-- set y below
+			finalY = oy + oh
+		end
+	elseif canFitLeft or canFitRight then -- Try left or right if above and below fails
+		-- set our y position centered against our other
+		finalY = oy + oh/2 - ph/2
+		-- fit our y position within our world
+		finalY = math.min(sy + sh - ph, math.max(sy, finalY))
+		if canFitLeft then
+			-- set y left
+			finalX = ox - pw
+		else
+			-- set y right
+			finalX = ox + ow
+		end
+	end
+
+	-- return our position as a local position within the given world
+	return world:WorldToLocal(finalX, finalY)
 end
 
 -- PANEL OVERRIDE DEFAULTS
