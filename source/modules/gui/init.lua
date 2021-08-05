@@ -58,9 +58,10 @@ function gui.updateHoveredPanel()
 	if gui.m_pHoveredPanel ~= hovered then
 		local time = love.timer.getTime()
 
+		gui.m_fTooltipTimer = nil
 		if gui.isToolTipVisible() then
 			gui.hideTooltip()
-			gui.m_fTooltipTimerCarryOver = time + 0.5
+			gui.m_fTooltipTimerCarryOver = time + 0.35
 		end
 
 		gui.m_pHoveredPanel:OnHoveredChanged(false)
@@ -71,7 +72,7 @@ function gui.updateHoveredPanel()
 			if gui.m_fTooltipTimerCarryOver and gui.m_fTooltipTimerCarryOver >= time then
 				gui.showTooltip()
 			else
-				gui.m_fTooltipTimer = time + 0.5
+				gui.m_fTooltipTimer = time + 0.75
 			end
 		end
 	end
@@ -124,33 +125,57 @@ function gui.getWorldPanel()
 end
 
 function gui.joyPressed(joy, but)
-	gui.getHoveredPanel():OnJoyPressed(joy, but)
+	gui.m_pHoveredPanel:OnJoyPressed(joy, but)
 end
 
 function gui.joyReleased(joy, but)
-	gui.getHoveredPanel():OnJoyReleased(joy, but)
+	gui.m_pHoveredPanel:OnJoyReleased(joy, but)
 end
 
 function gui.keyPressed(key, scancode, isrepeat)
 	--if key == "escape" and not isrepeat then
 	--end
 	gui.m_pFocusedPanel:OnKeyPressed(key, isrepeat)
-	gui.getHoveredPanel():OnHoveredKeyPressed(key, isrepeat)
+	gui.m_pHoveredPanel:OnHoveredKeyPressed(key, isrepeat)
 end
 
 function gui.keyReleased(key)
 	gui.m_pFocusedPanel:OnKeyReleased(key)
-	gui.getHoveredPanel():OnHoveredKeyReleased(key)
+	gui.m_pHoveredPanel:OnHoveredKeyReleased(key)
 end
 
 function gui.textInput(text)
 	gui.m_pFocusedPanel:OnTextInput(text)
-	gui.getHoveredPanel():OnHoveredTextInput(text)
+	gui.m_pHoveredPanel:OnHoveredTextInput(text)
 end
 
-function gui.render()
-	if gui.m_pWorldPanel then
-		gui.m_pWorldPanel:Render()
+do
+	local INFO = love.graphics.newImage("textures/information.png")
+
+	function gui.render()
+		if gui.m_pWorldPanel then
+			gui.m_pWorldPanel:Render()
+		end
+
+		local time = love.timer.getTime()
+		if gui.m_fTooltipTimer and gui.m_fTooltipTimer > time then
+			local mx, my = gui.getMousePosition()
+			local start = -90
+			local percent = 1-((gui.m_fTooltipTimer-time)/0.75)
+			local progress = math.min(math.max(18, percent*360), 345)
+
+			love.graphics.setLineStyle("smooth")
+			love.graphics.setLineWidth(2)
+
+			local r = 9
+
+			love.graphics.setColor(color_black)
+			love.graphics.circle("line", mx + 9 + r, my, r)
+			love.graphics.setColor(color_blue)
+			love.graphics.arc("line", mx + 9 + r, my, r, math.rad(start), math.rad(start+progress))
+			love.graphics.setColor(color_white)
+			love.graphics.easyDraw(INFO, mx + 9, my - r, 0, 18, 18)
+		end
 	end
 end
 
@@ -169,7 +194,7 @@ function gui.mouseMoved(x, y, dx, dy, istouch)
 end
 
 function gui.mousePressed(x, y, button, istouch, presses)
-	local panel = gui.getHoveredPanel()
+	local panel = gui.m_pHoveredPanel
 	gui.setFocusedPanel(panel)
 
 	local lx, ly = panel:WorldToLocal(x, y)
@@ -198,7 +223,7 @@ end
 
 function gui.mouseWheeled(x, y)
 	gui.updateHoveredPanel()
-	local panel = gui.getHoveredPanel()
+	local panel = gui.m_pHoveredPanel
 	if not panel:OnMouseWheeled(x, y) then
 		local parent = panel:GetParent()
 		while parent do
