@@ -709,12 +709,8 @@ function PANEL:GetHoveredPanel(x, y, ignore)
 	return panel
 end
 
-function PANEL:SetPosAround(other, world)
-	self:SetPos(self:GetPosAround(other, world))
-end
-
 -- Tries to get find a position that can fit "other" somehwere around ourself without clipping outside our world
-function PANEL:GetPosAround(other, world)
+function PANEL:SetPosAround(other, world)
 	world = world or gui.getWorldPanel()
 
 	local pw, ph = self:GetPixelSize()
@@ -731,35 +727,48 @@ function PANEL:GetPosAround(other, world)
 	local canFitRight = ((sx + sw) - (ox + ow)) >= pw
 
 	local finalX, finalY = 0, 0
+	local midX, midY = 0,0
 
 	if canFitAbove or canFitBelow then -- Prefer above or below
+		midX = ox + ow/2
+
 		-- set our x position centered against our other
-		finalX = ox + ow/2 - pw/2
+		finalX = midX - pw/2
+
 		-- fit our x position within our world
 		finalX = math.min(sx + sw - pw, math.max(sx, finalX))
 		if canFitAbove then
 			-- set y above
 			finalY = oy - ph
+			midY = oy
 		else
 			-- set y below
 			finalY = oy + oh
+			midY = finalY
 		end
 	elseif canFitLeft or canFitRight then -- Try left or right if above and below fails
+		midY = oy + oh/2
+
 		-- set our y position centered against our other
-		finalY = oy + oh/2 - ph/2
+		finalY = midY - ph/2
+
 		-- fit our y position within our world
 		finalY = math.min(sy + sh - ph, math.max(sy, finalY))
 		if canFitLeft then
 			-- set y left
 			finalX = ox - pw
+			midX = ox
 		else
 			-- set y right
 			finalX = ox + ow
+			midX = finalX
 		end
 	end
 
 	-- return our position as a local position within the given world
-	return world:WorldToLocal(finalX, finalY)
+	finalX, finalY = world:WorldToLocal(finalX, finalY)
+	self:SetPos(finalX, finalY)
+	return self:WorldToLocal(midX, midY)
 end
 
 -- PANEL OVERRIDE DEFAULTS

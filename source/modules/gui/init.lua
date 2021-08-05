@@ -36,7 +36,8 @@ function gui.setTooltip(title, body)
 	gui.m_pTooltip:SetTitle(title)
 	gui.m_pTooltip:SetBody(body)
 	-- Position our tooltip somewhere around the hovered object
-	gui.m_pTooltip:SetPosAround(gui.m_pHoveredPanel)
+
+	gui.m_pTooltip:SetArrowPos(gui.m_pTooltip:SetPosAround(gui.m_pHoveredPanel))
 end
 
 function gui.showTooltip()

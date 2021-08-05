@@ -1,6 +1,8 @@
 local PANEL = {}
 
 ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
+ACCESSOR(PANEL, "ArrowX", "m_iArrowX", 0)
+ACCESSOR(PANEL, "ArrowY", "m_iArrowY", 0)
 
 PANEL.ToolTipColor = color(240, 240, 240)
 
@@ -25,6 +27,15 @@ function PANEL:Initialize()
 	self.m_pBody:SetSize(236, 228)
 end
 
+function PANEL:SetArrowPos(x, y)
+	self.m_iArrowX = x
+	self.m_iArrowY = y
+end
+
+function PANEL:GetArrowPos()
+	return math.max(5, math.min(self:GetWidth() - 5, self.m_iArrowX)), math.max(5, math.min(self:GetHeight() - 5, self.m_iArrowY))
+end
+
 function PANEL:SetTitle(str)
 	self.m_pTitle:SetText(str)
 end
@@ -38,6 +49,23 @@ end
 function PANEL:Paint(w, h)
 	graphics.setColor(color_black)
 	graphics.roundRect(4, 4, w-8, h-8, 4)
+
+	local s1 = 5.65685424949 -- sqrt(4^2+4^2)
+	local s2 = 7.07106781187 -- sqrt(5^2+5^2)
+
+	graphics.setColor(self.ToolTipColor)
+
+	graphics.push()
+	graphics.translate(self:GetArrowPos()) -- move relative (0,0) to (x,y)
+	graphics.rotate(math.rad(45)) -- rotate coordinate system around relative (0,0) (absolute (x,y))
+
+	graphics.setColor(color_black)
+	graphics.rectangle("fill", -s2/2, -s2/2, s2, s2) -- draw rectangle centered around relative (0,0)
+
+	graphics.setColor(self.ToolTipColor)
+	graphics.rectangle("fill", -s1/2, -s1/2, s1, s1) -- draw rectangle centered around relative (0,0)
+	graphics.pop()
+
 	graphics.setColor(self.ToolTipColor)
 	graphics.roundRect(5, 5, w-10, h-10, 4)
 end
