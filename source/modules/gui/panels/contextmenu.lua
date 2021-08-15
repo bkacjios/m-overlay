@@ -1,6 +1,6 @@
-local PANEL = {}
+local PANEL = class.create("ContextMenu", "Panel")
 
-function PANEL:Initialize()
+function PANEL:ContextMenu()
 	self:super() -- Initialize our baseclass
 
 	self.m_tEntries = {}
@@ -50,5 +50,3 @@ end
 
 function PANEL:OnEntryClicked(name, panel)
 end
-
-gui.register("ContextMenu", PANEL, "Panel")

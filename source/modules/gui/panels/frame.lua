@@ -1,10 +1,10 @@
-local PANEL = {}
+local PANEL = class.create("Frame", "Panel")
 
 ACCESSOR(PANEL, "Grabbed", "m_bGrabbed", false)
 ACCESSOR(PANEL, "Draggable", "m_bDraggable", true)
 ACCESSOR(PANEL, "HideOnClose", "m_bHideOnClose", false)
 
-function PANEL:Initialize()
+function PANEL:Frame()
 	self:super() -- Initialize our baseclass
 
 	self:DockPadding(4, 36, 4, 4)
@@ -69,5 +69,3 @@ end
 function PANEL:OnClosed()
 	-- Override
 end
-
-gui.register("Frame", PANEL, "Panel")

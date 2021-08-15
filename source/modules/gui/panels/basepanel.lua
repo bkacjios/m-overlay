@@ -1,8 +1,8 @@
-local PANEL = {}
+local PANEL = class.create("BasePanel")
 
 require("extensions.table")
 
-function PANEL:Initialize()
+function PANEL:BasePanel()
 	self.m_tChildren = {}
 	self.m_tOrphans = {}
 	self.m_iWorldPosX = 0
@@ -939,5 +939,3 @@ end
 function PANEL:OnQuertyTooltip()
 	-- Called when the user has hovered over the panel for more than a second
 end
-
-gui.register("Base", PANEL)

@@ -1,4 +1,6 @@
-function PANEL:Initialize()
+local PANEL = class.create("ColorPicker", "Panel")
+
+function PANEL:ColorPicker()
 	self:super() -- Initialize our baseclass
 	
 	self.m_txtColorValue = self:Add("TextEntry")
@@ -43,5 +45,3 @@ end
 function PANEL:GetColor()
 	return self.m_pColorShade:GetColor()
 end
-
-gui.register("ColorPicker", PANEL, "Panel")

@@ -4,15 +4,14 @@ local color = require("util.color")
 
 local env = {
 	-- QOL Stuff
+	audio	= love.audio,
+	data	= love.data,
+	event	= love.event,
+	filesystem = love.filesystem,
+	font = love.font,
 	graphics = love.graphics,
 	timer = love.timer,
-	audio = love.audio,
-	filesystem = love.filesystem,
 	window = love.window,
-
-	-- Incase someone forgets to define these
-	PANEL = {},
-	SKIN = {},
 
 	unpackcolor = unpackcolor,
 	color = color,
@@ -21,6 +20,7 @@ local env = {
 	RGBToHSV = RGBToHSV,
 	ColorToHSV = ColorToHSV,
 
+	class = require("class"),
 	gui = require("gui"),
 }
 

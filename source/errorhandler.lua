@@ -1,7 +1,8 @@
 local utf8 = require("utf8")
+local log = require("log")
  
 local function error_printer(msg, layer)
-	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+	log.error((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
 end
 
 function love.errorhandler(msg)

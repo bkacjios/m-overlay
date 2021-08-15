@@ -1,4 +1,8 @@
-local PANEL = {}
+local PANEL = class.create("Image", "BasePanel")
+
+function PANEL:Image()
+	self:super()
+end
 
 function PANEL:SetImage(file)
 	self.m_pImage = graphics.newImage(file)
@@ -12,5 +16,3 @@ end
 function PANEL:SizeToContentes()
 	self:SetSize(self.m_pImage:getDimensions())
 end
-
-gui.register("Image", PANEL, "Base")

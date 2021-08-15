@@ -1,10 +1,10 @@
-local PANEL = {}
+local PANEL = class.create("SkinSelect", "Panel")
 
 ACCESSOR(PANEL, "Skin", "m_strSkin", "Default")
 
 local overlay = require("overlay")
 
-function PANEL:Initialize()
+function PANEL:SkinSelect()
 	self:super() -- Initialize our baseclass
 
 	self:DockPadding(1, 1, 1, 1)
@@ -64,5 +64,3 @@ end
 function PANEL:Toggle()
 	self:SetVisible(not self:IsVisible())
 end
-
-gui.register("SkinSelect", PANEL, "Panel")

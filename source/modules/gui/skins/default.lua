@@ -1,4 +1,4 @@
-local SKIN = {}
+local SKIN = gui.newSkin("default")
 
 SKIN.Background = color(255, 255, 255)
 
@@ -29,7 +29,7 @@ SKIN.CheckboxBorder = color(100, 100, 100)
 SKIN.CheckboxOff = color(200, 200, 200)
 SKIN.CheckboxOn = color(0, 162, 232)
 
-SKIN.CheckImage = graphics.newImage("textures/checkmark.png")
+SKIN.CheckImage = graphics.newImage("textures/gui/checkmark.png")
 
 function SKIN:InitPanel(panel)
 	panel:SetBGColor(self.PanelBackground)
@@ -200,5 +200,3 @@ function SKIN:InitHorizontalSelect(panel)
 	panel:SetBGColor(self.PanelBackground)
 	panel:SetBorderColor(self.PanelBorder)
 end
-
-gui.registerSkin("default", SKIN)

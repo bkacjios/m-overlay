@@ -1,4 +1,4 @@
-local PANEL = {}
+local PANEL = class.create("Panel", "BasePanel")
 
 ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
 ACCESSOR(PANEL, "BorderColor", "m_cBorderColor", color_blank)
@@ -7,7 +7,7 @@ ACCESSOR(PANEL, "BGColor", "m_cBackgroundColor", color_blank)
 ACCESSOR(PANEL, "TooltipTitle", "m_strTooltipTitle", nil)
 ACCESSOR(PANEL, "TooltipBody", "m_strTooltipBody", nil)
 
-function PANEL:Initialize()
+function PANEL:Panel()
 	self:super() -- Initialize our baseclass
 	gui.skinHook("Init", "Panel", self)
 end
@@ -33,5 +33,3 @@ function PANEL:OnQuertyTooltip()
 		return true
 	end
 end
-
-gui.register("Panel", PANEL, "Base")

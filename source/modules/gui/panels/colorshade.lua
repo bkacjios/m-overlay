@@ -1,14 +1,16 @@
+local PANEL = class.create("ColorShade", "Panel")
+
 ACCESSOR(PANEL, "Hue", "m_iHue", 0)
 ACCESSOR(PANEL, "Saturation", "m_iSaturation", 1)
 ACCESSOR(PANEL, "Value", "m_iValue", 1)
 ACCESSOR(PANEL, "Color", "m_cColor", color(255, 0, 0))
 ACCESSOR(PANEL, "PickerSize", "m_iPickerSize", 32)
 
-PANEL.m_pPickLine = graphics.newImage("textures/colorring.png")
-PANEL.m_pPickImage = graphics.newImage("textures/colorpick.png")
-PANEL.m_pGradient = graphics.newImage("textures/gradient.png")
+PANEL.m_pPickLine = graphics.newImage("textures/gui/colorring.png")
+PANEL.m_pPickImage = graphics.newImage("textures/gui/colorpick.png")
+PANEL.m_pGradient = graphics.newImage("textures/gui/gradient.png")
 
-function PANEL:Initialize()
+function PANEL:ColorShade()
 	self:super() -- Initialize our baseclass
 	
 	self:SetFocusable(true)
@@ -175,5 +177,3 @@ end
 function PANEL:OnColorChanged(shade)
 	-- Override
 end
-
-gui.register("ColorShade", PANEL, "Panel")

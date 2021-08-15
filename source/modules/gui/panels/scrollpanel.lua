@@ -1,6 +1,6 @@
-local PANEL = {}
+local PANEL = class.create("ScrollPanel", "Panel")
 
-function PANEL:Initialize()	
+function PANEL:ScrollPanel()	
 	self:super() -- Initialize our baseclass
 	self:DockPadding(0,0,0,0)
 
@@ -92,5 +92,3 @@ end
 function PANEL:Clear()
 	return self.m_pCanvas:Clear()
 end
-
-gui.register("ScrollPanel", PANEL, "Panel")

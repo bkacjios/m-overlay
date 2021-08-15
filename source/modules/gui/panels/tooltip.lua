@@ -1,4 +1,4 @@
-local PANEL = {}
+local PANEL = class.create("ToolTip", "BasePanel")
 
 ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
 ACCESSOR(PANEL, "ArrowX", "m_iArrowX", 0)
@@ -6,7 +6,7 @@ ACCESSOR(PANEL, "ArrowY", "m_iArrowY", 0)
 
 PANEL.ToolTipColor = color(240, 240, 240)
 
-function PANEL:Initialize()
+function PANEL:ToolTip()
 	self:super() -- Initialize our baseclass
 	self:SetFocusable(false) -- Ignore focus
 
@@ -69,5 +69,3 @@ function PANEL:Paint(w, h)
 	graphics.setColor(self.ToolTipColor)
 	graphics.roundRect(5, 5, w-10, h-10, 4)
 end
-
-gui.register("ToolTip", PANEL, "Base")

@@ -1,4 +1,4 @@
-local PANEL = {}
+local PANEL = class.create("ScrollBarGrip", "Panel")
 
 function PANEL:OnMousePressed(x, y, but)
 	self.m_bPressed = true
@@ -20,11 +20,9 @@ function PANEL:Paint(w, h)
 	gui.skinHook("Paint", "ScrollBarGrip", self, w, h)
 end
 
-gui.register("ScrollBarGrip", PANEL, "Panel")
+local PANEL = class.create("ScrollBar", "Panel")
 
-local PANEL = {}
-
-function PANEL:Initialize()
+function PANEL:ScrollBar()
 	self:super() -- Initialize our baseclass
 	
 	self:SetWidth(16)
@@ -184,5 +182,3 @@ function PANEL:PerformLayout()
 	self.m_pDownButton:SetPos(0, self:GetHeight() - wide)
 	self.m_pDownButton:SetSize(wide, wide)
 end
-
-gui.register("ScrollBar", PANEL, "Panel")

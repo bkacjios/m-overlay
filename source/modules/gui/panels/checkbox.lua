@@ -1,8 +1,10 @@
+local PANEL = class.create("Checkbox", "Button")
+
 ACCESSOR(PANEL, "Radio", "m_bRadio", false)
 ACCESSOR(PANEL, "Toggleable", "m_bToggleable", true)
 ACCESSOR(PANEL, "Toggled", "m_bToggled", false)
 
-function PANEL:Initialize()
+function PANEL:Checkbox()
 	-- Initialize our baseclass
 	self:super()
 	self:TextMargin(28, 0, 0, 0)
@@ -51,5 +53,3 @@ end
 function PANEL:OnClick()
 	-- Override
 end
-
-gui.register("Checkbox", PANEL, "Button")

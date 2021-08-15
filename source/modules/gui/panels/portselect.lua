@@ -1,10 +1,10 @@
-local PANEL = {}
+local PANEL = class.create("PortSelect", "Panel")
 
 ACCESSOR(PANEL, "Port", "m_iPort", 1)
 
 local overlay = require("overlay")
 
-function PANEL:Initialize()
+function PANEL:PortSelect()
 	self:super() -- Initialize our baseclass
 
 	self:DockPadding(1, 1, 1, 1)
@@ -58,5 +58,3 @@ end
 function PANEL:Toggle()
 	self:SetVisible(not self:IsVisible())
 end
-
-gui.register("PortSelect", PANEL, "Panel")

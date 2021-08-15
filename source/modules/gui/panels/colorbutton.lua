@@ -1,6 +1,8 @@
+local PANEL = class.create("ColorButton", "Button")
+
 ACCESSOR(PANEL, "Color", "m_cColor", color_white)
 
-function PANEL:Initialize()
+function PANEL:ColorButton()
 	-- Initialize our baseclass
 	self:super()
 	self:TextMargin(28, 0, 0, 0)
@@ -19,5 +21,3 @@ end
 function PANEL:PaintOverlay(w, h)
 	gui.skinHook("PaintOverlay", "Button", self, w, h)
 end
-
-gui.register("ColorButton", PANEL, "Button")

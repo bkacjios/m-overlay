@@ -3,9 +3,15 @@ local class = {
 	inherits = {},
 }
 
-local constructor_method = "Initialize"
-
 local OBJECT = {}
+
+function OBJECT:__call(...)
+	if not self[self.__constructor] then
+		return error(string.format("can not create object for class %s (no constructor)", self))
+	end
+	self[self.__constructor](self, ...)
+	return self
+end
 
 function OBJECT:__index(key)
 	-- Check for any specific, class-based, methods like "super"
@@ -41,7 +47,7 @@ function OBJECT:super(method, ...)
 	-- Error if the scope of the call has no baseclass (AKA the main class)
 	if not base then return error("attempted to call method 'super' in class with no baseclass") end
 
-	local call = method or constructor_method
+	local call = method or base.__constructor
 
 	if base[call] == nil then
 		return error(string.format("attempted to call method '%s' (a nil value)", call))
@@ -52,13 +58,19 @@ function OBJECT:super(method, ...)
 
 	-- Call the method
 	-- This can trigger another super call, so thats why we need __superscope
-	base[call](self, ...)
+	local ret = base[call](self, ...)
 
 	-- -1 from the scope
 	self.__superscope = self.__superscope - 1
+
+	-- return super return
+	return ret
 end
 
 function ACCESSOR(object, name, internal, default)
+	if not object then
+		return error("attempt to call ACCESSOR on a nil value")
+	end
 	object[internal] = default
 	if type(default) == "boolean" then
 		object["Is" .. name] = function(this) return this[internal] end
@@ -71,37 +83,60 @@ function OBJECT:getBaseClass()
 	return self.__baseclass
 end
 
-function OBJECT:__tostring()
-	local base = self.__baseclass
-	return string.format("%s[%s]", base and base.__classname or "Object", self.__classname)
+function OBJECT:getClass()
+	local super = getmetatable(self)
+	return (super ~= OBJECT and super or nil)
 end
 
-function class.new(name, ...)
-	if class.structs[name] then
+function OBJECT:__tostring()
+	return string.format("%s::%s", self.__baseclass or "", self.__classname)
+end
+
+do
+	local function copy(object)
+		local lookup_table = {}
+		local function _copy(object)
+			if type(object) ~= "table" then
+				return object
+			elseif lookup_table[object] then
+				return lookup_table[object]
+			end
+			local new_table = {}
+			lookup_table[object] = new_table
+			for index, value in pairs(object) do
+				new_table[_copy(index)] = _copy(value)
+			end
+			return setmetatable(new_table, getmetatable(object))
+		end
+		return _copy(object)
+	end
+
+	function class.new(name, ...)
+		if not class.structs[name] then
+			return error(("failed to create unknown class '%s'"):format(name)) 
+		end
+
+		-- Get our class structure
 		local struct = class.structs[name]
 
 		-- Create a copy of the struct, with metatable and all
-		local obj = table.copy(struct)
+		local obj = copy(struct)
+
 		-- Set values that are unique to this instance
 		obj.__superscope = 1
 
-		-- Try to call the initializer
-		if obj[constructor_method] then
-			obj[constructor_method](obj, ...)
-		end
-		return obj
+		-- Return our new object and call constructor
+		return obj(...)
 	end
-
-	return error(("failed to create unknown class '%s'"):format(name))
 end
 
-function class.register(classname, basename)
-	return function(struct)
-		struct.__classname = classname
-		class.inherits[classname] = basename
-		class.structs[classname] = struct
-		return struct
-	end
+function class.create(classname, basename)
+	local struct = {}
+	struct.__classname = classname
+	struct.__constructor = classname
+	class.inherits[classname] = basename
+	class.structs[classname] = struct
+	return struct
 end
 
 function class.init()

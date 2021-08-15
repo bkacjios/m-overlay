@@ -1,4 +1,8 @@
-local PANEL = {}
+local PANEL = class.create("ImageURL", "Image")
+
+function PANEL:ImageURL()
+	self:super()
+end
 
 function PANEL:SetURL(url)
 	local raw = http.request(url)
@@ -7,5 +11,3 @@ function PANEL:SetURL(url)
 	local data = love.image.newImageData(file)
 	self:SetImage(data)
 end
-
-gui.register("ImageURL", PANEL, "Image")

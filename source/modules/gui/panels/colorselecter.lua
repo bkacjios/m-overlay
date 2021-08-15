@@ -1,8 +1,8 @@
-local PANEL = {}
+local PANEL = class.create("ColorSelector", "Panel")
 
 ACCESSOR(PANEL, "ColorButton", "m_pColorButton")
 
-function PANEL:Initialize()
+function PANEL:ColorSelector()
 	self:super()
 
 	self.COLORPICKER = self:Add("ColorPicker")
@@ -45,5 +45,3 @@ end
 function PANEL:GetColor()
 	return self.COLORPICKER:GetColor()
 end
-
-gui.register("ColorSelector", PANEL, "Panel")

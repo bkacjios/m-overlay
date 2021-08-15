@@ -91,16 +91,15 @@ function gui.resize(w, h)
 	gui.m_pWorldPanel:InvalidateLayout()
 end
 
-function gui.registerSkin(name, tbl)
+function gui.newSkin(name)
+	local tbl = {}
 	gui.m_tRegisteredSkins[name] = tbl
-end
-
-function gui.register(name, tbl, base)
-	class.register(name, base)(tbl)
+	return tbl
 end
 
 function gui.create(name, parent)
 	local obj = class.new(name)
+	if not obj then return error("failed to create gui class " .. name) end
 	obj:SetParent(parent or gui.m_pWorldPanel)
 	return obj
 end
@@ -150,7 +149,7 @@ function gui.textInput(text)
 end
 
 do
-	local INFO = love.graphics.newImage("textures/information.png")
+	local INFO = love.graphics.newImage("textures/gui/information.png")
 
 	function gui.render()
 		if gui.m_pWorldPanel then
@@ -253,8 +252,9 @@ end
 function gui.init()
 	gui.loadSkins("modules/gui/skins")
 	gui.loadClasses("modules/gui/panels")
-	class.init() -- Initialize all classes, sets inheritance
+end
 
+function gui.setup()
 	gui.m_pWorldPanel = gui.create("Panel")
 	gui.m_pWorldPanel:DockMargin(0, 0, 0, 0)
 	gui.m_pWorldPanel:DockPadding(0, 0, 0, 0)
@@ -290,10 +290,6 @@ do
 
 				-- Update the _G variable
 				env._G = env
-
-				-- Reset these to a fresh state, since the script will probably use one of them.
-				env.PANEL = {}
-				env.SKIN = {}
 
 				-- Set the environment to our copy of the global environment
 				setfenv(chunk, env)

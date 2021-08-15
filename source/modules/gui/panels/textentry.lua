@@ -1,8 +1,8 @@
-local PANEL = {}
+local PANEL = class.create("TextEntryContext", "Panel")
 
 ACCESSOR(PANEL, "TextEntry", "m_pTextEntry")
 
-function PANEL:Initialize()
+function PANEL:TextEntryContext()
 	self:super() -- Initialize baseclass
 	self:DisableScissor()
 	self:SetVisible(false)
@@ -35,15 +35,13 @@ function PANEL:OnFocusChanged(focus)
 	end
 end
 
-gui.register("TextEntryContext", PANEL, "Panel")
-
-local PANEL = {}
+local PANEL = class.create("TextEntry", "Panel")
 
 ACCESSOR(PANEL, "HoveredInput", "m_bHoveredInput", false)
 
 local utf8 = require("extensions.utf8")
 
-function PANEL:Initialize()
+function PANEL:TextEntry()
 	self:super() -- Initialize our baseclass
 
 	self.m_pContext = gui.create("TextEntryContext")
@@ -371,5 +369,3 @@ end
 function PANEL:OnTextChanged(text, add)
 
 end
-
-gui.register("TextEntry", PANEL, "Panel")

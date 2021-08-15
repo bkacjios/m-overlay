@@ -1,9 +1,11 @@
+local PANEL = class.create("Button", "Label")
+
 ACCESSOR(PANEL, "DrawLabel", "m_bDrawLabel", true)
 ACCESSOR(PANEL, "DrawPanel", "m_bDrawPanel", true)
 ACCESSOR(PANEL, "PressedColor", "m_cPressedColor")
 ACCESSOR(PANEL, "HoveredColor", "m_cHoveredColor")
 
-function PANEL:Initialize()
+function PANEL:Button()
 	-- Initialize our baseclass
 	self:super()
 	
@@ -49,5 +51,3 @@ end
 function PANEL:OnClick()
 	-- Override
 end
-
-gui.register("Button", PANEL, "Label")

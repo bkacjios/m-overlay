@@ -1,7 +1,9 @@
+local PANEL = class.create("ColorHue", "Panel")
+
 ACCESSOR(PANEL, "Hue", "m_iHue", 0)
 
-PANEL.m_pPickLine = graphics.newImage("textures/colorring.png")
-PANEL.m_pPickImage = graphics.newImage("textures/colorpick.png")
+PANEL.m_pPickLine = graphics.newImage("textures/gui/colorring.png")
+PANEL.m_pPickImage = graphics.newImage("textures/gui/colorpick.png")
 
 -- Create a hue color gradient of all colors
 -- red, yellow, green, teal, blue, purple, red
@@ -17,7 +19,7 @@ DATA:setPixel(0, 6, 1, 0, 0, 1)		-- 1 		= Red
 -- Create a image from our pixel data
 PANEL.m_pImage = graphics.newImage(DATA)
 
-function PANEL:Initialize()
+function PANEL:ColorHue()
 	self:super() -- Initialize our baseclass
 
 	self:SetWidth(24)
@@ -112,5 +114,3 @@ end
 function PANEL:OnHueChanged(h)
 	
 end
-
-gui.register("ColorHue", PANEL, "Panel")

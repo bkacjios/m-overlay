@@ -1,3 +1,5 @@
+local PANEL = class.create("Label", "Panel")
+
 ACCESSOR(PANEL, "Text", "m_sText", "Label")
 ACCESSOR(PANEL, "TextColor", "m_cTextColor", color_black)
 ACCESSOR(PANEL, "FontFile", "m_sFontFile")
@@ -10,7 +12,7 @@ ACCESSOR(PANEL, "OutlineColor", "m_cOutlineColor", color_black)
 ACCESSOR(PANEL, "Wrapped", "m_bWrapped", false)
 ACCESSOR(PANEL, "TextAlignment", "m_sAlignment", "left")
 
-function PANEL:Initialize()
+function PANEL:Label()
 	self:super() -- Initialize our baseclass
 
 	self.m_tTextMargins = { left = 0, top = 0, right = 0, bottom = 0 }
@@ -138,5 +140,3 @@ end
 function PANEL:HeightToText()
 	self:SetHeight(self.m_pFont:getHeight() * self:GetLineHeight() * #self.m_tTextWrap)
 end
-
-gui.register("Label", PANEL, "Panel")

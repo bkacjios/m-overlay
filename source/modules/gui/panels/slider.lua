@@ -1,4 +1,4 @@
-local PANEL = {}
+local PANEL = class.create("Slider", "Panel")
 
 PANEL.NotchColor = color(100, 100, 100)
 PANEL.GrabberColor = color(0, 162, 232)
@@ -10,7 +10,7 @@ ACCESSOR(PANEL, "Steps", "m_iSteps", 1)				-- steps/max = number of potential va
 ACCESSOR(PANEL, "Increments", "m_iIncrements", 5)	-- "minor" notches
 ACCESSOR(PANEL, "Notches", "m_iNotches", 4)			-- "major" notches
 
-function PANEL:Initialize()
+function PANEL:Slider()
 	self:super() -- Initialize our baseclass
 	self:SetWidth(128)
 
@@ -123,5 +123,3 @@ end
 function PANEL:OnValueChanged(i)
 	
 end
-
-gui.register("Slider", PANEL, "Panel")

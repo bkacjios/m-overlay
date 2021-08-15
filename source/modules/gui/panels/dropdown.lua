@@ -1,14 +1,12 @@
-local PANEL = {}
+local PANEL = class.create("DropdownSelect", "Panel")
 
-function PANEL:Initialize()
+function PANEL:DropdownSelect()
 	self:super() -- Initialize our baseclass
 end
 
-gui.register("DropdownSelect", PANEL, "Panel")
+local PANEL = class.create("Dropdown", "Label")
 
-local PANEL = {}
-
-function PANEL:Initialize()
+function PANEL:Dropdown()
 	self:super() -- Initialize our baseclass
 
 	self.m_tOptions = {}
@@ -59,5 +57,3 @@ function PANEL:OnMouseWheeled(x, y)
 	self:OnSelectOption(self.m_iSelection)
 	self:UpdateSelection()
 end
-
-gui.register("Dropdown", PANEL, "Label")

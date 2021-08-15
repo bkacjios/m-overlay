@@ -17,6 +17,7 @@ require("console")
 require("errorhandler")
 require("extensions.love")
 
+local class = require("class")
 local log = require("log")
 local melee = require("melee")
 local zce = require("zce")
@@ -38,7 +39,7 @@ local PORT_FONT = graphics.newFont("fonts/melee-bold.otf", 42)
 local WAITING_FONT = graphics.newFont("fonts/melee-bold.otf", 24)
 local DEBUG_FONT = graphics.newFont("fonts/melee-bold.otf", 12)
 
-local GRADIENT = newImage("textures/gradient.png")
+local GRADIENT = newImage("textures/gui/gradient.png")
 local DOLPHIN = newImage("textures/dolphin.png")
 local GAME = newImage("textures/game.png")
 local MELEE = newImage("textures/meleedisk.png")
@@ -108,8 +109,10 @@ function love.load(args, unfilteredArg)
 
 	melee.loadTextures()
 	gui.init()
-	overlay.init()
 	music.init()
+	class.init()
+	gui.setup()
+	overlay.init()
 
 	if memory.hasPermissions() then
 		love.updateTitle("M'Overlay - Waiting for Dolphin...")

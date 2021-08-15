@@ -1,4 +1,4 @@
-local PANEL = {}
+local PANEL = class.create("Settings", "Panel")
 
 local log = require("log")
 local json = require("serializer.json")
@@ -8,7 +8,7 @@ local overlay = require("overlay")
 
 require("extensions.math")
 
-function PANEL:Initialize()
+function PANEL:Settings()
 	self:super() -- Initialize our baseclass
 
 	self:DockMargin(0, 0, 0, 0)
@@ -504,5 +504,3 @@ function PANEL:LoadSettings()
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
 	self.BACKGROUNDCOLOR:SetColor(settings["background-color"])
 end
-
-gui.register("Settings", PANEL, "Panel")

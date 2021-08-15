@@ -1,8 +1,8 @@
-local PANEL = {}
+local PANEL = class.create("HorizontalSelect", "Label")
 
 ACCESSOR(PANEL, "Selection", "m_iSelection", 1)
 
-function PANEL:Initialize()
+function PANEL:HorizontalSelect()
 	self:super() -- Initialize our baseclass
 
 	self:SetFocusable(true)
@@ -96,5 +96,3 @@ function PANEL:OnMouseWheeled(x, y)
 	end
 	return true
 end
-
-gui.register("HorizontalSelect", PANEL, "Label")

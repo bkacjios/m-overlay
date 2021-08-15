@@ -1,5 +1,7 @@
 local memory = require("memory")
 
+local PANEL = class.create("GCBind", "Button")
+
 PANEL.BUTTONS = {
 	Z = 0x0010,
 	R = 0x0020,
@@ -26,7 +28,7 @@ PANEL.BUTTONS = {
 ACCESSOR(PANEL, "ButtonCombo", "m_bButtonCombo", 0x0042)
 ACCESSOR(PANEL, "Binding", "m_bBinding", false)
 
-function PANEL:Initialize()
+function PANEL:GCBind()
 	self:super() -- Initialize our baseclass
 	
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
@@ -89,5 +91,3 @@ function PANEL:OnClick()
 	self.m_bBinding = true
 	self.m_bButtonCombo = 0x0
 end
-
-gui.register("GCBind", PANEL, "Button")
