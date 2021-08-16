@@ -3,12 +3,12 @@ local PANEL = class.create("Slider", "Panel")
 PANEL.NotchColor = color(100, 100, 100)
 PANEL.GrabberColor = color(0, 162, 232)
 
-ACCESSOR(PANEL, "Min", "m_iMin", 0)					-- minumum allowed value
-ACCESSOR(PANEL, "Max", "m_iMax", 100)				-- maximum allowed value
-ACCESSOR(PANEL, "Value", "m_iValue", 0)				-- starting value
-ACCESSOR(PANEL, "Steps", "m_iSteps", 1)				-- steps/max = number of potential values
-ACCESSOR(PANEL, "Increments", "m_iIncrements", 5)	-- "minor" notches
-ACCESSOR(PANEL, "Notches", "m_iNotches", 4)			-- "major" notches
+PANEL:ACCESSOR("Min", "m_iMin", 0)					-- minumum allowed value
+PANEL:ACCESSOR("Max", "m_iMax", 100)				-- maximum allowed value
+PANEL:ACCESSOR("Value", "m_iValue", 0)				-- starting value
+PANEL:ACCESSOR("Steps", "m_iSteps", 1)				-- steps/max = number of potential values
+PANEL:ACCESSOR("Increments", "m_iIncrements", 5)	-- "minor" notches
+PANEL:ACCESSOR("Notches", "m_iNotches", 4)			-- "major" notches
 
 function PANEL:Slider()
 	self:super() -- Initialize our baseclass

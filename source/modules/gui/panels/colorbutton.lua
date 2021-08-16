@@ -1,6 +1,6 @@
 local PANEL = class.create("ColorButton", "Button")
 
-ACCESSOR(PANEL, "Color", "m_cColor", color_white)
+PANEL:ACCESSOR("Color", "m_cColor", color_white)
 
 function PANEL:ColorButton()
 	-- Initialize our baseclass

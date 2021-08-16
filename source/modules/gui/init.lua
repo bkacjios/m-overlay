@@ -14,7 +14,7 @@ DOCK_BOTTOM = 4
 DOCK_RIGHT = 8
 DOCK_FILL = 16
 
-local class = require("class")
+local object = require("class.object")
 
 require("extensions.table")
 
@@ -98,8 +98,7 @@ function gui.newSkin(name)
 end
 
 function gui.create(name, parent)
-	local obj = class.new(name)
-	if not obj then return error("failed to create gui class " .. name) end
+	local obj = object.new(name)
 	obj:SetParent(parent or gui.m_pWorldPanel)
 	return obj
 end
@@ -252,9 +251,7 @@ end
 function gui.init()
 	gui.loadSkins("modules/gui/skins")
 	gui.loadClasses("modules/gui/panels")
-end
 
-function gui.setup()
 	gui.m_pWorldPanel = gui.create("Panel")
 	gui.m_pWorldPanel:DockMargin(0, 0, 0, 0)
 	gui.m_pWorldPanel:DockPadding(0, 0, 0, 0)

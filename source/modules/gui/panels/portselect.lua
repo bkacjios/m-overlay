@@ -1,6 +1,6 @@
 local PANEL = class.create("PortSelect", "Panel")
 
-ACCESSOR(PANEL, "Port", "m_iPort", 1)
+PANEL:ACCESSOR("Port", "m_iPort", 1)
 
 local overlay = require("overlay")
 

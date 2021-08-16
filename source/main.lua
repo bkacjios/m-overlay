@@ -17,7 +17,6 @@ require("console")
 require("errorhandler")
 require("extensions.love")
 
-local class = require("class")
 local log = require("log")
 local melee = require("melee")
 local zce = require("zce")
@@ -110,8 +109,6 @@ function love.load(args, unfilteredArg)
 	melee.loadTextures()
 	gui.init()
 	music.init()
-	class.init()
-	gui.setup()
 	overlay.init()
 
 	if memory.hasPermissions() then

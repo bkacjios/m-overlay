@@ -1,6 +1,6 @@
 local PANEL = class.create("SkinSelect", "Panel")
 
-ACCESSOR(PANEL, "Skin", "m_strSkin", "Default")
+PANEL:ACCESSOR("Skin", "m_strSkin", "Default")
 
 local overlay = require("overlay")
 

@@ -25,8 +25,8 @@ PANEL.BUTTONS = {
 	C_RIGHT = 0x800000,
 }
 
-ACCESSOR(PANEL, "ButtonCombo", "m_bButtonCombo", 0x0042)
-ACCESSOR(PANEL, "Binding", "m_bBinding", false)
+PANEL:ACCESSOR("ButtonCombo", "m_bButtonCombo", 0x0042)
+PANEL:ACCESSOR("Binding", "m_bBinding", false)
 
 function PANEL:GCBind()
 	self:super() -- Initialize our baseclass

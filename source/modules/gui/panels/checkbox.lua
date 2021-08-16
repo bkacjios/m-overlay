@@ -1,8 +1,8 @@
 local PANEL = class.create("Checkbox", "Button")
 
-ACCESSOR(PANEL, "Radio", "m_bRadio", false)
-ACCESSOR(PANEL, "Toggleable", "m_bToggleable", true)
-ACCESSOR(PANEL, "Toggled", "m_bToggled", false)
+PANEL:ACCESSOR("Radio", "m_bRadio", false)
+PANEL:ACCESSOR("Toggleable", "m_bToggleable", true)
+PANEL:ACCESSOR("Toggled", "m_bToggled", false)
 
 function PANEL:Checkbox()
 	-- Initialize our baseclass

@@ -1,6 +1,6 @@
 local PANEL = class.create("ColorSelector", "Panel")
 
-ACCESSOR(PANEL, "ColorButton", "m_pColorButton")
+PANEL:ACCESSOR("ColorButton", "m_pColorButton")
 
 function PANEL:ColorSelector()
 	self:super()

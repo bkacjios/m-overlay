@@ -1,6 +1,6 @@
 local PANEL = class.create("HorizontalSelect", "Label")
 
-ACCESSOR(PANEL, "Selection", "m_iSelection", 1)
+PANEL:ACCESSOR("Selection", "m_iSelection", 1)
 
 function PANEL:HorizontalSelect()
 	self:super() -- Initialize our baseclass

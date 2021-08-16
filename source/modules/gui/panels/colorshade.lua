@@ -1,10 +1,10 @@
 local PANEL = class.create("ColorShade", "Panel")
 
-ACCESSOR(PANEL, "Hue", "m_iHue", 0)
-ACCESSOR(PANEL, "Saturation", "m_iSaturation", 1)
-ACCESSOR(PANEL, "Value", "m_iValue", 1)
-ACCESSOR(PANEL, "Color", "m_cColor", color(255, 0, 0))
-ACCESSOR(PANEL, "PickerSize", "m_iPickerSize", 32)
+PANEL:ACCESSOR("Hue", "m_iHue", 0)
+PANEL:ACCESSOR("Saturation", "m_iSaturation", 1)
+PANEL:ACCESSOR("Value", "m_iValue", 1)
+PANEL:ACCESSOR("Color", "m_cColor", color(255, 0, 0))
+PANEL:ACCESSOR("PickerSize", "m_iPickerSize", 32)
 
 PANEL.m_pPickLine = graphics.newImage("textures/gui/colorring.png")
 PANEL.m_pPickImage = graphics.newImage("textures/gui/colorpick.png")

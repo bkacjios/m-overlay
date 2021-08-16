@@ -1,8 +1,8 @@
 local PANEL = class.create("ToolTip", "BasePanel")
 
-ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
-ACCESSOR(PANEL, "ArrowX", "m_iArrowX", 0)
-ACCESSOR(PANEL, "ArrowY", "m_iArrowY", 0)
+PANEL:ACCESSOR("Enabled", "m_bEnabled", true)
+PANEL:ACCESSOR("ArrowX", "m_iArrowX", 0)
+PANEL:ACCESSOR("ArrowY", "m_iArrowY", 0)
 
 PANEL.ToolTipColor = color(240, 240, 240)
 

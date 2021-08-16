@@ -1,6 +1,6 @@
 local PANEL = class.create("ColorHue", "Panel")
 
-ACCESSOR(PANEL, "Hue", "m_iHue", 0)
+PANEL:ACCESSOR("Hue", "m_iHue", 0)
 
 PANEL.m_pPickLine = graphics.newImage("textures/gui/colorring.png")
 PANEL.m_pPickImage = graphics.newImage("textures/gui/colorpick.png")

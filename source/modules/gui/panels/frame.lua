@@ -1,8 +1,8 @@
 local PANEL = class.create("Frame", "Panel")
 
-ACCESSOR(PANEL, "Grabbed", "m_bGrabbed", false)
-ACCESSOR(PANEL, "Draggable", "m_bDraggable", true)
-ACCESSOR(PANEL, "HideOnClose", "m_bHideOnClose", false)
+PANEL:ACCESSOR("Grabbed", "m_bGrabbed", false)
+PANEL:ACCESSOR("Draggable", "m_bDraggable", true)
+PANEL:ACCESSOR("HideOnClose", "m_bHideOnClose", false)
 
 function PANEL:Frame()
 	self:super() -- Initialize our baseclass

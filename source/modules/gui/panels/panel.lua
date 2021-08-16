@@ -1,11 +1,11 @@
 local PANEL = class.create("Panel", "BasePanel")
 
-ACCESSOR(PANEL, "Enabled", "m_bEnabled", true)
-ACCESSOR(PANEL, "BorderColor", "m_cBorderColor", color_blank)
-ACCESSOR(PANEL, "BackgroundColor", "m_cBackgroundColor", color_blank)
-ACCESSOR(PANEL, "BGColor", "m_cBackgroundColor", color_blank)
-ACCESSOR(PANEL, "TooltipTitle", "m_strTooltipTitle", nil)
-ACCESSOR(PANEL, "TooltipBody", "m_strTooltipBody", nil)
+PANEL:ACCESSOR("Enabled", "m_bEnabled", true)
+PANEL:ACCESSOR("BorderColor", "m_cBorderColor", color_blank)
+PANEL:ACCESSOR("BackgroundColor", "m_cBackgroundColor", color_blank)
+PANEL:ACCESSOR("BGColor", "m_cBackgroundColor", color_blank)
+PANEL:ACCESSOR("TooltipTitle", "m_strTooltipTitle", nil)
+PANEL:ACCESSOR("TooltipBody", "m_strTooltipBody", nil)
 
 function PANEL:Panel()
 	self:super() -- Initialize our baseclass

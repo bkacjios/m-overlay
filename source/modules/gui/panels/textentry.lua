@@ -1,6 +1,6 @@
 local PANEL = class.create("TextEntryContext", "Panel")
 
-ACCESSOR(PANEL, "TextEntry", "m_pTextEntry")
+PANEL:ACCESSOR("TextEntry", "m_pTextEntry")
 
 function PANEL:TextEntryContext()
 	self:super() -- Initialize baseclass
@@ -37,7 +37,7 @@ end
 
 local PANEL = class.create("TextEntry", "Panel")
 
-ACCESSOR(PANEL, "HoveredInput", "m_bHoveredInput", false)
+PANEL:ACCESSOR("HoveredInput", "m_bHoveredInput", false)
 
 local utf8 = require("extensions.utf8")
 

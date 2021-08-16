@@ -1,14 +1,14 @@
 local PANEL = class.create("Button", "Label")
 
-ACCESSOR(PANEL, "DrawLabel", "m_bDrawLabel", true)
-ACCESSOR(PANEL, "DrawPanel", "m_bDrawPanel", true)
-ACCESSOR(PANEL, "PressedColor", "m_cPressedColor")
-ACCESSOR(PANEL, "HoveredColor", "m_cHoveredColor")
+PANEL:ACCESSOR("DrawLabel", "m_bDrawLabel", true)
+PANEL:ACCESSOR("DrawPanel", "m_bDrawPanel", true)
+PANEL:ACCESSOR("PressedColor", "m_cPressedColor")
+PANEL:ACCESSOR("HoveredColor", "m_cHoveredColor")
 
 function PANEL:Button()
 	-- Initialize our baseclass
 	self:super()
-	
+
 	self:SetFocusable(true)
 
 	self:SetTextAlignment("center")

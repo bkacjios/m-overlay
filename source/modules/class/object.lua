@@ -1,13 +1,10 @@
-local class = {
-	structs = {},
-	inherits = {},
-}
+local class = require("class")
 
 local OBJECT = {}
 
 function OBJECT:__call(...)
 	if not self[self.__constructor] then
-		return error(string.format("can not create object for class %s (no constructor)", self))
+		return error(string.format("can not create object for class '%s' (no constructor)", self))
 	end
 	self[self.__constructor](self, ...)
 	return self
@@ -67,18 +64,6 @@ function OBJECT:super(method, ...)
 	return ret
 end
 
-function ACCESSOR(object, name, internal, default)
-	if not object then
-		return error("attempt to call ACCESSOR on a nil value")
-	end
-	object[internal] = default
-	if type(default) == "boolean" then
-		object["Is" .. name] = function(this) return this[internal] end
-	end
-	object["Get" .. name] = function(this) return this[internal] end
-	object["Set" .. name] = function(this, value) this[internal] = value end
-end
-
 function OBJECT:getBaseClass()
 	return self.__baseclass
 end
@@ -91,6 +76,8 @@ end
 function OBJECT:__tostring()
 	return string.format("%s::%s", self.__baseclass or "", self.__classname)
 end
+
+local object = {}
 
 do
 	local function copy(object)
@@ -111,16 +98,23 @@ do
 		return _copy(object)
 	end
 
-	function class.new(name, ...)
-		if not class.structs[name] then
-			return error(("failed to create unknown class '%s'"):format(name)) 
+	local function createObject(name)
+		local main = class.getStruct(name)
+		local base = class.getBaseClassname(name)
+		local obj = setmetatable(copy(main), OBJECT)
+		if base then
+			obj.__baseclass = createObject(base)
+		end
+		return obj
+	end
+
+	function object.new(name, ...)
+		if not class.getStruct(name) then
+			return error(("failed to create object for unknown class '%s'"):format(name)) 
 		end
 
-		-- Get our class structure
-		local struct = class.structs[name]
-
 		-- Create a copy of the struct, with metatable and all
-		local obj = copy(struct)
+		local obj = createObject(name)
 
 		-- Set values that are unique to this instance
 		obj.__superscope = 1
@@ -130,26 +124,4 @@ do
 	end
 end
 
-function class.create(classname, basename)
-	local struct = {}
-	struct.__classname = classname
-	struct.__constructor = classname
-	class.inherits[classname] = basename
-	class.structs[classname] = struct
-	return struct
-end
-
-function class.init()
-	-- We need to do this after registering our classes rather than during,
-	-- since we don't know the order in which classes will be registered.
-	-- We want to be sure that every classes baseclass is ready.
-
-	for classname, struct in pairs(class.structs) do
-		-- Set the baseclass
-		struct.__baseclass = class.structs[class.inherits[classname]]
-		-- Register it as a valid class
-		setmetatable(struct, OBJECT)
-	end
-end
-
-return class
+return object
