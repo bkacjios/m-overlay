@@ -25,69 +25,23 @@ function PANEL:Settings()
 	self.COLORSELECT:SetVisible(false)
 	self.COLORSELECT:SetColorButton(self.BACKGROUNDCOLOR)
 
-	self.MAIN = self:Add("Panel")
+	self.MAIN = self:Add("TabbedPanel")
+	self.MAIN:SizeToParent()
 	self.MAIN:SetSize(296 + 32, 256)
+	self.MAIN:Center()
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
-	self.MAIN:SetBackgroundColor(color(0, 0, 0, 200))
-	self.MAIN:SetBorderColor(color_blank)
 
-	local LEFT = self.MAIN:Add("Panel")
-	LEFT:DockMargin(0,0,0,0)
-	LEFT:DockPadding(4,4,4,4)
-	LEFT:SetBorderColor(color_clear)
-	LEFT:SetBackgroundColor(color_clear)
-	LEFT:SetWidth(164)
-	LEFT:Dock(DOCK_LEFT)
+	self.GENERAL = self.MAIN:AddTab("General", "textures/gui/cog.png", true)
+	self.GENERAL:SetBackgroundColor(color(0, 0, 0, 255))
 
-	local GLABEL = LEFT:Add("Label")
-	GLABEL:SetText("General")
-	GLABEL:SetTextAlignment("center")
-	GLABEL:SizeToText()
-	GLABEL:SetHeight(14)
-	GLABEL:Dock(DOCK_TOP)
-	GLABEL:SetTextColor(color_white)
-	GLABEL:SetShadowDistance(1)
-	GLABEL:SetShadowColor(color_black)
-	GLABEL:SetFont("fonts/melee-bold.otf", 14)
+	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
+	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 255))
 
-	local RIGHT = self.MAIN:Add("Panel")
-	RIGHT:DockMargin(0,0,0,0)
-	RIGHT:DockPadding(0,0,0,0)
-	RIGHT:SetBorderColor(color_clear)
-	RIGHT:SetBackgroundColor(color_clear)
-	RIGHT:SetWidth(164)
-	RIGHT:Dock(DOCK_RIGHT)
+	self.MELEE = self.MAIN:AddTab("Melee", "textures/gui/melee.png")
+	self.MELEE:SetBackgroundColor(color(189, 15, 23, 255))
 
-	self.SLIPPI = RIGHT:Add("Panel")
-	self.SLIPPI:DockMargin(0,0,0,0)
-	self.SLIPPI:DockPadding(4,34,4,4)
-	self.SLIPPI:SetBorderColor(color_clear)
-	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 150))
-	self.SLIPPI:SetWidth(164)
-	self.SLIPPI:SetHeight(66)
-	self.SLIPPI:Dock(DOCK_TOP)
-
-	local SLIPPIICON = self.SLIPPI:Add("Image")
-	SLIPPIICON:SetImage("textures/SlippiLogo.png")
-	SLIPPIICON:SetPos(0, 4)
-	SLIPPIICON:SetSize(36, 28)
-	SLIPPIICON:Center(false, true)
-
-	self.MELEE = RIGHT:Add("Panel")
-	self.MELEE:DockMargin(0,0,0,0)
-	self.MELEE:DockPadding(4,38,4,4)
-	self.MELEE:SetBorderColor(color_clear)
-	self.MELEE:SetBackgroundColor(color(189, 15, 23, 150))
-	self.MELEE:SetWidth(164)
-	self.MELEE:SetHeight(132+38+24)
-	self.MELEE:Dock(DOCK_TOP)
-
-	local MELEEICON = self.MELEE:Add("Image")
-	MELEEICON:SetImage("textures/melee.png")
-	MELEEICON:SetPos(0, 4)
-	MELEEICON:SetSize(164, 36)
-	MELEEICON:Center(false, true)
+	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
 
 	self.SLIPPI.MODE = self.SLIPPI:Add("HorizontalSelect")
 	self.SLIPPI.MODE:Dock(DOCK_TOP)
@@ -99,13 +53,31 @@ function PANEL:Settings()
 - Replay/Mirror: Allows the overlay to work when viewing replays or mirroring gameplay from a console.
 ]])
 
+	self.SLIPPI.MODES = {
+		[1] = self.SLIPPI:Add("Checkbox"),
+		[2] = self.SLIPPI:Add("Checkbox"),
+		[3] = self.SLIPPI:Add("Checkbox")
+	}
+
+	self.SLIPPI.MODES[1]:SetText("Off")
+	self.SLIPPI.MODES[2]:SetText("Rollback/Netplay")
+	self.SLIPPI.MODES[3]:SetText("Replay/Mirror")
+
+	for i=1,#self.SLIPPI.MODES do
+		local but = self.SLIPPI.MODES[i]
+		but:DockMargin(100, 2, 100, 2)
+		but:Dock(DOCK_TOP)
+		but:SetToggleable(false)
+		but:SetToggled(false)
+		but:SetRadio(true)
+
+		but.OnClick = function()
+		end
+	end
+
 	SLIPPI_OFF = self.SLIPPI.MODE:AddOption("Off", true) -- 1
 	SLIPPI_NETPLAY = self.SLIPPI.MODE:AddOption("Rollback/Netplay") -- 2
 	SLIPPI_REPLAY = self.SLIPPI.MODE:AddOption("Replay/Mirror") -- 3
-
-	function self.SLIPPI.MODE:OnSelectOption(num)
-		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100, 150) or color(33, 186, 69, 150))
-	end
 
 	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
 	self.MELEE.MUSIC:SetText("Music")
@@ -184,13 +156,13 @@ NOTE: This button is only usable when in a supported game.]])
 		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
 	end
 
-	self.PORTTITLE = LEFT:Add("Checkbox")
+	self.PORTTITLE = self.GENERAL:Add("Checkbox")
 	self.PORTTITLE:SetText("Port in title")
 	self.PORTTITLE:Dock(DOCK_TOP)
 	self.PORTTITLE:SetTooltipTitle("PORT IN TITLE")
 	self.PORTTITLE:SetTooltipBody([[Show the current port number being displayed in the application title.]])
 
-	self.ALWAYSPORT = LEFT:Add("Checkbox")
+	self.ALWAYSPORT = self.GENERAL:Add("Checkbox")
 	self.ALWAYSPORT:SetText("Always show port")
 	self.ALWAYSPORT:Dock(DOCK_TOP)
 	self.ALWAYSPORT:SetTooltipTitle("ALWAYS SHOW PORT")
@@ -200,7 +172,7 @@ NOTE: This button is only usable when in a supported game.]])
 		love.updateTitle(love.getTitleNoPort())
 	end
 
-	self.HIGH_CONTRAST = LEFT:Add("Checkbox")
+	self.HIGH_CONTRAST = self.GENERAL:Add("Checkbox")
 	self.HIGH_CONTRAST:SetText("High-contrast")
 	self.HIGH_CONTRAST:Dock(DOCK_TOP)
 	self.HIGH_CONTRAST:SetTooltipTitle("HIGH-CONTRAST")
@@ -208,7 +180,7 @@ NOTE: This button is only usable when in a supported game.]])
 
 20XX theme is unsupported]])
 
-	local BUTTONS = LEFT:Add("Panel")
+	local BUTTONS = self.GENERAL:Add("Panel")
 	BUTTONS:Dock(DOCK_TOP)
 	BUTTONS:DockPadding(0,0,0,0)
 	BUTTONS:SetBackgroundColor(color_clear)
@@ -230,7 +202,7 @@ NOTE: This button is only usable when in a supported game.]])
 	self.START:SetTooltipTitle("START BUTTON")
 	self.START:SetTooltipBody([[Enable/disable the start button on the overlay.]])
 
-	self.DEBUG = LEFT:Add("Checkbox")
+	self.DEBUG = self.GENERAL:Add("Checkbox")
 	self.DEBUG:SetText("Debug console")
 	self.DEBUG:Dock(DOCK_TOP)
 	self.DEBUG:SetVisible(love.supportsAttachableConsole())
@@ -241,7 +213,7 @@ NOTE: This button is only usable when in a supported game.]])
 		love.console(on)
 	end
 
-	local TLABEL = LEFT:Add("Label")
+	local TLABEL = self.GENERAL:Add("Label")
 	TLABEL:SetText("Transparency")
 	TLABEL:SizeToText()
 	TLABEL:Dock(DOCK_TOP)
@@ -251,7 +223,7 @@ NOTE: This button is only usable when in a supported game.]])
 	TLABEL:SetFont("fonts/melee-bold.otf", 12)
 	TLABEL:SetVisible(love.supportsGameCapture())
 
-	self.TRANSPARENCY = LEFT:Add("Slider")
+	self.TRANSPARENCY = self.GENERAL:Add("Slider")
 	self.TRANSPARENCY:SetValue(100)
 	self.TRANSPARENCY:Dock(DOCK_TOP)
 	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
@@ -262,7 +234,7 @@ NOTE: This button is only usable when in a supported game.]])
 		TLABEL:SetText(("Transparency - %d%%"):format(i))
 	end
 
-	self.BACKGROUNDCOLOR = LEFT:Add("ColorButton")
+	self.BACKGROUNDCOLOR = self.GENERAL:Add("ColorButton")
 	self.BACKGROUNDCOLOR:SetText("Background color")
 	self.BACKGROUNDCOLOR:Dock(DOCK_TOP)
 	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
@@ -276,7 +248,7 @@ NOTE: This button is only usable when in a supported game.]])
 		self.COLORSELECT:BringToFront()
 	end
 
-	self.CONFIGDIR = LEFT:Add("Button")
+	self.CONFIGDIR = self.GENERAL:Add("Button")
 	self.CONFIGDIR:SetText("Open config directory")
 	self.CONFIGDIR:Dock(DOCK_TOP)
 	self.CONFIGDIR:SetTooltipTitle("CONFIGURATION DIRECTORY")
@@ -290,7 +262,7 @@ This is also the same directory you use to place all your music for Melee.]])
 
 	self.m_sFileName = "config.json"
 
-	local VLABEL = LEFT:Add("Button")
+	local VLABEL = self.GENERAL:Add("Button")
 	VLABEL:SetDrawPanel(false)
 	VLABEL:SetText(love.getMOverlayVersion())
 	VLABEL:SetTextAlignment("center")
