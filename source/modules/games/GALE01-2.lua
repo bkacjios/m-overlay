@@ -119,14 +119,14 @@ for id, address in ipairs(player_static_addresses) do
 	end
 end
 
--- https://github.com/project-slippi/slippi-ssbm-asm/blob/67c395692a74c962497669473097a19d782d269d/Online/Online.s#L25
+-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L29
 local CSSDT_BUF_ADDR = 0x80005614
 
 game.memorymap[CSSDT_BUF_ADDR] = {
 	type = "pointer",
 	name = "slippi",
 	struct = {
-		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/6e08a376dc9ca239d9b7312089d975e89fa37a5c/Online/Online.s#L217
+		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L253
 		[0x000] = {
 			type = "pointer",
 			--name = "slippi_ptr",

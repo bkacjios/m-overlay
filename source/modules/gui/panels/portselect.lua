@@ -54,7 +54,3 @@ function PANEL:ChangePort(port)
 	self:SetPort(port)
 	love.updateTitle(love.getTitleNoPort())
 end
-
-function PANEL:Toggle()
-	self:SetVisible(not self:IsVisible())
-end

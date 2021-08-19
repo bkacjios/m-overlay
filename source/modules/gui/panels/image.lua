@@ -13,6 +13,6 @@ function PANEL:Paint(w, h)
 	graphics.draw(self.m_pImage, 0, 0, 0, w / self.m_pImage:getWidth(), h / self.m_pImage:getHeight())
 end
 
-function PANEL:SizeToContentes()
+function PANEL:SizeToContents()
 	self:SetSize(self.m_pImage:getDimensions())
 end

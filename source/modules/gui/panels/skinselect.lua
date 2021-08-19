@@ -60,7 +60,3 @@ function PANEL:ChangeSkin(skin)
 		self:SetSkin(skin)
 	end
 end
-
-function PANEL:Toggle()
-	self:SetVisible(not self:IsVisible())
-end

@@ -9,8 +9,6 @@ function PANEL:BasePanel()
 	self.m_iWorldPosY = 0
 	self.m_fScaleX = 1
 	self.m_fScaleY = 1
-	self.m_fRenderScaleX = 1
-	self.m_fRenderScaleY = 1
 	self.m_iPosX = 0
 	self.m_iPosY = 0
 	self.m_iWidth = 42
@@ -316,6 +314,14 @@ end
 
 function PANEL:SizeToScreen()
 	self:SetSize(graphics.getPixelDimensions())
+end
+
+function PANEL:SizeToParent()
+	local parent = self:GetParent()
+
+	if parent then
+		self:SetSize(parent:GetSize())
+	end
 end
 
 function PANEL:SizeToChildren(doWidth, doHeight)
@@ -647,7 +653,7 @@ function PANEL:DockLayout()
 	for _,child in ipairs(self.m_tChildren) do
 		local dock = child.m_iDock
 		
-		if dock ~= DOCK_NONE and child:IsVisible() then
+		if dock ~= DOCK_NONE then
 			local margin = child.m_tDockMargins
 		
 			local dx = x + padding.left
