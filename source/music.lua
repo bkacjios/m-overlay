@@ -203,6 +203,10 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	end
 end)
 
+memory.hook("slippi.rng_offset", "Sync RNG Seed", function(seed)
+	math.randomseed(seed)
+end)
+
 function music.setVolume(vol)
 	if ALLOW_INGAME_VOLUME and memory.isMelee() then
 		-- Melee's slider goes in increments of 5
