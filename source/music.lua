@@ -204,7 +204,14 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 end)
 
 memory.hook("slippi.rng_offset", "Sync RNG Seed", function(seed)
+	if seed == 0 then return end
 	math.randomseed(seed)
+	local values = {}
+	for i=1,8 do
+		table.insert(values, math.random(1, 255))
+	end
+	local data = string.char(unpack(values))
+	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
 end)
 
 function music.setVolume(vol)
