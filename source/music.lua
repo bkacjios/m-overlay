@@ -363,6 +363,7 @@ local valid_music_ext = {
 function music.loadStageMusicInDir(stageid, name)
 	local loaded = 0
 	local files = love.filesystem.getDirectoryItems(name)
+	table.sort(files) -- Sort our list of files alphabetically, giving our table a deterministic state
 	for k, file in ipairs(files) do
 		local filepath = ("%s/%s"):format(name, file)
 		local info = love.filesystem.getInfo(filepath)
