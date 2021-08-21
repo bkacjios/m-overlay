@@ -160,7 +160,7 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 }
 
 -- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Slippi%20Online%20Scene/main.asm#L634-L637
-game.memorymap[0x804D5F90] = { type = "u32", name = "match.rng_seed" }
+-- game.memorymap[0x804D5F90] = { type = "u32", name = "match.rng_seed" }
 
 -- Where character ID's are stored in the CSS menu
 local player_select_external_addresses = {

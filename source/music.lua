@@ -204,13 +204,6 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	end
 end)
 
-memory.hook("slippi.connection_state", "Check Slippi connection", function(state)
-	if state == 0x4 then
-		log.debug("[MUSIC] Slippi connection successful")
-		music.NEW_CONNECTION = true
-	end
-end)
-
 function music.setVolume(vol)
 	if ALLOW_INGAME_VOLUME and memory.isMelee() then
 		-- Melee's slider goes in increments of 5
@@ -415,7 +408,7 @@ function music.loadForStage(stageid)
 	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
-	math.randomseed(memory.match.rng_seed)
+	math.randomseed(memory.slippi.rng_offset)
 
 	local values = {}
 	for i=1,8 do
