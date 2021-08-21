@@ -423,7 +423,7 @@ function music.loadForStage(stageid)
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
 	local seed
-	if stageid == 0 then
+	if stageid == 0x0 then
 		seed = music.RNG_OFFSET
 		if seed == 0 then
 			seed = os.time()
