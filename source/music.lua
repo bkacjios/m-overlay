@@ -6,8 +6,6 @@ local music = {
 	LOOP = false,
 	USE_WEIGHTS = false,
 	TRACK_NUMBER = {},
-	RNG_OFFSET = os.time(), -- Use the system clock as initial seed
-	NEW_CONNECTION = false,
 }
 
 local log = require("log")
@@ -204,12 +202,6 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	if memory.isMelee() and ALLOW_INGAME_VOLUME and LOADED then
 		PANEL_SETTINGS:SetVolume(100-volume)
 	end
-end)
-
-memory.hook("slippi.rng_offset", "Sync RNG Seed", function(seed)
-	if not music.NEW_CONNECTION then return end
-	music.RNG_OFFSET = seed
-	music.NEW_CONNECTION = false
 end)
 
 memory.hook("slippi.connection_state", "Check Slippi connection", function(state)
@@ -423,6 +415,15 @@ function music.loadForStage(stageid)
 	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
+	math.randomseed(memory.match.rng_seed)
+
+	local values = {}
+	for i=1,8 do
+		table.insert(values, math.random(1, 255))
+	end
+	local data = string.char(unpack(values))
+	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
+
 	music.PLAYLIST_ID = stageid
 
 	for k,v in pairs(music.PLAYLIST) do
@@ -472,15 +473,7 @@ function music.loadForStage(stageid)
 		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
 
-	music.RNG_OFFSET = bit.bxor(music.RNG_OFFSET, 397) -- Advance the seed in a deterministic but unpredictable way using xor
-	math.randomseed(music.RNG_OFFSET)
-	
-	local values = {}
-	for i=1,8 do
-		table.insert(values, math.random(1, 255))
-	end
-	local data = string.char(unpack(values))
-	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
+
 end
 
 return music
