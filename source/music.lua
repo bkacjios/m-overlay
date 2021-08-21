@@ -408,14 +408,17 @@ function music.loadForStage(stageid)
 	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
-	math.randomseed(memory.slippi.rng_offset)
+	local rng_offset = memory.slippi.rng_offset
+	if rng_offset ~= 0 then	
+		math.randomseed(memory.slippi.rng_offset)
 
-	local values = {}
-	for i=1,8 do
-		table.insert(values, math.random(1, 255))
+		local values = {}
+		for i=1,8 do
+			table.insert(values, math.random(1, 255))
+		end
+		local data = string.char(unpack(values))
+		log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
 	end
-	local data = string.char(unpack(values))
-	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
 
 	music.PLAYLIST_ID = stageid
 
