@@ -485,8 +485,6 @@ function music.loadForStage(stageid)
 		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
 		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
-
-
 end
 
 return music
