@@ -214,7 +214,7 @@ end)
 
 memory.hook("slippi.connection_state", "Check Slippi connection", function(state)
 	if state == 0x4 then
-		log.debug("[MUSIC] Slippi connection successful.")
+		log.debug("[MUSIC] Slippi connection successful")
 		music.NEW_CONNECTION = true
 	end
 end)
