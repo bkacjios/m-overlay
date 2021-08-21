@@ -205,6 +205,17 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	end
 end)
 
+function music.updateRNGseed(seed)
+	math.randomseed(seed)
+	music.RNG_OFFSET = seed
+	local values = {}
+	for i=1,8 do
+		table.insert(values, math.random(0, 255))
+	end
+	local data = string.char(unpack(values))
+	log.debug("[RANDOM] updating seed to \"0x%X\" and flushing first 8 values (0x%s)", seed, string.tohex(data))
+end
+
 function music.setVolume(vol)
 	if ALLOW_INGAME_VOLUME and memory.isMelee() then
 		-- Melee's slider goes in increments of 5
@@ -403,24 +414,21 @@ function music.loadStageMusicInDir(stageid, name)
 	end
 end
 
-function music.setRngOffset(seed)
-	music.RNG_OFFSET = seed
-	math.randomseed(seed)
-
-	local values = {}
-	for i=1,8 do
-		table.insert(values, math.random(1, 255))
-	end
-	local data = string.char(unpack(values))
-
-	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
-end
-
 function music.loadForStage(stageid)
 	if music.PLAYLIST_ID == stageid then return end
 
 	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
+
+	music.PLAYLIST_ID = stageid
+
+	for k,v in pairs(music.PLAYLIST) do
+		v.STREAM:release()
+	end
+
+	music.PLAYING = nil
+	music.PLAYLIST = {}
+	music.USE_WEIGHTS = false
 
 	local seed
 	if stageid == 0x0 then
@@ -435,17 +443,7 @@ function music.loadForStage(stageid)
 		seed = memory.online.rng_offset
 		if seed == 0 then seed = os.time() end
 	end
-	music.setRngOffset(seed)
-
-	music.PLAYLIST_ID = stageid
-
-	for k,v in pairs(music.PLAYLIST) do
-		v.STREAM:release()
-	end
-
-	music.PLAYING = nil
-	music.PLAYLIST = {}
-	music.USE_WEIGHTS = false
+	music.updateRNGseed(seed)
 
 	music.loadStageMusicInDir(stageid, "Melee")
 
