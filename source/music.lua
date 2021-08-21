@@ -203,16 +203,15 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	end
 end)
 
-memory.hook("slippi.rng_offset", "Sync RNG Seed", function(seed)
-	if seed == 0 then return end
+function music.updateRNGseed(seed)
 	math.randomseed(seed)
 	local values = {}
 	for i=1,8 do
-		table.insert(values, math.random(1, 255))
+		table.insert(values, math.random(0, 255))
 	end
 	local data = string.char(unpack(values))
-	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
-end)
+	log.debug("[RANDOM] updating seed to \"0x%X\" and flushing first 8 values (0x%s)", seed, string.tohex(data))
+end
 
 function music.setVolume(vol)
 	if ALLOW_INGAME_VOLUME and memory.isMelee() then
@@ -427,6 +426,10 @@ function music.loadForStage(stageid)
 	music.PLAYING = nil
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
+
+	if stageid ~= 0 then
+		music.updateRNGseed(memory.rng.seed)
+	end
 
 	music.loadStageMusicInDir(stageid, "Melee")
 
