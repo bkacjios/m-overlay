@@ -6,6 +6,8 @@ local music = {
 	LOOP = false,
 	USE_WEIGHTS = false,
 	TRACK_NUMBER = {},
+	RNG_OFFSET = os.time(), -- use the system clock as initial seed
+	NEW_CONNECTION = false,
 }
 
 local log = require("log")
@@ -14,6 +16,7 @@ local memory = require("memory")
 local notification = require("notification")
 local overlay = require("overlay")
 local wav = require("wav")
+local bit = require("bit")
 
 require("extensions.math")
 
@@ -204,14 +207,16 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 end)
 
 memory.hook("slippi.rng_offset", "Sync RNG Seed", function(seed)
-	if seed == 0 then return end
-	math.randomseed(seed)
-	local values = {}
-	for i=1,8 do
-		table.insert(values, math.random(1, 255))
+	if not music.NEW_CONNECTION then return end
+	music.RNG_OFFSET = seed
+	music.NEW_CONNECTION = false
+end)
+
+memory.hook("slippi.connection_state", "Check Slippi connection", function(state)
+	if state == 0x4 then
+		log.debug("[MUSIC] Slippi connection successful.")
+		music.NEW_CONNECTION = true
 	end
-	local data = string.char(unpack(values))
-	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
 end)
 
 function music.setVolume(vol)
@@ -466,6 +471,16 @@ function music.loadForStage(stageid)
 		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
 		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
+
+	music.RNG_OFFSET = bit.bxor(music.RNG_OFFSET, 397) -- advance the seed in a deterministic but unpredictable way using xor
+	math.randomseed(music.RNG_OFFSET)
+	
+	local values = {}
+	for i=1,8 do
+		table.insert(values, math.random(1, 255))
+	end
+	local data = string.char(unpack(values))
+	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
 end
 
 return music
