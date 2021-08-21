@@ -1,8 +1,5 @@
 -- Super Smash Bros. Melee (NTSC v1.2) / Dairantou Smash Brothers DX (Japan v1.2)
 
-local memory = require("memory")
-local bit = require("bit")
-
 local game = {
 	memorymap = {}
 }
