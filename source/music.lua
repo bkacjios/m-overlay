@@ -15,7 +15,6 @@ local memory = require("memory")
 local notification = require("notification")
 local overlay = require("overlay")
 local wav = require("wav")
-local bit = require("bit")
 
 require("extensions.math")
 
@@ -436,8 +435,8 @@ function music.loadForStage(stageid)
 		if seed == 0 then
 			seed = os.time()
 		else
-			-- Advance the seed in a deterministic but unpredictable way using xor
-			seed = bit.bxor(seed, 397)
+			-- Advance the seed in a deterministic way by incrementing it
+			seed = seed + 1
 		end
 	else
 		seed = memory.online.rng_offset
