@@ -6,6 +6,7 @@ local music = {
 	LOOP = false,
 	USE_WEIGHTS = false,
 	TRACK_NUMBER = {},
+	RNG_OFFSET = 0,
 }
 
 local log = require("log")
@@ -402,23 +403,39 @@ function music.loadStageMusicInDir(stageid, name)
 	end
 end
 
+function music.setRngOffset(seed)
+	music.RNG_OFFSET = seed
+	math.randomseed(seed)
+
+	local values = {}
+	for i=1,8 do
+		table.insert(values, math.random(1, 255))
+	end
+	local data = string.char(unpack(values))
+
+	log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
+end
+
 function music.loadForStage(stageid)
 	if music.PLAYLIST_ID == stageid then return end
 
 	music.kill()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
-	local rng_offset = memory.slippi.rng_offset
-	if rng_offset ~= 0 then	
-		math.randomseed(memory.slippi.rng_offset)
-
-		local values = {}
-		for i=1,8 do
-			table.insert(values, math.random(1, 255))
+	local seed
+	if stageid == 0 then
+		seed = music.RNG_OFFSET
+		if seed == 0 then
+			seed = os.time()
+		else
+			-- Advance the seed in a deterministic but unpredictable way using xor
+			seed = bit.bxor(seed, 397)
 		end
-		local data = string.char(unpack(values))
-		log.debug("[RANDOM] Flushing random of initial values (0x%s)", string.tohex(data))
+	else
+		seed = memory.online.rng_offset
+		if seed == 0 then seed = os.time() end
 	end
+	music.setRngOffset(seed)
 
 	music.PLAYLIST_ID = stageid
 

@@ -1,5 +1,8 @@
 -- Super Smash Bros. Melee (NTSC v1.2) / Dairantou Smash Brothers DX (Japan v1.2)
 
+local memory = require("memory")
+local bit = require("bit")
+
 local game = {
 	memorymap = {}
 }
@@ -20,7 +23,7 @@ game.memorymap[0x804807C8] = { type = "bool", name = "menu.teams" }
 
 game.memorymap[0x8066A2DF] = { type = "data", len = 7, name = "romstring.akaneia" }
 game.memorymap[0x8066A2C3] = { type = "data", len = 12, name = "romstring.beyondmelee" }
-   
+ 
 local controllers = {
 	[1] = 0x804C1FAC + 0x44 * 0,
 	[2] = 0x804C1FAC + 0x44 * 1,
@@ -159,8 +162,17 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 	}
 }
 
--- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Slippi%20Online%20Scene/main.asm#L634-L637
--- game.memorymap[0x804D5F90] = { type = "u32", name = "match.rng_seed" }
+-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L10
+local ONLINE_BUF_ADDR = 0x804D6CBC
+
+game.memorymap[ONLINE_BUF_ADDR] = {
+	type = "pointer",
+	name = "online",
+	struct = {
+		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L182-L225
+		[0x07] = { type = "u32", name = "rng_offset" }
+	}
+}
 
 -- Where character ID's are stored in the CSS menu
 local player_select_external_addresses = {
