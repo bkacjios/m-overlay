@@ -6,7 +6,7 @@ local music = {
 	LOOP = false,
 	USE_WEIGHTS = false,
 	TRACK_NUMBER = {},
-	RNG_OFFSET = os.time(), -- use the system clock as initial seed
+	RNG_OFFSET = os.time(), -- Use the system clock as initial seed
 	NEW_CONNECTION = false,
 }
 
@@ -472,7 +472,7 @@ function music.loadForStage(stageid)
 		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
 
-	music.RNG_OFFSET = bit.bxor(music.RNG_OFFSET, 397) -- advance the seed in a deterministic but unpredictable way using xor
+	music.RNG_OFFSET = bit.bxor(music.RNG_OFFSET, 397) -- Advance the seed in a deterministic but unpredictable way using xor
 	math.randomseed(music.RNG_OFFSET)
 	
 	local values = {}
