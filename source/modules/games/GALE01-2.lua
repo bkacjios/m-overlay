@@ -139,7 +139,7 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 				[0x02] = { type = "u8", name = "remote_player.ready" },
 				[0x03] = { type = "u8", name = "local_player.index", debug = true },
 				[0x04] = { type = "u8", name = "remote_player.index" },
-				[0x05] = { type = "u32", name = "rng_offset", debug = true },
+				[0x05] = { type = "u32", name = "rng_offset" },
 				[0x09] = { type = "u8", name = "delay_frames" },
 				[0x0A] = { type = "u8", name = "local_player.chatmsg_id" },
 				[0x0B] = { type = "u8", name = "opponent.chatmsg_id" },
