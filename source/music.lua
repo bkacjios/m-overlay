@@ -205,6 +205,7 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 end)
 
 function music.updateRNGseed(seed)
+	if seed == 0 then seed = os.time() end
 	math.randomseed(seed)
 	music.RNG_OFFSET = seed
 	local values = {}
@@ -429,18 +430,17 @@ function music.loadForStage(stageid)
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
 
-	local seed
-	if stageid == 0x0 then
-		seed = music.RNG_OFFSET
-		if seed == 0 then
-			seed = os.time()
+	local seed = 0
+	if PANEL_SETTINGS:IsSlippiNetplay() then
+		if stageid == 0x0 then
+			seed = music.RNG_OFFSET
+			if seed ~= 0 then
+				-- Advance the seed in a deterministic way by incrementing it
+				seed = seed + 1
+			end
 		else
-			-- Advance the seed in a deterministic way by incrementing it
-			seed = seed + 1
+			seed = memory.online.rng_offset
 		end
-	else
-		seed = memory.online.rng_offset
-		if seed == 0 then seed = os.time() end
 	end
 	music.updateRNGseed(seed)
 
