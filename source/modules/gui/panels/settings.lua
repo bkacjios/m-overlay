@@ -105,6 +105,7 @@ function PANEL:Settings()
 
 	function self.SLIPPI.MODE:OnSelectOption(num)
 		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100, 150) or color(33, 186, 69, 150))
+		music.refreshRNGseed()
 	end
 
 	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
