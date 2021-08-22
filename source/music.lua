@@ -6,7 +6,7 @@ local music = {
 	LOOP = false,
 	USE_WEIGHTS = false,
 	TRACK_NUMBER = {},
-	RNG_OFFSET = 0,
+	RNG_SEED = nil,
 }
 
 local log = require("log")
@@ -204,16 +204,23 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	end
 end)
 
-function music.updateRNGseed(seed)
-	if seed == 0 then seed = os.time() end
-	math.randomseed(seed)
-	music.RNG_OFFSET = seed
-	local values = {}
-	for i=1,8 do
-		table.insert(values, math.random(0, 255))
+function music.refreshRNGseed()
+	local getSeed = function()
+		if not memory.isMelee() then return os.time(), "the system time" end
+		if not PANEL_SETTINGS:IsSlippiNetplay() then return memory.rng.seed, "Melee" end
+
+		if melee.isInMenus() then
+			if music.RNG_SEED then return music.RNG_SEED + 1, "the previous seed" end
+			return memory.rng.seed, "Melee"
+		end
+
+		return memory.online.rng_offset, "Slippi"
 	end
-	local data = string.char(unpack(values))
-	log.debug("[RANDOM] updating seed to \"0x%X\" and flushing first 8 values (0x%s)", seed, string.tohex(data))
+
+	local seed, source = getSeed()
+	math.randomseed(seed)
+	music.RNG_SEED = seed
+	log.debug("[RANDOM] Obtained seed \"0x%X\" from %s", seed, source)
 end
 
 function music.setVolume(vol)
@@ -430,19 +437,7 @@ function music.loadForStage(stageid)
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
 
-	local seed = 0
-	if PANEL_SETTINGS:IsSlippiNetplay() then
-		if stageid == 0x0 then
-			seed = music.RNG_OFFSET
-			if seed ~= 0 then
-				-- Advance the seed in a deterministic way by incrementing it
-				seed = seed + 1
-			end
-		else
-			seed = memory.online.rng_offset
-		end
-	end
-	music.updateRNGseed(seed)
+	music.refreshRNGseed()
 
 	music.loadStageMusicInDir(stageid, "Melee")
 
