@@ -231,15 +231,16 @@ NOTE: This button is only usable when in a supported game.]])
 	self.START:SetTooltipTitle("START BUTTON")
 	self.START:SetTooltipBody([[Enable/disable the start button on the overlay.]])
 
-	self.DEBUG = LEFT:Add("Checkbox")
-	self.DEBUG:SetText("Debug console")
-	self.DEBUG:Dock(DOCK_TOP)
-	self.DEBUG:SetVisible(love.supportsAttachableConsole())
-	self.DEBUG:SetTooltipTitle("DEBUG CONSOLE")
-	self.DEBUG:SetTooltipBody([[Enable/disable a debug console for developer and debugging purposes.]])
+	if love.supportsAttachableConsole() then
+		self.DEBUG = LEFT:Add("Checkbox")
+		self.DEBUG:SetText("Debug console")
+		self.DEBUG:Dock(DOCK_TOP)
+		self.DEBUG:SetTooltipTitle("DEBUG CONSOLE")
+		self.DEBUG:SetTooltipBody([[Enable/disable a debug console for developer and debugging purposes.]])
 
-	function self.DEBUG:OnToggle(on)
-		love.console(on)
+		function self.DEBUG:OnToggle(on)
+			love.console(on)
+		end
 	end
 
 	local TLABEL = LEFT:Add("Label")
@@ -496,7 +497,9 @@ function PANEL:LoadSettings()
 	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"], true)
 	self.DPAD:SetToggle(settings["enable-dpad"], true)
 	self.START:SetToggle(settings["enable-start"], true)
-	self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false)
+	if self.DEBUG then
+		self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false)
+	end
 	self.TRANSPARENCY:SetValue(settings["transparency"])
 	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"], true)
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"], true)
