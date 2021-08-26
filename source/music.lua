@@ -25,15 +25,15 @@ local function weightedRandomChoice(list)
 	if #list == 1 then return 1 end
 
 	local sum = 0
-	for i=1, #list do
-		sum = sum + list[i].WEIGHT
+	for _, v in pairs(list) do
+		sum = sum + v.WEIGHT
 	end
 
 	local choice = math.random(1, sum)
-	for idx=1,#list do
-		choice = choice - list[idx].WEIGHT
+	for k, v in pairs(list) do
+		choice = choice - v.WEIGHT
 		if choice <= 0 then
-			return idx
+			return k
 		end
 	end
 	return choice
@@ -394,7 +394,7 @@ function music.loadStageMusicInDir(stageid, name)
 
 						-- Insert the newly loaded track into a random position in the playlist
 						local pos = math.random(1, #music.PLAYLIST)
-						local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
+						local prob = tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 1
 
 						if prob > 1 then
 							music.USE_WEIGHTS = true
