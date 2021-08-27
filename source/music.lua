@@ -250,23 +250,43 @@ function music.playNextTrack()
 	local songs = music.PLAYLIST
 
 	if #music.PLAYLIST > 0 then
-		local track
+		local getTrack = function()
+			if music.USE_WEIGHTS then return weightedRandomChoice(songs) end
 
-		if music.USE_WEIGHTS then
-			track = weightedRandomChoice(songs)
-			if not track or not songs[track] then return end
-			music.PLAYING = songs[track]
-		else
 			music.TRACK_NUMBER[music.PLAYLIST_ID] = ((music.TRACK_NUMBER[music.PLAYLIST_ID] or -1) + 1) % #songs
-			track = music.TRACK_NUMBER[music.PLAYLIST_ID] + 1
-			music.PLAYING = songs[track]
+			local track = music.TRACK_NUMBER[music.PLAYLIST_ID] + 1
 
 			-- Every time we play a song, we randomly place it towards the start of the playlist
 			local newpos = math.random(1, track)
 
 			table.remove(songs, track)
 			table.insert(songs, newpos, music.PLAYING)
+			return track
 		end
+
+		local loadTrack = function(track_info)
+			local filepath = track_info.FILEPATH
+
+			local success, source = pcall(love.audio.newSource, filepath, "stream")
+			if not (success and source) then
+				local err = ("invalid music file \"%s\""):format(filepath)
+				log.error("[MUSIC] %s", err)
+				notification.error(err)
+				return nil
+			end
+
+			local wavinfo
+			if track_info.IS_WAV then
+				wavinfo = wav.parse(track_info.FILEPATH)
+			end
+			
+			return { STREAM = source, WAV = wavinfo }
+		end
+
+		local track = getTrack()
+
+		if not track or not songs[track] then return end
+		music.PLAYING = loadTrack(songs[track])
 		
 		if music.PLAYING then
 			if music.PLAYLIST_ID == 0x0 then
@@ -377,7 +397,7 @@ local valid_music_ext = {
 }
 
 function music.loadStageMusicInDir(stageid, name)
-	local loaded = 0
+	local found = 0
 	local files = love.filesystem.getDirectoryItems(name)
 	table.sort(files) -- Sort our list of files alphabetically, giving our table a deterministic state
 	for k, file in ipairs(files) do
@@ -388,36 +408,25 @@ function music.loadStageMusicInDir(stageid, name)
 				local ext = string.getFileExtension(file):lower()
 
 				if valid_music_ext[ext] then
-					local success, source = pcall(love.audio.newSource, filepath, "stream")
-					if success and source then
-						loaded = loaded + 1
+					found = found + 1
 
-						-- Insert the newly loaded track into a random position in the playlist
-						local pos = math.random(1, #music.PLAYLIST)
-						local prob = tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 1
+					-- Insert the newly found track into a random position in the playlist
+					local pos = math.random(1, #music.PLAYLIST)
+					local prob = tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 1
 
-						if prob > 1 then
-							music.USE_WEIGHTS = true
-						end
-
-						local wavinfo
-						if ext == "wav" then
-							wavinfo = wav.parse(filepath)
-						end
-						table.insert(music.PLAYLIST, pos, {STREAM = source, WEIGHT = prob, WAV = wavinfo})
-					else
-						local err = ("invalid music file \"%s/%s\""):format(name, file)
-						log.error("[MUSIC] %s", err)
-						notification.error(err)
+					if prob > 1 then
+						music.USE_WEIGHTS = true
 					end
+
+					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, WEIGHT = prob, IS_WAV = ext == "wav"})
 				end
 			end
 		else
 			log.warn("[MUSIC] Unable to get file information for file %q", filepath)
 		end
 	end
-	if loaded > 0 then
-		log.info("[MUSIC] Loaded %d songs in %q", loaded, name)
+	if found > 0 then
+		log.info("[MUSIC] Found %d songs in %q", found, name)
 	end
 end
 
