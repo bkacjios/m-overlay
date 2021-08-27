@@ -13,12 +13,7 @@ local env = {
 	timer = love.timer,
 	window = love.window,
 
-	unpackcolor = unpackcolor,
 	color = color,
-	HSL = HSL,
-	HSV = HSV,
-	RGBToHSV = RGBToHSV,
-	ColorToHSV = ColorToHSV,
 
 	class = require("class"),
 	gui = require("gui"),

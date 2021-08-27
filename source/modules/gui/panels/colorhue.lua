@@ -53,7 +53,7 @@ end
 
 function PANEL:GetColor()
 	local hue = math.min(1, math.max(0, self.m_iHue))
-	return HSV(hue)
+	return color.fromHSV(hue)
 end
 
 function PANEL:PaintOverlay(w, h)
