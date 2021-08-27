@@ -212,15 +212,10 @@ end)
 
 function music.refreshRNGseed()
 	local getSeed = function()
-		if not memory.isMelee() then return os.time(), "the system time" end
-		if not PANEL_SETTINGS:IsSlippiNetplay() then return memory.rng.seed, "Melee" end
-
-		if melee.isInMenus() then
-			if music.RNG_SEED then return music.RNG_SEED + 1, "the previous seed" end
-			return memory.rng.seed, "Melee"
-		end
-
-		return memory.online.rng_offset, "Slippi"
+		if not music.RNG_SEED or not memory.isMelee() then return os.time(), "the system time" end
+		if melee.isInMenus() then return music.RNG_SEED + 1, "the previous seed" end
+		if PANEL_SETTINGS:IsSlippiNetplay() then return memory.online.rng_offset, "Slippi" end
+		return memory.rng.seed, "Melee"
 	end
 
 	local seed, source = getSeed()
