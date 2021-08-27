@@ -420,7 +420,6 @@ function music.loadStageMusicInDir(stageid, name)
 						music.USE_WEIGHTS = true
 					end
 
-					print("INSERT INTO PLAYLIST")
 					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, WEIGHT = prob, IS_WAV = ext == "wav"})
 				end
 			end
@@ -440,8 +439,6 @@ function music.loadForStage(stageid)
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
 	music.PLAYLIST_ID = stageid
-
-	print("CLEAR PLAYLIST")
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
 
