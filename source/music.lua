@@ -214,7 +214,7 @@ function music.refreshRNGseed()
 	local getSeed = function()
 		if not music.RNG_SEED or not memory.isMelee() then return os.time(), "the system time" end
 		if melee.isInMenus() then return music.RNG_SEED + 1, "the previous seed" end
-		if PANEL_SETTINGS:IsSlippiNetplay() then return memory.online.rng_offset, "Slippi" end
+		if melee.isNetplayGame() then return memory.online.rng_offset, "Slippi" end
 		return memory.rng.seed, "Melee"
 	end
 
@@ -246,21 +246,28 @@ do
 local function getNextTrack(songs)
 	if music.USE_WEIGHTS then
 		local track_id = weightedRandomChoice(songs)
-		return track_id, songs[track_id]
+		return track_id, track_id
 	end
 
 	music.TRACK_ID[music.PLAYLIST_ID] = ((music.TRACK_ID[music.PLAYLIST_ID] or -1) + 1) % #songs
 	local track_id = music.TRACK_ID[music.PLAYLIST_ID] + 1
-	local track = table.remove(songs, track_id)
 
-	-- Every time we play a song, we randomly place it towards the start of the playlist
-	local newpos = math.random(1, track_id)
-	table.insert(songs, newpos, track)
+	-- Only shuffle if we have more than 2 songs..
+	if #songs > 2 then
+		-- Every time we play a song, we randomly place it towards the start of the playlist
+		-- This keeps the playlist in a constantly shuffled order
+		local track = table.remove(songs, track_id)
+		local newpos = math.random(1, track_id)
+		table.insert(songs, newpos, track)
+		return track_id, newpos
+	end
 
-	return track_id, track
+	return track_id, track_id
 end
 
-local function loadTrack(track_info)
+local function loadTrack(songs, index)
+	local track_info = songs[index]
+
 	local filepath = track_info.FILEPATH
 
 	local success, source = pcall(love.audio.newSource, filepath, "stream")
@@ -268,6 +275,7 @@ local function loadTrack(track_info)
 		local err = ("invalid music file %q"):format(filepath)
 		log.error("[MUSIC] %s", err)
 		notification.error(err)
+		table.remove(songs, index)
 		return nil
 	end
 
@@ -283,11 +291,11 @@ function music.playNextTrack()
 	local songs = music.PLAYLIST
 
 	if #songs > 0 then
-		local track_id, track = getNextTrack(songs)
+		local track_id, track_index = getNextTrack(songs)
 
-		if not track then return end
+		if not track_index then return end
 
-		music.PLAYING = loadTrack(track)
+		music.PLAYING = loadTrack(songs, track_index)
 		
 		if music.PLAYING then
 			if music.PLAYLIST_ID == 0x0 then
