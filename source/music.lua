@@ -5,7 +5,7 @@ local music = {
 	FINISHED = true,
 	LOOP = false,
 	USE_WEIGHTS = false,
-	TRACK_NUMBER = {},
+	TRACK_ID = {},
 	RNG_SEED = nil,
 }
 
@@ -242,6 +242,38 @@ function music.setVolume(vol)
 	end
 end
 
+do
+local function getNextTrackID(songs)
+	if music.USE_WEIGHTS then return weightedRandomChoice(songs) end
+
+	music.TRACK_ID[music.PLAYLIST_ID] = ((music.TRACK_ID[music.PLAYLIST_ID] or -1) + 1) % #songs
+	local track_id = music.TRACK_ID[music.PLAYLIST_ID] + 1
+	local track = table.remove(songs, track_id)
+
+	-- Every time we play a song, we randomly place it towards the start of the playlist
+	local newpos = math.random(1, track_id)
+
+	print(track_id, newpos, track.FILEPATH)
+
+	table.insert(songs, newpos, track)
+
+	return track_id
+end
+
+local function loadTrack(track_info)
+	local filepath = track_info.FILEPATH
+
+	local success, source = pcall(love.audio.newSource, filepath, "stream")
+	if not (success and source) then
+		local err = ("invalid music file %q"):format(filepath)
+		log.error("[MUSIC] %s", err)
+		notification.error(err)
+		return nil
+	end
+
+	return { STREAM = source, WAV = track_info.IS_WAV and wav.parse(filepath) or nil }
+end
+
 function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if music.PLAYING ~= nil and not music.FINISHED then return end
@@ -250,45 +282,18 @@ function music.playNextTrack()
 
 	local songs = music.PLAYLIST
 
-	if #music.PLAYLIST > 0 then
-		local getTrack = function()
-			if music.USE_WEIGHTS then return weightedRandomChoice(songs) end
+	if #songs > 0 then
+		local track_id = getNextTrackID(songs)
 
-			music.TRACK_NUMBER[music.PLAYLIST_ID] = ((music.TRACK_NUMBER[music.PLAYLIST_ID] or -1) + 1) % #songs
-			local track = music.TRACK_NUMBER[music.PLAYLIST_ID] + 1
+		if not track_id or not songs[track_id] then return end
 
-			-- Every time we play a song, we randomly place it towards the start of the playlist
-			local newpos = math.random(1, track)
-
-			table.remove(songs, track)
-			table.insert(songs, newpos, music.PLAYING)
-			return track
-		end
-
-		local loadTrack = function(track_info)
-			local filepath = track_info.FILEPATH
-
-			local success, source = pcall(love.audio.newSource, filepath, "stream")
-			if not (success and source) then
-				local err = ("invalid music file \"%s\""):format(filepath)
-				log.error("[MUSIC] %s", err)
-				notification.error(err)
-				return nil
-			end
-
-			return { STREAM = source, WAV = track_info.IS_WAV and wav.parse(filepath) or nil }
-		end
-
-		local track = getTrack()
-
-		if not track or not songs[track] then return end
-		music.PLAYING = loadTrack(songs[track])
+		music.PLAYING = loadTrack(songs[track_id])
 		
 		if music.PLAYING then
 			if music.PLAYLIST_ID == 0x0 then
-				log.info("[MUSIC] Playing track #%d for menu", track)
+				log.info("[MUSIC] Playing track #%d for menu", track_id)
 			else
-				log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(music.PLAYLIST_ID))
+				log.info("[MUSIC] Playing track #%d for stage %q", track_id, melee.getStageName(music.PLAYLIST_ID))
 			end
 
 			local loop = PANEL_SETTINGS:GetMusicLoopMode()
@@ -304,6 +309,7 @@ function music.playNextTrack()
 			music.FINISHED = false
 		end
 	end
+end
 end
 
 function music.onStateChange()
@@ -414,6 +420,7 @@ function music.loadStageMusicInDir(stageid, name)
 						music.USE_WEIGHTS = true
 					end
 
+					print("INSERT INTO PLAYLIST")
 					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, WEIGHT = prob, IS_WAV = ext == "wav"})
 				end
 			end
@@ -434,6 +441,7 @@ function music.loadForStage(stageid)
 
 	music.PLAYLIST_ID = stageid
 
+	print("CLEAR PLAYLIST")
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
 
