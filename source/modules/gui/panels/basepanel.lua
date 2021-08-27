@@ -436,7 +436,7 @@ function PANEL:GetPixelSize()
 end
 
 function PANEL:SetWidth(w)
-	w = math.max(0, w)
+	w = math.max(0, math.floor(w + 0.5))
 	if self.m_iWidth ~= w then
 		self.m_iWidth = w
 		self:InvalidateLayout()
@@ -452,7 +452,7 @@ function PANEL:GetWidth()
 end
 
 function PANEL:SetHeight(h)
-	h = math.max(0, h)
+	h = math.max(0, math.floor(h + 0.5))
 	if self.m_iHeight ~= h then
 		self.m_iHeight = h
 		self:InvalidateLayout()
