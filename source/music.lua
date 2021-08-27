@@ -243,8 +243,11 @@ function music.setVolume(vol)
 end
 
 do
-local function getNextTrackID(songs)
-	if music.USE_WEIGHTS then return weightedRandomChoice(songs) end
+local function getNextTrack(songs)
+	if music.USE_WEIGHTS then
+		local track_id = weightedRandomChoice(songs)
+		return track_id, songs[track_id]
+	end
 
 	music.TRACK_ID[music.PLAYLIST_ID] = ((music.TRACK_ID[music.PLAYLIST_ID] or -1) + 1) % #songs
 	local track_id = music.TRACK_ID[music.PLAYLIST_ID] + 1
@@ -252,12 +255,9 @@ local function getNextTrackID(songs)
 
 	-- Every time we play a song, we randomly place it towards the start of the playlist
 	local newpos = math.random(1, track_id)
-
-	print(track_id, newpos, track.FILEPATH)
-
 	table.insert(songs, newpos, track)
 
-	return track_id
+	return track_id, track
 end
 
 local function loadTrack(track_info)
@@ -283,11 +283,11 @@ function music.playNextTrack()
 	local songs = music.PLAYLIST
 
 	if #songs > 0 then
-		local track_id = getNextTrackID(songs)
+		local track_id, track = getNextTrack(songs)
 
-		if not track_id or not songs[track_id] then return end
+		if not track then return end
 
-		music.PLAYING = loadTrack(songs[track_id])
+		music.PLAYING = loadTrack(track)
 		
 		if music.PLAYING then
 			if music.PLAYLIST_ID == 0x0 then
