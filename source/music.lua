@@ -281,12 +281,7 @@ function music.playNextTrack()
 				return nil
 			end
 
-			local wavinfo
-			if track_info.IS_WAV then
-				wavinfo = wav.parse(track_info.FILEPATH)
-			end
-			
-			return { STREAM = source, WAV = wavinfo }
+			return { STREAM = source, WAV = track_info.IS_WAV and wav.parse(filepath) or nil }
 		end
 
 		local track = getTrack()
