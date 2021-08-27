@@ -145,9 +145,15 @@ function music.init()
 end
 
 function music.kill()
-	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
-		music.PLAYING.STREAM:stop()
-		music.FINISHED = true
+	if music.PLAYING then
+		if music.PLAYING.STREAM then
+			if music.PLAYING.STREAM:isPlaying() then
+				music.PLAYING.STREAM:stop()
+				music.FINISHED = true
+			end
+			music.PLAYING.STREAM:release()
+		end
+		music.PLAYING = nil
 	end
 end
 
@@ -438,11 +444,6 @@ function music.loadForStage(stageid)
 
 	music.PLAYLIST_ID = stageid
 
-	for k,v in pairs(music.PLAYLIST) do
-		v.STREAM:release()
-	end
-
-	music.PLAYING = nil
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
 
