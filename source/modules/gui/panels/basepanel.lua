@@ -368,7 +368,7 @@ function PANEL:GetScale()
 end
 
 function PANEL:SetPos(x, y)
-	self.m_iPosX, self.m_iPosY = x, y
+	self.m_iPosX, self.m_iPosY = math.floor(x + 0.5), math.floor(y + 0.5)
 end
 
 function PANEL:GetPos()
