@@ -183,5 +183,6 @@ color_entity = color(151, 211, 255)
 color_pink = color(255, 128, 128)
 color_hotpink = color(255, 105, 180)
 color_orange = color(255, 126, 0)
+color_purple = color(163, 73, 164)
 
 return color

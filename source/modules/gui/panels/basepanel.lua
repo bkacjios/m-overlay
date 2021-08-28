@@ -22,7 +22,8 @@ function PANEL:BasePanel()
 	self.m_bFocusable = true
 	self.m_bOrphaned = false
 	self.m_bDeleted = false
-	self.m_iDock = 0
+	self.m_iDock = DOCK_NONE
+	self.m_iCenter = CENTER_NONE
 	self.m_tDockMargins = { left = 2, top = 2, right = 2, bottom = 2 }
 	self.m_tDockPadding = { left = 2, top = 2, right = 2, bottom = 2 }
 end
@@ -406,7 +407,7 @@ function PANEL:WorldToLocal(x, y)
 end
 
 function PANEL:SetX(x)
-	self.m_iPosX = x
+	self.m_iPosX = math.floor(x + 0.5)
 end
 
 function PANEL:GetX()
@@ -414,7 +415,7 @@ function PANEL:GetX()
 end
 
 function PANEL:SetY(y)
-	self.m_iPosY = y
+	self.m_iPosY = math.floor(y + 0.5)
 end
 
 function PANEL:GetY()
@@ -563,6 +564,7 @@ end
 function PANEL:ValidateLayout()
 	if self:IsVisible() and not self.m_bValidated then
 		self.m_bValidated = true
+		self:CenterLayout()
 		self:DockLayout()
 		self:PerformLayout()
 	end
@@ -572,7 +574,7 @@ function PANEL:ValidateLayout()
 	end
 end
 
-function PANEL:Center(vertical, horizontal)
+function PANEL:CenterLayout()
 	local parent = self:GetParent()
 
 	local w, h = self:GetSize()
@@ -581,23 +583,30 @@ function PANEL:Center(vertical, horizontal)
 		pw, ph = parent:GetSize()
 	end
 
-	-- If both vertical and horizontal aren't set, center to both?
-	local all = vertical == nil and horizontal == nil
+	local vertical = bit.band(self.m_iCenter, CENTER_VERTICAL) == CENTER_VERTICAL
+	local horizontal = bit.band(self.m_iCenter, CENTER_HORIZONTAL) == CENTER_HORIZONTAL
 
-	if all or vertical == true then
+	if vertical == true then
 		self:SetY((ph / 2) - (h / 2))
 	end
-	if all or horizontal == true then
+	if horizontal == true then
 		self:SetX((pw / 2) - (w / 2))
 	end
 end
 
-function PANEL:CenterVertical()
-	self:Center(true, false)
+function PANEL:Center(vertical, horizontal)
+	self:CenterVertical(vertical)
+	self:CenterHorizontal(horizontal)
 end
 
-function PANEL:CenterHorizontal()
-	self:Center(false, true)
+function PANEL:CenterVertical(center)
+	self.m_iCenter = bit.bor(self.m_iCenter, CENTER_VERTICAL)
+	self:InvalidateLayout()
+end
+
+function PANEL:CenterHorizontal(center)
+	self.m_iCenter = bit.bor(self.m_iCenter, CENTER_HORIZONTAL)
+	self:InvalidateLayout()
 end
 
 function PANEL:DockLayout()
