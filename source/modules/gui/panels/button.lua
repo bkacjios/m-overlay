@@ -1,9 +1,9 @@
 local PANEL = class.create("Button", "Label")
 
 PANEL:ACCESSOR("DrawLabel", "m_bDrawLabel", true)
-PANEL:ACCESSOR("DrawPanel", "m_bDrawPanel", true)
 PANEL:ACCESSOR("PressedColor", "m_cPressedColor")
 PANEL:ACCESSOR("HoveredColor", "m_cHoveredColor")
+PANEL:ACCESSOR("DrawButton", "m_bDrawButton", true)
 
 function PANEL:Button()
 	-- Initialize our baseclass
@@ -18,7 +18,7 @@ function PANEL:Button()
 end
 
 function PANEL:Paint(w, h)
-	if self.m_bDrawPanel then
+	if self.m_bDrawButton then
 		gui.skinHook("Paint", "Button", self, w, h)
 	end
 	if self.m_bDrawLabel then

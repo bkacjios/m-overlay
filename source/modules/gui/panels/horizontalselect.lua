@@ -5,6 +5,7 @@ PANEL:ACCESSOR("Selection", "m_iSelection", 1)
 function PANEL:HorizontalSelect()
 	self:super() -- Initialize our baseclass
 
+	self:SetDrawPanel(true)
 	self:SetFocusable(true)
 	self:DockPadding(0,0,0,0)
 	self:SetBGColor(color_blank)

@@ -29,6 +29,8 @@ SKIN.CheckboxBorder = color(100, 100, 100)
 SKIN.CheckboxOff = color(200, 200, 200)
 SKIN.CheckboxOn = color(0, 162, 232)
 
+SKIN.TabActiveColor = color(0, 0, 0, 75)
+
 SKIN.CheckImage = graphics.newImage("textures/gui/checkmark.png")
 
 function SKIN:InitPanel(panel)
@@ -97,6 +99,7 @@ function SKIN:PaintScrollBarGrip(panel, w, h)
 end
 
 function SKIN:InitButton(panel)
+	panel:SetBGColor(self.ButtonBackground)
 	panel:SetBorderColor(self.PanelBorder)
 	panel:SetPressedColor(self.ButtonPressed)
 	panel:SetHoveredColor(self.ButtonHover)
@@ -121,12 +124,27 @@ function SKIN:PaintButton(panel, w, h)
 
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
-	
-	--[[graphics.setColor(255, 255, 255, 255)
-	graphics.innerRectangle(0, 1, w, h - 2)]]
 
-	graphics.setColor(panel:GetBorderColor())
+	graphics.setColor(panel:GetBorderColor() or self.PanelBorder)
 	graphics.innerRectangle(0, 0, w, h)
+end
+
+function SKIN:PaintTab(panel, w, h)
+	local color = self.ButtonBackground
+
+	if panel:IsPressed() then
+		color = panel:GetPressedColor() or self.ButtonPressed
+	elseif panel:IsHovered() then
+		color = panel:GetHoveredColor() or self.ButtonHover
+	end
+
+	graphics.setColor(color)
+	graphics.roundRect(0, 0, w, h+8, 8)
+
+	if panel:IsActive() then
+		graphics.setColor(panel:GetActiveColor() or self.TabActiveColor)
+		graphics.roundRect(0, 0, w, h+8, 8)
+	end
 end
 
 function SKIN:PaintOverlayButton(panel, w, h)

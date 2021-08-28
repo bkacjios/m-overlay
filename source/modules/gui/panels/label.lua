@@ -17,8 +17,7 @@ function PANEL:Label()
 
 	self.m_tTextMargins = { left = 0, top = 0, right = 0, bottom = 0 }
 
-	self:SetBGColor(color_blank)
-	self:SetBorderColor(color_blank)
+	self:SetDrawPanel(false)
 	self:SetFocusable(false)
 	
 	self.m_pFont = graphics.newFont("fonts/melee.otf", 12)

@@ -25,7 +25,9 @@ function PANEL:ColorSelector()
 
 	self.OKAY.OnClick = function(this)
 		self:SetVisible(false)
-		self.m_pColorButton:SetColor(self.COLORPICKER:GetColor())
+		if self.m_pColorButton and self.m_pColorButton.SetColor then
+			self.m_pColorButton:SetColor(self.COLORPICKER:GetColor())
+		end
 	end
 
 	self.CANCEL = self.OPTIONS:Add("Button")

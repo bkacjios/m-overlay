@@ -98,6 +98,8 @@ function color:__call(r, g, b, a)
 			b = math.min(c[3] or 0, 255),
 			a = math.min(c[4] or 255, 255)
 		}, COLOR)
+	elseif type(r) == "table" then
+		return setmetatable(r, COLOR)
 	else
 		return setmetatable({
 			r = math.min(tonumber(r or 255), 255),
@@ -181,5 +183,6 @@ color_entity = color(151, 211, 255)
 color_pink = color(255, 128, 128)
 color_hotpink = color(255, 105, 180)
 color_orange = color(255, 126, 0)
+color_purple = color(163, 73, 164)
 
 return color

@@ -14,6 +14,10 @@ DOCK_BOTTOM = 4
 DOCK_RIGHT = 8
 DOCK_FILL = 16
 
+CENTER_NONE = 0
+CENTER_VERTICAL = 1
+CENTER_HORIZONTAL = 2
+
 local object = require("class.object")
 
 require("extensions.table")

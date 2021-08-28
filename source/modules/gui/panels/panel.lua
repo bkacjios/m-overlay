@@ -1,11 +1,12 @@
 local PANEL = class.create("Panel", "BasePanel")
 
 PANEL:ACCESSOR("Enabled", "m_bEnabled", true)
-PANEL:ACCESSOR("BorderColor", "m_cBorderColor", color_blank)
-PANEL:ACCESSOR("BackgroundColor", "m_cBackgroundColor", color_blank)
-PANEL:ACCESSOR("BGColor", "m_cBackgroundColor", color_blank)
-PANEL:ACCESSOR("TooltipTitle", "m_strTooltipTitle", nil)
-PANEL:ACCESSOR("TooltipBody", "m_strTooltipBody", nil)
+PANEL:ACCESSOR("BorderColor", "m_cBorderColor")
+PANEL:ACCESSOR("BackgroundColor", "m_cBackgroundColor")
+PANEL:ACCESSOR("BGColor", "m_cBackgroundColor")
+PANEL:ACCESSOR("TooltipTitle", "m_strTooltipTitle")
+PANEL:ACCESSOR("TooltipBody", "m_strTooltipBody")
+PANEL:ACCESSOR("DrawPanel", "m_bDrawPanel", true)
 
 function PANEL:Panel()
 	self:super() -- Initialize our baseclass
@@ -13,11 +14,15 @@ function PANEL:Panel()
 end
 
 function PANEL:Paint(w, h)
-	gui.skinHook("Paint", "Panel", self, w, h)
+	if self.m_bDrawPanel then
+		gui.skinHook("Paint", "Panel", self, w, h)
+	end
 end
 
 function PANEL:PaintOverlay(w, h)
-	gui.skinHook("PaintOverlay", "Panel", self, w, h)
+	if self.m_bDrawPanel then
+		gui.skinHook("PaintOverlay", "Panel", self, w, h)
+	end
 end
 
 function PANEL:PostPaint(w, h)

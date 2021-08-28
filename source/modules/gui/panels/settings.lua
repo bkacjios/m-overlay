@@ -8,6 +8,10 @@ local overlay = require("overlay")
 
 require("extensions.math")
 
+SLIPPI_OFF = 1
+SLIPPI_NETPLAY = 2
+SLIPPI_REPLAY = 3
+
 function PANEL:Settings()
 	self:super() -- Initialize our baseclass
 
@@ -23,92 +27,87 @@ function PANEL:Settings()
 	self.COLORSELECT:SetSize(296 + 32, 256)
 	self.COLORSELECT:Center()
 	self.COLORSELECT:SetVisible(false)
-	self.COLORSELECT:SetColorButton(self.BACKGROUNDCOLOR)
 
-	self.MAIN = self:Add("Panel")
-	self.MAIN:SetSize(296 + 32, 256)
+	self.MAIN = self:Add("TabbedPanel")
+	self.MAIN:SizeToParent()
+	self.MAIN:SetSize(296 + 32, 176)
+	self.MAIN:Center()
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
-	self.MAIN:SetBackgroundColor(color(0, 0, 0, 200))
-	self.MAIN:SetBorderColor(color_blank)
 
-	local LEFT = self.MAIN:Add("Panel")
-	LEFT:DockMargin(0,0,0,0)
-	LEFT:DockPadding(4,4,4,4)
-	LEFT:SetBorderColor(color_clear)
-	LEFT:SetBackgroundColor(color_clear)
-	LEFT:SetWidth(164)
-	LEFT:Dock(DOCK_LEFT)
+	self.GENERAL = self.MAIN:AddTab("General", "textures/gui/cog.png", true)
+	self.GENERAL:SetBackgroundColor(color(200, 200, 200, 255))
 
-	local GLABEL = LEFT:Add("Label")
-	GLABEL:SetText("General")
-	GLABEL:SetTextAlignment("center")
-	GLABEL:SizeToText()
-	GLABEL:SetHeight(14)
-	GLABEL:Dock(DOCK_TOP)
-	GLABEL:SetTextColor(color_white)
-	GLABEL:SetShadowDistance(1)
-	GLABEL:SetShadowColor(color_black)
-	GLABEL:SetFont("fonts/melee-bold.otf", 14)
+	self.GENERAL.LEFT = self.GENERAL:Add("Panel")
+	self.GENERAL.LEFT:SetWidth(158)
+	self.GENERAL.LEFT:Dock(DOCK_LEFT)
+	self.GENERAL.LEFT:SetBGColor(color_blank)
+	self.GENERAL.LEFT:SetBorderColor(color_blank)
+	self.GENERAL.LEFT:DockPadding(0, 0, 0, 0)
 
-	local RIGHT = self.MAIN:Add("Panel")
-	RIGHT:DockMargin(0,0,0,0)
-	RIGHT:DockPadding(0,0,0,0)
-	RIGHT:SetBorderColor(color_clear)
-	RIGHT:SetBackgroundColor(color_clear)
-	RIGHT:SetWidth(164)
-	RIGHT:Dock(DOCK_RIGHT)
+	self.GENERAL.RIGHT = self.GENERAL:Add("Panel")
+	self.GENERAL.RIGHT:SetWidth(158)
+	self.GENERAL.RIGHT:Dock(DOCK_RIGHT)
+	self.GENERAL.RIGHT:SetBGColor(color_blank)
+	self.GENERAL.RIGHT:SetBorderColor(color_blank)
+	self.GENERAL.RIGHT:DockPadding(0, 0, 0, 0)
 
-	self.SLIPPI = RIGHT:Add("Panel")
-	self.SLIPPI:DockMargin(0,0,0,0)
-	self.SLIPPI:DockPadding(4,34,4,4)
-	self.SLIPPI:SetBorderColor(color_clear)
-	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 150))
-	self.SLIPPI:SetWidth(164)
-	self.SLIPPI:SetHeight(66)
-	self.SLIPPI:Dock(DOCK_TOP)
+	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
+	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 255))
 
-	local SLIPPIICON = self.SLIPPI:Add("Image")
-	SLIPPIICON:SetImage("textures/SlippiLogo.png")
-	SLIPPIICON:SetPos(0, 4)
-	SLIPPIICON:SetSize(36, 28)
-	SLIPPIICON:Center(false, true)
+	self.MELEE = self.MAIN:AddTab("Melee", "textures/gui/melee.png")
+	self.MELEE:SetBackgroundColor(color(189, 15, 23, 255))
 
-	self.MELEE = RIGHT:Add("Panel")
-	self.MELEE:DockMargin(0,0,0,0)
-	self.MELEE:DockPadding(4,38,4,4)
-	self.MELEE:SetBorderColor(color_clear)
-	self.MELEE:SetBackgroundColor(color(189, 15, 23, 150))
-	self.MELEE:SetWidth(164)
-	self.MELEE:SetHeight(132+38+24)
-	self.MELEE:Dock(DOCK_TOP)
+	self.MELEE.VOLUME = self.MELEE:Add("Slider")
+	self.MELEE.VOLUME:SetValue(50)
+	self.MELEE.VOLUME:Dock(DOCK_BOTTOM)
+	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
+	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
 
-	local MELEEICON = self.MELEE:Add("Image")
-	MELEEICON:SetImage("textures/melee.png")
-	MELEEICON:SetPos(0, 4)
-	MELEEICON:SetSize(164, 36)
-	MELEEICON:Center(false, true)
+	local VOLLABEL = self.MELEE:Add("Label")
+	VOLLABEL:SetText("Music volume")
+	VOLLABEL:SetTextAlignment("center")
+	VOLLABEL:SizeToText()
+	VOLLABEL:Dock(DOCK_BOTTOM)
+	VOLLABEL:SetTextColor(color_white)
+	VOLLABEL:SetShadowDistance(1)
+	VOLLABEL:SetShadowColor(color_black)
+	VOLLABEL:SetFont("fonts/melee-bold.otf", 12)
 
-	self.SLIPPI.MODE = self.SLIPPI:Add("HorizontalSelect")
-	self.SLIPPI.MODE:Dock(DOCK_TOP)
-	self.SLIPPI.MODE:SetTooltipTitle("SLIPPI MODE")
-	self.SLIPPI.MODE:SetTooltipBody([[- Off: Use normal game detection. Supported game list can be found on the github README.
-
-- Rollback/Netplay: Allows the overlay to work properly when playing Slippi online. Will also actively change the overylay to display your current port.
-
-- Replay/Mirror: Allows the overlay to work when viewing replays or mirroring gameplay from a console.
-]])
-
-	SLIPPI_OFF = self.SLIPPI.MODE:AddOption("Off", true) -- 1
-	SLIPPI_NETPLAY = self.SLIPPI.MODE:AddOption("Rollback/Netplay") -- 2
-	SLIPPI_REPLAY = self.SLIPPI.MODE:AddOption("Replay/Mirror") -- 3
-
-	function self.SLIPPI.MODE:OnSelectOption(num)
-		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100, 150) or color(33, 186, 69, 150))
-		music.refreshRNGseed()
+	function self.MELEE.VOLUME:OnValueChanged(i)
+		music.setVolume(i)
+		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
 	end
 
-	self.MELEE.MUSIC = self.MELEE:Add("Checkbox")
+	self.MELEE.LEFT = self.MELEE:Add("Panel")
+	self.MELEE.LEFT:SetWidth(158)
+	self.MELEE.LEFT:Dock(DOCK_LEFT)
+	self.MELEE.LEFT:SetBGColor(color_blank)
+	self.MELEE.LEFT:SetBorderColor(color_blank)
+	self.MELEE.LEFT:DockPadding(0, 0, 0, 0)
+
+	self.MELEE.RIGHT = self.MELEE:Add("Panel")
+	self.MELEE.RIGHT:SetWidth(158)
+	self.MELEE.RIGHT:Dock(DOCK_RIGHT)
+	self.MELEE.RIGHT:SetBGColor(color_blank)
+	self.MELEE.RIGHT:SetBorderColor(color_blank)
+	self.MELEE.RIGHT:DockPadding(0, 0, 0, 0)
+
+	self.SLIPPI.MODE = self.SLIPPI:Add("RadioPanel")
+	self.SLIPPI.MODE:SetWidth(158)
+	self.SLIPPI.MODE:Center(true, true)
+
+	local off = self.SLIPPI.MODE:AddOption(SLIPPI_OFF, "Off")
+	off:SetTooltipTitle("SLIPPI MODE")
+	off:SetTooltipBody([[- Off: Use normal game detection. Supported game list can be found on the github README.]])
+	local netplay = self.SLIPPI.MODE:AddOption(SLIPPI_NETPLAY, "Rollback/Netplay")
+	netplay:SetTooltipTitle("SLIPPI MODE")
+	netplay:SetTooltipBody([[- Rollback/Netplay: Allows the overlay to work properly when playing Slippi online. Will also actively change the overylay to display your current port.]])
+	local mirror = self.SLIPPI.MODE:AddOption(SLIPPI_REPLAY, "Replay/Mirror")
+	mirror:SetTooltipTitle("SLIPPI MODE")
+	mirror:SetTooltipBody([[- Replay/Mirror: Allows the overlay to work when viewing replays or mirroring gameplay from a console.]])
+
+	self.MELEE.MUSIC = self.MELEE.LEFT:Add("Checkbox")
 	self.MELEE.MUSIC:SetText("Music")
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
 
@@ -121,11 +120,9 @@ function PANEL:Settings()
 		else
 			music.kill()
 		end
-		self:GetParent().MUSICLOOP:SetEnabled(on)
-		self:GetParent().VOLUME:SetEnabled(on)
 	end
 
-	self.MELEE.MUSICLOOP = self.MELEE:Add("HorizontalSelect")
+	self.MELEE.MUSICLOOP = self.MELEE.LEFT:Add("HorizontalSelect")
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 
 	self.MELEE.MUSICLOOP:SetTooltipTitle("MUSIC LOOP MODE")
@@ -147,51 +144,31 @@ function PANEL:Settings()
 		music.onLoopChange(num)
 	end
 
-	local SKIPLABEL = self.MELEE:Add("Label")
+	local SKIPLABEL = self.MELEE.RIGHT:Add("Label")
 	SKIPLABEL:SetText("Skip track combo")
 	SKIPLABEL:SetTextAlignment("center")
 	SKIPLABEL:SizeToText()
+	SKIPLABEL:SetHeight(24)
 	SKIPLABEL:Dock(DOCK_TOP)
 	SKIPLABEL:SetTextColor(color_white)
 	SKIPLABEL:SetShadowDistance(1)
 	SKIPLABEL:SetShadowColor(color_black)
 	SKIPLABEL:SetFont("fonts/melee-bold.otf", 12)
 
-	self.MELEE.MUSICSKIP = self.MELEE:Add("GCBind")
+	self.MELEE.MUSICSKIP = self.MELEE.RIGHT:Add("GCBind")
 	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
 	self.MELEE.MUSICSKIP:SetTooltipTitle("SKIP TRACK COMBO")
 	self.MELEE.MUSICSKIP:SetTooltipBody([[This button will allow you to a set a button combination on your controller to skip the currently playing music track.
 
 NOTE: This button is only usable when in a supported game.]])
 
-	local VOLLABEL = self.MELEE:Add("Label")
-	VOLLABEL:SetText("Music volume")
-	VOLLABEL:SetTextAlignment("center")
-	VOLLABEL:SizeToText()
-	VOLLABEL:Dock(DOCK_TOP)
-	VOLLABEL:SetTextColor(color_white)
-	VOLLABEL:SetShadowDistance(1)
-	VOLLABEL:SetShadowColor(color_black)
-	VOLLABEL:SetFont("fonts/melee-bold.otf", 12)
-
-	self.MELEE.VOLUME = self.MELEE:Add("Slider")
-	self.MELEE.VOLUME:SetValue(50)
-	self.MELEE.VOLUME:Dock(DOCK_TOP)
-	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
-	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
-
-	function self.MELEE.VOLUME:OnValueChanged(i)
-		music.setVolume(i)
-		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
-	end
-
-	self.PORTTITLE = LEFT:Add("Checkbox")
+	self.PORTTITLE = self.GENERAL.LEFT:Add("Checkbox")
 	self.PORTTITLE:SetText("Port in title")
 	self.PORTTITLE:Dock(DOCK_TOP)
 	self.PORTTITLE:SetTooltipTitle("PORT IN TITLE")
 	self.PORTTITLE:SetTooltipBody([[Show the current port number being displayed in the application title.]])
 
-	self.ALWAYSPORT = LEFT:Add("Checkbox")
+	self.ALWAYSPORT = self.GENERAL.LEFT:Add("Checkbox")
 	self.ALWAYSPORT:SetText("Always show port")
 	self.ALWAYSPORT:Dock(DOCK_TOP)
 	self.ALWAYSPORT:SetTooltipTitle("ALWAYS SHOW PORT")
@@ -201,7 +178,19 @@ NOTE: This button is only usable when in a supported game.]])
 		love.updateTitle(love.getTitleNoPort())
 	end
 
-	self.HIGH_CONTRAST = LEFT:Add("Checkbox")
+	self.DPAD = self.GENERAL.RIGHT:Add("Checkbox")
+	self.DPAD:SetText("Show D-Pad")
+	self.DPAD:Dock(DOCK_TOP)
+	self.DPAD:SetTooltipTitle("DIRECTIONAL-PAD")
+	self.DPAD:SetTooltipBody([[Enable/disable the directional pad on the overlay.]])
+
+	self.START = self.GENERAL.RIGHT:Add("Checkbox")
+	self.START:SetText("Show Start")
+	self.START:Dock(DOCK_TOP)
+	self.START:SetTooltipTitle("START BUTTON")
+	self.START:SetTooltipBody([[Enable/disable the start button on the overlay.]])
+
+	self.HIGH_CONTRAST = self.GENERAL.RIGHT:Add("Checkbox")
 	self.HIGH_CONTRAST:SetText("High-contrast")
 	self.HIGH_CONTRAST:Dock(DOCK_TOP)
 	self.HIGH_CONTRAST:SetTooltipTitle("HIGH-CONTRAST")
@@ -209,64 +198,32 @@ NOTE: This button is only usable when in a supported game.]])
 
 20XX theme is unsupported]])
 
-	local BUTTONS = LEFT:Add("Panel")
-	BUTTONS:Dock(DOCK_TOP)
-	BUTTONS:DockPadding(0,0,0,0)
-	BUTTONS:SetBackgroundColor(color_clear)
-	BUTTONS:SetBorderColor(color_clear)
+	self.TRANSPARENCY = self.GENERAL.RIGHT:Add("Slider")
+	self.TRANSPARENCY:SetValue(100)
+	self.TRANSPARENCY:Dock(DOCK_BOTTOM)
+	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
+	self.TRANSPARENCY:SetTooltipTitle("TRANSPARENCY")
+	self.TRANSPARENCY:SetTooltipBody([[Adjust how transparent the overlay is. This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
 
-	self.DPAD = BUTTONS:Add("Checkbox")
-	self.DPAD:SetText("D-Pad")
-	self.DPAD:SetWidth(74)
-	self.DPAD:Dock(DOCK_LEFT)
-	self.DPAD:DockMargin(0,0,0,0)
-	self.DPAD:SetTooltipTitle("DIRECTIONAL-PAD")
-	self.DPAD:SetTooltipBody([[Enable/disable the directional pad on the overlay.]])
+	local TLABEL = self.GENERAL.RIGHT:Add("Label")
 
-	self.START = BUTTONS:Add("Checkbox")
-	self.START:SetText("Start")
-	self.START:SetWidth(74)
-	self.START:Dock(DOCK_RIGHT)
-	self.START:DockMargin(0,0,0,0)
-	self.START:SetTooltipTitle("START BUTTON")
-	self.START:SetTooltipBody([[Enable/disable the start button on the overlay.]])
-
-	if love.supportsAttachableConsole() then
-		self.DEBUG = LEFT:Add("Checkbox")
-		self.DEBUG:SetText("Debug console")
-		self.DEBUG:Dock(DOCK_TOP)
-		self.DEBUG:SetTooltipTitle("DEBUG CONSOLE")
-		self.DEBUG:SetTooltipBody([[Enable/disable a debug console for developer and debugging purposes.]])
-
-		function self.DEBUG:OnToggle(on)
-			love.console(on)
-		end
+	function self.TRANSPARENCY:OnValueChanged(i)
+		TLABEL:SetText(("Transparency - %d%%"):format(i))
 	end
 
-	local TLABEL = LEFT:Add("Label")
 	TLABEL:SetText("Transparency")
 	TLABEL:SizeToText()
-	TLABEL:Dock(DOCK_TOP)
+	TLABEL:SetHeight(24)
+	TLABEL:Dock(DOCK_BOTTOM)
 	TLABEL:SetTextColor(color_white)
 	TLABEL:SetShadowDistance(1)
 	TLABEL:SetShadowColor(color_black)
 	TLABEL:SetFont("fonts/melee-bold.otf", 12)
 	TLABEL:SetVisible(love.supportsGameCapture())
 
-	self.TRANSPARENCY = LEFT:Add("Slider")
-	self.TRANSPARENCY:SetValue(100)
-	self.TRANSPARENCY:Dock(DOCK_TOP)
-	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
-	self.TRANSPARENCY:SetTooltipTitle("TRANSPARENCY")
-	self.TRANSPARENCY:SetTooltipBody([[Adjust how transparent the overlay is. This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
-
-	function self.TRANSPARENCY:OnValueChanged(i)
-		TLABEL:SetText(("Transparency - %d%%"):format(i))
-	end
-
-	self.BACKGROUNDCOLOR = LEFT:Add("ColorButton")
+	self.BACKGROUNDCOLOR = self.GENERAL.RIGHT:Add("ColorButton")
 	self.BACKGROUNDCOLOR:SetText("Background color")
-	self.BACKGROUNDCOLOR:Dock(DOCK_TOP)
+	self.BACKGROUNDCOLOR:Dock(DOCK_BOTTOM)
 	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
 	self.BACKGROUNDCOLOR:SetColor(color(34, 34, 34))
 	self.BACKGROUNDCOLOR:SetTooltipTitle("BACKGROUND COLOR")
@@ -278,9 +235,11 @@ NOTE: This button is only usable when in a supported game.]])
 		self.COLORSELECT:BringToFront()
 	end
 
-	self.CONFIGDIR = LEFT:Add("Button")
+	self.COLORSELECT:SetColorButton(self.BACKGROUNDCOLOR)
+
+	self.CONFIGDIR = self.GENERAL.LEFT:Add("Button")
 	self.CONFIGDIR:SetText("Open config directory")
-	self.CONFIGDIR:Dock(DOCK_TOP)
+	self.CONFIGDIR:Dock(DOCK_BOTTOM)
 	self.CONFIGDIR:SetTooltipTitle("CONFIGURATION DIRECTORY")
 	self.CONFIGDIR:SetTooltipBody([[This button will open the file explorer to M'Overlay's config directory.
 
@@ -290,23 +249,43 @@ This is also the same directory you use to place all your music for Melee.]])
 		love.system.openURL(("file://%s"):format(love.filesystem.getSaveDirectory()))
 	end
 
-	self.m_sFileName = "config.json"
+	if love.supportsAttachableConsole() then
+		self.DEBUG = self.GENERAL.LEFT:Add("Checkbox")
+		self.DEBUG:SetText("Debug console")
+		self.DEBUG:Dock(DOCK_BOTTOM)
+		self.DEBUG:SetTooltipTitle("DEBUG CONSOLE")
+		self.DEBUG:SetTooltipBody([[Enable/disable a debug console for developer and debugging purposes.]])
 
-	local VLABEL = LEFT:Add("Button")
-	VLABEL:SetDrawPanel(false)
-	VLABEL:SetText(love.getMOverlayVersion())
+		function self.DEBUG:OnToggle(on)
+			love.console(on)
+		end
+	end
+
+	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
+	self.ABOUT:SetBackgroundColor(color_purple)
+
+	local ICON = self.ABOUT:Add("Image")
+	ICON:SetImage("textures/icon.png")
+	ICON:SetPos(24, 0)
+	ICON:SetSize(96, 96)
+	ICON:CenterVertical()
+
+	local VLABEL = self.ABOUT:Add("Button")
+	VLABEL:SetDrawButton(false)
+	VLABEL:SetText("M'Overlay - " .. love.getMOverlayVersion())
 	VLABEL:SetTextAlignment("center")
-	VLABEL:SizeToText()
-	VLABEL:SetHeight(18)
-	VLABEL:Dock(DOCK_TOP)
+	VLABEL:SetSize(176, 18)
+	VLABEL:Dock(DOCK_RIGHT)
 	VLABEL:SetTextColor(color_white)
-	VLABEL:SetShadowDistance(1)
 	VLABEL:SetShadowColor(color_black)
+	VLABEL:SetShadowDistance(1)
 	VLABEL:SetFont("fonts/melee-bold.otf", 12)
 
 	function VLABEL:OnClick()
 		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/v%s"):format(love.getMOverlayVersion()))
 	end
+
+	self.m_sFileName = "config.json"
 
 	--local test = self:Add("ColorPicker")
 	--test:SetSize(256, 256)
@@ -390,15 +369,15 @@ function PANEL:GetVolume()
 end
 
 function PANEL:GetSlippiMode()
-	return self.SLIPPI.MODE:GetSelection()
+	return self.SLIPPI.MODE:GetOption()
 end
 
 function PANEL:IsSlippiNetplay()
-	return self.SLIPPI.MODE:GetSelection() == SLIPPI_NETPLAY
+	return self.SLIPPI.MODE:GetOption() == SLIPPI_NETPLAY
 end
 
 function PANEL:IsSlippiReplay()
-	return self.SLIPPI.MODE:GetSelection() == SLIPPI_REPLAY
+	return self.SLIPPI.MODE:GetOption() == SLIPPI_REPLAY
 end
 
 function PANEL:IsPortTitleEnabled()
@@ -501,10 +480,10 @@ function PANEL:LoadSettings()
 		self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false)
 	end
 	self.TRANSPARENCY:SetValue(settings["transparency"])
-	self.SLIPPI.MODE:SelectOption(settings["slippi-mode"], true)
+	self.SLIPPI.MODE:SetOption(settings["slippi-mode"])
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"], true)
 	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"])
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
-	self.BACKGROUNDCOLOR:SetColor(settings["background-color"])
+	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))
 end
