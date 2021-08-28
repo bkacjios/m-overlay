@@ -32,50 +32,83 @@ function table.hasValue(tbl, val)
 end
 
 do
-	local function val_to_str(v, stack, scope)
+	local recursiveTableString
+	local stack = {}
+	local cache = {}
+
+	local KEY_TYPE_DOT = 1
+	local KEY_TYPE_BRACKET = 2
+
+	local function val_to_str(v, name)
 		if type(v) == "string" then
 			v = string.gsub(v, "\n", "\\n" )
 			if string.match(string.gsub(v,"[^'\"]",""), '^"+$') then
 				return "'" .. v .. "'"
 			end
 			return '"' .. string.gsub(v,'"', '\\"' ) .. '"'
+		elseif type(v) == "table" then
+			return recursiveTableString(v, name)
 		else
-			return type(v) == "table" and table.tostring(v, stack, scope) or tostring(v)
+			return tostring(v)
 		end
 	end
 
-	local function key_to_str(k, stack, scope)
+	local function key_type(k)
 		if type(k) == "string" and string.match(k, "^[_%a][_%a%d]*$") then
+			return KEY_TYPE_DOT
+		else
+			return KEY_TYPE_BRACKET
+		end
+	end
+
+	local function key_to_str(k, name)
+		if key_type(k) == KEY_TYPE_DOT then
 			return k
 		else
-			return "[" .. val_to_str(k, stack, scope) .. "]"
+			return "[" .. val_to_str(k, name) .. "]"
 		end
 	end
 
-	function table.tostring(tbl, stack, scope)
-		stack = stack or {}
-		scope = scope or 0
+	local function getStackName()
+		local result = ""
+		for pos, name in ipairs(stack) do
+			if key_type(name) == KEY_TYPE_DOT and pos > 1 then
+				result = result .. "." .. key_to_str(name)
+			else
+				result = result .. key_to_str(name)
+			end
+		end
+		return result
+	end
 
-		if stack[tbl] then return error("circular reference") end
+	local function getTabs()
+		return string.rep("\t", #stack)
+	end
 
-		stack[tbl] = true
-		scope = scope + 1
+	recursiveTableString = function (tbl, name)
+		name = name or "self"
 
 		local result = "{\n"
 
-		for k, v in pairs(tbl) do
-			local tabs = string.rep("\t", scope)
-			if type(v) == "table" then
-				result = result .. tabs .. key_to_str(k, stack, scope) .. " = " .. table.tostring(v, stack, scope) .. "\n"
-			else
-				result = result .. tabs .. key_to_str(k, stack, scope) .. " = " .. val_to_str(v, stack, scope) .. "\n"
-			end
+		if cache[tbl] then
+			return cache[tbl]
 		end
 
-		scope = scope - 1
-		stack[tbl] = nil
+		table.insert(stack, name)
+		cache[tbl] = getStackName()
 
-		return result .. string.rep("\t", scope) .. "}"
+		for k, v in pairs(tbl) do
+			result = result .. getTabs() .. key_to_str(k, k) .. " = " .. val_to_str(v, k) .. "\n"
+		end
+		table.remove(stack, #stack)
+
+		return result .. getTabs(stack) .. "}"
+	end
+
+	function table.tostring(tbl)
+		stack = {}
+		cache = {}
+		return recursiveTableString(tbl)
 	end
 end
 
@@ -90,7 +123,11 @@ end
 	}
 }
 
-print(table.tostring(love))]]
+table.insert(test.data, test)
+test.data.test[3] = test
+test[58] = test.data.test
+
+print(table.tostring(test))]]
 
 function table.copy(object)
 	local lookup_table = {}
