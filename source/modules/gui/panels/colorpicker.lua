@@ -33,13 +33,13 @@ function PANEL:ColorPicker()
 	self:SetColor(color(0, 255, 255))
 end
 
-function PANEL:SetColor(c)
-	local hue, saturation, value = ColorToHSV(c)
+function PANEL:SetColor(color)
+	local hue, saturation, value = color:toHSV()
 	if saturation > 0 then
 		-- Only update hue if we aren't achromatic
 		self.m_pColorHue:SetHue(hue)
 	end
-	self.m_pColorShade:SetColor(c)
+	self.m_pColorShade:SetColor(color)
 end
 
 function PANEL:GetColor()

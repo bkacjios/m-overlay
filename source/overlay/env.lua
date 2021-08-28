@@ -18,12 +18,7 @@ local env = {
 	-- Incase someone forgets to define these
 	SKIN = {},
 
-	unpackcolor = unpackcolor,
 	color = color,
-	HSL = HSL,
-	HSV = HSV,
-	RGBToHSV = RGBToHSV,
-	ColorToHSV = ColorToHSV,
 
 	memory = memory,
 	melee = melee,

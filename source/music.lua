@@ -5,7 +5,8 @@ local music = {
 	FINISHED = true,
 	LOOP = false,
 	USE_WEIGHTS = false,
-	TRACK_NUMBER = {},
+	TRACK_ID = {},
+	RNG_SEED = nil,
 }
 
 local log = require("log")
@@ -24,15 +25,15 @@ local function weightedRandomChoice(list)
 	if #list == 1 then return 1 end
 
 	local sum = 0
-	for i=1, #list do
-		sum = sum + list[i].WEIGHT
+	for _, v in pairs(list) do
+		sum = sum + v.WEIGHT
 	end
 
 	local choice = math.random(1, sum)
-	for idx=1,#list do
-		choice = choice - list[idx].WEIGHT
+	for k, v in pairs(list) do
+		choice = choice - v.WEIGHT
 		if choice <= 0 then
-			return idx
+			return k
 		end
 	end
 	return choice
@@ -144,9 +145,15 @@ function music.init()
 end
 
 function music.kill()
-	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
-		music.PLAYING.STREAM:stop()
-		music.FINISHED = true
+	if music.PLAYING then
+		if music.PLAYING.STREAM then
+			if music.PLAYING.STREAM:isPlaying() then
+				music.PLAYING.STREAM:stop()
+				music.FINISHED = true
+			end
+			music.PLAYING.STREAM:release()
+		end
+		music.PLAYING = nil
 	end
 end
 
@@ -203,6 +210,20 @@ memory.hook("volume.slider", "Ingame Volume Adjust", function(volume)
 	end
 end)
 
+function music.refreshRNGseed()
+	local getSeed = function()
+		if not music.RNG_SEED or not memory.isMelee() then return os.time(), "the system time" end
+		if melee.isInMenus() then return music.RNG_SEED + 1, "the previous seed" end
+		if melee.isNetplayGame() then return memory.online.rng_offset, "Slippi" end
+		return memory.rng.seed, "Melee"
+	end
+
+	local seed, source = getSeed()
+	math.randomseed(seed)
+	music.RNG_SEED = seed
+	log.debug("[RANDOM] Obtained seed \"0x%X\" from %s", seed, source)
+end
+
 function music.setVolume(vol)
 	if ALLOW_INGAME_VOLUME and memory.isMelee() then
 		-- Melee's slider goes in increments of 5
@@ -221,6 +242,46 @@ function music.setVolume(vol)
 	end
 end
 
+do
+local function getNextTrack(songs)
+	if music.USE_WEIGHTS then
+		local track_id = weightedRandomChoice(songs)
+		return track_id, track_id
+	end
+
+	music.TRACK_ID[music.PLAYLIST_ID] = ((music.TRACK_ID[music.PLAYLIST_ID] or -1) + 1) % #songs
+	local track_id = music.TRACK_ID[music.PLAYLIST_ID] + 1
+
+	-- Only shuffle if we have more than 2 songs..
+	if #songs > 2 then
+		-- Every time we play a song, we randomly place it towards the start of the playlist
+		-- This keeps the playlist in a constantly shuffled order
+		local track = table.remove(songs, track_id)
+		local newpos = math.random(1, track_id)
+		table.insert(songs, newpos, track)
+		return track_id, newpos
+	end
+
+	return track_id, track_id
+end
+
+local function loadTrack(songs, index)
+	local track_info = songs[index]
+
+	local filepath = track_info.FILEPATH
+
+	local success, source = pcall(love.audio.newSource, filepath, "stream")
+	if not (success and source) then
+		local err = ("invalid music file %q"):format(filepath)
+		log.error("[MUSIC] %s", err)
+		notification.error(err)
+		table.remove(songs, index)
+		return nil
+	end
+
+	return { STREAM = source, WAV = track_info.IS_WAV and wav.parse(filepath) or nil }
+end
+
 function music.playNextTrack()
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 	if music.PLAYING ~= nil and not music.FINISHED then return end
@@ -229,30 +290,18 @@ function music.playNextTrack()
 
 	local songs = music.PLAYLIST
 
-	if #music.PLAYLIST > 0 then
-		local track
+	if #songs > 0 then
+		local track_id, track_index = getNextTrack(songs)
 
-		if music.USE_WEIGHTS then
-			track = weightedRandomChoice(songs)
-			if not track or not songs[track] then return end
-			music.PLAYING = songs[track]
-		else
-			music.TRACK_NUMBER[music.PLAYLIST_ID] = ((music.TRACK_NUMBER[music.PLAYLIST_ID] or -1) + 1) % #songs
-			track = music.TRACK_NUMBER[music.PLAYLIST_ID] + 1
-			music.PLAYING = songs[track]
+		if not track_index then return end
 
-			-- Every time we play a song, we randomly place it towards the start of the playlist
-			local newpos = math.random(1, track)
-
-			table.remove(songs, track)
-			table.insert(songs, newpos, music.PLAYING)
-		end
+		music.PLAYING = loadTrack(songs, track_index)
 		
 		if music.PLAYING then
 			if music.PLAYLIST_ID == 0x0 then
-				log.info("[MUSIC] Playing track #%d for menu", track)
+				log.info("[MUSIC] Playing track #%d for menu", track_id)
 			else
-				log.info("[MUSIC] Playing track #%d for stage %q", track, melee.getStageName(music.PLAYLIST_ID))
+				log.info("[MUSIC] Playing track #%d for stage %q", track_id, melee.getStageName(music.PLAYLIST_ID))
 			end
 
 			local loop = PANEL_SETTINGS:GetMusicLoopMode()
@@ -268,6 +317,7 @@ function music.playNextTrack()
 			music.FINISHED = false
 		end
 	end
+end
 end
 
 function music.onStateChange()
@@ -356,9 +406,10 @@ local valid_music_ext = {
 	["flac"] = true
 }
 
-function music.loadStageMusicInDir(stageid, name)
-	local loaded = 0
+function music.loadPlaylistForStage(stageid, name)
+	local found = 0
 	local files = love.filesystem.getDirectoryItems(name)
+	table.sort(files) -- Sort our list of files alphabetically, giving our table a deterministic state
 	for k, file in ipairs(files) do
 		local filepath = ("%s/%s"):format(name, file)
 		local info = love.filesystem.getInfo(filepath)
@@ -367,36 +418,25 @@ function music.loadStageMusicInDir(stageid, name)
 				local ext = string.getFileExtension(file):lower()
 
 				if valid_music_ext[ext] then
-					local success, source = pcall(love.audio.newSource, filepath, "stream")
-					if success and source then
-						loaded = loaded + 1
+					found = found + 1
 
-						-- Insert the newly loaded track into a random position in the playlist
-						local pos = math.random(1, #music.PLAYLIST)
-						local prob = tonumber(string.match(filepath, "[^%._\n]+_(%d+)%.%w+$")) or 1
+					-- Insert the newly found track into a random position in the playlist
+					local pos = math.random(1, #music.PLAYLIST)
+					local prob = tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 1
 
-						if prob > 1 then
-							music.USE_WEIGHTS = true
-						end
-
-						local wavinfo
-						if ext == "wav" then
-							wavinfo = wav.parse(filepath)
-						end
-						table.insert(music.PLAYLIST, pos, {STREAM = source, WEIGHT = prob, WAV = wavinfo})
-					else
-						local err = ("invalid music file \"%s/%s\""):format(name, file)
-						log.error("[MUSIC] %s", err)
-						notification.error(err)
+					if prob > 1 then
+						music.USE_WEIGHTS = true
 					end
+
+					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, WEIGHT = prob, IS_WAV = ext == "wav"})
 				end
 			end
 		else
 			log.warn("[MUSIC] Unable to get file information for file %q", filepath)
 		end
 	end
-	if loaded > 0 then
-		log.info("[MUSIC] Loaded %d songs in %q", loaded, name)
+	if found > 0 then
+		log.info("[MUSIC] Found %d songs in %q", found, name)
 	end
 end
 
@@ -407,22 +447,18 @@ function music.loadForStage(stageid)
 	if not memory.isMelee() or not PANEL_SETTINGS:PlayStageMusic() then return end
 
 	music.PLAYLIST_ID = stageid
-
-	for k,v in pairs(music.PLAYLIST) do
-		v.STREAM:release()
-	end
-
-	music.PLAYING = nil
 	music.PLAYLIST = {}
 	music.USE_WEIGHTS = false
 
-	music.loadStageMusicInDir(stageid, "Melee")
+	music.refreshRNGseed()
+
+	music.loadPlaylistForStage(stageid, "Melee")
 
 	if stageid == 0x0 then
-		music.loadStageMusicInDir(stageid, "Melee/Menu Music")
+		music.loadPlaylistForStage(stageid, "Melee/Menu Music")
 		return
 	elseif melee.isBTTStage(stageid) then
-		music.loadStageMusicInDir(stageid, "Melee/Single Player Music/Break the Targets")
+		music.loadPlaylistForStage(stageid, "Melee/Single Player Music/Break the Targets")
 		return
 	end
 
@@ -435,24 +471,24 @@ function music.loadForStage(stageid)
 	if not name then music.PLAYLIST_ID = nil return end
 
 	if sp then
-		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well
+		music.loadPlaylistForStage(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well
 	elseif aka then
-		music.loadStageMusicInDir(stageid, ("Melee/Akaneia Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Akaneia Stage Music") -- Load everything in the akaneia folder
-		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+		music.loadPlaylistForStage(stageid, ("Melee/Akaneia Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Akaneia Stage Music") -- Load everything in the akaneia folder
+		music.loadPlaylistForStage(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	elseif bm then
-		music.loadStageMusicInDir(stageid, ("Melee/Beyond Melee Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Beyond Melee Stage Music") -- Load everything in the akaneia folder
-		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+		music.loadPlaylistForStage(stageid, ("Melee/Beyond Melee Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Beyond Melee Stage Music") -- Load everything in the akaneia folder
+		music.loadPlaylistForStage(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	else
-		music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+		music.loadPlaylistForStage(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	end
 
 	if series then
-		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
-		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
+		music.loadPlaylistForStage(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
+		music.loadPlaylistForStage(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
 end
 

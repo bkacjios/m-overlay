@@ -41,7 +41,7 @@ function PANEL:DrawGradient()
 	local w, h = self:GetSize()
 
 	-- Get the primary color of our picker
-	local color = HSV(self.m_iHue)
+	local color = color.fromHSV(self.m_iHue)
 
 	graphics.setCanvas(self.m_pCanvas)
 		graphics.clear() -- Clear whatever was drawn previously
@@ -54,7 +54,7 @@ end
 
 function PANEL:UpdateColor()
 	-- Only call this function when updating hue, saturation or value
-	local color = HSV(self.m_iHue, self.m_iSaturation, self.m_iValue)
+	local color = color.fromHSV(self.m_iHue, self.m_iSaturation, self.m_iValue)
 	if self.m_cColor ~= color then
 		self.m_cColor = color
 		self:OnColorChanged(color)
@@ -63,8 +63,8 @@ end
 
 -- Sets the hue of our gradient and redraws it
 -- Updates the saturation & value
-function PANEL:SetColor(c)
-	local hue, saturation, value = ColorToHSV(c)
+function PANEL:SetColor(color)
+	local hue, saturation, value = color:toHSV()
 	if saturation > 0 then
 		-- Only update hue if we aren't achromatic
 		self.m_iHue = hue

@@ -1,7 +1,3 @@
-function unpackcolor(col) -- Unpack a color
-	return col.r, col.g, col.b, col.a
-end
-
 local COLOR = {}
 COLOR.__index = COLOR
 
@@ -46,7 +42,49 @@ function COLOR:distance(col)
 	return r * r + g * g + b * b
 end
 
-function color(r, g, b, a)
+function COLOR:toHSV()
+	local r = self.r / 255
+	local g = self.g / 255
+	local b = self.b / 255
+	local a = self.a / 255
+
+	local hue, saturation, value
+
+	local max, min = math.max(r, g, b), math.min(r, g, b)
+
+	value = max
+
+	local delta = max - min
+
+	if max == 0 then
+		saturation = 0
+	else
+		saturation = delta / max
+	end
+
+	if max == min then
+		hue = 0 -- achromatic
+	else
+		if max == r then
+			hue = (g - b) / delta
+			if g < b then
+				hue = hue + 6
+			end
+		elseif max == g then
+			hue = (b - r) / delta + 2
+		elseif max == b then
+			hue = (r - g) / delta + 4
+		end
+		hue = hue / 6
+	end
+
+	return hue, saturation, value, a
+end
+
+local color = {}
+color = setmetatable(color, color)
+
+function color:__call(r, g, b, a)
 	if type(r) == "string" then
 		local c = {}
 		local i = 1
@@ -60,6 +98,8 @@ function color(r, g, b, a)
 			b = math.min(c[3] or 0, 255),
 			a = math.min(c[4] or 255, 255)
 		}, COLOR)
+	elseif type(r) == "table" then
+		return setmetatable(r, COLOR)
 	else
 		return setmetatable({
 			r = math.min(tonumber(r or 255), 255),
@@ -70,7 +110,12 @@ function color(r, g, b, a)
 	end
 end
 
-function HSV(h, s, v, a)
+function color.unpack(col)
+	return col.r, col.g, col.b, col.a
+end
+
+function color.fromHSV(h, s, v, a)
+	assert(type(h) == "number", "bad argument #1 to 'fromHSV' (expected number)")
 	s = s or 1
 	v = v or 1
 	a = a or 1
@@ -96,7 +141,8 @@ function HSV(h, s, v, a)
 	return color(r * 255, g * 255, b * 255, a * 255)
 end
 
-function HSL(h, s, l, a)
+function color.fromHSL(h, s, l, a)
+	assert(type(h) == "number", "bad argument #1 to 'fromHSL' (expected number)")
 	s = s or 1
 	l = l or 0.5
 	a = a or 1
@@ -122,48 +168,9 @@ function HSL(h, s, l, a)
 	return color((r+m)*255, (g+m)*255, (b+m)*255, a*255)
 end
 
-function ColorToHSV(col)
-	return RGBToHSV(col.r or 255, col.g or 255, col.b or 255, col.a or 255)
-end
-
-function RGBToHSV(red, green, blue, alpha)
-	red, green, blue, alpha = red / 255, green / 255, blue / 255, alpha / 255
-
-	local hue, saturation, value
-
-	local max, min = math.max(red, green, blue), math.min(red, green, blue)
-
-	value = max
-
-	local delta = max - min
-
-	if max == 0 then
-		saturation = 0
-	else
-		saturation = delta / max
-	end
-
-	if max == min then
-		hue = 0 -- achromatic
-	else
-		if max == red then
-			hue = (green - blue) / delta
-			if green < blue then
-				hue = hue + 6
-			end
-		elseif max == green then
-			hue = (blue - red) / delta + 2
-		elseif max == blue then
-			hue = (red - green) / delta + 4
-		end
-		hue = hue / 6
-	end
-
-	return hue, saturation, value, alpha
-end
-
-color_clear = color(0, 0, 0, 0)
 color_blank = color(0, 0, 0, 0)
+color_clear = color(0, 0, 0, 0)
+color_none = color(0, 0, 0, 0)
 color_lightgrey = color(200, 200, 200, 255)
 color_grey = color(150, 150, 150, 255)
 color_darkgrey = color(75, 75, 75, 255)

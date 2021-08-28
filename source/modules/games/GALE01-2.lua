@@ -20,7 +20,9 @@ game.memorymap[0x804807C8] = { type = "bool", name = "menu.teams" }
 
 game.memorymap[0x8066A2DF] = { type = "data", len = 7, name = "romstring.akaneia" }
 game.memorymap[0x8066A2C3] = { type = "data", len = 12, name = "romstring.beyondmelee" }
-   
+
+game.memorymap[0x804D5F90] = { type = "u32", name = "rng.seed" }
+
 local controllers = {
 	[1] = 0x804C1FAC + 0x44 * 0,
 	[2] = 0x804C1FAC + 0x44 * 1,
@@ -156,6 +158,18 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 				[0x117] = { type = "data", len = 241, name = "error_msg" },
 			}
 		},
+	}
+}
+
+-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L10
+local ONLINE_BUF_ADDR = 0x804D6CBC
+
+game.memorymap[ONLINE_BUF_ADDR] = {
+	type = "pointer",
+	name = "online",
+	struct = {
+		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L182-L225
+		[0x07] = { type = "u32", name = "rng_offset" }
 	}
 }
 
