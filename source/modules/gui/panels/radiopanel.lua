@@ -1,6 +1,6 @@
 local PANEL = class.create("RadioPanel", "Panel")
 
-PANEL:ACCESSOR("Option", "m_iOption", 1)
+PANEL:ACCESSOR("Option", "m_iOption")
 
 function PANEL:RadioPanel()
 	self:super() -- Initialize our baseclass
@@ -9,18 +9,23 @@ function PANEL:RadioPanel()
 	self.OPTIONS = {}
 end
 
-function PANEL:AddOption(id, label, toggled)
+function PANEL:AddOption(id, label, active)
 	local option = self:Add("Checkbox")
 	option:SetRadio(true)
 	option:SetText(label)
 	option:DockMargin(1, 1, 1, 1)
 	option:Dock(DOCK_TOP)
 	option:SetToggleable(false)
-	option:SetToggled(toggled)
 	option.OnClick = function()
 		self:SetOption(id)
 	end
+
 	self.OPTIONS[id] = option
+
+	if active then
+		self:SetOption(id)
+	end
+
 	return option
 end
 
@@ -29,9 +34,16 @@ function PANEL:PerformLayout()
 end
 
 function PANEL:SetOption(id)
-	self.m_iOption = id
-	for i, option in pairs(self.OPTIONS) do
-		self.OPTIONS[i]:SetToggled(false)
+	if self.m_iOption ~= id then
+		self.m_iOption = id
+		for i, option in pairs(self.OPTIONS) do
+			self.OPTIONS[i]:SetToggled(false)
+		end
+		self.OPTIONS[id]:SetToggled(true)
+		self:OnSelectOption(id)
 	end
-	self.OPTIONS[id]:SetToggled(true)
+end
+
+function PANEL:OnSelectOption(id)
+	-- OVERRIDE
 end
