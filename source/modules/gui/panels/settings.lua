@@ -120,8 +120,6 @@ function PANEL:Settings()
 		else
 			music.kill()
 		end
-		--self:GetParent().MUSICLOOP:SetEnabled(on)
-		--self:GetParent().VOLUME:SetEnabled(on)
 	end
 
 	self.MELEE.MUSICLOOP = self.MELEE.LEFT:Add("HorizontalSelect")
@@ -268,18 +266,19 @@ This is also the same directory you use to place all your music for Melee.]])
 
 	local ICON = self.ABOUT:Add("Image")
 	ICON:SetImage("textures/icon.png")
-	ICON:SetPos(24, 24)
+	ICON:SetPos(24, 0)
 	ICON:SetSize(96, 96)
+	ICON:CenterVertical()
 
 	local VLABEL = self.ABOUT:Add("Button")
-	VLABEL:SetDrawPanel(false)
+	VLABEL:SetDrawButton(false)
 	VLABEL:SetText("M'Overlay - " .. love.getMOverlayVersion())
 	VLABEL:SetTextAlignment("center")
 	VLABEL:SetSize(176, 18)
 	VLABEL:Dock(DOCK_RIGHT)
 	VLABEL:SetTextColor(color_white)
-	VLABEL:SetShadowDistance(1)
 	VLABEL:SetShadowColor(color_black)
+	VLABEL:SetShadowDistance(1)
 	VLABEL:SetFont("fonts/melee-bold.otf", 12)
 
 	function VLABEL:OnClick()
