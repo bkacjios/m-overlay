@@ -406,7 +406,7 @@ local valid_music_ext = {
 	["flac"] = true
 }
 
-function music.loadStageMusicInDir(stageid, name)
+function music.loadPlaylistForStage(stageid, name)
 	local found = 0
 	local files = love.filesystem.getDirectoryItems(name)
 	table.sort(files) -- Sort our list of files alphabetically, giving our table a deterministic state
@@ -452,13 +452,13 @@ function music.loadForStage(stageid)
 
 	music.refreshRNGseed()
 
-	music.loadStageMusicInDir(stageid, "Melee")
+	music.loadPlaylistForStage(stageid, "Melee")
 
 	if stageid == 0x0 then
-		music.loadStageMusicInDir(stageid, "Melee/Menu Music")
+		music.loadPlaylistForStage(stageid, "Melee/Menu Music")
 		return
 	elseif melee.isBTTStage(stageid) then
-		music.loadStageMusicInDir(stageid, "Melee/Single Player Music/Break the Targets")
+		music.loadPlaylistForStage(stageid, "Melee/Single Player Music/Break the Targets")
 		return
 	end
 
@@ -471,24 +471,24 @@ function music.loadForStage(stageid)
 	if not name then music.PLAYLIST_ID = nil return end
 
 	if sp then
-		music.loadStageMusicInDir(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well
+		music.loadPlaylistForStage(stageid, ("Melee/Single Player Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Single Player Music") -- Load everything that's not in a stage folder as well
 	elseif aka then
-		music.loadStageMusicInDir(stageid, ("Melee/Akaneia Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Akaneia Stage Music") -- Load everything in the akaneia folder
-		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+		music.loadPlaylistForStage(stageid, ("Melee/Akaneia Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Akaneia Stage Music") -- Load everything in the akaneia folder
+		music.loadPlaylistForStage(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	elseif bm then
-		music.loadStageMusicInDir(stageid, ("Melee/Beyond Melee Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Beyond Melee Stage Music") -- Load everything in the akaneia folder
-		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+		music.loadPlaylistForStage(stageid, ("Melee/Beyond Melee Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Beyond Melee Stage Music") -- Load everything in the akaneia folder
+		music.loadPlaylistForStage(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	else
-		music.loadStageMusicInDir(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
-		music.loadStageMusicInDir(stageid, "Melee/Stage Music") -- Load everything in the stage folder
+		music.loadPlaylistForStage(stageid, ("Melee/Stage Music/%s"):format(name)) -- Load everything in the stage specific folder
+		music.loadPlaylistForStage(stageid, "Melee/Stage Music") -- Load everything in the stage folder
 	end
 
 	if series then
-		music.loadStageMusicInDir(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
-		music.loadStageMusicInDir(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
+		music.loadPlaylistForStage(stageid, ("Melee/Series Music/%s"):format(series)) -- Load everything in the series folder
+		music.loadPlaylistForStage(stageid, "Melee/Series Music") -- Load everything that's not in a stage folder as well
 	end
 end
 
