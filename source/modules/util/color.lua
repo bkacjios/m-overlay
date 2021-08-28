@@ -98,6 +98,8 @@ function color:__call(r, g, b, a)
 			b = math.min(c[3] or 0, 255),
 			a = math.min(c[4] or 255, 255)
 		}, COLOR)
+	elseif type(r) == "table" then
+		return setmetatable(r, COLOR)
 	else
 		return setmetatable({
 			r = math.min(tonumber(r or 255), 255),
