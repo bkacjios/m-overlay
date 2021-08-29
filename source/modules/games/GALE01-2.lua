@@ -12,11 +12,21 @@ game.memorymap[0x804D3887] = { type = "u8", name = "volume.music" } -- Scale is 
 game.memorymap[0x804D388F] = { type = "u8", name = "volume.ui" } -- Scale is (0-127)
 
 game.memorymap[0x80479D60] = { type = "u32", name = "frame" }
-game.memorymap[0x8049E753] = { type = "u8", name = "stage", debug = true }
-game.memorymap[0x80479D30] = { type = "u8", name = "menu.major", debug = true }
-game.memorymap[0x80479D33] = { type = "u8", name = "menu.minor", debug = true }
-game.memorymap[0x804D6598] = { type = "u8", name = "menu.player_one_port", debug = true } -- What port is currently acting as "Player 1" in single player games
+game.memorymap[0x8049E753] = { type = "u8", name = "stage" }
+
+game.memorymap[0x80479D30] = { type = "u8", name = "scene.major", debug = true }
+game.memorymap[0x80479D31] = { type = "u8", name = "scene.major2" }
+game.memorymap[0x80479D32] = { type = "u8", name = "scene.major_prev" }
+game.memorymap[0x80479D33] = { type = "u8", name = "scene.minor", debug = true }
+game.memorymap[0x80479D34] = { type = "u8", name = "scene.minor_prev" }
+
+game.memorymap[0x804D6598] = { type = "u8", name = "menu.player_one_port" } -- What port is currently acting as "Player 1" in single player games
 game.memorymap[0x804807C8] = { type = "bool", name = "menu.teams" }
+
+game.memorymap[0x804A04F0] = { type = "u8", name = "menu.id" }
+game.memorymap[0x804A04F1] = { type = "u8", name = "menu.id_prev" }
+game.memorymap[0x804A04F3] = { type = "u8", name = "menu.selection" }
+game.memorymap[0x804A04F4] = { type = "u8", name = "menu.value" }
 
 game.memorymap[0x8066A2DF] = { type = "data", len = 7, name = "romstring.akaneia" }
 game.memorymap[0x8066A2C3] = { type = "data", len = 12, name = "romstring.beyondmelee" }
@@ -127,11 +137,13 @@ local CSSDT_BUF_ADDR = 0x80005614
 game.memorymap[CSSDT_BUF_ADDR] = {
 	type = "pointer",
 	name = "slippi",
+	debug = true,
 	struct = {
 		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L253
 		[0x000] = {
 			type = "pointer",
 			--name = "slippi_ptr",
+			debug = true,
 			struct = {
 				[0x00] = { type = "u8", name = "connection_state" },
 				[0x01] = { type = "u8", name = "local_player.ready" },
@@ -167,6 +179,7 @@ local ONLINE_BUF_ADDR = 0x804D6CBC
 game.memorymap[ONLINE_BUF_ADDR] = {
 	type = "pointer",
 	name = "online",
+	debug = true,
 	struct = {
 		-- https://github.com/project-slippi/slippi-ssbm-asm/blob/9c36ffc5e4787c6caadfb12727c5fcff07d64642/Online/Online.s#L182-L225
 		[0x07] = { type = "u32", name = "rng_offset" }
@@ -241,9 +254,9 @@ game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }
 
 local match_info = 0x8046B6A0
 local match_info_struct = {
-	[0x0005] = { type = "bool", name = "match.playing", debug = true },
-	[0x0008] = { type = "u8", name = "match.result", debug = true },
-	[0x000E] = { type = "bool", name = "match.finished", debug = true },
+	[0x0005] = { type = "bool", name = "match.playing" },
+	[0x0008] = { type = "u8", name = "match.result" },
+	[0x000E] = { type = "bool", name = "match.finished" },
 }
 
 local player_cursors_pointers = {

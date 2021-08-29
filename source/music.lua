@@ -196,8 +196,8 @@ memory.hook("OnGameClosed", "Set state unloaded", function()
 	LOADED = false
 end)
 
-memory.hook("menu.major", "Load Initial Volume", function(menu)
-	if memory.isMelee() and ALLOW_INGAME_VOLUME and not LOADED and menu == MENU_MAIN_MENU then
+memory.hook("scene.major", "Load Initial Volume", function(menu)
+	if memory.isMelee() and ALLOW_INGAME_VOLUME and not LOADED and menu == SCENE_MAIN_MENU then
 		LOADED = true
 		-- Set the games music value to our value
 		music.setVolume(music.getVolume())
@@ -334,7 +334,7 @@ memory.hook("OnGameClosed", "Dolphin - Game closed", function()
 	music.kill()
 end)
 
-memory.hook("menu.major", "Melee - Menu state", function(menu)
+memory.hook("scene.major", "Melee - Menu state", function(menu)
 	if melee.isInMenus() then
 		music.loadForStage(0)
 	elseif not melee.isInGame() then
@@ -342,7 +342,7 @@ memory.hook("menu.major", "Melee - Menu state", function(menu)
 	end
 end)
 
-memory.hook("menu.minor", "Melee - Menu state", function(menu)
+memory.hook("scene.minor", "Melee - Menu state", function(menu)
 	if melee.isInMenus() then
 		music.loadForStage(0)
 	elseif melee.isInGame() then
@@ -362,7 +362,7 @@ end)
 memory.hook("match.playing", "Melee - Classic Mode Master Hand Fix?", function(playing)
 	-- In classic mode, when you kill masterhand the match result is never set, but the "playing" flag is set to false.
 	-- Mute the music right when masterhand is killed.
-	if not playing and (memory.menu.major == MENU_CLASSIC_MODE and memory.stage == 0x25) then
+	if not playing and (memory.scene.major == SCENE_CLASSIC_MODE and memory.stage == 0x25) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
@@ -384,7 +384,7 @@ memory.hook("match.result", "Melee - GAME kill music", function(result)
 	-- The match.finished hook will end the music instead when actually exiting the match using normal LRA+Start.
 	-- If the match actually ends normally, we kill the music early when it announces the end of the game.
 
-	if result ~= MATCH_NO_RESULT and (memory.menu.major ~= MENU_VS_MODE or (memory.menu.major == MENU_VS_MODE and result ~= MATCH_NO_CONTEST)) then
+	if result ~= MATCH_NO_RESULT and (memory.scene.major ~= SCENE_VS_MODE or (memory.scene.major == SCENE_VS_MODE and result ~= MATCH_NO_CONTEST)) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end

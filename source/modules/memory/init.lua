@@ -295,7 +295,7 @@ function ADDRESS:update()
 
 		if self.debug then
 			if self.type == "data" then
-				value = value:match("(.-)%z") -- Strip trailing 0's
+				value = value:match("(.*)%z") or value -- Strip trailing 0's
 				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %q", self.address + self.offset, string.tohex(value), self.name, value)
 			else
 				local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
@@ -304,7 +304,7 @@ function ADDRESS:update()
 		end
 
 		-- Queue up a hook event
-		table.insert(memory.hook_queue, {name = self.name, value = value, debug = self.debug})
+		table.insert(memory.hook_queue, {name = self.name, value = value})
 	end
 end
 
@@ -338,6 +338,7 @@ function memory.newpointer(addr, offset, pointer, name)
 		offset = offset,
 		location = NULL,
 		struct = pstruct,
+		debug = pointer.debug,
 	}, POINTER)
 end
 
@@ -375,10 +376,12 @@ do
 		if self.location ~= ploc then
 			self.location = ploc
 
-			if valid then
-				log.debug("[MEMORY] [0x%08X -> 0x%08X] %s -> 0x%08X", addr, ploc, self.name, ploc)
-			else
-				log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s -> 0x%08X", addr, self.name, ploc)
+			if self.debug then
+				if valid then
+					log.debug("[MEMORY] [0x%08X -> 0x%08X] %s -> 0x%08X", addr, ploc, self.name, ploc)
+				else
+					log.debug("[MEMORY] [0x%08X -> 0x0 (NULL)] %s -> 0x%08X", addr, self.name, ploc)
+				end
 			end
 		end
 
