@@ -2,6 +2,12 @@ local PANEL = class.create("BasePanel")
 
 require("extensions.table")
 
+PANEL:ACCESSOR("Interacted", "m_bInteracted", false)
+PANEL:ACCESSOR("Hovered", "m_bHovered", false)
+PANEL:ACCESSOR("Visible", "m_bVisible", true)
+PANEL:ACCESSOR("Focusable", "m_bFocusable", true)
+PANEL:ACCESSOR("Validated", "m_bValidated", false)
+
 function PANEL:BasePanel()
 	self.m_tChildren = {}
 	self.m_tOrphans = {}
@@ -13,13 +19,9 @@ function PANEL:BasePanel()
 	self.m_iPosY = 0
 	self.m_iWidth = 42
 	self.m_iHeight = 24
-	self.m_bHovered = false
 	self.m_pParent = nil
 	self.m_iZPos = 0
 	self.m_bScissorEnabled = true
-	self.m_bValidated = false
-	self.m_bVisible = true
-	self.m_bFocusable = true
 	self.m_bOrphaned = false
 	self.m_bDeleted = false
 	self.m_iDock = DOCK_NONE
@@ -58,22 +60,6 @@ function PANEL:GetConfig()
 	end
 
 	return config
-end
-
-function PANEL:SetVisible(b)
-	self.m_bVisible = b
-end
-
-function PANEL:IsVisible()
-	return self.m_bVisible
-end
-
-function PANEL:SetFocusable(b)
-	self.m_bFocusable = b
-end
-
-function PANEL:IsFocusable()
-	return self.m_bFocusable
 end
 
 function PANEL:BringToFront()

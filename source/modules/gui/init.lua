@@ -25,7 +25,9 @@ require("extensions.table")
 function gui.setFocusedPanel(panel)
 	gui.m_pFocusedPanel:OnFocusChanged(false)
 	gui.m_pFocusedPanel = panel
+	gui.m_pFocusedPanel:SetInteracted(true)
 	gui.m_pFocusedPanel:OnFocusChanged(true)
+	gui.hideTooltip()
 end
 
 function gui.getFocusedPanel()
@@ -59,7 +61,20 @@ end
 
 function gui.updateHoveredPanel()
 	local hovered = gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
+
+	local hoveredOverNew = false
+
 	if gui.m_pHoveredPanel ~= hovered then
+		hoveredOverNew = true
+		gui.m_pHoveredPanel:OnHoveredChanged(false)
+		gui.m_pHoveredPanel:SetInteracted(false)
+		gui.m_pHoveredPanel = hovered
+		gui.m_pHoveredPanel:OnHoveredChanged(true)
+	end
+
+	local mx, my = love.mouse.getPosition()
+
+	if not gui.m_pHoveredPanel:IsInteracted() and (hoveredOverNew or gui.m_iTooltipMouseX ~= mx or gui.m_iTooltipMouseY ~= my) then
 		local time = love.timer.getTime()
 
 		gui.m_fTooltipTimer = nil
@@ -68,15 +83,12 @@ function gui.updateHoveredPanel()
 			gui.m_fTooltipTimerCarryOver = time + 0.35
 		end
 
-		gui.m_pHoveredPanel:OnHoveredChanged(false)
-		gui.m_pHoveredPanel = hovered
-		gui.m_pHoveredPanel:OnHoveredChanged(true)
-
 		if gui.m_pHoveredPanel:OnQuertyTooltip() then
 			if gui.m_fTooltipTimerCarryOver and gui.m_fTooltipTimerCarryOver >= time then
 				gui.showTooltip()
 			else
 				gui.m_fTooltipTimer = time + 0.75
+				gui.m_iTooltipMouseX, gui.m_iTooltipMouseY = mx, my
 			end
 		end
 	end
@@ -159,7 +171,7 @@ do
 			gui.m_pWorldPanel:Render()
 		end
 
-		local time = love.timer.getTime()
+		--[[local time = love.timer.getTime()
 		if gui.m_fTooltipTimer and gui.m_fTooltipTimer > time then
 			local mx, my = gui.getMousePosition()
 			local start = -90
@@ -177,7 +189,7 @@ do
 			love.graphics.arc("line", mx + 9 + r, my, r, math.rad(start), math.rad(start+progress))
 			love.graphics.setColor(color_white)
 			love.graphics.easyDraw(INFO, mx + 9, my - r, 0, 18, 18)
-		end
+		end]]
 	end
 end
 
@@ -223,16 +235,20 @@ function gui.mouseReleased(x, y, button, istouch, presses)
 	end
 end
 
-function gui.mouseWheeled(x, y)
-	gui.updateHoveredPanel()
-	local panel = gui.m_pHoveredPanel
-	if not panel:OnMouseWheeled(x, y) then
-		local parent = panel:GetParent()
-		while parent do
-			if parent:OnMouseWheeled(x, y) then break end
-			parent = parent:GetParent()
+local function callRecursive(panel, func, ...)
+	if panel then
+		if not panel[func](panel, ...) then
+			callRecursive(panel:GetParent(), func, ...)
+		else
+			gui.hideTooltip()
+			panel:SetInteracted(true)
 		end
 	end
+end
+
+function gui.mouseWheeled(x, y)
+	gui.updateHoveredPanel()
+	callRecursive(gui.m_pHoveredPanel, "OnMouseWheeled", x, y)
 end
 
 function gui.update(dt)
