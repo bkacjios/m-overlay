@@ -8,7 +8,7 @@ function PANEL:Checkbox()
 	-- Initialize our baseclass
 	self:super()
 	self:TextMargin(28, 0, 0, 0)
-	self:SetTextAlignment("left")
+	self:SetTextAlignmentX("left")
 end
 
 function PANEL:SetToggle(b, force)

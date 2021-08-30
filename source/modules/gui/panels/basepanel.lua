@@ -316,9 +316,6 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 	local w,h = 0, 0
 	local padding = self:GetDockPadding()
 
-	w = padding.left + padding.right
-	h = padding.top + padding.bottom
-
 	local lw, lh = 0, 0
 
 	for _,child in ipairs(self.m_tChildren) do
@@ -806,7 +803,7 @@ function PANEL:OnHoveredChanged(b)
 	-- Called when the panels hovered state has either been gained or lost
 end
 
-function PANEL:OnKeyPressed(key, hex)
+function PANEL:OnKeyPressed(key, isrepeat)
 	-- Called when the panel is focused, and a keyboard key has been pressed
 end
 
@@ -814,7 +811,7 @@ function PANEL:OnKeyReleased(key)
 	-- Called when the panel is focused, and a keyboard key has been released
 end
 
-function PANEL:OnHoveredKeyPressed(key, hex)
+function PANEL:OnHoveredKeyPressed(key, isrepeat)
 	-- Called when the panel is hovered over, and a keyboard key has been pressed
 end
 

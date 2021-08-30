@@ -11,7 +11,7 @@ function PANEL:Button()
 
 	self:SetFocusable(true)
 
-	self:SetTextAlignment("center")
+	self:SetTextAlignmentX("center")
 	self:SetText("Button")
 
 	gui.skinHook("Init", "Button", self)
