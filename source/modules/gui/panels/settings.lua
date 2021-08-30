@@ -70,6 +70,12 @@ function PANEL:Settings()
 	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
 	self.SLIPPI:SetBackgroundColor(color(200, 200, 200, 255))
 
+	self.SLIPPI.ICON = self.SLIPPI:Add("Image")
+	self.SLIPPI.ICON:SetImage("textures/slippi.png")
+	self.SLIPPI.ICON:SetPos(4, 0)
+	self.SLIPPI.ICON:SetSize(155, 112)
+	self.SLIPPI.ICON:CenterVertical()
+
 	self.SLIPPI.LEFT = self.SLIPPI:Add("Panel")
 	self.SLIPPI.LEFT:SetWidth(160)
 	self.SLIPPI.LEFT:Dock(DOCK_LEFT)
@@ -98,8 +104,8 @@ function PANEL:Settings()
 	mirror:SetTooltipTitle("REPLAY/MIRROR")
 	mirror:SetTooltipBody([[Allows the overlay to work when viewing replays or mirroring gameplay from a console.]])
 
-	function self.SLIPPI.MODE:OnSelectOption(num)
-		self:GetParent():SetBackgroundColor(num == SLIPPI_OFF and color(100, 100, 100, 255) or color(33, 186, 69, 255))
+	self.SLIPPI.MODE.OnSelectOption = function(this, num)
+		self.SLIPPI.ICON:SetImage(num == SLIPPI_OFF and "textures/slippi.png" or "textures/slippi_filled.png")
 	end
 
 	self.MELEE.MUSIC = self.MELEE.LEFT:Add("Checkbox")

@@ -4,8 +4,13 @@ function PANEL:Image()
 	self:super()
 end
 
+local CACHE = {}
+
 function PANEL:SetImage(file)
-	self.m_pImage = graphics.newImage(file)
+	if not CACHE[file] then
+		CACHE[file] = graphics.newImage(file)
+	end
+	self.m_pImage = CACHE[file]
 end
 
 function PANEL:Paint(w, h)
