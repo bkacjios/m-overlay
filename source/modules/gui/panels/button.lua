@@ -29,25 +29,3 @@ end
 function PANEL:PaintOverlay(w, h)
 	gui.skinHook("PaintOverlay", "Button", self, w, h)
 end
-
-function PANEL:IsPressed()
-	return self.m_bPressed and self:IsHovered()
-end
-
-function PANEL:OnMousePressed(x, y, but)
-	if not self.m_bEnabled or but ~= 1 then return end
-	self.m_bPressed = true
-	return true
-end
-
-function PANEL:OnMouseReleased(x, y, but)
-	if not self.m_bEnabled or but ~= 1 then return end
-	self.m_bPressed = false
-	if self:IsHovered() then
-		self:OnClick()
-	end
-end
-
-function PANEL:OnClick()
-	-- Override
-end
