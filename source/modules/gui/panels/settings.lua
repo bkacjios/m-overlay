@@ -16,6 +16,7 @@ LOOPING_OFF = 1
 LOOPING_MENU = 2
 LOOPING_STAGE = 3
 LOOPING_ALL = 4
+LOOPING_ADAPT = 5
 
 function PANEL:Settings()
 	self:super() -- Initialize our baseclass
@@ -35,7 +36,7 @@ function PANEL:Settings()
 
 	self.MAIN = self:Add("TabbedPanel")
 	self.MAIN:SizeToParent()
-	self.MAIN:SetSize(296 + 32, 176)
+	self.MAIN:SetSize(296 + 32, 196)
 	self.MAIN:Center()
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
@@ -135,6 +136,9 @@ function PANEL:Settings()
 	local all = self.MELEE.MUSICLOOP:AddOption(LOOPING_ALL, "Loop all")
 	all:SetTooltipTitle("LOOP MODE")
 	all:SetTooltipBody([[- Loop all: Will play one random song on a loop when in the menu system or playing on a stage.]])
+	local adapt = self.MELEE.MUSICLOOP:AddOption(LOOPING_ADAPT, "Adaptive")
+	adapt:SetTooltipTitle("LOOP MODE")
+	adapt:SetTooltipBody([[- Adaptive: Will act as a playlist when in menus or an infinite-time match, or loop on a stage with a timer.]])
 
 	function self.MELEE.MUSICLOOP:OnSelectOption(num)
 		music.onLoopChange(num)
