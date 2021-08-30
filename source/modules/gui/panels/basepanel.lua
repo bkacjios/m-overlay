@@ -2,6 +2,12 @@ local PANEL = class.create("BasePanel")
 
 require("extensions.table")
 
+PANEL:ACCESSOR("Interacted", "m_bInteracted", false)
+PANEL:ACCESSOR("Hovered", "m_bHovered", false)
+PANEL:ACCESSOR("Visible", "m_bVisible", true)
+PANEL:ACCESSOR("Focusable", "m_bFocusable", true)
+PANEL:ACCESSOR("Validated", "m_bValidated", false)
+
 function PANEL:BasePanel()
 	self.m_tChildren = {}
 	self.m_tOrphans = {}
@@ -13,13 +19,9 @@ function PANEL:BasePanel()
 	self.m_iPosY = 0
 	self.m_iWidth = 42
 	self.m_iHeight = 24
-	self.m_bHovered = false
 	self.m_pParent = nil
 	self.m_iZPos = 0
 	self.m_bScissorEnabled = true
-	self.m_bValidated = false
-	self.m_bVisible = true
-	self.m_bFocusable = true
 	self.m_bOrphaned = false
 	self.m_bDeleted = false
 	self.m_iDock = DOCK_NONE
@@ -58,22 +60,6 @@ function PANEL:GetConfig()
 	end
 
 	return config
-end
-
-function PANEL:SetVisible(b)
-	self.m_bVisible = b
-end
-
-function PANEL:IsVisible()
-	return self.m_bVisible
-end
-
-function PANEL:SetFocusable(b)
-	self.m_bFocusable = b
-end
-
-function PANEL:IsFocusable()
-	return self.m_bFocusable
 end
 
 function PANEL:BringToFront()
@@ -329,9 +315,6 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 	local all = doWidth == nil and doHeight == nil
 	local w,h = 0, 0
 	local padding = self:GetDockPadding()
-
-	w = padding.left + padding.right
-	h = padding.top + padding.bottom
 
 	local lw, lh = 0, 0
 
@@ -820,7 +803,7 @@ function PANEL:OnHoveredChanged(b)
 	-- Called when the panels hovered state has either been gained or lost
 end
 
-function PANEL:OnKeyPressed(key, hex)
+function PANEL:OnKeyPressed(key, isrepeat)
 	-- Called when the panel is focused, and a keyboard key has been pressed
 end
 
@@ -828,7 +811,7 @@ function PANEL:OnKeyReleased(key)
 	-- Called when the panel is focused, and a keyboard key has been released
 end
 
-function PANEL:OnHoveredKeyPressed(key, hex)
+function PANEL:OnHoveredKeyPressed(key, isrepeat)
 	-- Called when the panel is hovered over, and a keyboard key has been pressed
 end
 

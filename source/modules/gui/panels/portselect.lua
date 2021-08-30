@@ -13,7 +13,7 @@ function PANEL:PortSelect()
 
 	local LABEL = self:Add("Label")
 	LABEL:SetText("Ports")
-	LABEL:SetTextAlignment("center")
+	LABEL:SetTextAlignmentX("center")
 	LABEL:SizeToText()
 	LABEL:Dock(DOCK_TOP)
 	LABEL:SetTextColor(color_white)

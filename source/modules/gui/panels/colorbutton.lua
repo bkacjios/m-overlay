@@ -6,7 +6,6 @@ function PANEL:ColorButton()
 	-- Initialize our baseclass
 	self:super()
 	self:TextMargin(28, 0, 0, 0)
-	self:SetTextAlignment("left")
 end
 
 function PANEL:Paint(w, h)

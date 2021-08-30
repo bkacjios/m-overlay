@@ -10,7 +10,9 @@ PANEL:ACCESSOR("ShadowColor", "m_cShadowColor", color_lightgrey)
 PANEL:ACCESSOR("OutlineThickness", "m_iOutlineThickness")
 PANEL:ACCESSOR("OutlineColor", "m_cOutlineColor", color_black)
 PANEL:ACCESSOR("Wrapped", "m_bWrapped", false)
-PANEL:ACCESSOR("TextAlignment", "m_sAlignment", "left")
+PANEL:ACCESSOR("TextAlignmentX", "m_sAlignmentX", "left")
+PANEL:ACCESSOR("TextAlignmentY", "m_sAlignmentY", "center")
+PANEL:ACCESSOR("TextAlignmentWrap", "m_sTextAlignmentWrap", "left")
 
 function PANEL:Label()
 	self:super() -- Initialize our baseclass
@@ -92,21 +94,26 @@ function PANEL:Paint(w, h)
 
 		if sd and sd > 0 then
 			graphics.setColor(self.m_cShadowColor)
-			graphics.printf(self.m_sText, x + sd, y + sd, self:GetWidth(), self.m_sAlignment)
+			graphics.printf(self.m_sText, x + sd, y + sd, self:GetWidth(), self.m_sTextAlignmentWrap)
 		end
 
 		graphics.setColor(self.m_cTextColor)
-		graphics.printf(self.m_sText, x, y, self:GetWidth(), self.m_sAlignment)
+		graphics.printf(self.m_sText, x, y, self:GetWidth(), self.m_sTextAlignmentWrap)
 	else
 		--print(self.m_pFont:getHeight(), self.m_pFont:getLineHeight(), self.m_pFont:getDescent(), self.m_pFont:getAscent(), self.m_pFont:getBaseline())
 
 		-- Set alignment for non-wrapped text
-		if self.m_sAlignment == "center" then
-			x, y = x + floor(w/2 - (tw/2)), y + floor(h/2 - (th/2))
-		elseif self.m_sAlignment == "right" then
-			x, y = x + w - tw, y + floor(h/2 - (th/2))
-		else -- Assume left
+		if self.m_sAlignmentX == "center" then
+			x = x + floor(w/2 - (tw/2))
+		elseif self.m_sAlignmentX == "right" then
+			x = x + w - tw
+		end
+
+		-- Set alignment for non-wrapped text
+		if self.m_sAlignmentY == "center" then
 			y = y + floor(h/2 - (th/2))
+		elseif self.m_sAlignmentY == "bottom" then
+			y = y + h - th
 		end
 
 		local ol = tonumber(self.m_iOutlineThickness)

@@ -29,7 +29,6 @@ end
 
 function PANEL:AddEntry(name, callback)
 	local entry = self:Add("Button")
-	entry:SetTextAlignment("left")
 	entry:SetText(name)
 	entry:SetBGColor(color_blank)
 	entry:SetBorderColor(color_blank)

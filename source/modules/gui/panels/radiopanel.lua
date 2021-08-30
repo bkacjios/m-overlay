@@ -1,11 +1,20 @@
-local PANEL = class.create("RadioPanel", "Panel")
+local PANEL = class.create("RadioPanel", "Label")
 
 PANEL:ACCESSOR("Option", "m_iOption")
 
 function PANEL:RadioPanel()
 	self:super() -- Initialize our baseclass
-	self:SetBGColor(color_blank)
-	self:SetBorderColor(color_blank)
+	self:SetFocusable(true)
+	self:SetDrawPanel(true)
+
+	self:TextMargin(0, 2, 0, 0)
+	self:SetTextAlignmentX("center")
+	self:SetTextAlignmentY("top")
+	self:SetTextColor(color_white)
+	self:SetShadowDistance(1)
+	self:SetShadowColor(color_black)
+	self:DockPadding(2, 18, 2, 2)
+
 	self.OPTIONS = {}
 end
 
@@ -13,7 +22,6 @@ function PANEL:AddOption(id, label, active)
 	local option = self:Add("Checkbox")
 	option:SetRadio(true)
 	option:SetText(label)
-	option:DockMargin(1, 1, 1, 1)
 	option:Dock(DOCK_TOP)
 	option:SetToggleable(false)
 	option.OnClick = function()

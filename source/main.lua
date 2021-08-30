@@ -135,36 +135,36 @@ function love.load(args, unfilteredArg)
 end
 
 memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)
-	if melee.isSinglePlayerGame() or (memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
+	if melee.isSinglePlayerGame() or (memory.scene.major == SCENE_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
 		overlay.setPort(port+1)
 		log.debug("[AUTOPORT] Player \"one\" port changed %d", overlay.getPort())
 	end
 end)
 
-memory.hook("menu.major", "Slippi Auto Port Switcher", function(major)
-	if melee.isSinglePlayerGame() or (major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
+memory.hook("scene.major", "Slippi Auto Port Switcher", function(major)
+	if melee.isSinglePlayerGame() or (major == SCENE_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay()) then
 		-- Switch back to whatever controller is controlling port 1, when not in a match
 		overlay.setPort(memory.menu.player_one_port+1)
 		log.debug("[AUTOPORT] Forcing port %d in menus", overlay.getPort())
 	end
 end)
 
-memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
-	-- MENU_VS_UNKNOWN = Slippi online
-	if memory.menu.major == MENU_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() then
-		if minor == MENU_VS_UNKNOWN_CSS or menu == MENU_VS_UNKNOWN_SSS then
+memory.hook("scene.minor", "Slippi Auto Port Switcher", function(minor)
+	-- SCENE_VS_UNKNOWN = Slippi online
+	if memory.scene.major == SCENE_VS_UNKNOWN and PANEL_SETTINGS:IsSlippiNetplay() then
+		if minor == SCENE_VS_UNKNOWN_CSS or menu == SCENE_VS_UNKNOWN_SSS then
 			-- Switch back to whatever controller is controlling port 1, when not in a match
 			overlay.setPort(memory.menu.player_one_port+1)
 			log.debug("[AUTOPORT] Forcing port %d in menus", overlay.getPort())
-			if minor == MENU_VS_UNKNOWN_CSS then
+			if minor == SCENE_VS_UNKNOWN_CSS then
 				-- Display the port info only when swiching back to CSS
 				overlay.showPort(1.5) -- Show the port display number for 1.5 seconds
 			end
-		elseif minor == MENU_VS_UNKNOWN_VERSUS then
+		elseif minor == SCENE_VS_UNKNOWN_VERSUS then
 			PORT_DISPLAY_OVERRIDE = (memory.slippi.local_player.index % MAX_PORTS) + 1
 			overlay.showPort(3) -- Show the port display number for 3 seconds
 			log.debug("[AUTOPORT] Switching display icon to use port %d", overlay.getPort())
-		elseif minor == MENU_VS_UNKNOWN_INGAME then
+		elseif minor == SCENE_VS_UNKNOWN_INGAME then
 			-- Switch to the local player index whenever else
 			PORT_DISPLAY_OVERRIDE = nil
 			overlay.setPort(memory.slippi.local_player.index+1)
@@ -174,7 +174,7 @@ memory.hook("menu.minor", "Slippi Auto Port Switcher", function(minor)
 end)
 
 memory.hook("player.*.character", "Show port on character select", function(port, character)
-	if memory.menu.minor == MENU_VS_CSS and port == overlay.getPort() then
+	if memory.scene.minor == SCENE_VS_CSS and port == overlay.getPort() then
 		overlay.showPort(1.5) -- Show the port display number for 1.5 seconds
 	end
 end)

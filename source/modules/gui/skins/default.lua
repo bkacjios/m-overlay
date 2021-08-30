@@ -138,12 +138,15 @@ function SKIN:PaintTab(panel, w, h)
 		color = panel:GetHoveredColor() or self.ButtonHover
 	end
 
-	graphics.setColor(color)
+	graphics.setColor(panel:GetBorderColor() or self.PanelBorder)
 	graphics.roundRect(0, 0, w, h+8, 8)
+
+	graphics.setColor(color)
+	graphics.roundRect(1, 1, w-2, h+6, 8)
 
 	if panel:IsActive() then
 		graphics.setColor(panel:GetActiveColor() or self.TabActiveColor)
-		graphics.roundRect(0, 0, w, h+8, 8)
+		graphics.roundRect(1, 1, w-2, h+6, 8)
 	end
 end
 

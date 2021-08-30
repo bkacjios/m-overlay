@@ -15,7 +15,7 @@ function PANEL:SkinSelect()
 
 	local LABEL = self:Add("Label")
 	LABEL:SetText("Themes")
-	LABEL:SetTextAlignment("center")
+	LABEL:SetTextAlignmentX("center")
 	LABEL:SizeToText()
 	LABEL:Dock(DOCK_TOP)
 	LABEL:SetTextColor(color_white)

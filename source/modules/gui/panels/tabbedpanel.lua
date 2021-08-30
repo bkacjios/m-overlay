@@ -8,7 +8,6 @@ function PANEL:Tab()
 	self:super()
 	self:SetDrawButton(false)
 	self:TextMargin(28, 0, 0, 0)
-	self:SetTextAlignment("left")
 end
 
 function PANEL:OnClick()
@@ -70,8 +69,6 @@ function PANEL:AddTab(name, icon, active)
 	panel:SetVisible(false)
 
 	local tab = self.m_pTabBar:Add("Tab")
-	tab:SetBorderColor(color_clear)
-	tab:SetBackgroundColor(color_clear)
 	tab:DockMargin(0, 0, 0, 0)
 	tab:Dock(DOCK_LEFT)
 	tab:SetText(name)

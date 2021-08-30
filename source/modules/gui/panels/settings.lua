@@ -12,6 +12,12 @@ SLIPPI_OFF = 1
 SLIPPI_NETPLAY = 2
 SLIPPI_REPLAY = 3
 
+LOOPING_OFF = 1
+LOOPING_MENU = 2
+LOOPING_STAGE = 3
+LOOPING_ALL = 4
+LOOPING_ADAPT = 5
+
 function PANEL:Settings()
 	self:super() -- Initialize our baseclass
 
@@ -30,7 +36,7 @@ function PANEL:Settings()
 
 	self.MAIN = self:Add("TabbedPanel")
 	self.MAIN:SizeToParent()
-	self.MAIN:SetSize(296 + 32, 176)
+	self.MAIN:SetSize(296 + 32, 196)
 	self.MAIN:Center()
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
@@ -39,63 +45,48 @@ function PANEL:Settings()
 	self.GENERAL:SetBackgroundColor(color(200, 200, 200, 255))
 
 	self.GENERAL.LEFT = self.GENERAL:Add("Panel")
-	self.GENERAL.LEFT:SetWidth(158)
+	self.GENERAL.LEFT:SetWidth(160)
 	self.GENERAL.LEFT:Dock(DOCK_LEFT)
-	self.GENERAL.LEFT:SetBGColor(color_blank)
-	self.GENERAL.LEFT:SetBorderColor(color_blank)
-	self.GENERAL.LEFT:DockPadding(0, 0, 0, 0)
+	self.GENERAL.LEFT:SetDrawPanel(false)
 
 	self.GENERAL.RIGHT = self.GENERAL:Add("Panel")
-	self.GENERAL.RIGHT:SetWidth(158)
+	self.GENERAL.RIGHT:SetWidth(160)
 	self.GENERAL.RIGHT:Dock(DOCK_RIGHT)
-	self.GENERAL.RIGHT:SetBGColor(color_blank)
-	self.GENERAL.RIGHT:SetBorderColor(color_blank)
-	self.GENERAL.RIGHT:DockPadding(0, 0, 0, 0)
-
-	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
-	self.SLIPPI:SetBackgroundColor(color(33, 186, 69, 255))
+	self.GENERAL.RIGHT:SetDrawPanel(false)
 
 	self.MELEE = self.MAIN:AddTab("Melee", "textures/gui/melee.png")
-	self.MELEE:SetBackgroundColor(color(189, 15, 23, 255))
-
-	self.MELEE.VOLUME = self.MELEE:Add("Slider")
-	self.MELEE.VOLUME:SetValue(50)
-	self.MELEE.VOLUME:Dock(DOCK_BOTTOM)
-	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
-	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
-
-	local VOLLABEL = self.MELEE:Add("Label")
-	VOLLABEL:SetText("Music volume")
-	VOLLABEL:SetTextAlignment("center")
-	VOLLABEL:SizeToText()
-	VOLLABEL:Dock(DOCK_BOTTOM)
-	VOLLABEL:SetTextColor(color_white)
-	VOLLABEL:SetShadowDistance(1)
-	VOLLABEL:SetShadowColor(color_black)
-	VOLLABEL:SetFont("fonts/melee-bold.otf", 12)
-
-	function self.MELEE.VOLUME:OnValueChanged(i)
-		music.setVolume(i)
-		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
-	end
+	self.MELEE:SetBackgroundColor(color(200, 200, 200, 255))
 
 	self.MELEE.LEFT = self.MELEE:Add("Panel")
-	self.MELEE.LEFT:SetWidth(158)
+	self.MELEE.LEFT:SetWidth(160)
 	self.MELEE.LEFT:Dock(DOCK_LEFT)
-	self.MELEE.LEFT:SetBGColor(color_blank)
-	self.MELEE.LEFT:SetBorderColor(color_blank)
-	self.MELEE.LEFT:DockPadding(0, 0, 0, 0)
+	self.MELEE.LEFT:SetDrawPanel(false)
 
 	self.MELEE.RIGHT = self.MELEE:Add("Panel")
-	self.MELEE.RIGHT:SetWidth(158)
+	self.MELEE.RIGHT:SetWidth(160)
 	self.MELEE.RIGHT:Dock(DOCK_RIGHT)
-	self.MELEE.RIGHT:SetBGColor(color_blank)
-	self.MELEE.RIGHT:SetBorderColor(color_blank)
-	self.MELEE.RIGHT:DockPadding(0, 0, 0, 0)
+	self.MELEE.RIGHT:SetDrawPanel(false)
 
-	self.SLIPPI.MODE = self.SLIPPI:Add("RadioPanel")
-	self.SLIPPI.MODE:SetWidth(176)
-	self.SLIPPI.MODE:Center(true, true)
+	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
+	self.SLIPPI:SetBackgroundColor(color(200, 200, 200, 255))
+
+	self.SLIPPI.LEFT = self.SLIPPI:Add("Panel")
+	self.SLIPPI.LEFT:SetWidth(160)
+	self.SLIPPI.LEFT:Dock(DOCK_LEFT)
+	self.SLIPPI.LEFT:SetDrawPanel(false)
+
+	self.SLIPPI.RIGHT = self.SLIPPI:Add("Panel")
+	self.SLIPPI.RIGHT:SetWidth(160)
+	self.SLIPPI.RIGHT:Dock(DOCK_RIGHT)
+	self.SLIPPI.RIGHT:SetDrawPanel(false)
+
+	self.SLIPPI.MODE = self.SLIPPI.RIGHT:Add("RadioPanel")
+	self.SLIPPI.MODE:SetText("Slippi mode")
+	self.SLIPPI.MODE:SetBGColor(color_blank)
+	self.SLIPPI.MODE:DockMargin(0,0,0,0)
+	self.SLIPPI.MODE:Dock(DOCK_FILL)
+	self.SLIPPI.MODE:SetWidth(100)
+	self.SLIPPI.MODE:SetFont("fonts/melee-bold.otf", 12)
 
 	local off = self.SLIPPI.MODE:AddOption(SLIPPI_OFF, "Off: Other games", true)
 	off:SetTooltipTitle("SLIPPI MODE")
@@ -112,9 +103,8 @@ function PANEL:Settings()
 	end
 
 	self.MELEE.MUSIC = self.MELEE.LEFT:Add("Checkbox")
-	self.MELEE.MUSIC:SetText("Music")
+	self.MELEE.MUSIC:SetText("Enable music")
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
-
 	self.MELEE.MUSIC:SetTooltipTitle("MELEE MUSIC")
 	self.MELEE.MUSIC:SetTooltipBody([[Enable/Disable custom music for Melee.]])
 
@@ -126,48 +116,71 @@ function PANEL:Settings()
 		end
 	end
 
-	self.MELEE.MUSICLOOP = self.MELEE.LEFT:Add("HorizontalSelect")
+	self.MELEE.MUSICLOOP = self.MELEE.RIGHT:Add("RadioPanel")
+	self.MELEE.MUSICLOOP:SetText("Loop mode")
+	self.MELEE.MUSICLOOP:SetBGColor(color_blank)
+	self.MELEE.MUSICLOOP:DockMargin(0,0,0,0)
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
+	self.MELEE.MUSICLOOP:SetWidth(100)
+	self.MELEE.MUSICLOOP:SetFont("fonts/melee-bold.otf", 12)
 
-	self.MELEE.MUSICLOOP:SetTooltipTitle("MUSIC LOOP MODE")
-	self.MELEE.MUSICLOOP:SetTooltipBody([[- Playlist mode: When a song ends, it will play another song in a random order.
-
--Loop menu: Will play one random song on a loop when in menus.
-
--Loop stage: Will play one random song on loop when playing on a stage.
-
--Loop all: Will play one random song on a loop when in the menu system or playing on a stage.
-
--Adaptive: Will act as a playlist when in menus or an infinite-time match, or loop on a stage with a timer
-]])
-
-	LOOPING_OFF = self.MELEE.MUSICLOOP:AddOption("Playlist mode", true) -- 1
-	LOOPING_MENU = self.MELEE.MUSICLOOP:AddOption("Loop menu") -- 2
-	LOOPING_STAGE = self.MELEE.MUSICLOOP:AddOption("Loop stage") -- 3
-	LOOPING_ALL = self.MELEE.MUSICLOOP:AddOption("Loop all") -- 4
-	LOOPING_ADAPT = self.MELEE.MUSICLOOP:AddOption("Adaptive") -- 5
+	local off = self.MELEE.MUSICLOOP:AddOption(LOOPING_OFF, "Playlist mode", true)
+	off:SetTooltipTitle("LOOP MODE")
+	off:SetTooltipBody([[- Playlist mode: When a song ends, it will play another song in a random order.]])
+	local menu = self.MELEE.MUSICLOOP:AddOption(LOOPING_MENU, "Loop menu")
+	menu:SetTooltipTitle("LOOP MODE")
+	menu:SetTooltipBody([[- Loop menu: Will play one random song on a loop when in menus.]])
+	local stage = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE, "Loop stage")
+	stage:SetTooltipTitle("LOOP MODE")
+	stage:SetTooltipBody([[- Loop stage: Will play one random song on loop when playing on a stage.]])
+	local all = self.MELEE.MUSICLOOP:AddOption(LOOPING_ALL, "Loop all")
+	all:SetTooltipTitle("LOOP MODE")
+	all:SetTooltipBody([[- Loop all: Will play one random song on a loop when in the menu system or playing on a stage.]])
+	local adapt = self.MELEE.MUSICLOOP:AddOption(LOOPING_ADAPT, "Adaptive")
+	adapt:SetTooltipTitle("LOOP MODE")
+	adapt:SetTooltipBody([[- Adaptive: Will act as a playlist when in menus or an infinite-time match, or loop on a stage with a timer.]])
 
 	function self.MELEE.MUSICLOOP:OnSelectOption(num)
 		music.onLoopChange(num)
 	end
 
-	local SKIPLABEL = self.MELEE.RIGHT:Add("Label")
+	local SKIPLABEL = self.MELEE.LEFT:Add("Label")
 	SKIPLABEL:SetText("Skip track combo")
-	SKIPLABEL:SetTextAlignment("center")
+	SKIPLABEL:SetTextAlignmentX("center")
 	SKIPLABEL:SizeToText()
-	SKIPLABEL:SetHeight(24)
 	SKIPLABEL:Dock(DOCK_TOP)
 	SKIPLABEL:SetTextColor(color_white)
 	SKIPLABEL:SetShadowDistance(1)
 	SKIPLABEL:SetShadowColor(color_black)
 	SKIPLABEL:SetFont("fonts/melee-bold.otf", 12)
 
-	self.MELEE.MUSICSKIP = self.MELEE.RIGHT:Add("GCBind")
+	self.MELEE.MUSICSKIP = self.MELEE.LEFT:Add("GCBind")
 	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
 	self.MELEE.MUSICSKIP:SetTooltipTitle("SKIP TRACK COMBO")
 	self.MELEE.MUSICSKIP:SetTooltipBody([[This button will allow you to a set a button combination on your controller to skip the currently playing music track.
 
 NOTE: This button is only usable when in a supported game.]])
+
+	self.MELEE.VOLUME = self.MELEE.LEFT:Add("Slider")
+	self.MELEE.VOLUME:SetValue(50)
+	self.MELEE.VOLUME:Dock(DOCK_BOTTOM)
+	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
+	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
+
+	local VOLLABEL = self.MELEE.LEFT:Add("Label")
+	VOLLABEL:SetText("Music volume")
+	VOLLABEL:SetTextAlignmentX("center")
+	VOLLABEL:SizeToText()
+	VOLLABEL:Dock(DOCK_BOTTOM)
+	VOLLABEL:SetTextColor(color_white)
+	VOLLABEL:SetShadowDistance(1)
+	VOLLABEL:SetShadowColor(color_black)
+	VOLLABEL:SetFont("fonts/melee-bold.otf", 12)
+
+	function self.MELEE.VOLUME:OnValueChanged(i)
+		music.setVolume(i)
+		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
+	end
 
 	self.PORTTITLE = self.GENERAL.LEFT:Add("Checkbox")
 	self.PORTTITLE:SetText("Port in title")
@@ -220,7 +233,6 @@ NOTE: This button is only usable when in a supported game.]])
 
 	TLABEL:SetText("Transparency")
 	TLABEL:SizeToText()
-	TLABEL:SetHeight(24)
 	TLABEL:Dock(DOCK_BOTTOM)
 	TLABEL:SetTextColor(color_white)
 	TLABEL:SetShadowDistance(1)
@@ -280,7 +292,7 @@ This is also the same directory you use to place all your music for Melee.]])
 	local VLABEL = self.ABOUT:Add("Button")
 	VLABEL:SetDrawButton(false)
 	VLABEL:SetText("M'Overlay - " .. love.getMOverlayVersion())
-	VLABEL:SetTextAlignment("center")
+	VLABEL:SetTextAlignmentX("center")
 	VLABEL:SetSize(176, 18)
 	VLABEL:Dock(DOCK_RIGHT)
 	VLABEL:SetTextColor(color_white)
@@ -364,7 +376,7 @@ function PANEL:PlayStageMusic()
 end
 
 function PANEL:GetMusicLoopMode()
-	return self.MELEE.MUSICLOOP:GetSelection()
+	return self.MELEE.MUSICLOOP:GetOption()
 end
 
 function PANEL:SetVolume(volume)
@@ -489,7 +501,7 @@ function PANEL:LoadSettings()
 	self.TRANSPARENCY:SetValue(settings["transparency"])
 	self.SLIPPI.MODE:SetOption(settings["slippi-mode"])
 	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"], true)
-	self.MELEE.MUSICLOOP:SelectOption(settings["melee-stage-music-loop"] or LOOPING_OFF, true)
+	self.MELEE.MUSICLOOP:SetOption(settings["melee-stage-music-loop"] or LOOPING_OFF)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"])
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
 	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))

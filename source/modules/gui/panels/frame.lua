@@ -11,7 +11,7 @@ function PANEL:Frame()
 	
 	self.m_pTitle = self:Add("Label")
 	self.m_pTitle:SetText("Window")
-	self.m_pTitle:SetTextAlignment("center")
+	self.m_pTitle:SetTextAlignmentX("center")
 	
 	self.m_pClose = self:Add("Button")
 	self.m_pClose:SetText("x")

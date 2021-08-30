@@ -26,6 +26,7 @@ PANEL.BUTTONS = {
 }
 
 PANEL:ACCESSOR("ButtonCombo", "m_bButtonCombo", 0x0042)
+PANEL:ACCESSOR("BindingCombo", "m_bBindingCombo", 0x0)
 PANEL:ACCESSOR("Binding", "m_bBinding", false)
 
 function PANEL:GCBind()
@@ -48,7 +49,7 @@ function PANEL:UpdateButtonLabel()
 	local pressed = {}
 
 	for name, mask in pairs(self.BUTTONS) do
-		if bit.band(self.m_bButtonCombo, mask) == mask then
+		if bit.band(self.m_bBinding and self.m_bBindingCombo or self.m_bButtonCombo, mask) == mask then
 			table.insert(pressed, name)
 		end
 	end
@@ -64,15 +65,26 @@ function PANEL:OnButtonPressed(port, buttons)
 	-- Once they let go of all buttons, end the binding process
 	if buttons == 0x0 then
 		self.m_bBinding = false
+		self.m_bButtonCombo = self.m_bBindingCombo
+		self:UpdateButtonLabel()
 		return
 	end
 
 	-- Only allow addition of buttons (Once the button is pressed it is locked in for this session)
-	if buttons > self.m_bButtonCombo or buttons >= PANEL.BUTTONS.UP then
-		self.m_bButtonCombo = buttons
+	if buttons > self.m_bBindingCombo or buttons >= PANEL.BUTTONS.UP then
+		self.m_bBindingCombo = buttons
 		self:UpdateButtonLabel()
 	end
 end
+
+function PANEL:OnKeyPressed(key, isrepeat)
+	if self.m_bBinding and key == "backspace" or key == "escape" then
+		self.m_bBinding = false
+		self:UpdateButtonLabel()
+		return true
+	end
+end
+
 
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
@@ -89,5 +101,5 @@ end
 function PANEL:OnClick()
 	self:SetText("...")
 	self.m_bBinding = true
-	self.m_bButtonCombo = 0x0
+	self.m_bBindingCombo = 0x0
 end

@@ -10,7 +10,7 @@ function PANEL:HorizontalSelect()
 	self:DockPadding(0,0,0,0)
 	self:SetBGColor(color_blank)
 	self:SetBorderColor(color_blank)
-	self:SetTextAlignment("center")
+	self:SetTextAlignmentX("center")
 
 	self.m_tOptions = {}
 
