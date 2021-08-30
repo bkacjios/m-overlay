@@ -10,7 +10,7 @@ SKIN.FrameBorder = color(100, 100, 100)
 SKIN.FrameControlBar = color(225, 225, 225)
 SKIN.FrameFocusedControlBar = color(0, 162, 232)
 
-SKIN.ButtonBackground = color(215, 215, 215)
+SKIN.ButtonBackground = color(235, 235, 235)
 SKIN.ButtonDisabled = color(100, 100, 100, 100)
 SKIN.ButtonPressed = color(153, 217, 234)
 SKIN.ButtonHover = color(220, 242, 248)
@@ -99,10 +99,10 @@ function SKIN:PaintScrollBarGrip(panel, w, h)
 end
 
 function SKIN:InitButton(panel)
-	panel:SetBGColor(self.ButtonBackground)
+	--[[panel:SetBGColor(self.ButtonBackground)
 	panel:SetBorderColor(self.PanelBorder)
 	panel:SetPressedColor(self.ButtonPressed)
-	panel:SetHoveredColor(self.ButtonHover)
+	panel:SetHoveredColor(self.ButtonHover)]]
 end
 
 function SKIN:InitExitButton(panel)

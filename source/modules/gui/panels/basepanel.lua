@@ -239,6 +239,14 @@ function PANEL:InvalidateParents()
 	self.m_pParent:InvalidateParents()
 end
 
+function PANEL:QueryTooltip()
+	local tooltip = self:OnQueryTooltip()
+	if tooltip then return tooltip end
+	if self.m_pParent then
+		return self.m_pParent:QueryTooltip()
+	end
+end
+
 function PANEL:MarkAsOrphan()
 	self.m_bOrphaned = true
 end
@@ -946,6 +954,6 @@ function PANEL:Think(dt)
 	-- Called every frame
 end
 
-function PANEL:OnQuertyTooltip()
+function PANEL:OnQueryTooltip()
 	-- Called when the user has hovered over the panel for more than a second
 end

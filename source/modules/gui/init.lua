@@ -38,12 +38,12 @@ function gui.getTooltip()
 	return gui.m_pTooltip
 end
 
-function gui.setTooltip(title, body)
+function gui.setTooltip(panel, title, body)
 	gui.m_pTooltip:SetTitle(title)
 	gui.m_pTooltip:SetBody(body)
 	-- Position our tooltip somewhere around the hovered object
 
-	gui.m_pTooltip:SetArrowPos(gui.m_pTooltip:SetPosAround(gui.m_pHoveredPanel))
+	gui.m_pTooltip:SetArrowPos(gui.m_pTooltip:SetPosAround(panel))
 end
 
 function gui.showTooltip()
@@ -83,7 +83,7 @@ function gui.updateHoveredPanel()
 			gui.m_fTooltipTimerCarryOver = time + 0.35
 		end
 
-		if gui.m_pHoveredPanel:OnQuertyTooltip() then
+		if gui.m_pHoveredPanel:QueryTooltip() then
 			if gui.m_fTooltipTimerCarryOver and gui.m_fTooltipTimerCarryOver >= time then
 				gui.showTooltip()
 			else

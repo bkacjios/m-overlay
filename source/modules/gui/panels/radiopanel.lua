@@ -8,12 +8,10 @@ function PANEL:RadioPanel()
 	self:SetDrawPanel(true)
 	self:SetBGColor(color(215, 215, 215))
 
-	self:TextMargin(0, 2, 0, 0)
+	self:TextMargin(0, 4, 0, 0)
 	self:SetTextAlignmentX("center")
 	self:SetTextAlignmentY("top")
-	self:SetTextColor(color_white)
-	self:SetShadowDistance(1)
-	self:SetShadowColor(color_black)
+	self:SetTextColor(color_darkgrey)
 	self:DockPadding(2, 18, 2, 2)
 
 	self.OPTIONS = {}

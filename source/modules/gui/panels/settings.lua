@@ -85,11 +85,9 @@ function PANEL:Settings()
 
 	self.SLIPPI.MODE = self.SLIPPI.RIGHT:Add("RadioPanel")
 	self.SLIPPI.MODE:SetText("Slippi mode")
-	self.SLIPPI.MODE:SetBGColor(color_blank)
 	self.SLIPPI.MODE:DockMargin(0,0,0,0)
 	self.SLIPPI.MODE:Dock(DOCK_FILL)
 	self.SLIPPI.MODE:SetWidth(100)
-	self.SLIPPI.MODE:SetFont("fonts/melee-bold.otf", 12)
 
 	local off = self.SLIPPI.MODE:AddOption(SLIPPI_OFF, "Off: Other games", true)
 	off:SetTooltipTitle("OFF: OTHER GAMES")
@@ -121,11 +119,9 @@ function PANEL:Settings()
 
 	self.MELEE.MUSICLOOP = self.MELEE.RIGHT:Add("RadioPanel")
 	self.MELEE.MUSICLOOP:SetText("Loop mode")
-	self.MELEE.MUSICLOOP:SetBGColor(color_blank)
 	self.MELEE.MUSICLOOP:DockMargin(0,0,0,0)
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 	self.MELEE.MUSICLOOP:SetWidth(100)
-	self.MELEE.MUSICLOOP:SetFont("fonts/melee-bold.otf", 12)
 
 	local off = self.MELEE.MUSICLOOP:AddOption(LOOPING_OFF, "Playlist mode", true)
 	off:SetTooltipTitle("PLAYLIST")
@@ -148,18 +144,9 @@ If the stage has a timer, will loop only a single song.]])
 	function self.MELEE.MUSICLOOP:OnSelectOption(num)
 		music.onLoopChange(num)
 	end
-
-	local SKIPLABEL = self.MELEE.LEFT:Add("Label")
-	SKIPLABEL:SetText("Skip track combo")
-	SKIPLABEL:SetTextAlignmentX("center")
-	SKIPLABEL:SizeToText()
-	SKIPLABEL:Dock(DOCK_TOP)
-	SKIPLABEL:SetTextColor(color_white)
-	SKIPLABEL:SetShadowDistance(1)
-	SKIPLABEL:SetShadowColor(color_black)
-	SKIPLABEL:SetFont("fonts/melee-bold.otf", 12)
-
-	self.MELEE.MUSICSKIP = self.MELEE.LEFT:Add("GCBind")
+	
+	self.MELEE.MUSICSKIP = self.MELEE.LEFT:Add("GCBinderPanel")
+	self.MELEE.MUSICSKIP:SetText("Skip track combo")
 	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
 	self.MELEE.MUSICSKIP:SetTooltipTitle("SKIP TRACK COMBO")
 	self.MELEE.MUSICSKIP:SetTooltipBody([[This button will allow you to a set a button combination on your controller to skip the currently playing music track.

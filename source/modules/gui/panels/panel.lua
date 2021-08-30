@@ -32,9 +32,9 @@ function PANEL:PostPaint(w, h)
 	end
 end
 
-function PANEL:OnQuertyTooltip()
+function PANEL:OnQueryTooltip()
 	if self.m_strTooltipTitle and self.m_strTooltipBody then
-		gui.setTooltip(self.m_strTooltipTitle, self.m_strTooltipBody)
+		gui.setTooltip(self, self.m_strTooltipTitle, self.m_strTooltipBody)
 		return true
 	end
 end

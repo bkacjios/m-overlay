@@ -1,6 +1,6 @@
 local memory = require("memory")
 
-local PANEL = class.create("GCBind", "Button")
+local PANEL = class.create("GCBinder", "Button")
 
 PANEL.BUTTONS = {
 	Z = 0x0010,
@@ -29,7 +29,7 @@ PANEL:ACCESSOR("ButtonCombo", "m_bButtonCombo", 0x0042)
 PANEL:ACCESSOR("BindingCombo", "m_bBindingCombo", 0x0)
 PANEL:ACCESSOR("Binding", "m_bBinding", false)
 
-function PANEL:GCBind()
+function PANEL:GCBinder()
 	self:super() -- Initialize our baseclass
 	
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
@@ -85,7 +85,6 @@ function PANEL:OnKeyPressed(key, isrepeat)
 	end
 end
 
-
 function PANEL:Paint(w, h)
 	self:super("Paint", w, h)
 end
@@ -93,8 +92,10 @@ end
 function PANEL:PaintOverlay(w, h)
 	gui.skinHook("PaintOverlay", "Panel", self, w, h)
 	if self.m_bBinding then
+		graphics.setColor(color_blue)
 		graphics.setLineStyle("rough")
 		graphics.setLineWidth(3)
+		graphics.innerRectangle(0, 0, w, h)
 	end
 end
 
