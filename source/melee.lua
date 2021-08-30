@@ -1111,7 +1111,7 @@ function melee.isTeams()
 	if melee.isSinglePlayerGame() and not melee.isNetplayGame() then
 		return false
 	elseif melee.isInGame() then
-		return memory.match.teams
+		return memory.match.settings.teams
 	else
 		return memory.menu.teams
 	end
@@ -1195,11 +1195,15 @@ function melee.getStageSeries(id)
 end
 
 function melee.matchFinsihed()
-	return memory.match.finished == true
+	return memory.match.info.finished == true
+end
+
+function melee.isPaused()
+	return memory.match.info.paused
 end
 
 function melee.isInGame()
-	if not memory.menu then return false end
+	if not memory.scene then return false end
 
 	if memory.scene.major == SCENE_ALL_STAR_MODE and memory.scene.minor < SCENE_ALL_STAR_CSS then
 		-- Even = playing the match
@@ -1265,7 +1269,7 @@ function melee.isInGame()
 end
 
 function melee.isInMenus()
-	if not memory.menu then return false end
+	if not memory.scene then return false end
 	
 	if memory.scene.major == SCENE_MAIN_MENU then
 		return true

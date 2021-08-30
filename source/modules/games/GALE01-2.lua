@@ -12,7 +12,6 @@ game.memorymap[0x804D3887] = { type = "u8", name = "volume.music" } -- Scale is 
 game.memorymap[0x804D388F] = { type = "u8", name = "volume.ui" } -- Scale is (0-127)
 
 game.memorymap[0x80479D60] = { type = "u32", name = "frame" }
-game.memorymap[0x8049E753] = { type = "u8", name = "stage" }
 
 game.memorymap[0x80479D30] = { type = "u8", name = "scene.major", debug = true }
 game.memorymap[0x80479D31] = { type = "u8", name = "scene.major2" }
@@ -27,9 +26,6 @@ game.memorymap[0x804A04F0] = { type = "u8", name = "menu.id" }
 game.memorymap[0x804A04F1] = { type = "u8", name = "menu.id_prev" }
 game.memorymap[0x804A04F3] = { type = "u8", name = "menu.selection" }
 game.memorymap[0x804A04F4] = { type = "u8", name = "menu.value" }
-
-game.memorymap[0x8066A2DF] = { type = "data", len = 7, name = "romstring.akaneia" }
-game.memorymap[0x8066A2C3] = { type = "data", len = 12, name = "romstring.beyondmelee" }
 
 game.memorymap[0x804D5F90] = { type = "u32", name = "rng.seed" }
 
@@ -233,31 +229,131 @@ for id, address in ipairs(player_card_addresses) do
 	end
 end
 
-local startmatch_addr = 0x80480530
+-- 0x80480530 = Only for VS matches?
+-- 0x80480590 = PlayerDATA
 
-local startmatch_struct = {
-	[0x00] = { type = "u8", name = "match.flags.game" },
-	[0x01] = { type = "u8", name = "match.flags.friendlyfire" },
-	[0x02] = { type = "u8", name = "match.flags.other" },
-	[0x07] = { type = "bool", name = "match.bombrain" },
-	[0x08] = { type = "bool", name = "match.teams" },
-	[0x0B] = { type = "s8", name = "match.settings.item_frequency" },
-	[0x0C] = { type = "s8", name = "match.settings.self_destruct" },
-	[0x0E] = { type = "short", name = "match.stage" },
-}
-
-for offset, info in pairs(startmatch_struct) do
-	game.memorymap[startmatch_addr + offset] = info
-end
-
-game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }
+-- MATCH = 8046b6a0
 
 local match_info = 0x8046B6A0
 local match_info_struct = {
-	[0x0005] = { type = "bool", name = "match.playing" },
-	[0x0008] = { type = "u8", name = "match.result" },
-	[0x000E] = { type = "bool", name = "match.finished" },
+	[0x00] = { type = "u8", name = "match.info.state" },
+	[0x01] = { type = "u8", name = "match.info.pauser" },
+	[0x05] = { type = "bool", name = "match.info.playing", debug = true },
+	[0x08] = { type = "u8", name = "match.info.result", debug = true },
+	[0x0E] = { type = "bool", name = "match.info.finished", debug = true },
+	[0x24] = { type = "u32", name = "match.info.timer.frames" },
+	[0x28] = { type = "u32", name = "match.info.timer.seconds" },
+	[0x2C] = { type = "u16", name = "match.info.timer.millis" },
 }
+
+for offset, info in pairs(match_info_struct) do
+	game.memorymap[match_info + offset] = info
+end
+
+local match_init_addr = 0x24C8
+local match_init_struct = {
+	[0x00] = { type = "u8", name = "match.settings.flags.1" },
+	--[[
+		TIMER = bit.band(flags, 3)
+
+		0: TIMER_FROZEN
+		1: TIMER_HIDDEN
+		2: TIMER_COUNT_DOWN
+		3: TIMER_COUNT_UP
+
+		HUDPOS = bit.band(bit.rshift(flags, 2), 7)
+
+		0: MATCH_HUDPOS_NONE
+		1: MATCH_HUDPOS_ONE
+		2: MATCH_HUDPOS_TWO
+		3: MATCH_HUDPOS_THREE
+		4: MATCH_HUDPOS_FOUR
+		5: MATCH_HUDPOS_SIX
+		6: MATCH_HUDPOS_UNK
+		7: MATCH_HUDPOS_FOURCOMPACT
+
+		MATCH = bit.band(bit.rshift(flags, 5), 7)
+
+		0: MODE_TIME
+		1: MODE_STOCK
+		2: MODE_COIN
+		3: MODE_BONUS
+	]]
+	[0x01] = { type = "u8", name = "match.settings.flags.2" },
+	--[[
+		0x01: UNKNOWN_2
+		0x02: TIMER_UNKOWN
+		0x04: UNKNOWN_3
+		0x08: DISABLE_MUSIC
+		0x10: HIDE_GO
+		0x20: HIDE_READY
+		0x40: UNKNOWN_4
+		0x80: TIMER_UNKNOWN
+	]]
+	[0x02] = { type = "u8", name = "match.settings.flags.3" },
+	--[[
+		0x01: UNKNOWN_5
+		0x02: CREATE_HUD
+		0x04: UNKNOWN_7
+		0x08: DISABLE_PAUSE
+		0x10: SINGLE_BUTTON
+		0x20: UNKNOWN_8
+		0x40: DISABLE_OFFSCREEN_DAMAGE
+		0x80: UNKNOWN_9
+	]]
+	[0x03] = { type = "u8", name = "match.settings.flags.4" },
+	--[[
+		0x01: TIMER_RUN_ON_PAUSE
+		0x02: TIMER_HIDE_ON_PAUSE
+		0x04: SHOW_LRAS
+		0x08: CHECK_LRAS
+		0x10: SHOW_RETRY
+		0x20: CHECK_RETRY
+		0x40: SHOW_ANALOG_STICK
+		0x80: SHOW_SCORE
+	]]
+	[0x04] = { type = "u8", name = "match.settings.flags.5" },
+	--[[
+		0x01 - 0x10: UNKNOWN_10
+		0x20: RUN_STOCK_LOGIC
+		0x40: CHECK_STOCK_STEAL
+		0x80: UNKNOWN_11
+	]]
+	[0x05] = { type = "u8", name = "match.settings.flags.6" },
+	--[[
+		0x01 - 0x10: UNKNOWN_12
+		0x20: NO_HIT
+		0x40: SKIP_UKNONWN_STOCK_CHECK
+		0x80: NO_CHECK_END
+	]]
+	[0x06] = { type = "bool", name = "match.settings.bombrain" },
+	[0x08] = { type = "bool", name = "match.settings.teams" },
+	[0x0B] = { type = "s8", name = "match.settings.item_frequency" },
+	[0x0C] = { type = "s8", name = "match.settings.self_destruct" },
+	[0x0E] = { type = "short", name = "match.settings.stage" },
+	[0x10] = { type = "u32", name = "match.settings.timer.seconds" },
+	[0x14] = { type = "u8", name = "match.settings.timer.millis" },
+
+	[0x28] = { type = "float", name = "match.settings.quake_multiplier" },
+	[0x2C] = { type = "float", name = "match.settings.damage_ratio" },
+	[0x30] = { type = "float", name = "match.settings.match_speed" },
+}
+
+for offset, info in pairs(match_init_struct) do
+	game.memorymap[match_info + match_init_addr + offset] = info
+end
+
+game.memorymap[0x804D640F] = { type = "bool", name = "match.info.paused" }
+
+local stage_info_addr = 0x8049E6C8
+local stage_info_struct = {
+	[0x0088] = { type = "int", name = "stage.id", debug = true },
+	[0x06D4] = { type = "short", name = "stage.targets" },
+	[0x06E0] = { type = "float", name = "stage.homerun_distance" },
+}
+for offset, info in pairs(stage_info_struct) do
+	game.memorymap[stage_info_addr + offset] = info
+end
 
 local player_cursors_pointers = {
 	0x804A0BC0,
@@ -276,10 +372,6 @@ local player_cursor_struct = {
 
 for port, addr in pairs(player_cursors_pointers) do
 	game.memorymap[addr] = { type = "pointer", name = ("player.%i.cursor"):format(port), struct = player_cursor_struct }
-end
-
-for offset, info in pairs(match_info_struct) do
-	game.memorymap[match_info + offset] = info
 end
 
 function game.translateAxis(x, y)

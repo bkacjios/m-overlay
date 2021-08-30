@@ -238,7 +238,7 @@ function music.setVolume(vol)
 	end
 
 	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
-		music.PLAYING.STREAM:setVolume((vol/100) * (memory.match.paused and 0.35 or 1))
+		music.PLAYING.STREAM:setVolume((vol/100) * (melee.isPaused() and 0.35 or 1))
 	end
 end
 
@@ -312,7 +312,7 @@ function music.playNextTrack()
 				music.LOOP = loop == LOOPING_STAGE or loop == LOOPING_ALL
 			end
 
-			music.PLAYING.STREAM:setVolume((PANEL_SETTINGS:GetVolume()/100) * (memory.match.paused and 0.35 or 1))
+			music.PLAYING.STREAM:setVolume((PANEL_SETTINGS:GetVolume()/100) * (melee.isPaused() and 0.35 or 1))
 			music.PLAYING.STREAM:play()
 			music.FINISHED = false
 		end
@@ -322,7 +322,7 @@ end
 
 function music.onStateChange()
 	if melee.isInGame() then
-		music.loadForStage(memory.stage)
+		music.loadForStage(memory.stage.id)
 	elseif melee.isInMenus() then
 		music.loadForStage(0)
 	end
@@ -347,39 +347,39 @@ memory.hook("scene.minor", "Melee - Menu state", function(menu)
 		music.loadForStage(0)
 	elseif melee.isInGame() then
 		MATCH_SOFT_END = false
-		music.loadForStage(memory.stage)
+		music.loadForStage(memory.stage.id)
 	else
 		music.kill()
 	end
 end)
 
-memory.hook("stage", "Melee - Stage loaded", function(stage)
+memory.hook("stage.id", "Melee - Stage loaded", function(stage)
 	if melee.isInGame() then
 		music.loadForStage(stage)
 	end
 end)
 
-memory.hook("match.playing", "Melee - Classic Mode Master Hand Fix?", function(playing)
+memory.hook("match.info.playing", "Melee - Classic Mode Master Hand Fix?", function(playing)
 	-- In classic mode, when you kill masterhand the match result is never set, but the "playing" flag is set to false.
 	-- Mute the music right when masterhand is killed.
-	if not playing and (memory.scene.major == SCENE_CLASSIC_MODE and memory.stage == 0x25) then
+	if not playing and (memory.scene.major == SCENE_CLASSIC_MODE and memory.stage.id == 0x25) then
 		MATCH_SOFT_END = true
 		music.kill()
 	end
 end)
 
-memory.hook("match.paused", "Melee - Pause volume", function(paused)
+memory.hook("match.info.paused", "Melee - Pause volume", function(paused)
 	music.setVolume(music.getVolume())
 end)
 
-memory.hook("match.finished", "Melee - GAME kill music", function(finished)
+memory.hook("match.info.finished", "Melee - GAME kill music", function(finished)
 	if finished then
 		-- The match ended, so no matter what the music should be killed
 		music.kill()
 	end
 end)
 
-memory.hook("match.result", "Melee - GAME kill music", function(result)
+memory.hook("match.info.result", "Melee - GAME kill music", function(result)
 	-- LRAB+Start/Saltyrunback causes a result of MATCH_NO_CONTEST.. We don't want to end the music in this case only.
 	-- The match.finished hook will end the music instead when actually exiting the match using normal LRA+Start.
 	-- If the match actually ends normally, we kill the music early when it announces the end of the game.
