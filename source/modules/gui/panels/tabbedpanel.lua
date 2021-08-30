@@ -7,6 +7,7 @@ PANEL:ACCESSOR("ActiveColor", "m_cActiveColor")
 function PANEL:Tab()
 	self:super()
 	self:SetDrawButton(false)
+	self:SetTextAlignmentX("left")
 	self:TextMargin(28, 0, 0, 0)
 end
 

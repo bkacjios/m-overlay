@@ -30,6 +30,16 @@ function PANEL:BasePanel()
 	self.m_tDockPadding = { left = 2, top = 2, right = 2, bottom = 2 }
 end
 
+function PANEL:InheritMethods(panel)
+	for name, value in pairs(panel) do
+		if type(value) == "function" and not self[name] then
+			self[name] = function(this, ...)
+				return value(panel, ...)
+			end
+		end
+	end
+end
+
 function PANEL:GetClassName()
 	return self.__classname
 end
@@ -216,15 +226,17 @@ function PANEL:Clear()
 end
 
 function PANEL:InvalidateLayout()
+	self:InvalidateParents()
 	self.m_bValidated = false
 	for _,child in ipairs(self.m_tChildren) do
 		child:InvalidateLayout()
 	end
 end
 
-function PANEL:InvalidateParent()
+function PANEL:InvalidateParents()
+	self.m_bValidated = false
 	if not self.m_pParent then return end
-	self.m_pParent:InvalidateLayout()
+	self.m_pParent:InvalidateParents()
 end
 
 function PANEL:MarkAsOrphan()

@@ -42,7 +42,6 @@ function PANEL:Settings()
 	self.MAIN:Center()
 
 	self.GENERAL = self.MAIN:AddTab("General", "textures/gui/cog.png", true)
-	self.GENERAL:SetBackgroundColor(color(200, 200, 200, 255))
 
 	self.GENERAL.LEFT = self.GENERAL:Add("Panel")
 	self.GENERAL.LEFT:SetWidth(160)
@@ -55,7 +54,6 @@ function PANEL:Settings()
 	self.GENERAL.RIGHT:SetDrawPanel(false)
 
 	self.MELEE = self.MAIN:AddTab("Melee", "textures/gui/melee.png")
-	self.MELEE:SetBackgroundColor(color(200, 200, 200, 255))
 
 	self.MELEE.LEFT = self.MELEE:Add("Panel")
 	self.MELEE.LEFT:SetWidth(160)
@@ -68,7 +66,6 @@ function PANEL:Settings()
 	self.MELEE.RIGHT:SetDrawPanel(false)
 
 	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
-	self.SLIPPI:SetBackgroundColor(color(200, 200, 200, 255))
 
 	self.SLIPPI.ICON = self.SLIPPI:Add("Image")
 	self.SLIPPI.ICON:SetImage("textures/slippi.png")
@@ -169,25 +166,16 @@ If the stage has a timer, will loop only a single song.]])
 
 NOTE: This button is only usable when in a supported game.]])
 
-	self.MELEE.VOLUME = self.MELEE.LEFT:Add("Slider")
+	self.MELEE.VOLUME = self.MELEE.LEFT:Add("SliderPanel")
 	self.MELEE.VOLUME:SetValue(50)
 	self.MELEE.VOLUME:Dock(DOCK_BOTTOM)
+	self.MELEE.VOLUME:DockMargin(0,0,0,0)
 	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
 	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
-
-	local VOLLABEL = self.MELEE.LEFT:Add("Label")
-	VOLLABEL:SetText("Music volume")
-	VOLLABEL:SetTextAlignmentX("center")
-	VOLLABEL:SizeToText()
-	VOLLABEL:Dock(DOCK_BOTTOM)
-	VOLLABEL:SetTextColor(color_white)
-	VOLLABEL:SetShadowDistance(1)
-	VOLLABEL:SetShadowColor(color_black)
-	VOLLABEL:SetFont("fonts/melee-bold.otf", 12)
+	self.MELEE.VOLUME:SetTextFormat("Volume: %d%%")
 
 	function self.MELEE.VOLUME:OnValueChanged(i)
 		music.setVolume(i)
-		VOLLABEL:SetText(("Music Volume - %d%%"):format(i))
 	end
 
 	self.PORTTITLE = self.GENERAL.LEFT:Add("Checkbox")
@@ -226,27 +214,14 @@ NOTE: This button is only usable when in a supported game.]])
 
 20XX theme is unsupported]])
 
-	self.TRANSPARENCY = self.GENERAL.RIGHT:Add("Slider")
+	self.TRANSPARENCY = self.GENERAL.RIGHT:Add("SliderPanel")
 	self.TRANSPARENCY:SetValue(100)
 	self.TRANSPARENCY:Dock(DOCK_BOTTOM)
+	self.TRANSPARENCY:DockMargin(0,0,0,0)
 	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
 	self.TRANSPARENCY:SetTooltipTitle("TRANSPARENCY")
 	self.TRANSPARENCY:SetTooltipBody([[Adjust how transparent the overlay is. This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
-
-	local TLABEL = self.GENERAL.RIGHT:Add("Label")
-
-	function self.TRANSPARENCY:OnValueChanged(i)
-		TLABEL:SetText(("Transparency - %d%%"):format(i))
-	end
-
-	TLABEL:SetText("Transparency")
-	TLABEL:SizeToText()
-	TLABEL:Dock(DOCK_BOTTOM)
-	TLABEL:SetTextColor(color_white)
-	TLABEL:SetShadowDistance(1)
-	TLABEL:SetShadowColor(color_black)
-	TLABEL:SetFont("fonts/melee-bold.otf", 12)
-	TLABEL:SetVisible(love.supportsGameCapture())
+	self.TRANSPARENCY:SetTextFormat("Transparency - %d%%")
 
 	self.BACKGROUNDCOLOR = self.GENERAL.RIGHT:Add("ColorButton")
 	self.BACKGROUNDCOLOR:SetText("Background color")

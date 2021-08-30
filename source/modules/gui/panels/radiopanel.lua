@@ -6,6 +6,7 @@ function PANEL:RadioPanel()
 	self:super() -- Initialize our baseclass
 	self:SetFocusable(true)
 	self:SetDrawPanel(true)
+	self:SetBGColor(color(215, 215, 215))
 
 	self:TextMargin(0, 2, 0, 0)
 	self:SetTextAlignmentX("center")

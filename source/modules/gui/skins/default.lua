@@ -2,7 +2,7 @@ local SKIN = gui.newSkin("default")
 
 SKIN.Background = color(255, 255, 255)
 
-SKIN.PanelBackground = color(240, 240, 240)
+SKIN.PanelBackground = color(200, 200, 200)
 SKIN.PanelBorder = color(165, 165, 165)
 SKIN.PanelFocused = color(0, 162, 232)
 
