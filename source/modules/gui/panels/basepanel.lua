@@ -747,24 +747,7 @@ function PANEL:SetPosAround(other, world)
 	local finalX, finalY = 0, 0
 	local midX, midY = 0,0
 
-	if canFitAbove or canFitBelow then -- Prefer above or below
-		midX = ox + ow/2
-
-		-- set our x position centered against our other
-		finalX = midX - pw/2
-
-		-- fit our x position within our world
-		finalX = math.min(sx + sw - pw, math.max(sx, finalX))
-		if canFitAbove then
-			-- set y above
-			finalY = oy - ph
-			midY = oy
-		else
-			-- set y below
-			finalY = oy + oh
-			midY = finalY
-		end
-	elseif canFitLeft or canFitRight then -- Try left or right if above and below fails
+	if canFitLeft or canFitRight then -- Try left or right if above and below fails
 		midY = oy + oh/2
 
 		-- set our y position centered against our other
@@ -780,6 +763,23 @@ function PANEL:SetPosAround(other, world)
 			-- set y right
 			finalX = ox + ow
 			midX = finalX
+		end
+	elseif canFitAbove or canFitBelow then -- Prefer above or below
+		midX = ox + ow/2
+
+		-- set our x position centered against our other
+		finalX = midX - pw/2
+
+		-- fit our x position within our world
+		finalX = math.min(sx + sw - pw, math.max(sx, finalX))
+		if canFitAbove then
+			-- set y above
+			finalY = oy - ph
+			midY = oy
+		else
+			-- set y below
+			finalY = oy + oh
+			midY = finalY
 		end
 	end
 

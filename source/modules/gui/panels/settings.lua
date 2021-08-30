@@ -90,12 +90,15 @@ function PANEL:Settings()
 	self.SLIPPI.MODE:SetWidth(100)
 
 	local off = self.SLIPPI.MODE:AddOption(SLIPPI_OFF, "Off: Other games", true)
+	off:SetTooltipParent(self.SLIPPI.MODE)
 	off:SetTooltipTitle("OFF: OTHER GAMES")
 	off:SetTooltipBody([[Use normal game detection. Supported game list can be found on the github README.]])
 	local netplay = self.SLIPPI.MODE:AddOption(SLIPPI_NETPLAY, "Melee: Rollback")
+	netplay:SetTooltipParent(self.SLIPPI.MODE)
 	netplay:SetTooltipTitle("ROLLBACK")
 	netplay:SetTooltipBody([[Allows the overlay to work properly when playing Slippi online. Will also actively change the overylay to display your current port.]])
 	local mirror = self.SLIPPI.MODE:AddOption(SLIPPI_REPLAY, "Melee: Replay/Mirror")
+	mirror:SetTooltipParent(self.SLIPPI.MODE)
 	mirror:SetTooltipTitle("REPLAY/MIRROR")
 	mirror:SetTooltipBody([[Allows the overlay to work when viewing replays or mirroring gameplay from a console.]])
 
@@ -124,18 +127,23 @@ function PANEL:Settings()
 	self.MELEE.MUSICLOOP:SetWidth(100)
 
 	local off = self.MELEE.MUSICLOOP:AddOption(LOOPING_OFF, "Playlist mode", true)
+	off:SetTooltipParent(self.MELEE.MUSICLOOP)
 	off:SetTooltipTitle("PLAYLIST")
 	off:SetTooltipBody([[When a song ends, it will play another song in a random order. The order in which songs are played are constantly shuffeled.]])
 	local menu = self.MELEE.MUSICLOOP:AddOption(LOOPING_MENU, "Loop menu")
+	menu:SetTooltipParent(self.MELEE.MUSICLOOP)
 	menu:SetTooltipTitle("LOOP MENU")
 	menu:SetTooltipBody([[When entering the menus, it will select and play one song at random. When the song ends or reaches a loop point, it will play again.]])
 	local stage = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE, "Loop stage")
+	stage:SetTooltipParent(self.MELEE.MUSICLOOP)
 	stage:SetTooltipTitle("LOOP STAGE")
 	stage:SetTooltipBody([[When entering a stage, it will select and play one song at random. When the song ends or reaches a loop point, it will play again.]])
 	local all = self.MELEE.MUSICLOOP:AddOption(LOOPING_ALL, "Loop menu & stage")
+	all:SetTooltipParent(self.MELEE.MUSICLOOP)
 	all:SetTooltipTitle("LOOP MENU & STAGE")
 	all:SetTooltipBody([[When entering the menus or entering a stage, it will select and play one song at random. When the song ends or reaches a loop point, it will play again.]])
 	local adapt = self.MELEE.MUSICLOOP:AddOption(LOOPING_ADAPT, "Adaptive")
+	adapt:SetTooltipParent(self.MELEE.MUSICLOOP)
 	adapt:SetTooltipTitle("ADAPTIVE")
 	adapt:SetTooltipBody([[Will use playlist mode while in the menus or while in an infinite-time match. (Such as training mode)
 
@@ -201,19 +209,37 @@ NOTE: This button is only usable when in a supported game.]])
 
 20XX theme is unsupported]])
 
+	self.USE_TRANASPARENCY = self.GENERAL.RIGHT:Add("Checkbox")
+	self.USE_TRANASPARENCY:SetVisible(love.supportsGameCapture())
+	self.USE_TRANASPARENCY:SetToggled(true)
+	self.USE_TRANASPARENCY:SetText("Use transparency")
+	self.USE_TRANASPARENCY:Dock(DOCK_TOP)
+	self.USE_TRANASPARENCY:SetTooltipTitle("USE TRANSPARENCY")
+	self.USE_TRANASPARENCY:SetTooltipBody([[Use a "transparent" background that will allow OBS to capture this panel and mask out the background.
+
+This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
+
+	self.USE_TRANASPARENCY.OnToggle = function(this, on)
+		self.TRANSPARENCY:SetVisible(on)
+		self.BACKGROUNDCOLOR:SetVisible(not on)
+		self.BACKGROUNDCOLOR:InvalidateParents()
+	end
+
 	self.TRANSPARENCY = self.GENERAL.RIGHT:Add("SliderPanel")
+	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
 	self.TRANSPARENCY:SetValue(100)
 	self.TRANSPARENCY:Dock(DOCK_BOTTOM)
 	self.TRANSPARENCY:DockMargin(0,0,0,0)
-	self.TRANSPARENCY:SetVisible(love.supportsGameCapture())
 	self.TRANSPARENCY:SetTooltipTitle("TRANSPARENCY")
-	self.TRANSPARENCY:SetTooltipBody([[Adjust how transparent the overlay is. This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
+	self.TRANSPARENCY:SetTooltipBody([[Adjust how transparent the overlay is.
+
+This will only function correctly if you are capturing this window in OBS with a "Game Capture" element with transparency enabled.]])
 	self.TRANSPARENCY:SetTextFormat("Transparency - %d%%")
 
 	self.BACKGROUNDCOLOR = self.GENERAL.RIGHT:Add("ColorButton")
 	self.BACKGROUNDCOLOR:SetText("Background color")
 	self.BACKGROUNDCOLOR:Dock(DOCK_BOTTOM)
-	self.BACKGROUNDCOLOR:SetVisible(not love.supportsGameCapture())
+	self.BACKGROUNDCOLOR:SetVisible(not self.USE_TRANASPARENCY:IsVisible())
 	self.BACKGROUNDCOLOR:SetColor(color(34, 34, 34))
 	self.BACKGROUNDCOLOR:SetTooltipTitle("BACKGROUND COLOR")
 	self.BACKGROUNDCOLOR:SetTooltipBody([[Pick a color to change the background color of the overlay window.]])
@@ -320,6 +346,7 @@ function PANEL:GetSaveTable()
 		["enable-dpad"] = self:IsDPadEnabled(),
 		["enable-start"] = self:IsStartEnabled(),
 		["debugging"] = self:IsDebugging(),
+		["use-transparency"] = self:UseTransparency(),
 		["transparency"] = self:GetTransparency(),
 		["melee-stage-music"] = self:PlayStageMusic(),
 		["melee-stage-music-loop"] = self:GetMusicLoopMode(),
@@ -327,6 +354,10 @@ function PANEL:GetSaveTable()
 		["melee-music-volume"] = self:GetVolume(),
 		["background-color"] = self:GetBackgroundColor(),
 	}
+end
+
+function PANEL:UseTransparency()
+	return self.USE_TRANASPARENCY:IsToggled()
 end
 
 function PANEL:GetBackgroundColor()
@@ -474,5 +505,8 @@ function PANEL:LoadSettings()
 	self.MELEE.MUSICLOOP:SetOption(settings["melee-stage-music-loop"] or LOOPING_OFF)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"])
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
+	if love.supportsGameCapture() then
+		self.USE_TRANASPARENCY:SetToggle(settings["use-transparency"], true)
+	end
 	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))
 end

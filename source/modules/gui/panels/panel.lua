@@ -6,6 +6,7 @@ PANEL:ACCESSOR("BackgroundColor", "m_cBackgroundColor")
 PANEL:ACCESSOR("BGColor", "m_cBackgroundColor")
 PANEL:ACCESSOR("TooltipTitle", "m_strTooltipTitle")
 PANEL:ACCESSOR("TooltipBody", "m_strTooltipBody")
+PANEL:ACCESSOR("TooltipParent", "m_pTooltipParent")
 PANEL:ACCESSOR("DrawPanel", "m_bDrawPanel", true)
 
 function PANEL:Panel()
@@ -34,7 +35,7 @@ end
 
 function PANEL:OnQueryTooltip()
 	if self.m_strTooltipTitle and self.m_strTooltipBody then
-		gui.setTooltip(self, self.m_strTooltipTitle, self.m_strTooltipBody)
+		gui.setTooltip(self.m_pTooltipParent or self, self.m_strTooltipTitle, self.m_strTooltipBody)
 		return true
 	end
 end

@@ -508,7 +508,7 @@ blur:send("radius", 6)
 blur:send("imageSize", {canvas:getPixelDimensions()})]=]
 
 function love.draw()
-	if not love.supportsGameCapture() then
+	if not love.supportsGameCapture() or not PANEL_SETTINGS:UseTransparency() then
 		graphics.setBackgroundColor(PANEL_SETTINGS:GetBackgroundColor())
 	else
 		-- Default to completely transparent, makes the overlay completely invisible when not in a game!

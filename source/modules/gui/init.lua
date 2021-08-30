@@ -303,7 +303,7 @@ do
 				end
 
 				-- Create a copy of our Lua environment, and merge it with some helper functions
-				local env = table.merge(table.copy(_G), require("gui.env"))
+				local env = table.merge(require("gui.env"), _G)
 
 				-- Update the _G variable
 				env._G = env
