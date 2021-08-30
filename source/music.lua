@@ -161,6 +161,7 @@ local LOOPING_OFF = 1
 local LOOPING_MENU = 2
 local LOOPING_STAGE = 3
 local LOOPING_ALL = 4
+local LOOPING_ADAPT = 5
 
 -- Set to true when the announcer says 'GAME!'
 local MATCH_SOFT_END = false
@@ -304,15 +305,22 @@ function music.playNextTrack()
 				log.info("[MUSIC] Playing track #%d for stage %q", track_id, melee.getStageName(music.PLAYLIST_ID))
 			end
 
-			local loop = PANEL_SETTINGS:GetMusicLoopMode()
+			local shouldLoop = function()
+				local loop = PANEL_SETTINGS:GetMusicLoopMode()
 
-			if music.PLAYLIST_ID == 0 then
-				music.LOOP = loop == LOOPING_MENU or loop == LOOPING_ALL
-			else
-				music.LOOP = loop == LOOPING_STAGE or loop == LOOPING_ALL
+				if music.PLAYLIST_ID == 0 then
+					return loop == LOOPING_MENU or loop == LOOPING_ALL
+				end
+				
+				if loop == LOOPING_STAGE or loop == LOOPING_ALL then return true end
+
+				if loop == LOOPING_ADAPT and melee.isCountdownTimer() then return true end
+
+				return false
 			end
 
 			music.PLAYING.STREAM:setVolume((PANEL_SETTINGS:GetVolume()/100) * (melee.isPaused() and 0.35 or 1))
+			music.LOOP = shouldLoop()
 			music.PLAYING.STREAM:play()
 			music.FINISHED = false
 		end
