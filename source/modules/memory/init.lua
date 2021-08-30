@@ -31,7 +31,6 @@ local memory = {
 	hooked = false,
 	initialized = false,
 	ingame = false,
-	supportedgame = false,
 
 	map = {},
 	values = {},
@@ -410,10 +409,6 @@ function memory.hasPermissions()
 	return memory.permissions
 end
 
-function memory.isSupportedGame()
-	return memory.supportedgame
-end
-
 function memory.isInGame()
 	local gid = memory.gameid
 	local vcid = memory.vcid
@@ -424,8 +419,10 @@ function memory.isMelee()
 	local gid = memory.gameid
 	local version = memory.version
 
+	if not gid or not version then return false end
+
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
-	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
+	if not memory.isSupportedGame(gid, version) and gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
 		gid = "GALE01"
 		version = 0x02
 	end
@@ -433,10 +430,7 @@ function memory.isMelee()
 	-- See if this GameID is a clone of another
 	local clone = memory.clones[gid] and memory.clones[gid][version] or nil
 
-	if gid == "GTME01" then
-		version = 0x02
-		gid = "GALE01"
-	elseif clone then
+	if clone then
 		version = clone.version
 		gid = clone.id
 	end
@@ -446,18 +440,20 @@ end
 
 local timer = love.timer.getTime()
 
+function memory.isSupportedGame(gid, version)
+	return love.filesystem.getInfo(string.format("modules/games/%s-%d.lua", gid, version)) ~= nil
+end
+
 function memory.loadGameScript(path)
 	-- Try to load the game table
 	local status, game = xpcall(require, debug.traceback, ("games.%s"):format(path))
 
 	if status then
-		memory.supportedgame = true
 		memory.game = game
 		log.info("[DOLPHIN] Loaded game config: %s", path)
 		notification.info(("Game %q detected"):format(path))
 		memory.init(game.memorymap)
 	else
-		memory.supportedgame = false
 		notification.error(("Unsupported game %s"):format(path))
 		notification.error("Playing slippi netplay? Press 'escape' and enable Rollback/Netplay mode")
 		log.error("[DOLPHIN] %s", game) -- game variable is an error string
@@ -467,11 +463,10 @@ end
 function memory.findGame()
 	local gid = memory.readGameID()
 	local version = memory.readGameVersion()
-
 	local vcid = memory.readVirtualConsoleID()
 
 	-- Force the GAMEID and VERSION to be Melee 1.02, since Fizzi seems to be using the gameid address space for something..
-	if gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
+	if not memory.isSupportedGame(gid, version) and gid ~= GAME_NONE and PANEL_SETTINGS:IsSlippiNetplay() then
 		gid = "GALE01"
 		version = 0x02
 	end
@@ -505,10 +500,7 @@ function memory.findGame()
 		-- See if this GameID is a clone of another
 		local clone = memory.clones[gid] and memory.clones[gid][version] or nil
 
-		if gid == "GTME01" then
-			version = 0x02
-			gid = "GALE01"
-		elseif clone then
+		if clone then
 			version = clone.version
 			gid = clone.id
 		end
