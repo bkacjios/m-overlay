@@ -1301,7 +1301,7 @@ function melee.isInMenus()
 end
 
 function melee.isCountdownTimer()
-	return melee.isInGame() and bit.band(match.settings.flags[1], 0x3) == 0x2
+	return melee.isInGame() and bit.band(memory.match.settings.flags[1], 0x3) == 0x2
 end
 
 return melee
