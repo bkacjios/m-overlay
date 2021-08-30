@@ -237,6 +237,9 @@ for offset, info in pairs(startmatch_struct) do
 	game.memorymap[startmatch_addr + offset] = info
 end
 
+-- https://github.com/akaneia/m-ex/blob/42362a6b63e8d3d7c5477e7647125ee27adb1a17/MexTK/include/match.h#L45-L154
+game.memorymap[0x8046DB68] = { type = "u8", name = "match.flags.timer"}
+
 game.memorymap[0x804D640F] = { type = "bool", name = "match.paused" }
 
 local match_info = 0x8046B6A0

@@ -1,5 +1,6 @@
 local memory = require("memory")
 local color = require("util.color")
+local bit = require("bit")
 
 MATCH_NO_RESULT = 0x00
 MATCH_GAME = 0x02
@@ -1240,6 +1241,10 @@ function melee.isInMenus()
 		return memory.menu.minor == MENU_HOME_RUN_CONTEST_CSS
 	end
 	return false
+end
+
+function melee.isCountdownTimer()
+	return melee.isInGame() and bit.band(memory.match.flags.timer, 0x3) == 0x2
 end
 
 return melee

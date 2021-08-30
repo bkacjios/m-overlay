@@ -137,12 +137,15 @@ function PANEL:Settings()
 -Loop stage: Will play one random song on loop when playing on a stage.
 
 -Loop all: Will play one random song on a loop when in the menu system or playing on a stage.
+
+-Adaptive: Will act as a playlist when in menus or an infinite-time match, or loop on a stage with a timer
 ]])
 
 	LOOPING_OFF = self.MELEE.MUSICLOOP:AddOption("Playlist mode", true) -- 1
 	LOOPING_MENU = self.MELEE.MUSICLOOP:AddOption("Loop menu") -- 2
 	LOOPING_STAGE = self.MELEE.MUSICLOOP:AddOption("Loop stage") -- 3
 	LOOPING_ALL = self.MELEE.MUSICLOOP:AddOption("Loop all") -- 4
+	LOOPING_ADAPT = self.MELEE.MUSICLOOP:AddOption("Adaptive") -- 5
 
 	function self.MELEE.MUSICLOOP:OnSelectOption(num)
 		music.onLoopChange(num)
