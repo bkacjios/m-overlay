@@ -6,7 +6,6 @@ PANEL:ACCESSOR("ActiveColor", "m_cActiveColor")
 
 function PANEL:Tab()
 	self:super()
-	self:SetDrawButton(false)
 	self:SetTextAlignmentX("left")
 	self:TextMargin(28, 0, 0, 0)
 end
@@ -22,14 +21,16 @@ function PANEL:SetImage(file)
 	self.m_pImage = graphics.newImage(file)
 end
 
-function PANEL:Paint(w, h)
+function PANEL:PrePaint(w, h)
 	gui.skinHook("Paint", "Tab", self, w, h)
+end
 
-	self:super("Paint", w, h)
-
-	if not self.m_pImage then return end
-	graphics.setColor(color_white)
-	graphics.easyDraw(self.m_pImage, 4, 4, 0, 16, 16)
+function PANEL:Paint(w, h)
+	if self.m_pImage then
+		graphics.setColor(color_white)
+		graphics.easyDraw(self.m_pImage, 4, 4, 0, 16, 16)
+	end
+	self:PaintLabel(w, h)
 end
 
 function PANEL:PaintOverlay(w, h)

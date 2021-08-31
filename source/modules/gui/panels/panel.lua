@@ -14,10 +14,14 @@ function PANEL:Panel()
 	gui.skinHook("Init", "Panel", self)
 end
 
-function PANEL:Paint(w, h)
+function PANEL:PrePaint(w, h)
 	if self.m_bDrawPanel then
 		gui.skinHook("Paint", "Panel", self, w, h)
 	end
+end
+
+function PANEL:Paint(w, h)
+	-- Override
 end
 
 function PANEL:PaintOverlay(w, h)

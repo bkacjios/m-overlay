@@ -120,7 +120,7 @@ WARNING: This tricks M'Overlay into thinking Melee is being played when an inval
 		self.SLIPPI.ICON:SetImage(num == SLIPPI_OFF and "textures/slippi.png" or "textures/slippi_filled.png")
 	end
 
-	self.MELEE.MUSIC = self.MELEE.LEFT:Add("Checkbox")
+	self.MELEE.MUSIC = self.MELEE.LEFT:Add("CheckBox")
 	self.MELEE.MUSIC:SetText("Enable music")
 	self.MELEE.MUSIC:Dock(DOCK_TOP)
 	self.MELEE.MUSIC:SetTooltipTitle("MELEE MUSIC")
@@ -187,13 +187,13 @@ NOTE: This button is only usable when in a supported game.]])
 		music.setVolume(i)
 	end
 
-	self.PORTTITLE = self.GENERAL.LEFT:Add("Checkbox")
+	self.PORTTITLE = self.GENERAL.LEFT:Add("CheckBox")
 	self.PORTTITLE:SetText("Port in title")
 	self.PORTTITLE:Dock(DOCK_TOP)
 	self.PORTTITLE:SetTooltipTitle("PORT IN TITLE")
 	self.PORTTITLE:SetTooltipBody([[Show the current port number being displayed in the application title.]])
 
-	self.ALWAYSPORT = self.GENERAL.LEFT:Add("Checkbox")
+	self.ALWAYSPORT = self.GENERAL.LEFT:Add("CheckBox")
 	self.ALWAYSPORT:SetText("Always show port")
 	self.ALWAYSPORT:Dock(DOCK_TOP)
 	self.ALWAYSPORT:SetTooltipTitle("ALWAYS SHOW PORT")
@@ -203,19 +203,19 @@ NOTE: This button is only usable when in a supported game.]])
 		love.updateTitle(love.getTitleNoPort())
 	end
 
-	self.DPAD = self.GENERAL.RIGHT:Add("Checkbox")
+	self.DPAD = self.GENERAL.RIGHT:Add("CheckBox")
 	self.DPAD:SetText("Show D-Pad")
 	self.DPAD:Dock(DOCK_TOP)
 	self.DPAD:SetTooltipTitle("DIRECTIONAL-PAD")
 	self.DPAD:SetTooltipBody([[Enable/disable the directional pad on the overlay.]])
 
-	self.START = self.GENERAL.RIGHT:Add("Checkbox")
+	self.START = self.GENERAL.RIGHT:Add("CheckBox")
 	self.START:SetText("Show Start")
 	self.START:Dock(DOCK_TOP)
 	self.START:SetTooltipTitle("START BUTTON")
 	self.START:SetTooltipBody([[Enable/disable the start button on the overlay.]])
 
-	self.HIGH_CONTRAST = self.GENERAL.RIGHT:Add("Checkbox")
+	self.HIGH_CONTRAST = self.GENERAL.RIGHT:Add("CheckBox")
 	self.HIGH_CONTRAST:SetText("High-contrast")
 	self.HIGH_CONTRAST:Dock(DOCK_TOP)
 	self.HIGH_CONTRAST:SetTooltipTitle("HIGH-CONTRAST")
@@ -223,7 +223,7 @@ NOTE: This button is only usable when in a supported game.]])
 
 20XX theme is unsupported]])
 
-	self.USE_TRANASPARENCY = self.GENERAL.RIGHT:Add("Checkbox")
+	self.USE_TRANASPARENCY = self.GENERAL.RIGHT:Add("CheckBox")
 	self.USE_TRANASPARENCY:SetVisible(love.supportsGameCapture())
 	self.USE_TRANASPARENCY:SetToggled(true)
 	self.USE_TRANASPARENCY:SetText("Use transparency")
@@ -278,7 +278,7 @@ This is also the same directory you use to place all your music for Melee.]])
 	end
 
 	if love.supportsAttachableConsole() then
-		self.DEBUG = self.GENERAL.LEFT:Add("Checkbox")
+		self.DEBUG = self.GENERAL.LEFT:Add("CheckBox")
 		self.DEBUG:SetText("Debug console")
 		self.DEBUG:Dock(DOCK_BOTTOM)
 		self.DEBUG:SetTooltipTitle("DEBUG CONSOLE")
@@ -565,22 +565,22 @@ function PANEL:LoadSettings()
 	overlay.setPort(settings["port"])
 	overlay.setSkin(settings["skin"])
 
-	self.PORTTITLE:SetToggle(settings["port-in-title"], true)
-	self.ALWAYSPORT:SetToggle(settings["always-show-port"], true)
-	self.HIGH_CONTRAST:SetToggle(settings["high-contrast"], true)
-	self.DPAD:SetToggle(settings["enable-dpad"], true)
-	self.START:SetToggle(settings["enable-start"], true)
+	self.PORTTITLE:SetToggled(settings["port-in-title"], true)
+	self.ALWAYSPORT:SetToggled(settings["always-show-port"], true)
+	self.HIGH_CONTRAST:SetToggled(settings["high-contrast"], true)
+	self.DPAD:SetToggled(settings["enable-dpad"], true)
+	self.START:SetToggled(settings["enable-start"], true)
 	if self.DEBUG then
-		self.DEBUG:SetToggle(love.hasConsole() or settings["debugging"] or false)
+		self.DEBUG:SetToggled(love.hasConsole() or settings["debugging"] or false)
 	end
 	self.TRANSPARENCY:SetValue(settings["transparency"])
 	self.SLIPPI.MODE:SetOption(settings["slippi-mode"])
-	self.MELEE.MUSIC:SetToggle(settings["melee-stage-music"], true)
+	self.MELEE.MUSIC:SetToggled(settings["melee-stage-music"], true)
 	self.MELEE.MUSICLOOP:SetOption(settings["melee-stage-music-loop"] or LOOPING_OFF)
 	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"])
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
 	if love.supportsGameCapture() then
-		self.USE_TRANASPARENCY:SetToggle(settings["use-transparency"], true)
+		self.USE_TRANASPARENCY:SetToggled(settings["use-transparency"], true)
 	end
 	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))
 end

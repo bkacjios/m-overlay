@@ -13,6 +13,7 @@ PANEL:ACCESSOR("Wrapped", "m_bWrapped", false)
 PANEL:ACCESSOR("TextAlignmentX", "m_sAlignmentX", "left")
 PANEL:ACCESSOR("TextAlignmentY", "m_sAlignmentY", "center")
 PANEL:ACCESSOR("TextAlignmentWrap", "m_sTextAlignmentWrap", "left")
+PANEL:ACCESSOR("DrawLabel", "m_bDrawLabel", true)
 
 function PANEL:Label()
 	self:super() -- Initialize our baseclass
@@ -76,8 +77,8 @@ end
 
 local floor = math.floor
 
-function PANEL:Paint(w, h)
-	self:super("Paint", w, h)
+function PANEL:PaintLabel(w, h)
+	if not self.m_bDrawLabel then return end
 
 	graphics.setColor(self.m_cTextColor)
 	graphics.setFont(self.m_pFont)
@@ -133,6 +134,10 @@ function PANEL:Paint(w, h)
 		graphics.setColor(self.m_cTextColor)
 		graphics.print(self.m_sText, x, y)
 	end
+end
+
+function PANEL:Paint(w, h)
+	self:PaintLabel(w, h)
 end
 
 function PANEL:SizeToText()

@@ -28,13 +28,11 @@ function PANEL:PortSelect()
 	self.PORT_BUTTONS = {}
 
 	for i=1,4 do
-		local but = self:Add("Checkbox")
+		local but = self:Add("RadioBox")
 		but:SetText("Port "..i)
 		but:DockMargin(1, 1, 1, 1)
 		but:Dock(DOCK_TOP)
-		but:SetToggleable(false)
 		but:SetToggled(false)
-		but:SetRadio(true)
 
 		but.OnClick = function()
 			overlay.showPort(1)

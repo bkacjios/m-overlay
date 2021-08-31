@@ -18,11 +18,9 @@ function PANEL:RadioPanel()
 end
 
 function PANEL:AddOption(id, label, active)
-	local option = self:Add("Checkbox")
-	option:SetRadio(true)
+	local option = self:Add("RadioBox")
 	option:SetText(label)
 	option:Dock(DOCK_TOP)
-	option:SetToggleable(false)
 	option.OnClick = function()
 		self:SetOption(id)
 	end
@@ -44,9 +42,8 @@ function PANEL:SetOption(id)
 	if self.m_iOption ~= id then
 		self.m_iOption = id
 		for i, option in pairs(self.OPTIONS) do
-			self.OPTIONS[i]:SetToggled(false)
+			option:SetToggled(i == id)
 		end
-		self.OPTIONS[id]:SetToggled(true)
 		self:OnSelectOption(id)
 	end
 end

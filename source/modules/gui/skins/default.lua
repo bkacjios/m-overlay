@@ -190,7 +190,7 @@ function SKIN:PaintTextEntry(panel, w, h)
 	end
 end
 
-function SKIN:PaintCheckbox(panel, w, h)
+function SKIN:PaintCheckBox(panel, w, h)
 	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
 	graphics.rectangle("fill", 4, 4, h-8, h-8)
 
@@ -206,7 +206,7 @@ function SKIN:PaintCheckbox(panel, w, h)
 	graphics.rectangle("line", 4, 4, h-8, h-8)
 end
 
-function SKIN:PaintRadio(panel, w, h)
+function SKIN:PaintRadioBox(panel, w, h)
 	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
 	graphics.circle("fill", 12, 12, h/2-6, 32)
 

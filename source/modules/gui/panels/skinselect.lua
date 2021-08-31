@@ -30,13 +30,11 @@ end
 function PANEL:UpdateSkins()
 	local numskins = 0
 	for skin, tbl in pairs(overlay.getSkins()) do
-		local SKIN = self:Add("Checkbox")
+		local SKIN = self:Add("RadioBox")
 		SKIN:SetText(skin)
 		SKIN:DockMargin(1, 1, 1, 1)
 		SKIN:Dock(DOCK_TOP)
-		SKIN:SetToggleable(false)
 		SKIN:SetToggled(false)
-		SKIN:SetRadio(true)
 
 		SKIN.OnClick = function()
 			self:ChangeSkin(skin)

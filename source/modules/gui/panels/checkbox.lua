@@ -1,17 +1,15 @@
-local PANEL = class.create("Checkbox", "Button")
+local PANEL = class.create("CheckBox", "Button")
 
-PANEL:ACCESSOR("Radio", "m_bRadio", false)
-PANEL:ACCESSOR("Toggleable", "m_bToggleable", true)
 PANEL:ACCESSOR("Toggled", "m_bToggled", false)
 
-function PANEL:Checkbox()
+function PANEL:CheckBox()
 	-- Initialize our baseclass
 	self:super()
 	self:TextMargin(28, 0, 0, 0)
 	self:SetTextAlignmentX("left")
 end
 
-function PANEL:SetToggle(b, force)
+function PANEL:SetToggled(b, force)
 	if self.m_bToggled ~= b or force then
 		self.m_bToggled = b
 		self:OnToggle(b)
@@ -19,19 +17,12 @@ function PANEL:SetToggle(b, force)
 end
 
 function PANEL:Paint(w, h)
-	self:super("Paint", w, h)
-	if self.m_bRadio then
-		gui.skinHook("Paint", "Radio", self, w, h)
-	else
-		gui.skinHook("Paint", "Checkbox", self, w, h)
-	end
+	gui.skinHook("Paint", "CheckBox", self, w, h)
+	self:PaintLabel(w, h)
 end
 
 function PANEL:OnClick()
-	if self.m_bToggleable then
-		self:SetToggled(not self:GetToggled())
-		self:OnToggle(self:GetToggled())
-	end
+	self:SetToggled(not self:GetToggled())
 end
 
 function PANEL:OnToggle(on)
