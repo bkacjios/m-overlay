@@ -22,13 +22,13 @@ function PANEL:AddOption(id, label, active)
 	option:SetText(label)
 	option:Dock(DOCK_TOP)
 	option.OnClick = function()
-		self:SetOption(id)
+		self:SetValue(id)
 	end
 
 	self.OPTIONS[id] = option
 
 	if active then
-		self:SetOption(id)
+		self:SetValue(id)
 	end
 
 	return option
@@ -38,7 +38,7 @@ function PANEL:PerformLayout()
 	self:SizeToChildren(false, true)
 end
 
-function PANEL:SetOption(id)
+function PANEL:SetValue(id)
 	if self.m_iOption ~= id then
 		self.m_iOption = id
 		for i, option in pairs(self.OPTIONS) do

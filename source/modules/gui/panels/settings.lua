@@ -12,11 +12,10 @@ SLIPPI_OFF = 1
 SLIPPI_NETPLAY = 2
 SLIPPI_REPLAY = 3
 
-LOOPING_OFF = 1
-LOOPING_MENU = 2
-LOOPING_STAGE = 3
-LOOPING_ALL = 4
-LOOPING_ADAPT = 5
+LOOPING_NONE = 0
+LOOPING_MENU = 1
+LOOPING_STAGE_TIMED = 2
+LOOPING_STAGE_ENDLESS = 4
 
 function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
 	local px, py = self.MAIN:GetPos()
@@ -134,37 +133,32 @@ WARNING: This tricks M'Overlay into thinking Melee is being played when an inval
 		end
 	end
 
-	self.MELEE.MUSICLOOP = self.MELEE.RIGHT:Add("RadioPanel")
+	self.MELEE.MUSICLOOP = self.MELEE.RIGHT:Add("CheckPanel")
 	self.MELEE.MUSICLOOP:SetText("Loop mode")
 	self.MELEE.MUSICLOOP:DockMargin(0,0,0,0)
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 	self.MELEE.MUSICLOOP:SetWidth(100)
 
-	local off = self.MELEE.MUSICLOOP:AddOption(LOOPING_OFF, "Playlist mode", true)
-	off:SetTooltipParent(self.MELEE.MUSICLOOP)
-	off:SetTooltipTitle("PLAYLIST")
-	off:SetTooltipBody([[When a song ends, it will play another song in a random order. The order in which songs are played are constantly shuffeled.]])
 	local menu = self.MELEE.MUSICLOOP:AddOption(LOOPING_MENU, "Loop menu")
 	menu:SetTooltipParent(self.MELEE.MUSICLOOP)
 	menu:SetTooltipTitle("LOOP MENU")
-	menu:SetTooltipBody([[When entering the menus, it will select and play one song at random. When the song ends or reaches a loop point, it will play again.]])
-	local stage = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE, "Loop stage")
-	stage:SetTooltipParent(self.MELEE.MUSICLOOP)
-	stage:SetTooltipTitle("LOOP STAGE")
-	stage:SetTooltipBody([[When entering a stage, it will select and play one song at random. When the song ends or reaches a loop point, it will play again.]])
-	local all = self.MELEE.MUSICLOOP:AddOption(LOOPING_ALL, "Loop menu & stage")
-	all:SetTooltipParent(self.MELEE.MUSICLOOP)
-	all:SetTooltipTitle("LOOP MENU & STAGE")
-	all:SetTooltipBody([[When entering the menus or entering a stage, it will select and play one song at random. When the song ends or reaches a loop point, it will play again.]])
-	local adapt = self.MELEE.MUSICLOOP:AddOption(LOOPING_ADAPT, "Adaptive")
-	adapt:SetTooltipParent(self.MELEE.MUSICLOOP)
-	adapt:SetTooltipTitle("ADAPTIVE")
-	adapt:SetTooltipBody([[Will use playlist mode while in the menus or while in an infinite-time match. (Such as training mode)
+	menu:SetTooltipBody([[When entering the menus, it will select and play one song at random.
 
-If the stage has a timer, will loop only a single song.]])
+When the song ends or reaches a loop point, it will play again.]])
+	local stage_timed = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_TIMED, "Loop stage (timed)")menu:SetTooltipParent(self.MELEE.MUSICLOOP)
+	stage_timed:SetTooltipTitle("LOOP STAGE (TIMED)")
+	stage_timed:SetTooltipBody([[When entering a stage that has a timer, it will select and play one song at random.
 
-	function self.MELEE.MUSICLOOP:OnSelectOption(num)
-		music.onLoopChange(num)
+When the song ends or reaches a loop point, it will play again.]])
+	local stage_endless = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_ENDLESS, "Loop stage (endless)")
+	stage_endless:SetTooltipTitle("LOOP STAGE (ENDLESS)")
+	stage_endless:SetTooltipBody([[When entering a stage that is endless, such as training mode or endless melee, it will select and play one song at random.
+
+When the song ends or reaches a loop point, it will play again.]])
+	
+	
+	function self.MELEE.MUSICLOOP:OnValueChanged(flags)
+		music.onLoopChange(flags)
 	end
 	
 	self.MELEE.MUSICSKIP = self.MELEE.LEFT:Add("GCBinderPanel")
@@ -422,9 +416,9 @@ function PANEL:GetSaveTable()
 		["debugging"] = self:IsDebugging(),
 		["use-transparency"] = self:UseTransparency(),
 		["transparency"] = self:GetTransparency(),
-		["melee-stage-music"] = self:PlayStageMusic(),
-		["melee-stage-music-loop"] = self:GetMusicLoopMode(),
-		["melee-stage-music-skip-buttons"] = self:GetMusicSkipMask(),
+		["melee-music"] = self:PlayStageMusic(),
+		["melee-music-loop-flags"] = self:GetMusicLoopMode(),
+		["melee-music-skip-buttons"] = self:GetMusicSkipMask(),
 		["melee-music-volume"] = self:GetVolume(),
 		["background-color"] = self:GetBackgroundColor(),
 	}
@@ -451,7 +445,7 @@ function PANEL:PlayStageMusic()
 end
 
 function PANEL:GetMusicLoopMode()
-	return self.MELEE.MUSICLOOP:GetOption()
+	return self.MELEE.MUSICLOOP:GetValue()
 end
 
 function PANEL:SetVolume(volume)
@@ -549,15 +543,25 @@ function PANEL:LoadSettings()
 			elseif k == "stage-music" or k == "stage-music-loop" or k == "music-volume" then
 				settings["melee-" .. k] = v
 				log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-" .. k)
+			elseif k == "melee-stage-music-loop" then
+				if type(v) == "boolean" then
+					settings["melee-music-loop-flags"] = LOOPING_STAGE_TIMED
+				elseif type(v) == "number" then
+					local translate = {
+						[1] = LOOPING_NONE, -- OFF
+						[2] = LOOPING_MENU, -- MENU
+						[3] = LOOPING_STAGE_TIMED, -- STAGE
+						[4] = LOOPING_MENU + LOOPING_STAGE_TIMED, -- ALL
+						[5] = LOOPING_STAGE_TIMED, -- ADAPTIVE
+					}
+					settings["melee-music-loop-flags"] = translate[v] or LOOPING_NONE
+				log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-music-loop-flags")
+				end
 			else
 				log.debug("[CONFIG] Ignoring old setting config %q", k)
 			end
 		end
 		f:close()
-	end
-
-	if type(settings["melee-stage-music-loop"]) == "boolean" and settings["melee-stage-music-loop"] == true then
-		settings["melee-stage-music-loop"] = LOOPING_STAGE
 	end
 
 	self.m_tSettings = settings
@@ -574,10 +578,10 @@ function PANEL:LoadSettings()
 		self.DEBUG:SetToggled(love.hasConsole() or settings["debugging"] or false)
 	end
 	self.TRANSPARENCY:SetValue(settings["transparency"])
-	self.SLIPPI.MODE:SetOption(settings["slippi-mode"])
-	self.MELEE.MUSIC:SetToggled(settings["melee-stage-music"], true)
-	self.MELEE.MUSICLOOP:SetOption(settings["melee-stage-music-loop"] or LOOPING_OFF)
-	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-stage-music-skip-buttons"])
+	self.SLIPPI.MODE:SetValue(settings["slippi-mode"])
+	self.MELEE.MUSIC:SetToggled(settings["melee-music"], true)
+	self.MELEE.MUSICLOOP:SetValue(settings["melee-music-loop-flags"] or LOOPING_NONE)
+	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-music-skip-buttons"])
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
 	if love.supportsGameCapture() then
 		self.USE_TRANASPARENCY:SetToggled(settings["use-transparency"], true)

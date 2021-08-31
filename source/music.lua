@@ -157,12 +157,6 @@ function music.kill()
 	end
 end
 
-local LOOPING_OFF = 1
-local LOOPING_MENU = 2
-local LOOPING_STAGE = 3
-local LOOPING_ALL = 4
-local LOOPING_ADAPT = 5
-
 -- Set to true when the announcer says 'GAME!'
 local MATCH_SOFT_END = false
 
@@ -172,17 +166,7 @@ end
 
 function music.onLoopChange(mode)
 	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
-		local loop = false
-		-- Handle the different loop settings properly
-		if mode == LOOPING_MENU and melee.isInMenus() then
-			loop = true
-		elseif mode == LOOPING_STAGE and melee.isInGame() then
-			loop = true
-		elseif mode == LOOPING_ALL then
-			loop = true
-		end
-		--music.PLAYING.STREAM:setLooping(loop)
-		music.LOOP = loop
+		music.LOOP = music.shouldLoop()
 	end
 end
 
@@ -240,6 +224,26 @@ function music.setVolume(vol)
 
 	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
 		music.PLAYING.STREAM:setVolume((vol/100) * (melee.isPaused() and 0.35 or 1))
+	end
+end
+
+do
+	local LOOPING_NONE = 0
+	local LOOPING_MENU = 1
+	local LOOPING_STAGE_TIMED = 2
+	local LOOPING_STAGE_ENDLESS = 4
+	function music.shouldLoop()
+		local loop = PANEL_SETTINGS:GetMusicLoopMode()
+
+		if music.PLAYLIST_ID == 0 then
+			return bit.band(loop, LOOPING_MENU) == LOOPING_MENU
+		elseif melee.isCountdownTimer() then
+			return bit.band(loop, LOOPING_STAGE_ENDLESS) == LOOPING_MENU
+		else
+			return bit.band(loop, LOOPING_STAGE_TIMED) == LOOPING_MENU
+		end
+
+		return false
 	end
 end
 
@@ -305,22 +309,8 @@ function music.playNextTrack()
 				log.info("[MUSIC] Playing track #%d for stage %q", track_id, melee.getStageName(music.PLAYLIST_ID))
 			end
 
-			local shouldLoop = function()
-				local loop = PANEL_SETTINGS:GetMusicLoopMode()
-
-				if music.PLAYLIST_ID == 0 then
-					return loop == LOOPING_MENU or loop == LOOPING_ALL
-				end
-				
-				if loop == LOOPING_STAGE or loop == LOOPING_ALL then return true end
-
-				if loop == LOOPING_ADAPT and melee.isCountdownTimer() then return true end
-
-				return false
-			end
-
 			music.PLAYING.STREAM:setVolume((PANEL_SETTINGS:GetVolume()/100) * (melee.isPaused() and 0.35 or 1))
-			music.LOOP = shouldLoop()
+			music.LOOP = music.shouldLoop()
 			music.PLAYING.STREAM:play()
 			music.FINISHED = false
 		end
