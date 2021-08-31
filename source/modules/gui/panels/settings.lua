@@ -21,7 +21,7 @@ function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
 	local px, py = self.MAIN:GetPos()
 	local pw, ph = self.MAIN:GetSize()
 
-	if x < px or x > px + pw then
+	if x < px - 8 or x > px + pw + 8 then
 		self.MAIN:UnCenter()
 		self.MAIN:SetPos(px, 256-24)
 	else
@@ -145,12 +145,14 @@ WARNING: This tricks M'Overlay into thinking Melee is being played when an inval
 	menu:SetTooltipBody([[When entering the menus, it will select and play one song at random.
 
 When the song ends or reaches a loop point, it will play again.]])
-	local stage_timed = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_TIMED, "Stage (timed)")menu:SetTooltipParent(self.MELEE.MUSICLOOP)
+	local stage_timed = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_TIMED, "Stage (timed)")
+	stage_timed:SetTooltipParent(self.MELEE.MUSICLOOP)
 	stage_timed:SetTooltipTitle("LOOP STAGE (TIMED)")
 	stage_timed:SetTooltipBody([[When entering a stage that has a timer, it will select and play one song at random.
 
 When the song ends or reaches a loop point, it will play again.]])
 	local stage_endless = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_ENDLESS, "Stage (endless)")
+	stage_endless:SetTooltipParent(self.MELEE.MUSICLOOP)
 	stage_endless:SetTooltipTitle("LOOP STAGE (ENDLESS)")
 	stage_endless:SetTooltipBody([[When entering a stage that is endless, such as training mode or endless melee, it will select and play one song at random.
 
