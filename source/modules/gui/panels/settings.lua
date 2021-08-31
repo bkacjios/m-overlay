@@ -18,6 +18,19 @@ LOOPING_STAGE = 3
 LOOPING_ALL = 4
 LOOPING_ADAPT = 5
 
+function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
+	local px, py = self.MAIN:GetPos()
+	local pw, ph = self.MAIN:GetSize()
+
+	if x < px or x > px + pw then
+		self.MAIN:UnCenter()
+		self.MAIN:SetPos(px, 256-24)
+	else
+		self.MAIN:Center()
+	end
+	
+end
+
 function PANEL:Settings()
 	self:super() -- Initialize our baseclass
 
@@ -37,7 +50,6 @@ function PANEL:Settings()
 	self.MAIN = self:Add("TabbedPanel")
 	self.MAIN:SizeToParent()
 	self.MAIN:SetSize(296 + 32, 196)
-	self.MAIN:Center()
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
 
@@ -328,6 +340,7 @@ function PANEL:ChangePort(port)
 end
 
 function PANEL:Toggle()
+	self:GiveFocus()
 	self:SetVisible(not self:IsVisible())
 	if not self:IsVisible() then
 		gui.hideTooltip()

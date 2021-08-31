@@ -602,17 +602,22 @@ function PANEL:CenterLayout()
 	end
 end
 
-function PANEL:Center(vertical, horizontal)
-	self:CenterVertical(vertical)
-	self:CenterHorizontal(horizontal)
+function PANEL:UnCenter()
+	self.m_iCenter = CENTER_NONE
+	self:InvalidateLayout()
 end
 
-function PANEL:CenterVertical(center)
+function PANEL:Center()
+	self:CenterVertical()
+	self:CenterHorizontal()
+end
+
+function PANEL:CenterVertical()
 	self.m_iCenter = bit.bor(self.m_iCenter, CENTER_VERTICAL)
 	self:InvalidateLayout()
 end
 
-function PANEL:CenterHorizontal(center)
+function PANEL:CenterHorizontal()
 	self.m_iCenter = bit.bor(self.m_iCenter, CENTER_HORIZONTAL)
 	self:InvalidateLayout()
 end
