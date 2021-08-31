@@ -22,7 +22,7 @@ function PANEL:PortSelect()
 	LABEL:SetFont("fonts/melee-bold.otf", 12)
 	self.LABEL = LABEL
 
-	self:SetSize(80, 106 + LABEL:GetHeight() + 5)
+	self:SetSize(80, 106 + LABEL:GetHeight() + 4)
 	self:CenterVertical()
 
 	self.PORT_BUTTONS = {}

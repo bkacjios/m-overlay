@@ -292,25 +292,85 @@ This is also the same directory you use to place all your music for Melee.]])
 	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
 	self.ABOUT:SetBackgroundColor(color_purple)
 
+	self.ABOUT.RIGHT = self.ABOUT:Add("Panel")
+	self.ABOUT.RIGHT:SetDrawPanel(false)
+	self.ABOUT.RIGHT:Dock(DOCK_RIGHT)
+	self.ABOUT.RIGHT:SetWidth(160)
+
 	local ICON = self.ABOUT:Add("Image")
 	ICON:SetImage("textures/icon.png")
 	ICON:SetPos(24, 0)
 	ICON:SetSize(96, 96)
 	ICON:CenterVertical()
 
-	local VLABEL = self.ABOUT:Add("Button")
-	VLABEL:SetDrawButton(false)
-	VLABEL:SetText("M'Overlay - " .. love.getMOverlayVersion())
-	VLABEL:SetTextAlignmentX("center")
-	VLABEL:SetSize(176, 18)
-	VLABEL:Dock(DOCK_RIGHT)
-	VLABEL:SetTextColor(color_white)
-	VLABEL:SetShadowColor(color_black)
-	VLABEL:SetShadowDistance(1)
-	VLABEL:SetFont("fonts/melee-bold.otf", 12)
+	local VERSION = self.ABOUT.RIGHT:Add("Button")
+	VERSION:SetText("M'Overlay - v" .. love.getMOverlayVersion())
+	VERSION:SetTextAlignmentX("center")
+	VERSION:Dock(DOCK_TOP)
+	VERSION:SetFont("fonts/melee-bold.otf", 12)
 
-	function VLABEL:OnClick()
+	function VERSION:OnClick()
 		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/v%s"):format(love.getMOverlayVersion()))
+	end
+
+	self.ABOUT.SOCIALS = self.ABOUT.RIGHT:Add("Panel")
+	self.ABOUT.SOCIALS:SetBGColor(color(215, 215, 215))
+	self.ABOUT.SOCIALS:Dock(DOCK_BOTTOM)
+
+	self.ABOUT.AUTHOR = self.ABOUT.SOCIALS:Add("Label")
+	self.ABOUT.AUTHOR:SetText("Made by /bkacjios")
+	self.ABOUT.AUTHOR:SetTextAlignmentX("center")
+	self.ABOUT.AUTHOR:SizeToText()
+	self.ABOUT.AUTHOR:Dock(DOCK_TOP)
+
+	self.ABOUT.SOCIALS:SetHeight(self.ABOUT.AUTHOR:GetHeight() + 44)
+
+	local GITHUB = self.ABOUT.SOCIALS:Add("Image")
+	GITHUB:SetFocusable(true)
+	GITHUB:SetSize(32, 32)
+	GITHUB:Dock(DOCK_LEFT)
+	GITHUB:SetImage("textures/social/github.png")
+	GITHUB:SetTooltipTitle("GITHUB")
+	GITHUB:SetTooltipBody([[https://github.com/bkacjios]])
+
+	function GITHUB:OnClick()
+		love.system.openURL("https://github.com/bkacjios")
+	end
+
+	local TWITTER = self.ABOUT.SOCIALS:Add("Image")
+	TWITTER:SetFocusable(true)
+	TWITTER:SetSize(32, 32)
+	TWITTER:Dock(DOCK_LEFT)
+	TWITTER:SetImage("textures/social/twitter.png")
+	TWITTER:SetTooltipTitle("TWITTER")
+	TWITTER:SetTooltipBody([[https://twitter.com/bkacjios]])
+
+	function TWITTER:OnClick()
+		love.system.openURL("https://twitter.com/bkacjios")
+	end
+
+	local TWITCH = self.ABOUT.SOCIALS:Add("Image")
+	TWITCH:SetFocusable(true)
+	TWITCH:SetSize(32, 32)
+	TWITCH:Dock(DOCK_LEFT)
+	TWITCH:SetImage("textures/social/twitch.png")
+	TWITCH:SetTooltipTitle("TWITCH")
+	TWITCH:SetTooltipBody([[https://twitch.tv/bkacjios]])
+
+	function TWITCH:OnClick()
+		love.system.openURL("https://twitch.tv/bkacjios")
+	end
+
+	local PAYPAL = self.ABOUT.SOCIALS:Add("Image")
+	PAYPAL:SetFocusable(true)
+	PAYPAL:SetSize(32, 32)
+	PAYPAL:Dock(DOCK_LEFT)
+	PAYPAL:SetImage("textures/social/paypal.png")
+	PAYPAL:SetTooltipTitle("PAYPAL")
+	PAYPAL:SetTooltipBody([[https://www.paypal.com/paypalme/bkacjios]])
+
+	function PAYPAL:OnClick()
+		love.system.openURL("https://www.paypal.com/paypalme/bkacjios")
 	end
 
 	self.m_sFileName = "config.json"

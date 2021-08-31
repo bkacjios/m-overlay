@@ -1,7 +1,8 @@
-local PANEL = class.create("Image", "BasePanel")
+local PANEL = class.create("Image", "Panel")
 
 function PANEL:Image()
 	self:super()
+	self:SetDrawPanel(false)
 end
 
 local CACHE = {}

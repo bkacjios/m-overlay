@@ -46,7 +46,7 @@ function PANEL:UpdateSkins()
 		numskins = numskins + 1
 	end
 
-	self:SetSize(80, self.LABEL:GetHeight() + 26*numskins + 7)
+	self:SetSize(80, self.LABEL:GetHeight() + 26*numskins + 6)
 	self:CenterVertical()
 end
 
