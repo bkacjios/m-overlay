@@ -222,7 +222,6 @@ This will only function correctly if you are capturing this window in OBS with a
 	self.USE_TRANASPARENCY.OnToggle = function(this, on)
 		self.TRANSPARENCY:SetVisible(on)
 		self.BACKGROUNDCOLOR:SetVisible(not on)
-		self.BACKGROUNDCOLOR:InvalidateParents()
 	end
 
 	self.TRANSPARENCY = self.GENERAL.RIGHT:Add("SliderPanel")

@@ -435,6 +435,11 @@ function PANEL:GetSize()
 	return self:GetWidth(), self:GetHeight()
 end
 
+function PANEL:SetVisible(b)
+	self.m_bVisible = b
+	self:InvalidateLayout()
+end
+
 function PANEL:GetPixelSize()
 	return math.max(0, self.m_iWidth), math.max(0, self.m_iHeight)
 end
