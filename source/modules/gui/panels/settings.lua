@@ -96,7 +96,9 @@ function PANEL:Settings()
 	local netplay = self.SLIPPI.MODE:AddOption(SLIPPI_NETPLAY, "Melee: Rollback")
 	netplay:SetTooltipParent(self.SLIPPI.MODE)
 	netplay:SetTooltipTitle("ROLLBACK")
-	netplay:SetTooltipBody([[Allows the overlay to work properly when playing Slippi online. Will also actively change the overylay to display your current port.]])
+	netplay:SetTooltipBody([[Allows the overlay to work properly when playing Slippi online. Will also actively change the overylay to display your current port.
+
+WARNING: This tricks M'Overlay into thinking Melee is being played when an invalid game is detected. When playing other games, it is recommended to set this to OFF.]])
 	local mirror = self.SLIPPI.MODE:AddOption(SLIPPI_REPLAY, "Melee: Replay/Mirror")
 	mirror:SetTooltipParent(self.SLIPPI.MODE)
 	mirror:SetTooltipTitle("REPLAY/MIRROR")

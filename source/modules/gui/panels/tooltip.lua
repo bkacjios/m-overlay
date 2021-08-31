@@ -21,7 +21,7 @@ function PANEL:ToolTip()
 	self.m_pBody = self:Add("Label")
 	self.m_pBody:Dock(DOCK_FILL)
 	self.m_pBody:SetWrapped(true)
-	self.m_pBody:SetFont("fonts/melee.otf", 10)
+	self.m_pBody:SetFont("fonts/melee.otf", 11)
 	self.m_pBody:SetLineHeight(0.75)
 	self.m_pBody:SetPos(8, 16+24)
 	self.m_pBody:SetSize(236, 228)
@@ -47,6 +47,9 @@ function PANEL:SetBody(str)
 end
 
 function PANEL:Paint(w, h)
+	graphics.setColor(color(0, 0, 0, 75))
+	graphics.roundRect(8, 8, w-8, h-8, 4)
+
 	graphics.setColor(color_black)
 	graphics.roundRect(4, 4, w-8, h-8, 4)
 

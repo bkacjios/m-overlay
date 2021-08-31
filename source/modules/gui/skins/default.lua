@@ -208,13 +208,13 @@ end
 
 function SKIN:PaintRadio(panel, w, h)
 	graphics.setColor(panel:IsToggled() and self.CheckboxOn or self.CheckboxOff)
-	graphics.circle("fill", 12, 12, h/2-8, 32)
+	graphics.circle("fill", 12, 12, h/2-6, 32)
 
 	graphics.setLineStyle("smooth")
 	graphics.setLineWidth(1)
 
 	graphics.setColor(self.CheckboxBorder)
-	graphics.circle("line", 12, 12, h/2-8, 32)
+	graphics.circle("line", 12, 12, h/2-6, 32)
 end
 
 function SKIN:InitHorizontalSelect(panel)
