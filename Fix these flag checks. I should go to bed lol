@@ -238,9 +238,9 @@ do
 		if music.PLAYLIST_ID == 0 then
 			return bit.band(loop, LOOPING_MENU) == LOOPING_MENU
 		elseif melee.isCountdownTimer() then
-			return bit.band(loop, LOOPING_STAGE_ENDLESS) == LOOPING_MENU
+			return bit.band(loop, LOOPING_STAGE_TIMED) == LOOPING_STAGE_TIMED
 		else
-			return bit.band(loop, LOOPING_STAGE_TIMED) == LOOPING_MENU
+			return bit.band(loop, LOOPING_STAGE_ENDLESS) == LOOPING_STAGE_ENDLESS
 		end
 
 		return false
