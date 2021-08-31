@@ -405,6 +405,7 @@ end
 
 function PANEL:GetSaveTable()
 	return {
+		["config-version"] = self:GetConfigVersion(),
 		["port"] = overlay.getPort(),
 		["skin"] = overlay.getSkin(),
 		["slippi-mode"] = self:GetSlippiMode(),
@@ -422,6 +423,15 @@ function PANEL:GetSaveTable()
 		["melee-music-volume"] = self:GetVolume(),
 		["background-color"] = self:GetBackgroundColor(),
 	}
+end
+
+function PANEL:GetConfigVersion()
+	return "2.0.0"
+end
+
+function PANEL:GetConfigVersionNumbers()
+	-- Returns 3 numbers: magor, minor, revision
+	return string.match(self:GetConfigVersion(), "^(%d-)%.(%d-)%.(%d+)$")
 end
 
 function PANEL:UseTransparency()
@@ -500,12 +510,18 @@ function PANEL:OnClosed()
 	self:SaveSettings()
 end
 
+local NEEDS_UPDATE_WRITE = false
+
 function PANEL:NeedsWrite()
 	for k,v in pairs(self:GetSaveTable()) do
 		-- Return true if the last known settings state differs from the current
 		if self.m_tSettings[k] == nil or self.m_tSettings[k] ~= v then
 			return true
 		end
+	end
+	if NEEDS_UPDATE_WRITE then
+		NEEDS_UPDATE_WRITE = false
+		return true
 	end
 	return false
 end
@@ -526,6 +542,11 @@ function PANEL:SaveSettings()
 	end
 end
 
+local function updatedConfigSetting(settings, oldkey, oldvalue, newkey, newvalue)
+	settings[newkey] = newvalue
+	log.debug("[CONFIG] Updating setting [%q = %s] to [%q = %s]", oldkey, oldvalue, newkey, newvalue)
+end
+
 function PANEL:LoadSettings()
 	local settings = self:GetSaveTable()
 
@@ -534,20 +555,22 @@ function PANEL:LoadSettings()
 		for k,v in pairs(json.decode(f:read())) do
 			if settings[k] ~= nil then -- We have a valid setting
 				settings[k] = v -- Update value from config file
-			elseif k == "hide-dpad" then -- CONVERT OLD SETTINGS INTO NEW
-				settings["enable-dpad"] = not v
-				log.debug("[CONFIG] Converting old config setting %q", k)
+
+			-- CONVERT OLD SETTINGS INTO NEW
+			elseif k == "hide-dpad" and type(v) == "boolean" then
+				-- Renamed "hide-dpad" to "enable-dpad" when we added "enable-start"
+				updatedConfigSetting(settings, k, v, "enable-dpad", not v)
 			elseif k == "slippi-netplay" and v == true then
-				settings["slippi-mode"] = SLIPPI_NETPLAY
-				log.debug("[CONFIG] Converting old config setting %q", k)
+				-- At one point "slippi-netplay" was a boolean value for on/off
+				updatedConfigSetting(settings, k, v, "slippi-mode", SLIPPI_NETPLAY)
 			elseif k == "stage-music" or k == "stage-music-loop" or k == "music-volume" then
-				settings["melee-" .. k] = v
-				log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-" .. k)
+				-- prefix "melee-" to our old music configs
+				updatedConfigSetting(settings, k, v, "melee-" .. k, v)
 			elseif k == "melee-stage-music-loop" then
 				if type(v) == "boolean" then
 					-- Back when we only had a single checkbox for looping a stage
 					-- this value was a boolean, convert to new flag.
-					settings["melee-music-loop-flags"] = LOOPING_STAGE_TIMED
+					updatedConfigSetting(settings, k, v, "melee-music-loop-flags", LOOPING_STAGE_TIMED)
 				elseif type(v) == "number" then
 					-- Convert our old radio options for the new checkbox system
 					local translate = {
@@ -557,8 +580,7 @@ function PANEL:LoadSettings()
 						[4] = LOOPING_MENU + LOOPING_STAGE_TIMED, -- ALL
 						[5] = LOOPING_STAGE_TIMED, -- ADAPTIVE
 					}
-					settings["melee-music-loop-flags"] = translate[v] or LOOPING_NONE
-					log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-music-loop-flags")
+					updatedConfigSetting(settings, k, v, "melee-music-loop-flags", translate[v] or LOOPING_NONE)
 				end
 			else
 				log.debug("[CONFIG] Ignoring old setting config %q", k)
@@ -590,4 +612,7 @@ function PANEL:LoadSettings()
 		self.USE_TRANASPARENCY:SetToggled(settings["use-transparency"], true)
 	end
 	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))
+
+	-- If we made any changes during load, save them now..
+	self:SaveSettings()
 end
