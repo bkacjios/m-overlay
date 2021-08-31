@@ -134,23 +134,23 @@ WARNING: This tricks M'Overlay into thinking Melee is being played when an inval
 	end
 
 	self.MELEE.MUSICLOOP = self.MELEE.RIGHT:Add("CheckPanel")
-	self.MELEE.MUSICLOOP:SetText("Loop mode")
+	self.MELEE.MUSICLOOP:SetText("Loop on..")
 	self.MELEE.MUSICLOOP:DockMargin(0,0,0,0)
 	self.MELEE.MUSICLOOP:Dock(DOCK_TOP)
 	self.MELEE.MUSICLOOP:SetWidth(100)
 
-	local menu = self.MELEE.MUSICLOOP:AddOption(LOOPING_MENU, "Loop menu")
+	local menu = self.MELEE.MUSICLOOP:AddOption(LOOPING_MENU, "Menu")
 	menu:SetTooltipParent(self.MELEE.MUSICLOOP)
 	menu:SetTooltipTitle("LOOP MENU")
 	menu:SetTooltipBody([[When entering the menus, it will select and play one song at random.
 
 When the song ends or reaches a loop point, it will play again.]])
-	local stage_timed = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_TIMED, "Loop stage (timed)")menu:SetTooltipParent(self.MELEE.MUSICLOOP)
+	local stage_timed = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_TIMED, "Stage (timed)")menu:SetTooltipParent(self.MELEE.MUSICLOOP)
 	stage_timed:SetTooltipTitle("LOOP STAGE (TIMED)")
 	stage_timed:SetTooltipBody([[When entering a stage that has a timer, it will select and play one song at random.
 
 When the song ends or reaches a loop point, it will play again.]])
-	local stage_endless = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_ENDLESS, "Loop stage (endless)")
+	local stage_endless = self.MELEE.MUSICLOOP:AddOption(LOOPING_STAGE_ENDLESS, "Stage (endless)")
 	stage_endless:SetTooltipTitle("LOOP STAGE (ENDLESS)")
 	stage_endless:SetTooltipBody([[When entering a stage that is endless, such as training mode or endless melee, it will select and play one song at random.
 
@@ -532,9 +532,9 @@ function PANEL:LoadSettings()
 	local f = filesystem.newFile(self.m_sFileName, "r")
 	if f then
 		for k,v in pairs(json.decode(f:read())) do
-			if settings[k] ~= nil then
-				settings[k] = v
-			elseif k == "hide-dpad" then
+			if settings[k] ~= nil then -- We have a valid setting
+				settings[k] = v -- Update value from config file
+			elseif k == "hide-dpad" then -- CONVERT OLD SETTINGS INTO NEW
 				settings["enable-dpad"] = not v
 				log.debug("[CONFIG] Converting old config setting %q", k)
 			elseif k == "slippi-netplay" and v == true then
@@ -545,8 +545,11 @@ function PANEL:LoadSettings()
 				log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-" .. k)
 			elseif k == "melee-stage-music-loop" then
 				if type(v) == "boolean" then
+					-- Back when we only had a single checkbox for looping a stage
+					-- this value was a boolean, convert to new flag.
 					settings["melee-music-loop-flags"] = LOOPING_STAGE_TIMED
 				elseif type(v) == "number" then
+					-- Convert our old radio options for the new checkbox system
 					local translate = {
 						[1] = LOOPING_NONE, -- OFF
 						[2] = LOOPING_MENU, -- MENU
@@ -555,7 +558,7 @@ function PANEL:LoadSettings()
 						[5] = LOOPING_STAGE_TIMED, -- ADAPTIVE
 					}
 					settings["melee-music-loop-flags"] = translate[v] or LOOPING_NONE
-				log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-music-loop-flags")
+					log.debug("[CONFIG] Converting old config setting %q to %q", k, "melee-music-loop-flags")
 				end
 			else
 				log.debug("[CONFIG] Ignoring old setting config %q", k)
