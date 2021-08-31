@@ -304,7 +304,7 @@ This is also the same directory you use to place all your music for Melee.]])
 	ICON:CenterVertical()
 
 	local VERSION = self.ABOUT.RIGHT:Add("Button")
-	VERSION:SetText("M'Overlay - v" .. love.getMOverlayVersion())
+	VERSION:SetText(love.getMOverlayVersion())
 	VERSION:SetTextAlignmentX("center")
 	VERSION:Dock(DOCK_TOP)
 	VERSION:SetFont("fonts/melee-bold.otf", 12)
