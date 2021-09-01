@@ -423,7 +423,7 @@ function PANEL:GetSaveTable()
 		["melee-music-loop-flags"] = self:GetMusicLoopMode(),
 		["melee-music-skip-buttons"] = self:GetMusicSkipMask(),
 		["melee-music-volume"] = self:GetVolume(),
-		["background-color"] = self:GetBackgroundColor(),
+		["background-color"] = self:GetBackgroundColor():hexString(),
 	}
 end
 
@@ -509,6 +509,7 @@ function PANEL:GetTransparency()
 end
 
 function PANEL:OnClosed()
+	if not self:NeedsWrite() then return end -- Stop if we don't need to write any changes
 	self:SaveSettings()
 end
 
@@ -523,7 +524,6 @@ function PANEL:NeedsWrite()
 end
 
 function PANEL:SaveSettings()
-	if not self:NeedsWrite() then return end -- Stop if we don't need to write any changes
 	local f, err = filesystem.newFile(self.m_sFileName, "w")
 	if f then
 		log.warn("Writing to %s", self.m_sFileName)
@@ -549,8 +549,10 @@ function PANEL:LoadSettings()
 	local f = filesystem.newFile(self.m_sFileName, "r")
 	if f then
 		local success, decoded = pcall(json.decode, f:read())
+		f:close()
 		if not success then
-			-- Get the last bit of text after the file name and line number
+			-- If we failed decoding, decoded is an error string.
+			-- Get the last bit of text after the file name and line number.
 			-- Error format: "filename.lua:1: (OUR ERROR STRING HERE)"
 			local err = string.match(decoded, "^.*:%s*(.*)$") or decoded
 			log.error("[CONFIG] Failed parsing %s: ('%s')", self.m_sFileName, err)
@@ -559,7 +561,21 @@ function PANEL:LoadSettings()
 			for k,v in pairs(decoded) do
 				if settings[k] ~= nil then -- We have a valid setting
 					settings[k] = v -- Update value from config file
-				elseif k == "melee-stage-music-loop" then
+
+					-- CONVERT OLD SETTINGS INTO NEW
+				elseif k == "hide-dpad" and type(v) == "boolean" then
+					-- Renamed "hide-dpad" to "enable-dpad" when we added "enable-start"
+					updatedConfigSetting(settings, k, v, "enable-dpad", not v)
+				elseif k == "slippi-netplay" and v == true then
+					-- At one point "slippi-netplay" was a boolean value for on/off
+					updatedConfigSetting(settings, k, v, "slippi-mode", SLIPPI_NETPLAY)
+				elseif k == "music-volume" then
+					-- prefix "melee-" to our old music configs
+					updatedConfigSetting(settings, k, v, "melee-" .. k, v)
+				elseif k == "stage-music" then
+					-- we are now called "melee-music"
+					updatedConfigSetting(settings, k, v, "melee-music", v)
+				elseif k == "melee-stage-music-loop" or k == "stage-music-loop" then
 					if type(v) == "boolean" then
 						-- Back when we only had a single checkbox for looping a stage
 						-- this value was a boolean, convert to new flag.
@@ -580,7 +596,6 @@ function PANEL:LoadSettings()
 				end
 			end
 		end
-		f:close()
 	end
 
 	self.m_tSettings = settings

@@ -688,6 +688,6 @@ function love.run()
 end
 
 function love.quit()
-	PANEL_SETTINGS:SaveSettings()
+	PANEL_SETTINGS:OnClosed()
 	gui.shutdown()
 end

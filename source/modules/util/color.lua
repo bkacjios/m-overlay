@@ -35,6 +35,10 @@ function COLOR:hex()
 	return bit.lshift(self.r, 16) + bit.lshift(self.g, 8) + bit.lshift(self.b, 0)
 end
 
+function COLOR:hexString()
+	return string.format("#%06X", self:hex())
+end
+
 function COLOR:distance(col)
 	local r = self.r - col.r
 	local g = self.g - col.g

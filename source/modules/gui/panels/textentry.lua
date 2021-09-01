@@ -245,7 +245,7 @@ function PANEL:Paste()
 end
 
 function PANEL:OnHoveredKeyPressed(key, isrepeat)
-	if self.m_bHoveredInput then
+	if not self:HasFocus() and self.m_bHoveredInput then
 		self:OnKeyPressed(key, isrepeat)
 	end
 end
