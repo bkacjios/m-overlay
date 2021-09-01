@@ -2,6 +2,7 @@ local graphics = love.graphics
 local newImage = graphics.newImage
 local newFont = graphics.newFont
 local timer = love.timer
+local color = require("util.color")
 
 local log = require("log")
 
@@ -87,32 +88,33 @@ function notification.draw()
 	end
 end
 
-function notification.error(text)
+function notification.color(color, text, ...)
+	if select("#", ...) > 0 then
+		text = string.format(text, ...)
+	end
+	notification.add(14, 5, 0.75, function(height, fade)
+		graphics.setColor(0, 0, 0, 255 * fade)
+		graphics.textOutline(text, 1, 1, 1)
+		graphics.setColor(color.r, color.g, color.b, 255 * fade)
+		graphics.print(text, 0, 0)
+	end)
+end
+
+function notification.error(text, ...)
 	love.window.requestAttention()
-	notification.add(14, 10, 0.75, function(height, fade)
-		graphics.setColor(0, 0, 0, 255 * fade)
-		graphics.textOutline(text, 1, 1, 1)
-		graphics.setColor(241, 73, 82, 255 * fade)
-		graphics.print(text, 0, 0)
-	end)
+	notification.color(color(241, 73, 82), text, ...)
 end
 
-function notification.warning(text)
-	notification.add(14, 5, 0.75, function(height, fade)
-		graphics.setColor(0, 0, 0, 255 * fade)
-		graphics.textOutline(text, 1, 1, 1)
-		graphics.setColor(255, 242, 0, 255 * fade)
-		graphics.print(text, 0, 0)
-	end)
+function notification.warning(text, ...)
+	notification.color(color(255, 242, 0), text, ...)
 end
 
-function notification.info(text)
-	notification.add(14, 5, 0.75, function(height, fade)
-		graphics.setColor(0, 0, 0, 255 * fade)
-		graphics.textOutline(text, 1, 1, 1)
-		graphics.setColor(79, 202, 255, 255 * fade)
-		graphics.print(text, 0, 0)
-	end)
+function notification.info(text, ...)
+	notification.color(color(79, 202, 255), text, ...)
+end
+
+function notification.message(text, ...)
+	notification.color(color_white, text, ...)
 end
 
 function notification.coloredMessage(...)

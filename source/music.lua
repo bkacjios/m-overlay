@@ -277,9 +277,8 @@ local function loadTrack(songs, index)
 
 	local success, source = pcall(love.audio.newSource, filepath, "stream")
 	if not (success and source) then
-		local err = ("invalid music file %q"):format(filepath)
-		log.error("[MUSIC] %s", err)
-		notification.error(err)
+		log.error("[MUSIC] invalid music file %q", filepath)
+		notification.error("invalid music file %q", filepath)
 		table.remove(songs, index)
 		return nil
 	end

@@ -512,18 +512,12 @@ function PANEL:OnClosed()
 	self:SaveSettings()
 end
 
-local NEEDS_UPDATE_WRITE = false
-
 function PANEL:NeedsWrite()
 	for k,v in pairs(self:GetSaveTable()) do
 		-- Return true if the last known settings state differs from the current
 		if self.m_tSettings[k] == nil or self.m_tSettings[k] ~= v then
 			return true
 		end
-	end
-	if NEEDS_UPDATE_WRITE then
-		NEEDS_UPDATE_WRITE = false
-		return true
 	end
 	return false
 end
@@ -533,14 +527,14 @@ function PANEL:SaveSettings()
 	local f, err = filesystem.newFile(self.m_sFileName, "w")
 	if f then
 		log.warn("Writing to %s", self.m_sFileName)
-		notification.warning(("Writing to %s"):format(self.m_sFileName))
+		notification.warning("Writing to %s", self.m_sFileName)
 		self.m_tSettings = self:GetSaveTable()
 		f:write(json.encode(self.m_tSettings, true))
 		f:flush()
 		f:close()
 	else
 		log.error("Failed writing to %s (%s)", self.m_sFileName, err)
-		notification.error(("Failed writing to %s (%s)"):format(self.m_sFileName, err))
+		notification.error("Failed writing to %s (%s)", self.m_sFileName, err)
 	end
 end
 
@@ -554,38 +548,36 @@ function PANEL:LoadSettings()
 
 	local f = filesystem.newFile(self.m_sFileName, "r")
 	if f then
-		for k,v in pairs(json.decode(f:read())) do
-			if settings[k] ~= nil then -- We have a valid setting
-				settings[k] = v -- Update value from config file
-
-			-- CONVERT OLD SETTINGS INTO NEW
-			elseif k == "hide-dpad" and type(v) == "boolean" then
-				-- Renamed "hide-dpad" to "enable-dpad" when we added "enable-start"
-				updatedConfigSetting(settings, k, v, "enable-dpad", not v)
-			elseif k == "slippi-netplay" and v == true then
-				-- At one point "slippi-netplay" was a boolean value for on/off
-				updatedConfigSetting(settings, k, v, "slippi-mode", SLIPPI_NETPLAY)
-			elseif k == "stage-music" or k == "stage-music-loop" or k == "music-volume" then
-				-- prefix "melee-" to our old music configs
-				updatedConfigSetting(settings, k, v, "melee-" .. k, v)
-			elseif k == "melee-stage-music-loop" then
-				if type(v) == "boolean" then
-					-- Back when we only had a single checkbox for looping a stage
-					-- this value was a boolean, convert to new flag.
-					updatedConfigSetting(settings, k, v, "melee-music-loop-flags", LOOPING_STAGE_TIMED)
-				elseif type(v) == "number" then
-					-- Convert our old radio options for the new checkbox system
-					local translate = {
-						[1] = LOOPING_NONE, -- OFF
-						[2] = LOOPING_MENU, -- MENU
-						[3] = LOOPING_STAGE_TIMED, -- STAGE
-						[4] = LOOPING_MENU + LOOPING_STAGE_TIMED, -- ALL
-						[5] = LOOPING_STAGE_TIMED, -- ADAPTIVE
-					}
-					updatedConfigSetting(settings, k, v, "melee-music-loop-flags", translate[v] or LOOPING_NONE)
+		local success, decoded = pcall(json.decode, f:read())
+		if not success then
+			-- Get the last bit of text after the file name and line number
+			-- Error format: "filename.lua:1: (OUR ERROR STRING HERE)"
+			local err = string.match(decoded, "^.*:%s*(.*)$") or decoded
+			log.error("[CONFIG] Failed parsing %s: ('%s')", self.m_sFileName, err)
+			notification.error("Failed parsing %s: ('%s')", self.m_sFileName, err)
+		else
+			for k,v in pairs(decoded) do
+				if settings[k] ~= nil then -- We have a valid setting
+					settings[k] = v -- Update value from config file
+				if k == "melee-stage-music-loop" then
+					if type(v) == "boolean" then
+						-- Back when we only had a single checkbox for looping a stage
+						-- this value was a boolean, convert to new flag.
+						updatedConfigSetting(settings, k, v, "melee-music-loop-flags", LOOPING_STAGE_TIMED)
+					elseif type(v) == "number" then
+						-- Convert our old radio options for the new checkbox system
+						local translate = {
+							[1] = LOOPING_NONE, -- OFF
+							[2] = LOOPING_MENU, -- MENU
+							[3] = LOOPING_STAGE_TIMED, -- STAGE
+							[4] = LOOPING_MENU + LOOPING_STAGE_TIMED, -- ALL
+							[5] = LOOPING_STAGE_TIMED, -- ADAPTIVE
+						}
+						updatedConfigSetting(settings, k, v, "melee-music-loop-flags", translate[v] or LOOPING_NONE)
+					end
+				else
+					log.debug("[CONFIG] Ignoring old setting config %q", k)
 				end
-			else
-				log.debug("[CONFIG] Ignoring old setting config %q", k)
 			end
 		end
 		f:close()
@@ -614,7 +606,4 @@ function PANEL:LoadSettings()
 		self.USE_TRANASPARENCY:SetToggled(settings["use-transparency"], true)
 	end
 	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))
-
-	-- If we made any changes during load, save them now..
-	self:SaveSettings()
 end
