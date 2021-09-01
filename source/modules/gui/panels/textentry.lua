@@ -205,7 +205,7 @@ function PANEL:SetText(str)
 end
 
 function PANEL:OnHoveredTextInput(text)
-	if self.m_bHoveredInput then
+	if not self:HasFocus() and self.m_bHoveredInput then
 		self:OnTextInput(text)
 	end
 end
