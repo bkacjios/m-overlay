@@ -508,7 +508,6 @@ function memory.findGame()
 		memory.loadGameScript(("%s-%d"):format(gid, version))
 		memory.runhook("OnGameOpen", gid, version)
 	elseif (memory.ingame or meleeMode) and (gid == GAME_NONE and vcid == VC_NONE) then
-		memory.reset()
 		memory.ingame = false
 		memory.gameid = gid
 		memory.vcid = vcid
@@ -576,8 +575,10 @@ end
 function memory.updatememory()
 	memory.findGame()
 
-	for addr, value in pairs(memory.map) do
-		value:update()
+	if memory.ingame then
+		for addr, value in pairs(memory.map) do
+			value:update()
+		end
 	end
 end
 
