@@ -559,7 +559,7 @@ function PANEL:LoadSettings()
 			for k,v in pairs(decoded) do
 				if settings[k] ~= nil then -- We have a valid setting
 					settings[k] = v -- Update value from config file
-				if k == "melee-stage-music-loop" then
+				elseif k == "melee-stage-music-loop" then
 					if type(v) == "boolean" then
 						-- Back when we only had a single checkbox for looping a stage
 						-- this value was a boolean, convert to new flag.
