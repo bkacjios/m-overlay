@@ -90,6 +90,7 @@ function PANEL:PerformLayout()
 end
 
 function PANEL:Clear()
+	self.m_pVBar:SetScroll(0)
+	self.m_pCanvas:Clear()
 	self:InvalidateLayout()
-	return self.m_pCanvas:Clear()
 end

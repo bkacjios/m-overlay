@@ -258,12 +258,17 @@ function PANEL:CleanupOrphans()
 end
 
 function PANEL:CleanupDeleted()
+	local didDelete = false
 	for key, child in reversedipairs(self.m_tChildren) do
 		child:CleanupDeleted()
 		if child.m_bDeleted then
-			self.m_tChildren[key] = nil
+			didDelete = true
 			table.remove(self.m_tChildren, key)
+			child = nil
 		end
+	end
+	if didDelete then
+		self:InvalidateLayout()
 	end
 end
 
@@ -433,8 +438,10 @@ function PANEL:GetSize()
 end
 
 function PANEL:SetVisible(b)
-	self.m_bVisible = b
-	self:InvalidateLayout()
+	if self.m_bVisible ~= b then
+		self.m_bVisible = b
+		self:InvalidateLayout()
+	end
 end
 
 function PANEL:GetPixelSize()
@@ -565,15 +572,18 @@ function PANEL:DisableScissor()
 end
 
 function PANEL:ValidateLayout()
-	if self:IsVisible() and not self.m_bValidated then
+	if not self:IsVisible() then return end
+
+	if not self.m_bValidated then
 		self.m_bValidated = true
 		self:CenterLayout()
 		self:DockLayout()
-		self:PerformLayout()
-	end
 
-	for _,child in ipairs(self.m_tChildren) do
-		child:ValidateLayout()
+		for _,child in ipairs(self.m_tChildren) do
+			child:ValidateLayout()
+		end
+
+		self:PerformLayout()
 	end
 end
 
@@ -598,8 +608,11 @@ function PANEL:CenterLayout()
 end
 
 function PANEL:UnCenter()
-	self.m_iCenter = CENTER_NONE
-	self:InvalidateLayout()
+	local want = CENTER_NONE
+	if self.m_iCenter ~= want then
+		self.m_iCenter = want
+		self:InvalidateLayout()
+	end
 end
 
 function PANEL:Center()
@@ -608,13 +621,19 @@ function PANEL:Center()
 end
 
 function PANEL:CenterVertical()
-	self.m_iCenter = bit.bor(self.m_iCenter, CENTER_VERTICAL)
-	self:InvalidateLayout()
+	local want = bit.bor(self.m_iCenter, CENTER_VERTICAL)
+	if self.m_iCenter ~= want then
+		self.m_iCenter = want
+		self:InvalidateLayout()
+	end
 end
 
 function PANEL:CenterHorizontal()
-	self.m_iCenter = bit.bor(self.m_iCenter, CENTER_HORIZONTAL)
-	self:InvalidateLayout()
+	local want = bit.bor(self.m_iCenter, CENTER_HORIZONTAL)
+	if self.m_iCenter ~= want then
+		self.m_iCenter = want
+		self:InvalidateLayout()
+	end
 end
 
 function PANEL:DockLayout()

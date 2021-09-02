@@ -28,20 +28,20 @@ local PANEL = class.create("ScrollBar", "Panel")
 
 function PANEL:ScrollBar()
 	self:super() -- Initialize our baseclass
-	
+
 	self:SetWidth(16)
 	self.m_iOffset = 0
 	self.m_iScroll = 0
 	self.m_iCanvasSize = 1
 	self.m_iBarSize = 1
-	
+
 	self.m_pScrollGrip = self:Add("ScrollBarGrip")
-	
+
 	self.m_pUpButton = self:Add("Button")
 	self.m_pUpButton:SetText("")
 	self.m_pUpButton.OnClick = function(self) self:GetParent():AddScroll(-1) end
 	self.m_pUpButton.Paint = function(panel, w, h) gui.skinHook("Paint", "ScrollBarButtonUp", panel, w, h) end
-	
+
 	self.m_pDownButton = self:Add("Button")
 	self.m_pDownButton:SetText("")
 	self.m_pDownButton.OnClick = function(self) self:GetParent():AddScroll(1) end
@@ -54,9 +54,9 @@ function PANEL:SetEnabled(b)
 		self:SetScroll(0)
 		self.m_bHasChanged = true
 	end
-	
+
 	self:SetVisible(b)
-	
+
 	-- We're probably changing the width of something in our parent
 	-- by appearing or hiding, so tell them to re-do their layout.
 	if self.m_bEnabled ~= b then
@@ -65,7 +65,7 @@ function PANEL:SetEnabled(b)
 			self:GetParent():OnScrollbarAppear()
 		end
 	end
-	
+
 	self.m_bEnabled = b
 end
 
@@ -82,7 +82,7 @@ function PANEL:SetUp(bsize, csize)
 	self.m_iBarSize = bsize
 	self.m_iCanvasSize = math.max(csize - bsize, 1)
 	self:SetEnabled(csize > bsize)
-	self:InvalidateLayout()
+	--self:InvalidateLayout()
 end
 
 function PANEL:OnMouseWheeled(x, y)
@@ -100,9 +100,9 @@ function PANEL:SetScroll(scrll)
 	if not self.m_bEnabled then self.m_iScroll = 0 return end
 
 	self.m_iScroll = math.clamp(scrll, 0, self.m_iCanvasSize)
-	
+
 	self:InvalidateLayout()
-	
+
 	-- If our parent has a OnVScroll function use that, if
 	-- not then invalidate layout (which can be pretty slow)
 	local func = self:GetParent().OnVScroll
@@ -174,15 +174,15 @@ function PANEL:PerformLayout()
 	local barsize = math.max(self:BarScale() * (self:GetHeight() - (wide * 2)), 10)
 	local track = self:GetHeight() - (wide * 2) - barsize
 	track = track + 1
-	
+
 	scroll = scroll * track
-	
+
 	self.m_pScrollGrip:SetPos(0, wide + scroll)
 	self.m_pScrollGrip:SetSize(wide, barsize)
-	
+
 	self.m_pUpButton:SetPos(0, 0)
 	self.m_pUpButton:SetSize(wide, wide)
-	
+
 	self.m_pDownButton:SetPos(0, self:GetHeight() - wide)
 	self.m_pDownButton:SetSize(wide, wide)
 end

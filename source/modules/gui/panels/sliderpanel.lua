@@ -16,6 +16,8 @@ function PANEL:SliderPanel()
 
 	self.m_pSlider = self:Add("Slider")
 	self.m_pSlider:Dock(DOCK_TOP)
+
+	self:ValidateLayout()
 	self:SizeToChildren(false, true)
 
 	self:InheritMethods(self.m_pSlider) -- Inherit all slider functions
@@ -27,7 +29,6 @@ function PANEL:SliderPanel()
 end
 
 function PANEL:PerformLayout()
-	self:SizeToChildren(false, true)
 end
 
 function PANEL:OnValueChanged(value)
