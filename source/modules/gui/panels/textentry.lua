@@ -204,12 +204,6 @@ function PANEL:SetText(str)
 	self:CaretGoToEnd()
 end
 
-function PANEL:OnHoveredTextInput(text)
-	if not self:HasFocus() and self.m_bHoveredInput then
-		self:OnTextInput(text)
-	end
-end
-
 function PANEL:OnTextInput(text)
 	if not self:IsEnabled() then return end
 	
@@ -230,6 +224,7 @@ function PANEL:OnTextInput(text)
 	self:ResetSelection()
 
 	self:OnTextChanged(self.m_sText, text)
+	return true
 end
 
 function PANEL:UpdateUndoBuffer()
@@ -242,12 +237,6 @@ end
 
 function PANEL:Paste()
 	self:OnTextInput(love.system.getClipboardText())
-end
-
-function PANEL:OnHoveredKeyPressed(key, isrepeat)
-	if not self:HasFocus() and self.m_bHoveredInput then
-		self:OnKeyPressed(key, isrepeat)
-	end
 end
 
 function PANEL:OnKeyPressed(key, isrepeat)
@@ -355,15 +344,12 @@ function PANEL:OnKeyPressed(key, isrepeat)
 			end
 		end
 	end
-end
-
-function PANEL:OnHoveredOnKeyReleased(key)
-	if self.m_bHoveredInput then
-		self:OnKeyReleased(key)
-	end
+	return true
 end
 
 function PANEL:OnKeyReleased(key)
+	if not self:IsEnabled() then return end
+	return true
 end
 
 function PANEL:OnTextChanged(text, add)

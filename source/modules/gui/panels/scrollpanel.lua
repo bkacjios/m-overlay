@@ -4,9 +4,8 @@ function PANEL:ScrollPanel()
 	self:super() -- Initialize our baseclass
 	self:DockPadding(0,0,0,0)
 
-	self.m_pCanvas = self:Add("Panel")	
-	self.m_pCanvas:SetBGColor(color_blank)
-	self.m_pCanvas:SetBorderColor(color_blank)
+	self.m_pCanvas = self:Add("Panel")
+	self.m_pCanvas:SetBGColor(color(215, 215, 215))
 	
 	-- Create the scroll bar
 	self.m_pVBar = self:Add("ScrollBar")

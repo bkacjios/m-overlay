@@ -1,12 +1,14 @@
 local music = {
 	PLAYLIST = {},
+	SONGS = {},
 	PLAYLIST_ID = -1,
 	PLAYING = nil,
 	FINISHED = true,
 	LOOP = false,
-	USE_WEIGHTS = false,
 	TRACK_ID = {},
 	RNG_SEED = nil,
+	PROBABILITY_FILE = "probability.json",
+	PROBABILITY_SETTINGS = {}
 }
 
 local log = require("log")
@@ -15,6 +17,7 @@ local memory = require("memory")
 local notification = require("notification")
 local overlay = require("overlay")
 local wav = require("wav")
+local json = require("serializer.json")
 
 require("extensions.math")
 
@@ -25,13 +28,13 @@ local function weightedRandomChoice(list)
 	if #list == 1 then return 1 end
 
 	local sum = 0
-	for _, v in pairs(list) do
-		sum = sum + v.WEIGHT
+	for _, weight in pairs(list) do
+		sum = sum + weight
 	end
 
 	local choice = math.random(1, sum)
-	for k, v in pairs(list) do
-		choice = choice - v.WEIGHT
+	for k, weight in pairs(list) do
+		choice = choice - weight
 		if choice <= 0 then
 			return k
 		end
@@ -142,6 +145,8 @@ function music.init()
 	for stageid, name in pairs(melee.getBeyondMeleeStages()) do
 		love.filesystem.createDirectory(("Melee/Beyond Melee Stage Music/%s"):format(name))
 	end
+
+	music.loadProbablitities()
 end
 
 function music.kill()
@@ -172,6 +177,14 @@ end
 
 function music.getVolume()
 	return PANEL_SETTINGS:GetVolume()
+end
+
+function music.getPlaylist()
+	local playlist = table.copy(music.PLAYLIST)
+	table.sort(playlist, function(a, b)
+		return a.FILEPATH < b.FILEPATH
+	end)
+	return playlist
 end
 
 local LOADED = false
@@ -248,9 +261,23 @@ do
 end
 
 do
+local function getWeightTable(songs)
+	local tbl = {}
+	local useWeights = false
+	for k, song in pairs(songs) do
+		tbl[k] = music.getFileProbability(song.FILEPATH)
+		if tbl[k] < 100 then
+			useWeights = true
+		end
+	end
+	return tbl, useWeights
+end
+
 local function getNextTrack(songs)
-	if music.USE_WEIGHTS then
-		local track_id = weightedRandomChoice(songs)
+	local weightTable, useWeights = getWeightTable(songs)
+
+	if useWeights then
+		local track_id = weightedRandomChoice(getWeightTable(songs))
 		return track_id, track_id
 	end
 
@@ -403,6 +430,10 @@ local valid_music_ext = {
 	["flac"] = true
 }
 
+function music.isValidMusicExt(ext)
+	return valid_music_ext[ext]
+end
+
 function music.loadPlaylistForStage(stageid, name)
 	local found = 0
 	local files = love.filesystem.getDirectoryItems(name)
@@ -414,18 +445,20 @@ function music.loadPlaylistForStage(stageid, name)
 			if info.type == "file" then
 				local ext = string.getFileExtension(file):lower()
 
-				if valid_music_ext[ext] then
+				if music.isValidMusicExt(ext) then
 					found = found + 1
 
 					-- Insert the newly found track into a random position in the playlist
 					local pos = math.random(1, #music.PLAYLIST)
-					local prob = tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 1
+					local prob = music.PROBABILITY_SETTINGS[filepath] or tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 100
 
-					if prob > 1 then
-						music.USE_WEIGHTS = true
+					if prob > 100 then
+						log.warn("[MUSIC] Song %q has a probability greater than 100%", filepath)
 					end
 
-					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, WEIGHT = prob, IS_WAV = ext == "wav"})
+					music.PROBABILITY_SETTINGS[filepath] = prob
+
+					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, FILENAME = file, WEIGHT = prob, IS_WAV = ext == "wav"})
 				end
 			end
 		else
@@ -437,6 +470,56 @@ function music.loadPlaylistForStage(stageid, name)
 	end
 end
 
+function music.loadProbablitities()
+	music.PROBABILITY_SETTINGS = {}
+
+	local probFile = music.PROBABILITY_FILE
+
+	local f = love.filesystem.newFile(probFile, "r")
+	if f then
+		local success, decoded = pcall(json.decode, f:read())
+		f:close()
+		if not success then
+			-- If we failed decoding, decoded is an error string.
+			-- Get the last bit of text after the file name and line number.
+			-- Error format: "filename.lua:1: (OUR ERROR STRING HERE)"
+			local err = string.match(decoded, "^.*:%s*(.*)$") or decoded
+			log.error("[MUSIC] Failed parsing %s: ('%s')", probFile, err)
+			notification.error("Failed parsing %s: ('%s')", probFile, err)
+		else
+			for file, prob in pairs(decoded) do
+				if love.filesystem.getInfo(file) and prob < 100 then
+					music.PROBABILITY_SETTINGS[file] = prob
+				end
+			end
+		end
+	end
+end
+
+function music.updateFileProbabilities(tbl)
+	for file, prob in pairs(tbl) do
+		music.PROBABILITY_SETTINGS[file] = prob
+	end
+end
+
+function music.getFileProbability(file)
+	return music.PROBABILITY_SETTINGS[file] or 100
+end
+
+function music.saveFileProbabilities()
+	local probFile = music.PROBABILITY_FILE
+	local f, err = love.filesystem.newFile(probFile, "w")
+	if f then
+		log.warn("Writing to %s", probFile)
+		notification.warning("Writing to %s", probFile)
+		f:write(json.encode(music.PROBABILITY_SETTINGS, true))
+		f:flush()
+	else
+		log.error("Failed writing to %s: %s", probFile, err)
+		notification.error("Failed writing to %s: %s", probFile, err)
+	end
+end
+
 function music.loadForStage(stageid)
 	if music.PLAYLIST_ID == stageid then return end
 
@@ -445,7 +528,6 @@ function music.loadForStage(stageid)
 
 	music.PLAYLIST_ID = stageid
 	music.PLAYLIST = {}
-	music.USE_WEIGHTS = false
 
 	music.refreshRNGseed()
 

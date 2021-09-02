@@ -125,6 +125,11 @@ function love.load(args, unfilteredArg)
 
 		if arg == "--port" then -- Alternative '--port N'
 			portn = tonumber(args[n+1]) -- Convert the next argument in the commandline to a number
+		elseif arg == "--sublime" then
+			-- Running through sublime text
+			_SUBLIME_TEXT = true
+			log.color = false
+			PANEL_SETTINGS:Toggle()
 		end
 
 		if portn then -- A port number was specified..
@@ -132,6 +137,10 @@ function love.load(args, unfilteredArg)
 			break -- Done
 		end
 	end
+
+	log.debug(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
+	log.debug("%s (%s)", _VERSION, jit.version)
+	log.debug("M'Overlay (%s)", love.getMOverlayVersion())
 end
 
 memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)

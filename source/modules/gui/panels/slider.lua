@@ -9,6 +9,7 @@ PANEL:ACCESSOR("Value", "m_iValue", 0)				-- starting value
 PANEL:ACCESSOR("Steps", "m_iSteps", 1)				-- steps/max = number of potential values
 PANEL:ACCESSOR("Increments", "m_iIncrements", 5)	-- "minor" notches
 PANEL:ACCESSOR("Notches", "m_iNotches", 4)			-- "major" notches
+PANEL:ACCESSOR("NeedsFocus", "m_bNeedsFocus", false)-- if we need focus for scrollwheel events
 
 function PANEL:Slider()
 	self:super() -- Initialize our baseclass
@@ -109,8 +110,10 @@ end
 
 function PANEL:OnMouseWheeled(x, y)
 	if not self:IsEnabled() then return end
-	self:SetValue(self.m_iValue + (y * self.m_iSteps))
-	return true
+	if not self.m_bNeedsFocus or (self.m_bNeedsFocus and self:HasFocus()) then
+		self:SetValue(self.m_iValue + (y * self.m_iSteps))
+		return true -- Only catch if we are updating value
+	end
 end
 
 function PANEL:OnMouseReleased(x, y, but)

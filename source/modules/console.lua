@@ -168,7 +168,3 @@ if love.hasConsole() then
 	love.setConsoleTitle("M'Overlay Console")
 	love.enableConsoleColors()
 end
-
-log.debug(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
-log.debug("%s (%s)", _VERSION, jit.version)
-log.debug("M'Overlay (%s)", love.getMOverlayVersion())

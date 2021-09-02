@@ -139,28 +139,33 @@ function gui.getWorldPanel()
 end
 
 function gui.joyPressed(joy, but)
-	gui.m_pHoveredPanel:OnJoyPressed(joy, but)
+	if not gui.m_pFocusedPanel:OnJoyPressed(joy, but) then
+		gui.m_pHoveredPanel:OnJoyPressed(joy, but)
+	end
 end
 
 function gui.joyReleased(joy, but)
-	gui.m_pHoveredPanel:OnJoyReleased(joy, but)
+	if not gui.m_pFocusedPanel:OnJoyReleased(joy, but) then
+		gui.m_pHoveredPanel:OnJoyReleased(joy, but)
+	end
 end
 
 function gui.keyPressed(key, scancode, isrepeat)
-	--if key == "escape" and not isrepeat then
-	--end
-	gui.m_pFocusedPanel:OnKeyPressed(key, isrepeat)
-	gui.m_pHoveredPanel:OnHoveredKeyPressed(key, isrepeat)
+	if not gui.m_pFocusedPanel:OnKeyPressed(key, isrepeat) then
+		gui.m_pHoveredPanel:OnKeyPressed(key, isrepeat)
+	end
 end
 
 function gui.keyReleased(key)
-	gui.m_pFocusedPanel:OnKeyReleased(key)
-	gui.m_pHoveredPanel:OnHoveredKeyReleased(key)
+	if not gui.m_pFocusedPanel:OnKeyReleased(key) then
+		gui.m_pHoveredPanel:OnKeyReleased(key)
+	end
 end
 
 function gui.textInput(text)
-	gui.m_pFocusedPanel:OnTextInput(text)
-	gui.m_pHoveredPanel:OnHoveredTextInput(text)
+	if not gui.m_pFocusedPanel:OnTextInput(text) then
+		gui.m_pHoveredPanel:OnTextInput(text)
+	end
 end
 
 do
@@ -195,14 +200,32 @@ end
 
 function gui.mouseMoved(x, y, dx, dy, istouch)
 	gui.updateHoveredPanel()
+
+	-- We can't use callRecursive here since we localize the mouse x/y values to the current panel
 	local panel = gui.getFocusedPanel()
+
+	-- Localize mouse pos
 	local lx, ly = panel:WorldToLocal(x,y)
 	if not panel:OnMouseMoved(lx, ly, dx, dy, istouch) then
 		local parent = panel:GetParent()
 		while parent do
+			-- Localize mouse pos
 			lx, ly = parent:WorldToLocal(x, y)
 			if parent:OnMouseMoved(lx, ly, dx, dy, istouch) then break end
 			parent = parent:GetParent()
+		end
+	end
+end
+
+local function callRecursive(panel, func, ...)
+	if panel then
+		local ret = panel[func](panel, ...)
+		if not ret then
+			return callRecursive(panel:GetParent(), func, ...)
+		else
+			gui.hideTooltip()
+			panel:SetInteracted(true)
+			return ret
 		end
 	end
 end
@@ -211,7 +234,14 @@ function gui.mousePressed(x, y, button, istouch, presses)
 	local panel = gui.m_pHoveredPanel
 	gui.setFocusedPanel(panel)
 
-	local lx, ly = panel:WorldToLocal(x, y)
+	local lx, ly = gui.m_pFocusedPanel:WorldToLocal(x,y)
+
+	if not callRecursive(gui.m_pFocusedPanel, "OnMousePressed", lx, ly, button, istouch, presses) then
+		lx, ly = gui.m_pHoveredPanel:WorldToLocal(x,y)
+		callRecursive(gui.m_pHoveredPanel, "OnMousePressed", lx, ly, button, istouch, presses)
+	end
+
+	--[[local lx, ly = panel:WorldToLocal(x, y)
 	if not panel:OnMousePressed(lx, ly, button, istouch, presses) then
 		local parent = panel:GetParent()
 		while parent do
@@ -219,36 +249,33 @@ function gui.mousePressed(x, y, button, istouch, presses)
 			if parent:OnMousePressed(lx, ly, button, istouch, presses) then break end
 			parent = parent:GetParent()
 		end
-	end
+	end]]
 end
 
 function gui.mouseReleased(x, y, button, istouch, presses)
 	local panel = gui.getFocusedPanel()
 	local lx, ly = panel:WorldToLocal(x,y)
-	if not panel:OnMouseReleased(lx, ly, button, istouch, presses) then
+
+	if not callRecursive(gui.m_pFocusedPanel, "OnMouseReleased", lx, ly, button, istouch, presses) then
+		lx, ly = gui.m_pHoveredPanel:WorldToLocal(x,y)
+		callRecursive(gui.m_pHoveredPanel, "OnMouseReleased", lx, ly, button, istouch, presses)
+	end
+
+	--[[if not panel:OnMouseReleased(lx, ly, button, istouch, presses) then
 		local parent = panel:GetParent()
 		while parent do
 			lx, ly = parent:WorldToLocal(x, y)
 			if parent:OnMouseReleased(lx, ly, button, istouch, presses) then break end
 			parent = parent:GetParent()
 		end
-	end
-end
-
-local function callRecursive(panel, func, ...)
-	if panel then
-		if not panel[func](panel, ...) then
-			callRecursive(panel:GetParent(), func, ...)
-		else
-			gui.hideTooltip()
-			panel:SetInteracted(true)
-		end
-	end
+	end]]
 end
 
 function gui.mouseWheeled(x, y)
 	gui.updateHoveredPanel()
-	callRecursive(gui.m_pHoveredPanel, "OnMouseWheeled", x, y)
+	if not callRecursive(gui.m_pFocusedPanel, "OnMouseWheeled", x, y) then
+		callRecursive(gui.m_pHoveredPanel, "OnMouseWheeled", x, y)
+	end
 end
 
 function gui.update(dt)

@@ -1,5 +1,9 @@
 local PANEL = class.create("ScrollBarGrip", "Panel")
 
+function PANEL:ScrollBarGrip()
+	self:super() -- Initialize our baseclass
+end
+
 function PANEL:OnMousePressed(x, y, but)
 	self.m_bPressed = true
 	self:GetParent():Grip(self)

@@ -27,7 +27,6 @@ function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
 	else
 		self.MAIN:Center()
 	end
-	
 end
 
 function PANEL:Settings()
@@ -45,6 +44,11 @@ function PANEL:Settings()
 	self.COLORSELECT:SetSize(296 + 32, 256)
 	self.COLORSELECT:Center()
 	self.COLORSELECT:SetVisible(false)
+
+	self.MUSICPROBABILITY = self:Add("MusicProbability")
+	self.MUSICPROBABILITY:SetSize(512, 256)
+	self.MUSICPROBABILITY:Center()
+	self.MUSICPROBABILITY:SetVisible(false)
 
 	self.MAIN = self:Add("TabbedPanel")
 	self.MAIN:SizeToParent()
@@ -158,9 +162,18 @@ When the song ends or reaches a loop point, it will play again.]])
 
 When the song ends or reaches a loop point, it will play again.]])
 	
-	
 	function self.MELEE.MUSICLOOP:OnValueChanged(flags)
 		music.onLoopChange(flags)
+	end
+
+	self.MELEE.MUSICPROB = self.MELEE.RIGHT:Add("Button")
+	self.MELEE.MUSICPROB:SetText("Music Probability")
+	self.MELEE.MUSICPROB:Dock(DOCK_BOTTOM)
+
+	self.MELEE.MUSICPROB.OnClick = function(this)
+		self.MUSICPROBABILITY:SetVisible(true)
+		self.MUSICPROBABILITY:BringToFront()
+		self.MUSICPROBABILITY:UpdatePlaylist()
 	end
 	
 	self.MELEE.MUSICSKIP = self.MELEE.LEFT:Add("GCBinderPanel")
@@ -533,8 +546,8 @@ function PANEL:SaveSettings()
 		f:flush()
 		f:close()
 	else
-		log.error("Failed writing to %s (%s)", self.m_sFileName, err)
-		notification.error("Failed writing to %s (%s)", self.m_sFileName, err)
+		log.error("Failed writing to %s: %s", self.m_sFileName, err)
+		notification.error("Failed writing to %s: %s", self.m_sFileName, err)
 	end
 end
 

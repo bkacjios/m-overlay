@@ -213,10 +213,7 @@ function PANEL:Remove()
 
 	self.m_bDeleted = true
 	self:OnRemoved()
-
-	for zpos, child in ipairs(self.m_tChildren) do
-		child:Remove()
-	end
+	self:Clear()
 end
 
 function PANEL:Clear()
@@ -524,11 +521,8 @@ function PANEL:Render()
 	if math.max(x, sx) < math.min(x + w, sx + sw) and math.max(y, sy) < math.min(y + h, sy + sh) then
 		local rsx, rsy = self:GetScale()
 
-		if self.m_bScissorEnabled then
-			graphics.setScissor(sx, sy, sw, sh)
-		end
-
 		graphics.push("all") -- Push the current graphics state
+			graphics.setScissor(sx, sy, sw, sh)
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
 			graphics.scale(rsx, rsy)
 
@@ -547,10 +541,11 @@ function PANEL:Render()
 				child:Render()
 			end
 
+			graphics.setScissor(sx, sy, sw, sh)
 			graphics.translate(x, y) -- Translate so Paint has localized position values for drawing objects
 			graphics.scale(rsx, rsy)
 			graphics.setColor(255, 255, 255, 255)
-			self:PaintOverlay(self:GetPixelSize())
+			self:PaintOverlay(uw, uh)
 
 			graphics.origin()
 		graphics.pop() -- Reset the graphics state to what it was
@@ -841,21 +836,8 @@ function PANEL:OnKeyReleased(key)
 	-- Called when the panel is focused, and a keyboard key has been released
 end
 
-function PANEL:OnHoveredKeyPressed(key, isrepeat)
-	-- Called when the panel is hovered over, and a keyboard key has been pressed
-end
-
-function PANEL:OnHoveredKeyReleased(key)
-	-- Called when the panel is hovered over, and a keyboard key has been released
-end
-
 function PANEL:OnTextInput(text)
 	-- Called when the panel is focused.
-	-- Good for a text input panel.
-end
-
-function PANEL:OnHoveredTextInput(text)
-	-- Called when the panel is hovered.
 	-- Good for a text input panel.
 end
 

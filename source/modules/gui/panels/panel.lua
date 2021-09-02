@@ -59,6 +59,7 @@ function PANEL:OnMouseReleased(x, y, but)
 	self.m_bPressed = false
 	if self:IsHovered() then
 		self:OnClick()
+		return true
 	end
 end
 
