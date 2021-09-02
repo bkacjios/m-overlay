@@ -57,26 +57,27 @@ end
 
 function PANEL:ScrollToChild(panel)
 	self:PerformLayout()
-	
+
 	local x, y = self.m_pCanvas:GetChildPosition(panel)
 	local w, h = panel:GetSize()
-	
+
 	y = y + h * 0.5;
 	y = y - self:GetHeight() * 0.5;
 
-	self.m_pVBar:AnimateTo(y, 0.5, 0, 0.5);
+	self.m_pVBar:SetY(y)
+	--self.m_pVBar:AnimateTo(y, 0.5, 0, 0.5);
 end
 
 function PANEL:PerformLayout()
 	local wide = self:GetWidth()
 	local ypos = 0
 	local xpos = 0
-	
+
 	self:Rebuild()
-	
+
 	self.m_pVBar:SetUp(self:GetHeight(), self.m_pCanvas:GetHeight())
 	ypos = self.m_pVBar:GetOffset()
-		
+
 	if self.m_pVBar.m_bEnabled then
 		wide = wide - self.m_pVBar:GetWidth()
 		wide = wide - self.m_pVBar.m_tDockMargins.left - self.m_pVBar.m_tDockMargins.right
@@ -84,10 +85,11 @@ function PANEL:PerformLayout()
 
 	self.m_pCanvas:SetPos(0, ypos)
 	self.m_pCanvas:SetWidth(wide)
-	
+
 	self:Rebuild()
 end
 
 function PANEL:Clear()
+	self:InvalidateLayout()
 	return self.m_pCanvas:Clear()
 end

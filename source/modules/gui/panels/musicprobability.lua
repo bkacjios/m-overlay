@@ -70,6 +70,17 @@ function PANEL:MusicProbability()
 		end
 	end
 
+	self.ZERO = self.OPTIONS:Add("Button")
+	self.ZERO:Dock(DOCK_LEFT)
+	self.ZERO:SetText("Zero")
+	self.ZERO:SetWidth(56)
+
+	self.ZERO.OnClick = function(this)
+		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+			child:SetValue(0)
+		end
+	end
+
 	self.OKAY = self.OPTIONS:Add("Button")
 	self.OKAY:Dock(DOCK_RIGHT)
 	self.OKAY:SetText("Okay")

@@ -32,6 +32,8 @@ local function weightedRandomChoice(list)
 		sum = sum + weight
 	end
 
+	if sum <= 0 then return nil end
+
 	local choice = math.random(1, sum)
 	for k, weight in pairs(list) do
 		choice = choice - weight
@@ -506,13 +508,27 @@ function music.getFileProbability(file)
 	return music.PROBABILITY_SETTINGS[file] or 100
 end
 
+function music.getFileProbabilitySaveTable()
+	local tbl = {}
+
+	-- Only get files that have a custom prob. set
+	for filepath, prob in pairs(music.PROBABILITY_SETTINGS) do
+		if prob < 100 then
+			tbl[filepath] = prob
+		end
+	end
+
+	return tbl
+end
+
 function music.saveFileProbabilities()
 	local probFile = music.PROBABILITY_FILE
+
 	local f, err = love.filesystem.newFile(probFile, "w")
 	if f then
 		log.warn("Writing to %s", probFile)
 		notification.warning("Writing to %s", probFile)
-		f:write(json.encode(music.PROBABILITY_SETTINGS, true))
+		f:write(json.encode(music.getFileProbabilitySaveTable(), true))
 		f:flush()
 	else
 		log.error("Failed writing to %s: %s", probFile, err)
