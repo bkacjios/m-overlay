@@ -36,17 +36,17 @@ function PANEL:OnFocusChanged(focus)
 end
 
 local PANEL = class.create("TextEntry", "Panel")
+local utf8 = require("extensions.utf8")
 
 PANEL:ACCESSOR("HoveredInput", "m_bHoveredInput", false)
-
-local utf8 = require("extensions.utf8")
+PANEL:ACCESSOR("TextHint", "m_sTextHint", "")
 
 function PANEL:TextEntry()
 	self:super() -- Initialize our baseclass
 
 	self.m_pContext = gui.create("TextEntryContext")
 	self.m_pContext:SetTextEntry(self)
-	
+
 	self.m_sText = ""
 	self.m_iCaretPos = 0
 	self.m_bSelectMode = false
@@ -54,6 +54,7 @@ function PANEL:TextEntry()
 	self.m_iSelectRight = 0
 	self.m_bInsert = false
 	self.m_cTextColor = color(0, 0, 0)
+	self.m_cTextHintColor = color_grey
 	self.m_cHighlightTextColor = color(0, 150, 255, 100)
 	self.m_pFont = graphics.newFont() --love.graphics.newFont("resource/fonts/VeraMono.ttf", 12)
 	self.m_pMouseBeam = love.mouse.getSystemCursor("ibeam")
@@ -87,14 +88,21 @@ function PANEL:Paint(w, h)
 	love.graphics.setColor(self.m_cTextColor)
 	love.graphics.setFont(self.m_pFont)
 
+	local drawText = self.m_sText
+
+	if not self:HasFocus() and self.m_sText == "" then
+		drawText = self.m_sTextHint
+		love.graphics.setColor(self.m_cTextHintColor)
+	end
+
 	local height = self.m_pFont:getHeight()
-	local tw = self.m_pFont:getWidth(self.m_sText)
+	local tw = self.m_pFont:getWidth(drawText)
 	local pw = self:GetWidth()
 
 	if tw > pw then
-		love.graphics.print(self.m_sText, pw-tw-6, h/2 - (height/2))
+		love.graphics.print(drawText, pw-tw-6, h/2 - (height/2))
 	else
-		love.graphics.print(self.m_sText, 6, h/2 - (height/2))
+		love.graphics.print(drawText, 6, h/2 - (height/2))
 	end
 
 	if self.m_iSelectLeft < self.m_iSelectRight then
@@ -112,9 +120,9 @@ function PANEL:Paint(w, h)
 	if not self:HasFocus() or not self:IsEnabled() then return end
 	if math.floor(love.timer.getTime()*2) % 2 == 0 then return end -- Blink cursor on and off
 
-	local pre = utf8.sub(self.m_sText, 1, self.m_iCaretPos)
+	local pre = utf8.sub(drawText, 1, self.m_iCaretPos)
 	local caretPos = self.m_pFont:getWidth(pre)
-	local caretChar = utf8.sub(self.m_sText, self.m_iCaretPos, self.m_iCaretPos)
+	local caretChar = utf8.sub(drawText, self.m_iCaretPos, self.m_iCaretPos)
 
 	if tw > pw then
 		caretPos = caretPos - tw + pw - 6
@@ -225,6 +233,8 @@ function PANEL:GetCaretPosFromMouse(mx, my)
 	local smallest_pos = 0
 	local smallest_diff = math.huge
 
+	-- TODO: Support selection in Y axis..
+
 	local diff = math.abs(mx - posx)
 	if diff < smallest_diff then
 		smallest_diff = diff
@@ -282,6 +292,11 @@ function PANEL:SetText(str)
 	self:CaretGoToEnd()
 end
 
+function PANEL:ChangeText(str)
+	self.m_sText = str
+	self:OnTextChanged(str)
+end
+
 function PANEL:OnTextInput(text)
 	if not self:IsEnabled() then return end
 
@@ -329,21 +344,21 @@ function PANEL:OnKeyPressed(key, isrepeat)
 		self.m_iCaretPos = utf8.len(self.m_sText)
 	elseif key == "backspace" then
 		if self.m_iSelectLeft < self.m_iSelectRight then
-			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
+			self:ChangeText(self:GetPreSelection() .. self:GetPostSelection())
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
 			self:ExitSelection()
 		else
 			self.m_iCaretPos = math.max(0, self.m_iCaretPos - 1)
-			self.m_sText = self:GetPreCaret() .. self:GetPostCaret(1)
+			self:ChangeText(self:GetPreCaret() .. self:GetPostCaret(1))
 		end
 		self:UpdateUndoBuffer()
 	elseif key == "delete" then
 		if self.m_iSelectLeft < self.m_iSelectRight then
-			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
+			self:ChangeText(self:GetPreSelection() .. self:GetPostSelection())
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
 			self:ExitSelection()
 		else
-			self.m_sText = self:GetPreCaret() .. self:GetPostCaret(1)
+			self:ChangeText(self:GetPreCaret() .. self:GetPostCaret(1))
 		end
 		self:UpdateUndoBuffer()
 	elseif key == "left" then
@@ -396,7 +411,7 @@ function PANEL:OnKeyPressed(key, isrepeat)
 			self:SelectAll()
 		elseif key == "x" then
 			self:Copy()
-			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
+			self:ChangeText(self:GetPreSelection() .. self:GetPostSelection())
 			self:UpdateUndoBuffer()
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
 			self:ExitSelection()
@@ -407,14 +422,14 @@ function PANEL:OnKeyPressed(key, isrepeat)
 		elseif key == "y" then
 			local pop = table.remove(self.m_tRedoBuffer) or ""
 			if pop ~= "" then
-				self.m_sText = pop
+				self:ChangeText(pop)
 				self:CaretGoToEnd()
 				self:ExitSelection()
 				table.insert(self.m_tUndoBuffer, pop)
 			end
 		elseif key == "z" then
 			local pop = table.remove(self.m_tUndoBuffer) or ""
-			self.m_sText = self.m_tUndoBuffer[#self.m_tUndoBuffer] or ""
+			self:ChangeText(self.m_tUndoBuffer[#self.m_tUndoBuffer] or "")
 			self:CaretGoToEnd()
 			self:ExitSelection()
 			if pop ~= "" then

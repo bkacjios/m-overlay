@@ -49,6 +49,17 @@ end
 function PANEL:MusicProbability()
 	self:super()
 
+	self.SEARCH = self:Add("TextEntry")
+	self.SEARCH:Dock(DOCK_TOP)
+	self.SEARCH:SetTextHint("Search..")
+
+	self.SEARCH.OnTextChanged = function(this, text, add)
+		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+			local vis = string.find(child:GetText():lower(), text:lower(), 1, true) ~= nil
+			child:SetVisible(vis)
+		end
+	end
+
 	self.PLAYLIST = self:Add("ScrollPanel")
 	self.PLAYLIST:Dock(DOCK_FILL)
 	self.PLAYLIST:DockPadding(0,0,0,0)
