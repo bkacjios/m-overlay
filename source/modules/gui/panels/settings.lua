@@ -190,7 +190,9 @@ NOTE: This button is only usable when in a supported game.]])
 	self.MELEE.MUSICMUTE:SetText("Mute track combo")
 	self.MELEE.MUSICMUTE:Dock(DOCK_TOP)
 	self.MELEE.MUSICMUTE:SetTooltipTitle("MUTE TRACK COMBO")
-	self.MELEE.MUSICMUTE:SetTooltipBody([[TODO]])
+	self.MELEE.MUSICMUTE:SetTooltipBody([[This button will allow you to a set a button combination on your controller to mute/unmute the music.
+
+NOTE: This button is only usable when in a supported game.]])
 
 	self.MELEE.VOLUME = self.MELEE.RIGHT:Add("SliderPanel")
 	self.MELEE.VOLUME:DockMargin(0,0,0,0)

@@ -140,13 +140,55 @@ function PANEL:SetTextColor(c)
 end
 
 function PANEL:OnMousePressed(x, y, but)
-	if but == 2 then
+	if but == 1 then
+		self:ExitSelection()
+		self.m_bGrabbed = true
+		self.m_iCaretPos = self:GetCaretPosFromMouse(x, y)
+		self:EnterSelectMode()
+		return true
+	elseif but == 2 then
 		self:ShowContext()
+		return true
 	end
 end
 
 function PANEL:OnMouseReleased(x, y, but)
+	if but == 1 then
+		self.m_bGrabbed = false
+		self.m_iCaretPos = self:GetCaretPosFromMouse(x, y)
+		return true
+	end
+end
 
+function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
+	if self.m_bGrabbed then
+		local pos = self:GetCaretPosFromMouse(x, y)
+
+		if self.m_iCaretPos ~= pos then
+			self.m_iCaretPos = pos
+
+			self:EnterSelectMode()
+
+			if dx < 0 then
+				if self.m_iCaretPos >= 0 then
+					if pos < self.m_iSelectLeft then
+						self.m_iSelectLeft = pos -- move selection left
+					else
+						self.m_iSelectRight = pos -- deselect from the right of the selection
+					end
+				end
+			elseif dx > 0 then
+				if self.m_iCaretPos <= utf8.len(self.m_sText) then
+					if pos > self.m_iSelectRight then
+						self.m_iSelectRight = pos -- move selection right
+					else
+						self.m_iSelectLeft = pos -- deselect from the left of the selection
+					end
+				end
+			end
+		end
+		return true
+	end
 end
 
 function PANEL:CaretGoToEnd()
@@ -177,11 +219,47 @@ function PANEL:GetPostSelection()
 	return utf8.sub(self.m_sText, self.m_iSelectRight + 1) or ""
 end
 
-function PANEL:ResetSelection()
+function PANEL:GetCaretPosFromMouse(mx, my)
+	local posx = 3
+	local caret_pos = 0
+	local smallest_pos = 0
+	local smallest_diff = math.huge
+
+	local diff = math.abs(mx - posx)
+	if diff < smallest_diff then
+		smallest_diff = diff
+		smallest_pos = caret_pos
+		caret_pos = caret_pos + 1
+	end
+
+	for c in self.m_sText:gfind("([%z\1-\127\194-\244][\128-\191]*)") do
+		if not self.m_tCharacterSizes[c] then
+			self.m_tCharacterSizes[c] = self.m_pFont:getWidth(c)
+		end
+
+		local width = self.m_tCharacterSizes[c]
+		posx = posx + width
+
+		local diff = math.abs(mx - posx)
+		if diff < smallest_diff then
+			smallest_diff = diff
+			smallest_pos = caret_pos
+			caret_pos = caret_pos + 1
+		end
+	end
+
+	return smallest_pos
+end
+
+function PANEL:ExitSelection()
 	if not self.m_bSelectMode then return end
+	self.m_bSelectMode = false
+	self:ResetSelection()
+end
+
+function PANEL:ResetSelection()
 	self.m_iSelectLeft = 0
 	self.m_iSelectRight	= 0
-	self.m_bSelectMode = false
 end
 
 function PANEL:EnterSelectMode()
@@ -200,13 +278,13 @@ end
 
 function PANEL:SetText(str)
 	self.m_sText = str
-	self:ResetSelection()
+	self:ExitSelection()
 	self:CaretGoToEnd()
 end
 
 function PANEL:OnTextInput(text)
 	if not self:IsEnabled() then return end
-	
+
 	for c in text:gfind("([%z\1-\127\194-\244][\128-\191]*)") do
 		if not self.m_tCharacterSizes[c] then
 			self.m_tCharacterSizes[c] = self.m_pFont:getWidth(c)
@@ -221,7 +299,7 @@ function PANEL:OnTextInput(text)
 		self.m_iCaretPos = self.m_iCaretPos + utf8.len(text)
 	end
 	self:UpdateUndoBuffer()
-	self:ResetSelection()
+	self:ExitSelection()
 
 	self:OnTextChanged(self.m_sText, text)
 	return true
@@ -253,7 +331,7 @@ function PANEL:OnKeyPressed(key, isrepeat)
 		if self.m_iSelectLeft < self.m_iSelectRight then
 			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
-			self:ResetSelection()
+			self:ExitSelection()
 		else
 			self.m_iCaretPos = math.max(0, self.m_iCaretPos - 1)
 			self.m_sText = self:GetPreCaret() .. self:GetPostCaret(1)
@@ -263,7 +341,7 @@ function PANEL:OnKeyPressed(key, isrepeat)
 		if self.m_iSelectLeft < self.m_iSelectRight then
 			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
-			self:ResetSelection()
+			self:ExitSelection()
 		else
 			self.m_sText = self:GetPreCaret() .. self:GetPostCaret(1)
 		end
@@ -286,7 +364,7 @@ function PANEL:OnKeyPressed(key, isrepeat)
 			else
 				self.m_iCaretPos = pos
 			end
-			self:ResetSelection()
+			self:ExitSelection()
 		end
 	elseif key == "right" then
 		local pos = math.min(utf8.len(self.m_sText), self.m_iCaretPos + 1)
@@ -306,7 +384,7 @@ function PANEL:OnKeyPressed(key, isrepeat)
 			else
 				self.m_iCaretPos = pos
 			end
-			self:ResetSelection()
+			self:ExitSelection()
 		end
 		self.m_iCaretPos = pos
 	elseif key == "insert" then
@@ -321,7 +399,7 @@ function PANEL:OnKeyPressed(key, isrepeat)
 			self.m_sText = self:GetPreSelection() .. self:GetPostSelection()
 			self:UpdateUndoBuffer()
 			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
-			self:ResetSelection()
+			self:ExitSelection()
 		elseif key == "c" then
 			self:Copy()
 		elseif key == "v" then
@@ -331,14 +409,14 @@ function PANEL:OnKeyPressed(key, isrepeat)
 			if pop ~= "" then
 				self.m_sText = pop
 				self:CaretGoToEnd()
-				self:ResetSelection()
+				self:ExitSelection()
 				table.insert(self.m_tUndoBuffer, pop)
 			end
 		elseif key == "z" then
 			local pop = table.remove(self.m_tUndoBuffer) or ""
 			self.m_sText = self.m_tUndoBuffer[#self.m_tUndoBuffer] or ""
 			self:CaretGoToEnd()
-			self:ResetSelection()
+			self:ExitSelection()
 			if pop ~= "" then
 				table.insert(self.m_tRedoBuffer, pop)
 			end

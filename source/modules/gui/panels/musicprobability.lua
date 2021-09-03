@@ -60,7 +60,9 @@ function PANEL:MusicProbability()
 	self.OPTIONS:DockMargin(0,0,0,0)
 	self.OPTIONS:SetBorderColor(color_blank)
 
-	self.ZERO = self.OPTIONS:Add("Button")
+	self.ZERO = self.OPTIONS:Add("ButtonIcon")
+	self.ZERO:SetImage("textures/gui/bullet_arrow_down.png")
+	self.ZERO:TextMargin(24, 0, 0, 0)
 	self.ZERO:Dock(DOCK_LEFT)
 	self.ZERO:SetText("Zero")
 	self.ZERO:SetWidth(56)
@@ -71,10 +73,12 @@ function PANEL:MusicProbability()
 		end
 	end
 
-	self.RESET = self.OPTIONS:Add("Button")
+	self.RESET = self.OPTIONS:Add("ButtonIcon")
+	self.RESET:SetImage("textures/gui/arrow_undo.png")
+	self.RESET:TextMargin(24, 0, 0, 0)
 	self.RESET:Dock(DOCK_LEFT)
 	self.RESET:SetText("Reset")
-	self.RESET:SetWidth(56)
+	self.RESET:SetWidth(68)
 
 	self.RESET.OnClick = function(this)
 		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
@@ -82,7 +86,9 @@ function PANEL:MusicProbability()
 		end
 	end
 
-	self.MAX = self.OPTIONS:Add("Button")
+	self.MAX = self.OPTIONS:Add("ButtonIcon")
+	self.MAX:SetImage("textures/gui/bullet_arrow_up.png")
+	self.MAX:TextMargin(24, 0, 0, 0)
 	self.MAX:Dock(DOCK_LEFT)
 	self.MAX:SetText("Max")
 	self.MAX:SetWidth(56)
