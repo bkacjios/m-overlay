@@ -1,4 +1,4 @@
-local PANEL = class.create("ScrollBarGrip", "Panel")
+local PANEL = class.create("ScrollBarGrip", "Button")
 
 function PANEL:ScrollBarGrip()
 	self:super() -- Initialize our baseclass

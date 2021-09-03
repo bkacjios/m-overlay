@@ -141,7 +141,8 @@ function PANEL:Paint(w, h)
 end
 
 function PANEL:SizeToText()
-	self:SetSize(self.m_iTextWidth, self.m_pFont:getHeight() * self:GetLineHeight() * #self.m_tTextWrap)
+	self:WidthToText()
+	self:HeightToText()
 end
 
 function PANEL:WidthToText()

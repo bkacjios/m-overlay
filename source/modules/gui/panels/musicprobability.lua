@@ -33,7 +33,7 @@ function PANEL:UpdatePlaylist()
 		slider.m_strFilePath = file.FILEPATH
 		slider:SetText(file.FILENAME)
 		slider:SizeToText()
-		slider:SetValue(music.getFileProbability(file.FILEPATH))
+		slider:SetValue(music.getFileProbability(slider.m_strFilePath))
 		slider:SetNeedsFocus(true)
 	end
 end
@@ -57,18 +57,6 @@ function PANEL:MusicProbability()
 	self.OPTIONS:Dock(DOCK_BOTTOM)
 	self.OPTIONS:SetHeight(32)
 	self.OPTIONS:SetBGColor(color(215, 215, 215))
-	--self.OPTIONS:SetBorderColor(color_blank)
-
-	self.RESET = self.OPTIONS:Add("Button")
-	self.RESET:Dock(DOCK_LEFT)
-	self.RESET:SetText("Reset")
-	self.RESET:SetWidth(56)
-
-	self.RESET.OnClick = function(this)
-		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
-			child:SetValue(100)
-		end
-	end
 
 	self.ZERO = self.OPTIONS:Add("Button")
 	self.ZERO:Dock(DOCK_LEFT)
@@ -81,9 +69,31 @@ function PANEL:MusicProbability()
 		end
 	end
 
+	self.RESET = self.OPTIONS:Add("Button")
+	self.RESET:Dock(DOCK_LEFT)
+	self.RESET:SetText("Reset")
+	self.RESET:SetWidth(56)
+
+	self.RESET.OnClick = function(this)
+		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+			child:SetValue(music.getFileProbability(child.m_strFilePath))
+		end
+	end
+
+	self.MAX = self.OPTIONS:Add("Button")
+	self.MAX:Dock(DOCK_LEFT)
+	self.MAX:SetText("Max")
+	self.MAX:SetWidth(56)
+
+	self.MAX.OnClick = function(this)
+		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+			child:SetValue(100)
+		end
+	end
+
 	self.OKAY = self.OPTIONS:Add("Button")
 	self.OKAY:Dock(DOCK_RIGHT)
-	self.OKAY:SetText("Okay")
+	self.OKAY:SetText("Save")
 	self.OKAY:SetWidth(56)
 
 	self.OKAY.OnClick = function(this)

@@ -20,7 +20,7 @@ function PANEL:ColorSelector()
 
 	self.OKAY = self.OPTIONS:Add("Button")
 	self.OKAY:Dock(DOCK_RIGHT)
-	self.OKAY:SetText("Okay")
+	self.OKAY:SetText("Save")
 	self.OKAY:SetWidth(56)
 
 	self.OKAY.OnClick = function(this)

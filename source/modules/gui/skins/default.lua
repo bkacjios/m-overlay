@@ -21,7 +21,7 @@ SKIN.ButtonCloseHover = color(248, 167, 171)
 SKIN.TextEntryBackground = color(255, 255, 255)
 SKIN.TextEntryFocused = color(0, 162, 232)
 
-SKIN.ScrollBarGrip = color(205, 205, 205, 255)
+SKIN.ScrollBarGrip = color(235, 235, 235)
 SKIN.ScrollBarGripPressed = color(96, 96, 96, 255)
 SKIN.ScrollBarGripHover = color(166, 166, 166, 255)
 
@@ -88,14 +88,7 @@ function SKIN:PaintScrollBarButtonDown(panel, w, h)
 end
 
 function SKIN:PaintScrollBarGrip(panel, w, h)
-	local color = self.ScrollBarGrip
-	if panel:IsPressed() then
-		color = self.ScrollBarGripPressed
-	elseif panel:IsHovered() then
-		color = self.ScrollBarGripHover
-	end
-	graphics.setColor(color)
-	graphics.rectangle("fill", 1, 0, w-2, h)
+	self:PaintButton(panel,w,h)
 end
 
 function SKIN:InitButton(panel)

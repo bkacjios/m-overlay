@@ -48,6 +48,7 @@ end
 
 function gui.showTooltip()
 	gui.m_pTooltip:SetVisible(true)
+	gui.m_fTooltipTimer = nil
 end
 
 function gui.hideTooltip()
@@ -61,36 +62,37 @@ end
 
 function gui.updateHoveredPanel()
 	local hovered = gui.m_pWorldPanel:GetHoveredPanel(love.mouse.getPosition())
-
-	local hoveredOverNew = false
+	local time = love.timer.getTime()
 
 	if gui.m_pHoveredPanel ~= hovered then
-		hoveredOverNew = true
 		gui.m_pHoveredPanel:OnHoveredChanged(false)
 		gui.m_pHoveredPanel:SetInteracted(false)
 		gui.m_pHoveredPanel = hovered
 		gui.m_pHoveredPanel:OnHoveredChanged(true)
+
+		if not gui.m_pHoveredPanel:IsInteracted() then
+			gui.m_fTooltipTimer = nil
+
+			if gui.isToolTipVisible() then
+				gui.hideTooltip()
+				gui.m_fTooltipTimerCarryOver = time + 0.35
+			end
+
+			if gui.m_pHoveredPanel:QueryTooltip() then
+				if gui.m_fTooltipTimerCarryOver and gui.m_fTooltipTimerCarryOver >= time then
+					gui.showTooltip()
+				else
+					gui.m_fTooltipTimer = time + 0.75
+				end
+			end
+		end
 	end
 
 	local mx, my = love.mouse.getPosition()
-
-	if not gui.m_pHoveredPanel:IsInteracted() and (hoveredOverNew or gui.m_iTooltipMouseX ~= mx or gui.m_iTooltipMouseY ~= my) then
-		local time = love.timer.getTime()
-
-		gui.m_fTooltipTimer = nil
-		if gui.isToolTipVisible() then
-			gui.hideTooltip()
-			gui.m_fTooltipTimerCarryOver = time + 0.35
-		end
-
-		if gui.m_pHoveredPanel:QueryTooltip() then
-			if gui.m_fTooltipTimerCarryOver and gui.m_fTooltipTimerCarryOver >= time then
-				gui.showTooltip()
-			else
-				gui.m_fTooltipTimer = time + 0.75
-				gui.m_iTooltipMouseX, gui.m_iTooltipMouseY = mx, my
-			end
-		end
+	if gui.m_fTooltipTimer and (gui.m_iTooltipMouseX ~= mx or gui.m_iTooltipMouseY ~= my) then
+		-- Only start the tooltip timer once the mouse is completely still
+		gui.m_fTooltipTimer = time + 0.75
+		gui.m_iTooltipMouseX, gui.m_iTooltipMouseY = mx, my
 	end
 end
 
