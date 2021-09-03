@@ -6,6 +6,8 @@ function PANEL:ColorButton()
 	-- Initialize our baseclass
 	self:super()
 	self:TextMargin(28, 0, 0, 0)
+	self:SetTextAlignmentX("left")
+	--self:SetImage("textures/gui/color_wheel.png")
 end
 
 function PANEL:Paint(w, h)

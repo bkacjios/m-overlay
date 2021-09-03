@@ -51,7 +51,6 @@ function PANEL:Settings()
 	self.MUSICPROBABILITY:SetVisible(false)
 
 	self.MAIN = self:Add("TabbedPanel")
-	self.MAIN:SizeToParent()
 	self.MAIN:SetSize(296 + 32, 196)
 	self.MAIN:DockPadding(0, 0, 0, 0)
 	self.MAIN:Center()
@@ -166,9 +165,10 @@ When the song ends or reaches a loop point, it will play again.]])
 		music.onLoopChange(flags)
 	end
 
-	self.MELEE.MUSICPROB = self.MELEE.RIGHT:Add("Button")
+	self.MELEE.MUSICPROB = self.MELEE.LEFT:Add("ButtonIcon")
 	self.MELEE.MUSICPROB:SetText("Music Probability")
 	self.MELEE.MUSICPROB:Dock(DOCK_BOTTOM)
+	self.MELEE.MUSICPROB:SetImage("textures/gui/chart_bar_edit.png")
 
 	self.MELEE.MUSICPROB.OnClick = function(this)
 		self.MUSICPROBABILITY:SetVisible(true)
@@ -177,17 +177,25 @@ When the song ends or reaches a loop point, it will play again.]])
 	end
 	
 	self.MELEE.MUSICSKIP = self.MELEE.LEFT:Add("GCBinderPanel")
+	self.MELEE.MUSICSKIP:SetButtonCombo(0x0042)
 	self.MELEE.MUSICSKIP:SetText("Skip track combo")
 	self.MELEE.MUSICSKIP:Dock(DOCK_TOP)
 	self.MELEE.MUSICSKIP:SetTooltipTitle("SKIP TRACK COMBO")
 	self.MELEE.MUSICSKIP:SetTooltipBody([[This button will allow you to a set a button combination on your controller to skip the currently playing music track.
 
 NOTE: This button is only usable when in a supported game.]])
+	
+	self.MELEE.MUSICMUTE = self.MELEE.LEFT:Add("GCBinderPanel")
+	self.MELEE.MUSICMUTE:SetButtonCombo(0x0041)
+	self.MELEE.MUSICMUTE:SetText("Mute track combo")
+	self.MELEE.MUSICMUTE:Dock(DOCK_TOP)
+	self.MELEE.MUSICMUTE:SetTooltipTitle("MUTE TRACK COMBO")
+	self.MELEE.MUSICMUTE:SetTooltipBody([[TODO]])
 
-	self.MELEE.VOLUME = self.MELEE.LEFT:Add("SliderPanel")
+	self.MELEE.VOLUME = self.MELEE.RIGHT:Add("SliderPanel")
+	self.MELEE.VOLUME:DockMargin(0,0,0,0)
 	self.MELEE.VOLUME:SetValue(50)
 	self.MELEE.VOLUME:Dock(DOCK_BOTTOM)
-	self.MELEE.VOLUME:DockMargin(0,0,0,0)
 	self.MELEE.VOLUME:SetTooltipTitle("VOLUME")
 	self.MELEE.VOLUME:SetTooltipBody([[Adjust the volume of the music.]])
 	self.MELEE.VOLUME:SetTextFormat("Volume: %d%%")
@@ -274,8 +282,9 @@ This will only function correctly if you are capturing this window in OBS with a
 
 	self.COLORSELECT:SetColorButton(self.BACKGROUNDCOLOR)
 
-	self.CONFIGDIR = self.GENERAL.LEFT:Add("Button")
-	self.CONFIGDIR:SetText("Open config directory")
+	self.CONFIGDIR = self.GENERAL.LEFT:Add("ButtonIcon")
+	self.CONFIGDIR:SetText("Open config folder")
+	self.CONFIGDIR:SetImage("textures/gui/folder_wrench.png")
 	self.CONFIGDIR:Dock(DOCK_BOTTOM)
 	self.CONFIGDIR:SetTooltipTitle("CONFIGURATION DIRECTORY")
 	self.CONFIGDIR:SetTooltipBody([[This button will open the file explorer to M'Overlay's config directory.
@@ -312,7 +321,8 @@ This is also the same directory you use to place all your music for Melee.]])
 	ICON:SetSize(96, 96)
 	ICON:CenterVertical()
 
-	local VERSION = self.ABOUT.RIGHT:Add("Button")
+	local VERSION = self.ABOUT.RIGHT:Add("ButtonIcon")
+	VERSION:SetImage("textures/gui/link.png")
 	VERSION:SetText(love.getMOverlayVersion())
 	VERSION:SetTextAlignmentX("center")
 	VERSION:Dock(DOCK_TOP)
@@ -435,6 +445,7 @@ function PANEL:GetSaveTable()
 		["melee-music"] = self:PlayStageMusic(),
 		["melee-music-loop-flags"] = self:GetMusicLoopMode(),
 		["melee-music-skip-buttons"] = self:GetMusicSkipMask(),
+		["melee-music-mute-buttons"] = self:GetMusicMuteMask(),
 		["melee-music-volume"] = self:GetVolume(),
 		["background-color"] = self:GetBackgroundColor():hexString(),
 	}
@@ -458,11 +469,15 @@ function PANEL:GetBackgroundColor()
 end
 
 function PANEL:IsBinding()
-	return self.MELEE.MUSICSKIP:IsBinding()
+	return self.MELEE.MUSICSKIP:IsBinding() or self.MELEE.MUSICMUTE:IsBinding()
 end
 
 function PANEL:GetMusicSkipMask()
 	return self.MELEE.MUSICSKIP:GetButtonCombo()
+end
+
+function PANEL:GetMusicMuteMask()
+	return self.MELEE.MUSICMUTE:GetButtonCombo()
 end
 
 function PANEL:PlayStageMusic()
@@ -628,7 +643,8 @@ function PANEL:LoadSettings()
 	self.SLIPPI.MODE:SetValue(settings["slippi-mode"])
 	self.MELEE.MUSIC:SetToggled(settings["melee-music"], true)
 	self.MELEE.MUSICLOOP:SetValue(settings["melee-music-loop-flags"] or LOOPING_NONE)
-	self.MELEE.MUSICSKIP:UpdateButtonCombo(settings["melee-music-skip-buttons"])
+	self.MELEE.MUSICSKIP:SetButtonCombo(settings["melee-music-skip-buttons"])
+	self.MELEE.MUSICMUTE:SetButtonCombo(settings["melee-music-mute-buttons"])
 	self.MELEE.VOLUME:SetValue(settings["melee-music-volume"])
 	if love.supportsGameCapture() then
 		self.USE_TRANASPARENCY:SetToggled(settings["use-transparency"], true)

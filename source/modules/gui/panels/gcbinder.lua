@@ -25,24 +25,25 @@ PANEL.BUTTONS = {
 	C_RIGHT = 0x800000,
 }
 
-PANEL:ACCESSOR("ButtonCombo", "m_bButtonCombo", 0x0042)
+PANEL:ACCESSOR("ButtonCombo", "m_bButtonCombo", 0x0)
 PANEL:ACCESSOR("BindingCombo", "m_bBindingCombo", 0x0)
 PANEL:ACCESSOR("Binding", "m_bBinding", false)
 
 function PANEL:GCBinder()
 	self:super() -- Initialize our baseclass
-	
 	memory.hook("controller.*.buttons.pressed", self, self.OnButtonPressed)
+	self:UpdateButtonLabel()
 end
 
 function PANEL:Think()
 	self:SetEnabled(memory.isInGame())
 end
 
-function PANEL:UpdateButtonCombo(buttons)
-	if buttons == 0x0 then buttons = self.BUTTONS.D_DOWN end
-	self.m_bButtonCombo = buttons
-	self:UpdateButtonLabel()
+function PANEL:SetButtonCombo(buttons)
+	if buttons then
+		self.m_bButtonCombo = buttons
+		self:UpdateButtonLabel()
+	end
 end
 
 function PANEL:UpdateButtonLabel()

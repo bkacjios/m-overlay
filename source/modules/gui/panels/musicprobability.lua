@@ -55,8 +55,10 @@ function PANEL:MusicProbability()
 
 	self.OPTIONS = self:Add("Panel")
 	self.OPTIONS:Dock(DOCK_BOTTOM)
-	self.OPTIONS:SetHeight(32)
-	self.OPTIONS:SetBGColor(color(215, 215, 215))
+	self.OPTIONS:SetHeight(28)
+	self.OPTIONS:DockPadding(0,0,0,0)
+	self.OPTIONS:DockMargin(0,0,0,0)
+	self.OPTIONS:SetBorderColor(color_blank)
 
 	self.ZERO = self.OPTIONS:Add("Button")
 	self.ZERO:Dock(DOCK_LEFT)
@@ -91,10 +93,11 @@ function PANEL:MusicProbability()
 		end
 	end
 
-	self.OKAY = self.OPTIONS:Add("Button")
+	self.OKAY = self.OPTIONS:Add("ButtonIcon")
+	self.OKAY:SetImage("textures/gui/disk.png")
 	self.OKAY:Dock(DOCK_RIGHT)
 	self.OKAY:SetText("Save")
-	self.OKAY:SetWidth(56)
+	self.OKAY:SetWidth(64)
 
 	self.OKAY.OnClick = function(this)
 		self:SetVisible(false)
@@ -102,10 +105,11 @@ function PANEL:MusicProbability()
 		music.saveFileProbabilities()
 	end
 
-	self.CANCEL = self.OPTIONS:Add("Button")
+	self.CANCEL = self.OPTIONS:Add("ButtonIcon")
+	self.CANCEL:SetImage("textures/gui/cancel.png")
 	self.CANCEL:Dock(DOCK_RIGHT)
 	self.CANCEL:SetText("Cancel")
-	self.CANCEL:SetWidth(56)
+	self.CANCEL:SetWidth(76)
 
 	self.CANCEL.OnClick = function(this)
 		self:SetVisible(false)

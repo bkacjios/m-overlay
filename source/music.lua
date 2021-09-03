@@ -8,7 +8,8 @@ local music = {
 	TRACK_ID = {},
 	RNG_SEED = nil,
 	PROBABILITY_FILE = "probability.json",
-	PROBABILITY_SETTINGS = {}
+	PROBABILITY_SETTINGS = {},
+	MUTED = false
 }
 
 local log = require("log")
@@ -237,7 +238,10 @@ function music.setVolume(vol)
 		memory.writeByte(0x804D3887, (vol/100) * 127)
 	end
 
-	if music.PLAYING and music.PLAYING.STREAM:isPlaying() then
+	if music.PLAYING then
+		if music.MUTED then
+			vol = 0
+		end
 		music.PLAYING.STREAM:setVolume((vol/100) * (melee.isPaused() and 0.35 or 1))
 	end
 end
@@ -336,8 +340,7 @@ function music.playNextTrack()
 			else
 				log.info("[MUSIC] Playing track #%d for stage %q", track_id, melee.getStageName(music.PLAYLIST_ID))
 			end
-
-			music.PLAYING.STREAM:setVolume((PANEL_SETTINGS:GetVolume()/100) * (melee.isPaused() and 0.35 or 1))
+			music.setVolume(PANEL_SETTINGS:GetVolume())
 			music.LOOP = music.shouldLoop()
 			music.PLAYING.STREAM:play()
 			music.FINISHED = false
@@ -418,10 +421,18 @@ end)
 
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
 	if PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
-	local mask = PANEL_SETTINGS:GetMusicSkipMask()
-	if mask ~= 0x0 and port == overlay.getPort() and pressed == mask and #music.PLAYLIST > 1 then
-		log.debug("[MUSIC] [MASK = 0x%X] Button combo pressed, stopping music.", mask)
-		music.kill()
+	local skipMask = PANEL_SETTINGS:GetMusicSkipMask()
+	local muteMask = PANEL_SETTINGS:GetMusicMuteMask()
+	if port == overlay.getPort() then
+		if pressed == skipMask and #music.PLAYLIST > 1 then
+			log.debug("[MUSIC] [MASK = 0x%X] Skip combo pressed, stopping music.", skipMask)
+			music.kill()
+		end
+		if pressed == muteMask then
+			music.MUTED = not music.MUTED
+			music.setVolume(music.getVolume())
+			log.debug("[MUSIC] [MASK = 0x%X] Mute combo pressed, %s music.", skipMask, music.MUTED and "muting" or "unmuting")
+		end
 	end
 end)
 
