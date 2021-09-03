@@ -48,6 +48,7 @@ end
 
 function gui.showTooltip()
 	gui.m_pTooltip:SetVisible(true)
+	gui.m_pTooltip:BringToFront()
 	gui.m_fTooltipTimer = nil
 end
 
