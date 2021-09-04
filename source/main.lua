@@ -609,6 +609,8 @@ function love.draw()
 			graphics.easyDraw(canvas, 0, 0, 0, 512, 256)
 		graphics.setShader()
 	end]]
+	
+	music.draw()
 
 	local time = love.timer.getTime()
 
@@ -639,7 +641,6 @@ function love.draw()
 		graphics.setColor(0, 0, 0, alpha)
 		graphics.print(msg, x + 36, y+(h/2)-6)
 	end
-
 	gui.render()
 	notification.draw()
 	if CODE_ENTERED then

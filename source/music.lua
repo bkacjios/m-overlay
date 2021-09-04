@@ -12,6 +12,8 @@ local music = {
 	MUTED = false
 }
 
+local MUTED_TEXTURE = love.graphics.newImage("textures/gui/muted.png")
+
 local log = require("log")
 local melee = require("melee")
 local memory = require("memory")
@@ -355,6 +357,13 @@ function music.onStateChange()
 		music.loadForStage(memory.stage.id)
 	elseif melee.isInMenus() then
 		music.loadForStage(0)
+	end
+end
+
+function music.draw()
+	if music.MUTED then
+		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.easyDraw(MUTED_TEXTURE, 256 - 16, 256 - 68, 0, 32, 32)
 	end
 end
 
