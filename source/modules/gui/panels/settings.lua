@@ -602,9 +602,11 @@ function PANEL:LoadSettings()
 				elseif k == "music-volume" then
 					-- prefix "melee-" to our old music configs
 					updatedConfigSetting(settings, k, v, "melee-" .. k, v)
-				elseif k == "stage-music" then
+				elseif k == "stage-music" or k == "melee-stage-music" then
 					-- we are now called "melee-music"
 					updatedConfigSetting(settings, k, v, "melee-music", v)
+				elseif k == "melee-stage-music-skip-buttons" then
+					updatedConfigSetting(settings, k, v, "melee-music-skip-buttons", v)
 				elseif k == "melee-stage-music-loop" or k == "stage-music-loop" then
 					if type(v) == "boolean" then
 						-- Back when we only had a single checkbox for looping a stage
@@ -622,7 +624,7 @@ function PANEL:LoadSettings()
 						updatedConfigSetting(settings, k, v, "melee-music-loop-flags", translate[v] or LOOPING_NONE)
 					end
 				else
-					log.debug("[CONFIG] Ignoring old setting config %q", k)
+					log.debug("[CONFIG] Ignoring old setting config %q = %s", k, tostring(v))
 				end
 			end
 		end

@@ -19,6 +19,7 @@ local notification = require("notification")
 local overlay = require("overlay")
 local wav = require("wav")
 local json = require("serializer.json")
+local fs = require("util.filesystem")
 
 require("extensions.math")
 
@@ -52,7 +53,7 @@ local function moveFolderContentsTo(from, to)
 		-- Upgrade to new folder layout
 		local configdir = love.filesystem.getSaveDirectory()
 
-		local files = love.filesystem.getDirectoryItems(from)
+		local files = fs.getDirectoryItems(from)
 		for k, file in ipairs(files) do
 			os.rename(("%s/%s/%s"):format(configdir, from, file), ("%s/%s/%s"):format(configdir, to, file))
 		end
@@ -449,7 +450,7 @@ end
 
 function music.loadPlaylistForStage(stageid, name)
 	local found = 0
-	local files = love.filesystem.getDirectoryItems(name)
+	local files = fs.getDirectoryItems(name)
 	table.sort(files) -- Sort our list of files alphabetically, giving our table a deterministic state
 	for k, file in ipairs(files) do
 		local filepath = ("%s/%s"):format(name, file)
