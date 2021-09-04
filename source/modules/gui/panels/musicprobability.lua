@@ -49,8 +49,15 @@ end
 function PANEL:MusicProbability()
 	self:super()
 
-	self.SEARCH = self:Add("TextEntry")
-	self.SEARCH:Dock(DOCK_TOP)
+	self.TOPBAR = self:Add("Panel")
+	self.TOPBAR:Dock(DOCK_TOP)
+	self.TOPBAR:SetHeight(28)
+	self.TOPBAR:DockPadding(0,0,0,0)
+	self.TOPBAR:DockMargin(0,0,0,0)
+	self.TOPBAR:SetBorderColor(color_blank)
+
+	self.SEARCH = self.TOPBAR:Add("TextEntry")
+	self.SEARCH:Dock(DOCK_FILL)
 	self.SEARCH:SetTextHint("Search..")
 
 	self.SEARCH.OnTextChanged = function(this, text, add)
@@ -58,6 +65,16 @@ function PANEL:MusicProbability()
 			local vis = string.find(child:GetText():lower(), text:lower(), 1, true) ~= nil
 			child:SetVisible(vis)
 		end
+	end
+
+	self.REFRESH = self.TOPBAR:Add("ButtonIcon")
+	self.REFRESH:SetImage("textures/gui/arrow_refresh.png")
+	self.REFRESH:Dock(DOCK_RIGHT)
+	self.REFRESH:SetText("Refresh")
+	self.REFRESH:SetWidth(24)
+
+	self.REFRESH.OnClick = function(this)
+		self:UpdatePlaylist()
 	end
 
 	self.PLAYLIST = self:Add("ScrollPanel")
