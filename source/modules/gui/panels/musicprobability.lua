@@ -13,7 +13,7 @@ function PANEL:MusicFileSlider()
 	self.m_pSlider:SetNeedsFocus(true)
 
 	self.m_pFileName = self:Add("LabelIcon")
-	self.m_pFileName:Dock(DOCK_TOP)
+	self.m_pFileName:Dock(DOCK_FILL)
 	self.m_pFileName:SetTextAlignmentX("left")
 	self.m_pFileName:SetTextAlignmentY("center")
 	self.m_pFileName:SetImage("textures/gui/page.png")

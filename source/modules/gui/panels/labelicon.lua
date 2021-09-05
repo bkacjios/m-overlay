@@ -5,8 +5,8 @@ function PANEL:LabelIcon()
 	self:super()
 
 	self.m_pIcon = self:Add("Image")
-	self.m_pIcon:Dock(DOCK_LEFT)
 	self.m_pIcon:SetSize(16, 16)
+	self.m_pIcon:SetPos(4, 4)
 	self.m_pIcon:SetFocusable(false)
 	self:InheritMethods(self.m_pIcon)
 
