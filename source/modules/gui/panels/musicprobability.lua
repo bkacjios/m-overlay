@@ -10,6 +10,7 @@ function PANEL:MusicFileSlider()
 	self.m_pSlider = self:Add("SliderPanel")
 	self.m_pSlider:Dock(DOCK_RIGHT)
 	self.m_pSlider:SetWidth(128)
+	self.m_pSlider:SetNeedsFocus(true)
 
 	self.m_pFileName = self:Add("LabelIcon")
 	self.m_pFileName:Dock(DOCK_TOP)
