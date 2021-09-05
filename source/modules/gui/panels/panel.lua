@@ -56,10 +56,12 @@ end
 
 function PANEL:OnMouseReleased(x, y, but)
 	if not self.m_bEnabled or but ~= 1 then return end
-	self.m_bPressed = false
-	if self:IsHovered() then
-		self:OnClick()
-		return true
+	if self.m_bPressed then
+		self.m_bPressed = false
+		if self:IsHovered() then
+			self:OnClick()
+			return true
+		end
 	end
 end
 
