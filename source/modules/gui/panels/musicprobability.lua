@@ -88,7 +88,11 @@ local PANEL = class.create("MusicProbability", "Panel")
 
 local music = require("music")
 
+local MODE_GLOBAL = 0
+local MODE_STATE = 1
+
 function PANEL:UpdatePlaylist()
+	local mode = self.PROBMODE:GetOption()
 	local playlistTree = music.getPlaylistTree()
 
 	self.PLAYLIST:Clear()
@@ -100,13 +104,19 @@ function PANEL:UpdatePlaylist()
 
 		for k, entry in ipairs(entries) do
 			local file = directory:AddFile(entry.FILENAME)
-			file:SetFilePath(entry.FILEPATH)
-			file:SetValue(music.getFileProbability(entry.FILEPATH))
+			local path = entry.FILEPATH
+
+			file:SetFilePath(path)
+
+			self.m_tblStateValues[MODE_GLOBAL][path] = music.getGlobalFileProbability(path)
+			self.m_tblStateValues[MODE_STATE][path] = music.getStateFileProbability(path)
+
+			file:SetValue(self.m_tblStateValues[mode][path])
 		end
 	end
 end
 
-function PANEL:GetProbabilityTable()
+function PANEL:GetTableValues()
 	local tbl = {}
 	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
 		for k, file in ipairs(directory:GetFiles()) do
@@ -116,10 +126,31 @@ function PANEL:GetProbabilityTable()
 	return tbl
 end
 
-function PANEL:ResetAll()
+function PANEL:SetTableValues(tbl)
 	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
 		for k, file in ipairs(directory:GetFiles()) do
-			file:SetValue(music.getFileProbability(file:GetFilePath()))
+			local path = file:GetFilePath()
+			if tbl[path] then
+				file:SetValue(tbl[path])
+			end
+		end
+	end
+end
+
+function PANEL:ResetAll(mode)
+	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+		for k, file in ipairs(directory:GetFiles()) do
+			local path = file:GetFilePath()
+
+			local value
+
+			if mode == MODE_GLOBAL then
+				value = music.getGlobalFileProbability(path)
+			else
+				value = music.getStateFileProbability(path)
+			end
+
+			file:SetValue(value)
 		end
 	end
 end
@@ -154,11 +185,31 @@ function PANEL:MusicProbability()
 		return true
 	end
 
+	self.m_tblStateValues = {
+		[MODE_GLOBAL] = {},
+		[MODE_STATE] = {},
+	}
+
 	self.REFRESH = self.TOPBAR:Add("ButtonIcon")
 	self.REFRESH:SetImage("textures/gui/arrow_refresh.png")
 	self.REFRESH:Dock(DOCK_RIGHT)
 	self.REFRESH:SetText("Refresh")
 	self.REFRESH:SetWidth(24)
+
+	self.PROBMODE = self.TOPBAR:Add("RadioPanel")
+	self.PROBMODE:SetHorizontal(true)
+	self.PROBMODE:SetDrawPanel(false)
+	self.PROBMODE:SetDrawLabel(false)
+	self.PROBMODE:Dock(DOCK_RIGHT)
+	self.PROBMODE:AddOption(MODE_GLOBAL, "Global", true):SetWidth(70)
+	self.PROBMODE:AddOption(MODE_STATE, "State"):SetWidth(66)
+	self.PROBMODE:DockMargin(0, 0, 0, 0)
+	self.PROBMODE:DockPadding(0, 0, 0, 0)
+
+	self.PROBMODE.OnSelectOption = function(this, mode, previous)
+		self.m_tblStateValues[previous] = self:GetTableValues()
+		self:SetTableValues(self.m_tblStateValues[mode])
+	end
 
 	self.REFRESH.OnClick = function(this)
 		self:UpdatePlaylist()
@@ -194,7 +245,7 @@ function PANEL:MusicProbability()
 	self.RESET:SetWidth(68)
 
 	self.RESET.OnClick = function(this)
-		self:ResetAll()
+		self:ResetAll(self.PROBMODE:GetOption())
 	end
 
 	self.MAX = self.OPTIONS:Add("ButtonIcon")
@@ -216,8 +267,10 @@ function PANEL:MusicProbability()
 
 	self.OKAY.OnClick = function(this)
 		self:SetVisible(false)
-		music.updateFileProbabilities(self:GetProbabilityTable())
-		music.saveFileProbabilities()
+		self.m_tblStateValues[self.PROBMODE:GetOption()] = self:GetTableValues()
+		music.updateGlobalProbabilities(self.m_tblStateValues[MODE_GLOBAL])
+		music.updateStateProbabilities(self.m_tblStateValues[MODE_STATE])
+		music.saveProbabilities()
 	end
 
 	self.CANCEL = self.OPTIONS:Add("ButtonIcon")

@@ -563,7 +563,7 @@ function love.draw()
 		graphics.clear(0, 0, 0, 0)
 	end]]
 
-	if memory.initialized and memory.game and memory.controller then
+	if memory.initialized and memory.ingame and memory.game and memory.controller then
 		love.drawControllerOverlay()
 	else
 		if memory.hooked then

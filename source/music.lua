@@ -8,7 +8,10 @@ local music = {
 	TRACK_ID = {},
 	RNG_SEED = nil,
 	PROBABILITY_FILE = "probability.json",
-	PROBABILITY_SETTINGS = {},
+	PROBABILITY_SETTINGS = {
+		global = {},
+		states = {},
+	},
 	MUTED = false
 }
 
@@ -484,13 +487,13 @@ function music.loadPlaylistForStage(stageid, name)
 
 					-- Insert the newly found track into a random position in the playlist
 					local pos = math.random(1, #music.PLAYLIST)
-					local prob = music.PROBABILITY_SETTINGS[filepath] or tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 100
+					local prob = music.PROBABILITY_SETTINGS["global"][filepath] or tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 100
 
 					if prob > 100 then
 						log.warn("[MUSIC] Song %q has a probability greater than 100%", filepath)
 					end
 
-					music.PROBABILITY_SETTINGS[filepath] = prob
+					music.PROBABILITY_SETTINGS["global"][filepath] = prob
 
 					table.insert(music.PLAYLIST, pos, {FILEPATH = filepath, FILENAME = file, WEIGHT = prob, IS_WAV = ext == "wav"})
 				end
@@ -505,7 +508,10 @@ function music.loadPlaylistForStage(stageid, name)
 end
 
 function music.loadProbablitities()
-	music.PROBABILITY_SETTINGS = {}
+	music.PROBABILITY_SETTINGS = {
+		global = {},
+		states = {},
+	}
 
 	local probFile = music.PROBABILITY_FILE
 
@@ -521,46 +527,99 @@ function music.loadProbablitities()
 			log.error("[MUSIC] Failed parsing %s: ('%s')", probFile, err)
 			notification.error("Failed parsing %s: ('%s')", probFile, err)
 		else
-			for file, prob in pairs(decoded) do
-				if love.filesystem.getInfo(file) and prob < 100 then
-					music.PROBABILITY_SETTINGS[file] = prob
+			local settings = music.PROBABILITY_SETTINGS
+			if decoded.global then
+				for file, prob in pairs(decoded.global) do
+					settings["global"][file] = prob
+				end
+			end
+			if decoded.states then
+				for stateid, files in pairs(decoded.states) do
+					stateid = tonumber(stateid)
+					settings["states"][stateid] = files
 				end
 			end
 		end
 	end
 end
 
-function music.updateFileProbabilities(tbl)
+function music.updateGlobalProbabilities(tbl)
+	local settings = music.PROBABILITY_SETTINGS
+
 	for file, prob in pairs(tbl) do
-		music.PROBABILITY_SETTINGS[file] = prob
+		settings["global"][file] = prob
+	end
+end
+
+function music.updateStateProbabilities(tbl)
+	local state = music.PLAYLIST_ID
+	local settings = music.PROBABILITY_SETTINGS
+
+	for file, prob in pairs(tbl) do
+		if not settings["states"][state] then settings["states"][state] = {} end
+		settings["states"][state][file] = prob
 	end
 end
 
 function music.getFileProbability(file)
-	return music.PROBABILITY_SETTINGS[file] or 100
-end
+	local stateP = music.getStateFileProbability(file)
 
-function music.getFileProbabilitySaveTable()
-	local tbl = {}
-
-	-- Only get files that have a custom prob. set
-	for filepath, prob in pairs(music.PROBABILITY_SETTINGS) do
-		if prob < 100 then
-			tbl[filepath] = prob
-		end
+	if stateP < 100 then
+		return stateP
 	end
 
+	return music.getGlobalFileProbability(file)
+end
+
+function music.getGlobalFileProbability(file)
+	local settings = music.PROBABILITY_SETTINGS
+	if settings["global"] and settings["global"][file] then
+		return settings["global"][file]
+	end
+	return 100 -- Default to 100% chance
+end
+
+function music.getStateFileProbability(file)
+	local state = music.PLAYLIST_ID
+	local settings = music.PROBABILITY_SETTINGS
+	if settings["states"] and settings["states"][state] and settings["states"][state][file] then
+		return settings["states"][state][file]
+	end
+	return 100 -- Default to 100% chance
+end
+
+function music.getProbabilitySaveTable()
+	local tbl = {
+		global = {},
+		states = {},
+	}
+
+	-- Only get files that have a custom prob. set
+	for file, prob in pairs(music.PROBABILITY_SETTINGS["global"]) do
+		if prob < 100 then
+			tbl["global"][file] = prob
+		end
+	end
+	for stateid, files in pairs(music.PROBABILITY_SETTINGS["states"]) do
+		stateid = tostring(stateid) -- JSON objects can only use strings as keys
+		for file, prob in pairs(files) do
+			if prob < 100 then
+				if not tbl["states"][stateid] then tbl["states"][stateid] = {} end
+				tbl["states"][stateid][file] = prob
+			end
+		end
+	end
 	return tbl
 end
 
-function music.saveFileProbabilities()
+function music.saveProbabilities()
 	local probFile = music.PROBABILITY_FILE
 
 	local f, err = love.filesystem.newFile(probFile, "w")
 	if f then
 		log.warn("Writing to %s", probFile)
 		notification.warning("Writing to %s", probFile)
-		f:write(json.encode(music.getFileProbabilitySaveTable(), true))
+		f:write(json.encode(music.getProbabilitySaveTable(), true))
 		f:flush()
 	else
 		log.error("Failed writing to %s: %s", probFile, err)

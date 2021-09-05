@@ -1,6 +1,7 @@
 local PANEL = class.create("RadioPanel", "Label")
 
 PANEL:ACCESSOR("Option", "m_iOption")
+PANEL:ACCESSOR("Horizontal", "m_bHorizontal", false)
 
 function PANEL:RadioPanel()
 	self:super() -- Initialize our baseclass
@@ -20,7 +21,7 @@ end
 function PANEL:AddOption(id, label, active)
 	local option = self:Add("RadioBox")
 	option:SetText(label)
-	option:Dock(DOCK_TOP)
+	option:Dock(self.m_bHorizontal and DOCK_LEFT or DOCK_TOP)
 	option.OnClick = function()
 		self:SetValue(id)
 	end
@@ -35,19 +36,19 @@ function PANEL:AddOption(id, label, active)
 end
 
 function PANEL:PerformLayout()
-	self:SizeToChildren(false, true)
+	self:SizeToChildren(self.m_bHorizontal, not self.m_bHorizontal)
 end
 
 function PANEL:SetValue(id)
 	if self.m_iOption ~= id then
-		self.m_iOption = id
 		for i, option in pairs(self.OPTIONS) do
 			option:SetToggled(i == id)
 		end
-		self:OnSelectOption(id)
+		self:OnSelectOption(id, self.m_iOption)
+		self.m_iOption = id
 	end
 end
 
-function PANEL:OnSelectOption(id)
+function PANEL:OnSelectOption(id, prev)
 	-- OVERRIDE
 end

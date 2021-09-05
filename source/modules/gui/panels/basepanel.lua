@@ -571,9 +571,11 @@ function PANEL:ValidateLayout()
 end
 
 function PANEL:LayoutSelf()
-	self:CenterLayout()
-	self:DockLayout()
-	self:PerformLayout()
+	if not self.m_bValidated then
+		self:CenterLayout()
+		self:DockLayout()
+		self:PerformLayout()
+	end
 end
 
 function PANEL:LayoutFamily()
