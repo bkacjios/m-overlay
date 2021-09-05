@@ -6,6 +6,8 @@ function PANEL:GCBinderPanel()
 	self:SetDrawPanel(true)
 	self:SetBGColor(color(215, 215, 215))
 
+	self:SetHeight(48)
+
 	self:TextMargin(0, 4, 0, 0)
 	self:SetTextAlignmentX("center")
 	self:SetTextAlignmentY("top")
@@ -14,11 +16,6 @@ function PANEL:GCBinderPanel()
 
 	self.m_pBinder = self:Add("GCBinder")
 	self.m_pBinder:Dock(DOCK_TOP)
-	self:SizeToChildren(false, true)
 
 	self:InheritMethods(self.m_pBinder) -- Inherit all slider functions
-end
-
-function PANEL:PerformLayout()
-	self:SizeToChildren(false, true)
 end

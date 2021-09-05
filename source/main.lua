@@ -641,8 +641,8 @@ function love.draw()
 		graphics.setColor(0, 0, 0, alpha)
 		graphics.print(msg, x + 36, y+(h/2)-6)
 	end
-	gui.render()
 	notification.draw()
+	gui.render()
 	if CODE_ENTERED then
 		love.drawDeveloperInfo()
 	end

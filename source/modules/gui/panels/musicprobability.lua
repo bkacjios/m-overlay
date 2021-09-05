@@ -140,17 +140,19 @@ end
 function PANEL:ResetAll(mode)
 	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
 		for k, file in ipairs(directory:GetFiles()) do
-			local path = file:GetFilePath()
+			if file:IsVisible() then
+				local path = file:GetFilePath()
 
-			local value
+				local value
 
-			if mode == MODE_GLOBAL then
-				value = music.getGlobalFileProbability(path)
-			else
-				value = music.getStateFileProbability(path)
+				if mode == MODE_GLOBAL then
+					value = music.getGlobalFileProbability(path)
+				else
+					value = music.getStateFileProbability(path)
+				end
+
+				file:SetValue(value)
 			end
-
-			file:SetValue(value)
 		end
 	end
 end
@@ -158,7 +160,9 @@ end
 function PANEL:SetAllValue(value)
 	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
 		for k, file in ipairs(directory:GetFiles()) do
-			file:SetValue(value)
+			if file:IsVisible() then
+				file:SetValue(value)
+			end
 		end
 	end
 end

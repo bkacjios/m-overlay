@@ -224,8 +224,21 @@ end
 
 function PANEL:InvalidateLayout()
 	self.m_bValidated = false
+	self:InvalidateChildren()
+	self:InvalidateParents()
+end
+
+function PANEL:InvalidateChildren()
+	for k, child in ipairs(self.m_tChildren) do
+		child.m_bValidated = false
+		child:InvalidateChildren()
+	end
+end
+
+function PANEL:InvalidateParents()
 	if not self.m_pParent then return end
-	self.m_pParent:InvalidateLayout()
+	self.m_pParent.m_bValidated = false
+	self.m_pParent:InvalidateParents()
 end
 
 function PANEL:QueryTooltip()
@@ -347,9 +360,9 @@ function PANEL:SizeToChildren(doWidth, doHeight)
 			if ch > lh then lh = ch end
 		end
 	end
-	-- Don't use SetWidth/SetHeight so we don't invalidate the layout..
-	if all or doWidth then self.m_iWidth = w + lw end
-	if all or doHeight then self.m_iHeight = h + lh end
+	-- Use SetWidth/SetHeight so we invalidate the layout..
+	if all or doWidth then self:SetWidth(w + lw) end
+	if all or doHeight then self:SetHeight(h + lh) end
 end
 
 function PANEL:Add(class)
@@ -564,35 +577,31 @@ function PANEL:DisableScissor()
 end
 
 function PANEL:ValidateLayout()
-	if not self.m_bValidated then
-		self:LayoutFamily()
-		self.m_bValidated = true
+	-- Layout ourself first..
+	self:Layout()
+	for k, child in ipairs(self.m_tChildren) do
+		-- Recursive call
+		-- layout all children and thier parents AGAIN if needed.
+		-- This allows any adjustments we made during a layout to probagate to up & down the family tree.
+		child:ValidateLayout()
+		-- Layout current child parents
+		child:LayoutParents()
 	end
 end
 
-function PANEL:LayoutSelf()
+function PANEL:Layout()
+	-- Check if we have an invalidated layout..
 	if not self.m_bValidated then
+		self.m_bValidated = true
 		self:CenterLayout()
 		self:DockLayout()
 		self:PerformLayout()
 	end
 end
 
-function PANEL:LayoutFamily()
-	for _,child in ipairs(self.m_tChildren) do
-		child:LayoutFamily()
-	end
-	for _,child in ipairs(self.m_tChildren) do
-		child:LayoutSelf()
-	end
-	for _,child in ipairs(self.m_tChildren) do
-		child:LayoutParents()
-	end
-end
-
 function PANEL:LayoutParents()
 	if not self.m_pParent then return end
-	self.m_pParent:LayoutSelf()
+	self.m_pParent:Layout()
 	self.m_pParent:LayoutParents()
 end
 

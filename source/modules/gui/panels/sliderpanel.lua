@@ -7,6 +7,7 @@ function PANEL:SliderPanel()
 	self:SetFocusable(true)
 	self:SetDrawPanel(true)
 	self:SetBGColor(color(215, 215, 215))
+	self:SetHeight(48)
 
 	self:TextMargin(0, 4, 0, 0)
 	self:SetTextAlignmentX("center")
@@ -16,9 +17,6 @@ function PANEL:SliderPanel()
 
 	self.m_pSlider = self:Add("Slider")
 	self.m_pSlider:Dock(DOCK_TOP)
-
-	self:ValidateLayout()
-	self:SizeToChildren(false, true)
 
 	self:InheritMethods(self.m_pSlider) -- Inherit all slider functions
 

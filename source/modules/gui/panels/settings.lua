@@ -166,7 +166,7 @@ When the song ends or reaches a loop point, it will play again.]])
 	end
 
 	self.MELEE.MUSICPROB = self.MELEE.LEFT:Add("ButtonIcon")
-	self.MELEE.MUSICPROB:SetText("Music Probability")
+	self.MELEE.MUSICPROB:SetText("Music probability")
 	self.MELEE.MUSICPROB:Dock(DOCK_BOTTOM)
 	self.MELEE.MUSICPROB:SetImage("textures/gui/chart_bar_edit.png")
 
