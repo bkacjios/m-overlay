@@ -51,7 +51,7 @@ end
 function PANEL:SetText(text)
 	self.m_sText = text
 	if self.m_bWrapped then
-		self.m_iTextWidth, self.m_tTextWrap = self.m_pFont:getWrap(self.m_sText, self:GetWidth())
+		self.m_iTextWidth, self.m_tTextWrap = self.m_pFont:getWrap(self.m_sText, self:GetWidth() - self.m_tTextMargins.left - self.m_tTextMargins.right)
 	else
 		self.m_iTextWidth, self.m_tTextWrap = self.m_pFont:getWidth(self.m_sText), {self.m_sText}
 	end
@@ -88,18 +88,18 @@ function PANEL:PaintLabel(w, h)
 	w = w - self.m_tTextMargins.right - self.m_tTextMargins.left
 	h = h - self.m_tTextMargins.top - self.m_tTextMargins.bottom
 
-	local tw,th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent()
+	local tw, th = self.m_pFont:getWidth(self.m_sText), self.m_pFont:getAscent() - self.m_pFont:getDescent()
 
 	if self.m_bWrapped then
 		local sd = tonumber(self.m_iShadowDistance)
 
 		if sd and sd > 0 then
 			graphics.setColor(self.m_cShadowColor)
-			graphics.printf(self.m_sText, x + sd, y + sd, self:GetWidth(), self.m_sTextAlignmentWrap)
+			graphics.printf(self.m_sText, x + sd, y + sd, w, self.m_sTextAlignmentWrap)
 		end
 
 		graphics.setColor(self.m_cTextColor)
-		graphics.printf(self.m_sText, x, y, self:GetWidth(), self.m_sTextAlignmentWrap)
+		graphics.printf(self.m_sText, x, y, w, self.m_sTextAlignmentWrap)
 	else
 		--print(self.m_pFont:getHeight(), self.m_pFont:getLineHeight(), self.m_pFont:getDescent(), self.m_pFont:getAscent(), self.m_pFont:getBaseline())
 

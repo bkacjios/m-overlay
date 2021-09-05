@@ -1,6 +1,8 @@
-local PANEL = class.create("MusicProbabilitySlider", "Panel")
+local PANEL = class.create("MusicFileSlider", "Panel")
 
-function PANEL:MusicProbabilitySlider()
+PANEL:ACCESSOR("FilePath", "m_strFilePath", "")
+
+function PANEL:MusicFileSlider()
 	self:super()
 
 	self:SetHeight(56)
@@ -9,13 +11,75 @@ function PANEL:MusicProbabilitySlider()
 	self.m_pSlider:Dock(DOCK_RIGHT)
 	self.m_pSlider:SetWidth(128)
 
-	self.m_pLabel = self:Add("Label")
-	self.m_pLabel:Dock(DOCK_TOP)
-	self.m_pLabel:SetTextAlignmentX("left")
+	self.m_pFileName = self:Add("LabelIcon")
+	self.m_pFileName:Dock(DOCK_TOP)
+	self.m_pFileName:SetTextAlignmentX("left")
+	self.m_pFileName:SetTextAlignmentY("center")
+	self.m_pFileName:SetImage("textures/gui/page.png")
+	self.m_pFileName:SetWrapped(true)
 
-	self:InheritMethods(self.m_pLabel)
 	self:InheritMethods(self.m_pSlider)
 	self:SetTextFormat("%d%%")
+end
+
+function PANEL:SetFileName(str)
+	self.m_pFileName:SetText(str)
+end
+
+function PANEL:GetFileName()
+	return self.m_pFileName:GetText()
+end
+
+local PANEL = class.create("MusicDirectory", "Panel")
+
+function PANEL:MusicDirectory()
+	self:super()
+
+	self.m_pDirectoryLabel = self:Add("ButtonIcon")
+	self.m_pDirectoryLabel:SetFocusable(true)
+	self.m_pDirectoryLabel:Dock(DOCK_TOP)
+	self.m_pDirectoryLabel:SetTextAlignmentX("left")
+	self.m_pDirectoryLabel:SetImage("textures/gui/folder_link.png")
+
+	function self.m_pDirectoryLabel:OnClick()
+		love.system.openURL(("file://%s/%s"):format(love.filesystem.getSaveDirectory(), self:GetText()))
+	end
+
+	self.m_pFiles = self:Add("Panel")
+	self.m_pFiles:Dock(DOCK_FILL)
+	self.m_pFiles:DockPadding(0,0,0,0)
+	self.m_pFiles:DockMargin(0,0,0,0)
+	self.m_pFiles:SetDrawPanel(false)
+end
+
+function PANEL:SetPath(str)
+	self.m_pDirectoryLabel:SetText(str)
+end
+
+function PANEL:AddFile(name)
+	local file = self.m_pFiles:Add("MusicFileSlider")
+	file:Dock(DOCK_TOP)
+	file:SetFileName(name)
+	return file
+end
+
+function PANEL:GetFiles()
+	return self.m_pFiles:GetChildren()
+end
+
+function PANEL:PerformLayout()
+	self.m_pFiles:SizeToChildren(false, true)
+	self:SizeToChildren(false, true)
+end
+
+function PANEL:Search(text)
+	local numVis = 0
+	for k, child in ipairs(self.m_pFiles:GetChildren()) do
+		local vis = string.find(child:GetFileName():lower(), text:lower(), 1, true) ~= nil
+		if vis then numVis = numVis + 1 end
+		child:SetVisible(vis)
+	end
+	self:SetVisible(numVis > 0)
 end
 
 local PANEL = class.create("MusicProbability", "Panel")
@@ -23,27 +87,47 @@ local PANEL = class.create("MusicProbability", "Panel")
 local music = require("music")
 
 function PANEL:UpdatePlaylist()
-	local playlist = music.getPlaylist()
+	local playlistTree = music.getPlaylistTree()
 
 	self.PLAYLIST:Clear()
 
-	for k, file in pairs(playlist) do
-		local slider = self.PLAYLIST:Add("MusicProbabilitySlider")
-		slider:Dock(DOCK_TOP)
-		slider.m_strFilePath = file.FILEPATH
-		slider:SetText(file.FILENAME)
-		slider:SizeToText()
-		slider:SetValue(music.getFileProbability(slider.m_strFilePath))
-		slider:SetNeedsFocus(true)
+	for folder, entries in pairs(playlistTree) do
+		local directory = self.PLAYLIST:Add("MusicDirectory")
+		directory:Dock(DOCK_TOP)
+		directory:SetPath(folder)
+
+		for k, entry in ipairs(entries) do
+			local file = directory:AddFile(entry.FILENAME)
+			file:SetFilePath(entry.FILEPATH)
+			file:SetValue(music.getFileProbability(entry.FILEPATH))
+		end
 	end
 end
 
 function PANEL:GetProbabilityTable()
 	local tbl = {}
-	for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
-		tbl[child.m_strFilePath] = child:GetValue()
+	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+		for k, file in ipairs(directory:GetFiles()) do
+			tbl[file:GetFilePath()] = file:GetValue()
+		end
 	end
 	return tbl
+end
+
+function PANEL:ResetAll()
+	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+		for k, file in ipairs(directory:GetFiles()) do
+			file:SetValue(music.getFileProbability(file:GetFilePath()))
+		end
+	end
+end
+
+function PANEL:SetAllValue(value)
+	for k, directory in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
+		for k, file in ipairs(directory:GetFiles()) do
+			file:SetValue(value)
+		end
+	end
 end
 
 function PANEL:MusicProbability()
@@ -61,10 +145,11 @@ function PANEL:MusicProbability()
 	self.SEARCH:SetTextHint("Search..")
 
 	self.SEARCH.OnTextChanged = function(this, text, add)
+		self.PLAYLIST:SetScroll(0)
 		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
-			local vis = string.find(child:GetText():lower(), text:lower(), 1, true) ~= nil
-			child:SetVisible(vis)
+			child:Search(text)
 		end
+		return true
 	end
 
 	self.REFRESH = self.TOPBAR:Add("ButtonIcon")
@@ -96,9 +181,7 @@ function PANEL:MusicProbability()
 	self.ZERO:SetWidth(56)
 
 	self.ZERO.OnClick = function(this)
-		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
-			child:SetValue(0)
-		end
+		self:SetAllValue(0)
 	end
 
 	self.RESET = self.OPTIONS:Add("ButtonIcon")
@@ -109,9 +192,7 @@ function PANEL:MusicProbability()
 	self.RESET:SetWidth(68)
 
 	self.RESET.OnClick = function(this)
-		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
-			child:SetValue(music.getFileProbability(child.m_strFilePath))
-		end
+		self:ResetAll()
 	end
 
 	self.MAX = self.OPTIONS:Add("ButtonIcon")
@@ -122,9 +203,7 @@ function PANEL:MusicProbability()
 	self.MAX:SetWidth(56)
 
 	self.MAX.OnClick = function(this)
-		for k, child in ipairs(self.PLAYLIST:GetCanvas():GetChildren()) do
-			child:SetValue(100)
-		end
+		self:SetAllValue(100)
 	end
 
 	self.OKAY = self.OPTIONS:Add("ButtonIcon")

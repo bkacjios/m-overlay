@@ -73,8 +73,6 @@ function PANEL:PerformLayout()
 	local ypos = 0
 	local xpos = 0
 
-	self:Rebuild()
-
 	self.m_pVBar:SetUp(self:GetHeight(), self.m_pCanvas:GetHeight())
 	ypos = self.m_pVBar:GetOffset()
 
@@ -87,6 +85,10 @@ function PANEL:PerformLayout()
 	self.m_pCanvas:SetWidth(wide)
 
 	self:Rebuild()
+end
+
+function PANEL:SetScroll(scroll)
+	self.m_pVBar:SetScroll(scroll)
 end
 
 function PANEL:Clear()

@@ -55,7 +55,7 @@ local function moveFolderContentsTo(from, to)
 		-- Upgrade to new folder layout
 		local configdir = love.filesystem.getSaveDirectory()
 
-		local files = fs.getDirectoryItems(from)
+		local files = love.filesystem.getDirectoryItems(from)
 		for k, file in ipairs(files) do
 			os.rename(("%s/%s/%s"):format(configdir, from, file), ("%s/%s/%s"):format(configdir, to, file))
 		end
@@ -191,6 +191,17 @@ function music.getPlaylist()
 		return a.FILEPATH < b.FILEPATH
 	end)
 	return playlist
+end
+
+function music.getPlaylistTree()
+	local playlist = music.getPlaylist()
+	local tree = {}
+	for k, entry in ipairs(playlist) do
+		local directory = string.getFilePath(entry.FILEPATH)
+		if not tree[directory] then tree[directory] = {} end
+		table.insert(tree[directory], entry)
+	end
+	return tree
 end
 
 local LOADED = false
@@ -459,7 +470,7 @@ end
 
 function music.loadPlaylistForStage(stageid, name)
 	local found = 0
-	local files = fs.getDirectoryItems(name)
+	local files = love.filesystem.getDirectoryItems(name)
 	table.sort(files) -- Sort our list of files alphabetically, giving our table a deterministic state
 	for k, file in ipairs(files) do
 		local filepath = ("%s/%s"):format(name, file)

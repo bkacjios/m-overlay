@@ -307,16 +307,14 @@ function PANEL:OnTextInput(text)
 	end
 
 	if self.m_bSelectMode then
-		self.m_sText = self:GetPreSelection() .. text .. self:GetPostSelection()
+		self:ChangeText(self:GetPreSelection() .. text .. self:GetPostSelection())
 		self.m_iCaretPos = utf8.len(self:GetPreSelection() .. text)
 	else
-		self.m_sText = self:GetPreCaret() .. text .. self:GetPostCaret(self.m_bInsert and 1 or 0)
+		self:ChangeText(self:GetPreCaret() .. text .. self:GetPostCaret(self.m_bInsert and 1 or 0))
 		self.m_iCaretPos = self.m_iCaretPos + utf8.len(text)
 	end
 	self:UpdateUndoBuffer()
 	self:ExitSelection()
-
-	self:OnTextChanged(self.m_sText, text)
 	return true
 end
 

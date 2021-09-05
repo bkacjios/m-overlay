@@ -223,17 +223,9 @@ function PANEL:Clear()
 end
 
 function PANEL:InvalidateLayout()
-	self:InvalidateParents()
-	self.m_bValidated = false
-	for _,child in ipairs(self.m_tChildren) do
-		child:InvalidateLayout()
-	end
-end
-
-function PANEL:InvalidateParents()
 	self.m_bValidated = false
 	if not self.m_pParent then return end
-	self.m_pParent:InvalidateParents()
+	self.m_pParent:InvalidateLayout()
 end
 
 function PANEL:QueryTooltip()
@@ -572,19 +564,34 @@ function PANEL:DisableScissor()
 end
 
 function PANEL:ValidateLayout()
-	if not self:IsVisible() then return end
-
 	if not self.m_bValidated then
+		self:LayoutFamily()
 		self.m_bValidated = true
-		self:CenterLayout()
-		self:DockLayout()
-
-		for _,child in ipairs(self.m_tChildren) do
-			child:ValidateLayout()
-		end
-
-		self:PerformLayout()
 	end
+end
+
+function PANEL:LayoutSelf()
+	self:CenterLayout()
+	self:DockLayout()
+	self:PerformLayout()
+end
+
+function PANEL:LayoutFamily()
+	for _,child in ipairs(self.m_tChildren) do
+		child:LayoutFamily()
+	end
+	for _,child in ipairs(self.m_tChildren) do
+		child:LayoutSelf()
+	end
+	for _,child in ipairs(self.m_tChildren) do
+		child:LayoutParents()
+	end
+end
+
+function PANEL:LayoutParents()
+	if not self.m_pParent then return end
+	self.m_pParent:LayoutSelf()
+	self.m_pParent:LayoutParents()
 end
 
 function PANEL:CenterLayout()
@@ -655,7 +662,8 @@ function PANEL:DockLayout()
 			local cw, ch = child:GetPixelSize()
 			if(dock == DOCK_TOP) then
 				child:SetPos(dx + margin.left, dy + margin.top)
-				child:SetSize(dw - margin.left - margin.right, ch)
+				child.m_iWidth = dw - margin.left - margin.right
+				child.m_iHeight = ch
 				if child:IsVisible() then
 					local height = margin.top + margin.bottom + ch
 					y = y + height
@@ -663,7 +671,8 @@ function PANEL:DockLayout()
 				end
 			elseif(dock == DOCK_LEFT) then
 				child:SetPos(dx + margin.left, dy + margin.top)
-				child:SetSize(cw, dh - margin.top - margin.bottom)
+				child.m_iWidth = cw
+				child.m_iHeight = dh - margin.top - margin.bottom
 				if child:IsVisible() then
 					local width = margin.left + margin.right + cw
 					x = x + width
@@ -671,14 +680,16 @@ function PANEL:DockLayout()
 				end
 			elseif(dock == DOCK_RIGHT) then
 				child:SetPos((dx + dw) - cw - margin.right, dy + margin.top)
-				child:SetSize(cw, dh - margin.top - margin.bottom)
+				child.m_iWidth = cw
+				child.m_iHeight = dh - margin.top - margin.bottom
 				if child:IsVisible() then
 					local width = margin.left + margin.right + cw
 					w = w - width
 				end
 			elseif(dock == DOCK_BOTTOM) then
 				child:SetPos(dx + margin.left, (dy + dh) - ch - margin.bottom)
-				child:SetSize(dw - margin.left - margin.right, ch)
+				child.m_iWidth = dw - margin.left - margin.right
+				child.m_iHeight = ch
 				if child:IsVisible() then
 					h = h - (ch + margin.bottom + margin.top)
 				end
@@ -699,7 +710,8 @@ function PANEL:DockLayout()
 			
 			if(dock == DOCK_FILL) then
 				child:SetPos(dx + margin.left, dy + margin.top)
-				child:SetSize(dw - margin.left - margin.right, dh - margin.top - margin.bottom)
+				child.m_iWidth = dw - margin.left - margin.right
+				child.m_iHeight = dh - margin.top - margin.bottom
 			end
 		end
 	end
