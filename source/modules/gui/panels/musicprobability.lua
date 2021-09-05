@@ -17,6 +17,7 @@ function PANEL:MusicFileSlider()
 	self.m_pFileName:SetTextAlignmentY("center")
 	self.m_pFileName:SetImage("textures/gui/page.png")
 	self.m_pFileName:SetWrapped(true)
+	self.m_pFileName:TextMargin(28, 7, 4, 4)
 
 	self:InheritMethods(self.m_pSlider)
 	self:SetTextFormat("%d%%")
