@@ -287,9 +287,12 @@ do
 local function getWeightTable(songs)
 	local tbl = {}
 	local useWeights = false
+	local firstValue
 	for k, song in pairs(songs) do
 		tbl[k] = music.getFileProbability(song.FILEPATH)
-		if tbl[k] < 100 then
+		if not firstValue then
+			firstValue = tbl[k]
+		elseif firstValue ~= tbl[k] then
 			useWeights = true
 		end
 	end

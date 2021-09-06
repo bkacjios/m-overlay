@@ -253,7 +253,7 @@ NOTE: A "state" refers to the state of the game, such as being on the menus, or 
 	self.ZERO:TextMargin(24, 0, 0, 0)
 	self.ZERO:Dock(DOCK_LEFT)
 	self.ZERO:SetText("Zero")
-	self.ZERO:SetWidth(56)
+	self.ZERO:SetWidth(24)
 	self.ZERO:SetTooltipTitle("ZERO")
 	self.ZERO:SetTooltipBody([[Sets all songs on this playlist to have 0% chance of playing.]])
 
@@ -261,17 +261,17 @@ NOTE: A "state" refers to the state of the game, such as being on the menus, or 
 		self:SetAllValue(0)
 	end
 
-	self.RESET = self.OPTIONS:Add("ButtonIcon")
-	self.RESET:SetImage("textures/gui/arrow_undo.png")
-	self.RESET:TextMargin(24, 0, 0, 0)
-	self.RESET:Dock(DOCK_LEFT)
-	self.RESET:SetText("Reset")
-	self.RESET:SetWidth(68)
-	self.RESET:SetTooltipTitle("RESET")
-	self.RESET:SetTooltipBody([[Sets all songs on this playlist to their previously known value.]])
+	self.MID = self.OPTIONS:Add("ButtonIcon")
+	self.MID:SetImage("textures/gui/bullet_arrow_center.png")
+	self.MID:TextMargin(24, 0, 0, 0)
+	self.MID:Dock(DOCK_LEFT)
+	self.MID:SetText("Center")
+	self.MID:SetWidth(24)
+	self.MID:SetTooltipTitle("CENTER")
+	self.MID:SetTooltipBody([[Sets all songs on this playlist to have 50% chance of playing.]])
 
-	self.RESET.OnClick = function(this)
-		self:ResetAll(self.PROBMODE:GetOption())
+	self.MID.OnClick = function(this)
+		self:SetAllValue(50)
 	end
 
 	self.MAX = self.OPTIONS:Add("ButtonIcon")
@@ -279,12 +279,25 @@ NOTE: A "state" refers to the state of the game, such as being on the menus, or 
 	self.MAX:TextMargin(24, 0, 0, 0)
 	self.MAX:Dock(DOCK_LEFT)
 	self.MAX:SetText("Max")
-	self.MAX:SetWidth(56)
+	self.MAX:SetWidth(24)
 	self.MAX:SetTooltipTitle("MAX")
 	self.MAX:SetTooltipBody([[Sets all songs on this playlist to have 100% chance of playing.]])
 
 	self.MAX.OnClick = function(this)
 		self:SetAllValue(100)
+	end
+
+	self.RESET = self.OPTIONS:Add("ButtonIcon")
+	self.RESET:SetImage("textures/gui/arrow_undo.png")
+	self.RESET:TextMargin(24, 0, 0, 0)
+	self.RESET:Dock(DOCK_LEFT)
+	self.RESET:SetText("Reset")
+	self.RESET:SetWidth(24)
+	self.RESET:SetTooltipTitle("RESET")
+	self.RESET:SetTooltipBody([[Sets all songs on this playlist to their previously known value.]])
+
+	self.RESET.OnClick = function(this)
+		self:ResetAll(self.PROBMODE:GetOption())
 	end
 
 	self.OKAY = self.OPTIONS:Add("ButtonIcon")
