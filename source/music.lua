@@ -517,6 +517,7 @@ function music.loadProbablitities()
 
 	local f = love.filesystem.newFile(probFile, "r")
 	if f then
+		local settings = music.PROBABILITY_SETTINGS
 		local success, decoded = pcall(json.decode, f:read())
 		f:close()
 		if not success then
@@ -526,8 +527,7 @@ function music.loadProbablitities()
 			local err = string.match(decoded, "^.*:%s*(.*)$") or decoded
 			log.error("[MUSIC] Failed parsing %s: ('%s')", probFile, err)
 			notification.error("Failed parsing %s: ('%s')", probFile, err)
-		else
-			local settings = music.PROBABILITY_SETTINGS
+		elseif decoded.global and decoded.states then
 			if decoded.global then
 				for file, prob in pairs(decoded.global) do
 					settings["global"][file] = prob
@@ -538,6 +538,11 @@ function music.loadProbablitities()
 					stateid = tonumber(stateid)
 					settings["states"][stateid] = files
 				end
+			end
+		else
+			-- OLD SAVE FORMAT
+			for file, prob in pairs(decoded) do
+				settings["global"][file] = prob
 			end
 		end
 	end
