@@ -149,11 +149,37 @@ end
 
 function PANEL:OnMousePressed(x, y, but)
 	if but == 1 then
-		self:ExitSelection()
-		self.m_bGrabbed = true
 		self.m_iCaretPos = self:GetCaretPosFromMouse(x, y)
-		self:EnterSelectMode()
-		return true
+
+		if self.m_fDoubleClickTime and love.timer.getTime() <= self.m_fDoubleClickTime then
+			-- Select the closest word chunk to the caret
+			for left, right in utf8.gmatch(self.m_sText, '()%w+%s*()') do
+				left = left - 1
+				right = right - 1
+				if self.m_iCaretPos >= left and self.m_iCaretPos <= right then
+					self:SelectCharacters(left, right)
+					self.m_iCaretPos = right
+					return true
+				end
+			end
+
+			-- Select the closest punctuation chunk to the caret
+			for left, right in utf8.gmatch(self.m_sText, '()%p+%s*()') do
+				left = left - 1
+				right = right - 1
+				if self.m_iCaretPos >= left and self.m_iCaretPos <= right then
+					self:SelectCharacters(left, right)
+					self.m_iCaretPos = right
+					return true
+				end
+			end
+		else
+			self.m_fDoubleClickTime = love.timer.getTime() + 0.5
+			self.m_bGrabbed = true
+			self:ExitSelection()
+			self:EnterSelectMode()
+			return true
+		end
 	elseif but == 2 then
 		self:ShowContext()
 		return true
@@ -162,8 +188,10 @@ end
 
 function PANEL:OnMouseReleased(x, y, but)
 	if but == 1 then
-		self.m_bGrabbed = false
-		self.m_iCaretPos = self:GetCaretPosFromMouse(x, y)
+		if self.m_bGrabbed then
+			self.m_bGrabbed = false
+			self.m_iCaretPos = self:GetCaretPosFromMouse(x, y)
+		end
 		return true
 	end
 end
@@ -242,7 +270,8 @@ function PANEL:GetCaretPosFromMouse(mx, my)
 		caret_pos = caret_pos + 1
 	end
 
-	for c in self.m_sText:gfind("([%z\1-\127\194-\244][\128-\191]*)") do
+	-- "([%z\1-\127\194-\244][\128-\191]*)"
+	for c in self.m_sText:gfind(utf8.charpattern) do
 		if not self.m_tCharacterSizes[c] then
 			self.m_tCharacterSizes[c] = self.m_pFont:getWidth(c)
 		end
@@ -277,6 +306,12 @@ function PANEL:EnterSelectMode()
 	self.m_iSelectLeft = self.m_iCaretPos
 	self.m_iSelectRight	= self.m_iCaretPos
 	self.m_bSelectMode = true
+end
+
+function PANEL:SelectCharacters(left, right)
+	self.m_bSelectMode = true
+	self.m_iSelectLeft = left
+	self.m_iSelectRight	= right
 end
 
 function PANEL:SelectAll()
@@ -342,8 +377,9 @@ function PANEL:OnKeyPressed(key, isrepeat)
 		self.m_iCaretPos = utf8.len(self.m_sText)
 	elseif key == "backspace" then
 		if self.m_iSelectLeft < self.m_iSelectRight then
-			self:ChangeText(self:GetPreSelection() .. self:GetPostSelection())
-			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(self.m_sText))
+			local preSelect = self:GetPreSelection()
+			self:ChangeText(preSelect .. self:GetPostSelection())
+			self.m_iCaretPos = math.min(self.m_iCaretPos, utf8.len(preSelect))
 			self:ExitSelection()
 		else
 			self.m_iCaretPos = math.max(0, self.m_iCaretPos - 1)
