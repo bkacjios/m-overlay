@@ -41,6 +41,7 @@
 
 ### Supported Gamecube games:
 
+* Billy Hatcher and the Giant Egg (NTSC-U)
 * Crazy Taxi (NTSC-U v1.0)
 * Disney's Donald Duck Goin' Quackers (NTSC-U)
 * F-Zero GX (NTSC-U)
@@ -84,7 +85,7 @@
 
 ### Supported Wii games:
 
-* Super Smash Bros. Brawl (NTSC-U v1.0, NTSC-U v1.1, NTSC-U v1.2)
+* Super Smash Bros. Brawl (NTSC-U v1.0, NTSC-U v1.1, NTSC-U v1.2, PAL v1.0, PAL v1.1, PAL v1.2)
   - [Project M](https://en.wikipedia.org/wiki/Project_M)
   - [P+](https://projectplusgame.com/)
 * Mario Kart Wii (NTSC-U v1.0)
