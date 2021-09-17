@@ -29,7 +29,8 @@ function core.loadGenericControllerMap(addr, game)
 		end
 	end
 
-	game.translateAxis = core.translateAxis
+	game.translateJoyStick = core.translateJoyStick
+	game.translateCStick = core.translateJoyStick
 	game.translateTriggers = core.translateTriggers
 end
 
@@ -37,7 +38,7 @@ local abs = math.abs
 
 -- These functions seem to apply to many games
 
-function core.translateAxis(x, y)
+function core.translateJoyStick(x, y)
 	x = x/72
 	y = y/72
 

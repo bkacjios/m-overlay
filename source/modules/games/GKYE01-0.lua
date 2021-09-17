@@ -50,7 +50,7 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-game.translateAxis = function(x, y) return x, y end
+game.translateJoyStick = function(x, y) return x, y end
 game.translateTriggers = function(l, r) return l, r end
 
 game.pluggedValue = 0x01 -- value the game sets the controller.plugged byte to

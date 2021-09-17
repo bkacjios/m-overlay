@@ -48,7 +48,7 @@ for gamename, addr in pairs(controllerLocations) do
 		end
 	end
 
-	game.translateAxis = core.translateAxis
+	game.translateJoyStick = core.translateJoyStick
 	game.translateTriggers = core.translateTriggers
 end
 

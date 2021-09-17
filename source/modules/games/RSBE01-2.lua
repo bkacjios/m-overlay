@@ -70,7 +70,7 @@ for _, polling_addr in ipairs(polling_addresses) do
 	end
 end
 
-function game.translateAxis(x, y)
+function game.translateJoyStick(x, y)
 	return x/100, y/100
 end
 

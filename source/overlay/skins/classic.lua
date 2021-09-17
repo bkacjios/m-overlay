@@ -195,7 +195,7 @@ local function drawButtons(buttons, controller)
 end
 
 function SKIN:Paint(controller)
-	local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
+	local x, y = memory.game.translateJoyStick(controller.joystick.x, controller.joystick.y)
 
 	--[[if SETTINGS:IsDebugging() then
 		local strx = ("JOY_X: % f"):format(x)
@@ -257,7 +257,7 @@ function SKIN:Paint(controller)
 
 	-- Draw C-Stick
 
-	local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
+	local x, y = memory.game.translateCStick(controller.cstick.x, controller.cstick.y)
 
 	--[[if SETTINGS:IsDebugging() then
 		local strx = ("C_X: % f"):format(x)
@@ -331,7 +331,8 @@ function SKIN:Paint(controller)
 
 			if not melee.isInGame() then
 				local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
-
+				al = math.min(al, 1)
+				ar = math.min(ar, 1)
 				analog = math.max(al, ar)
 			end
 
@@ -352,6 +353,8 @@ function SKIN:Paint(controller)
 		graphics.setStencilTest()
 	else
 		local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
+		al = math.min(al, 1)
+		ar = math.min(ar, 1)
 
 		graphics.setLineStyle("smooth")
 		graphics.setLineWidth(4)

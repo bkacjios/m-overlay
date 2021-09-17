@@ -38,7 +38,7 @@ local abs = math.abs
 
 -- These functions seem to apply to many games
 
-function game.translateAxis(x, y)
+function game.translateJoyStick(x, y)
 	x = x/100
 	y = y/100
 

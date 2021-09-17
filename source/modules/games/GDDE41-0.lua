@@ -8,7 +8,7 @@ local game = {
 
 core.loadGenericControllerMap(0x8029F8D8, game)
 
-function game.translateAxis(x, y)
+function game.translateJoyStick(x, y)
 	x = x/80
 	y = y/80
 	return x, y

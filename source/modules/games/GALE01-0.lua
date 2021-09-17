@@ -37,7 +37,7 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-function game.translateAxis(x, y)
+function game.translateJoyStick(x, y)
 	return x, y
 end
 

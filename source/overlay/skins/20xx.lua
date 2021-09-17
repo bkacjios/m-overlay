@@ -53,7 +53,7 @@ local root2 = math.sqrt(2)
 function SKIN:Paint(controller)
 	draw20XXBox(56, 56, 96, 96, grey) -- Joystick
 
-	local x, y = memory.game.translateAxis(controller.joystick.x, controller.joystick.y)
+	local x, y = memory.game.translateJoyStick(controller.joystick.x, controller.joystick.y)
 
 	-- Map circular coordiantes onto a square
 	-- https://stackoverflow.com/a/32391780
@@ -83,7 +83,7 @@ function SKIN:Paint(controller)
 		draw20XXButton(128, 168 + 56, 24, 24, grey, controller, DPAD.DPAD_DOWN)
 	end
 
-	local x, y = memory.game.translateAxis(controller.cstick.x, controller.cstick.y)
+	local x, y = memory.game.translateCStick(controller.cstick.x, controller.cstick.y)
 
 	local sx = 0.5 * math.sqrt(2 + x*x - y*y + 2*x*root2) - 0.5 * math.sqrt(2 + x*x - y*y - 2*x*root2)
 	local sy = 0.5 * math.sqrt(2 - x*x + y*y + 2*y*root2) - 0.5 * math.sqrt(2 - x*x + y*y - 2*y*root2)
