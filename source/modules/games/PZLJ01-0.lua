@@ -1,4 +1,4 @@
--- Zelda Collection (NTSC-J v1.0)
+-- The Legend of Zelda: Collectors Edition (NTSC-J v1.0)
 
 local core = require("games.core")
 
@@ -10,13 +10,13 @@ local controllerLocations = {
 	z2 = 0x800ACAA0,
 }
 
-local game = {
-	memorymap = {
-		[0x80BD7ECB] = { type = "u8", name = "oot.ucode" },
-		[0x80CB4B0B] = { type = "u8", name = "mm.ucode" },
-		[0x80081CE4] = { type = "u8", name = "z1.qfc"},
-		[0x80081D44] = { type = "u8", name = "z2.qfc"},
-	}
+local game = core.newGame()
+
+game.memorymap = {
+	[0x80BD7ECB] = { type = "u8", name = "oot.ucode" },
+	[0x80CB4B0B] = { type = "u8", name = "mm.ucode" },
+	[0x80081CE4] = { type = "u8", name = "z1.qfc"},
+	[0x80081D44] = { type = "u8", name = "z2.qfc"},
 }
 
 for gamename, addr in pairs(controllerLocations) do

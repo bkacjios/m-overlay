@@ -2,19 +2,15 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
-
-core.loadGenericControllerMap(0x801E9388, game)
+local game = core.newGame(0x801E9388)
 
 local abs = math.abs
 
 -- These functions seem to apply to many games
 
 function game.translateJoyStick(x, y)
-	x = x/100
-	y = y/100
+	x = x/128
+	y = y/128
 
 	local near = 1 - (abs(abs(x) - abs(y))) * 0.100
 

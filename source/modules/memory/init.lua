@@ -452,6 +452,9 @@ function memory.loadGameScript(path)
 		memory.game = game
 		log.info("[DOLPHIN] Loaded game config: %s", path)
 		notification.info(("Game %q detected"):format(path))
+		if not game.translateCStick then
+			game.translateCStick = game.translateJoyStick
+		end
 		memory.init(game.memorymap)
 	else
 		notification.error(("Unsupported game %s"):format(path))

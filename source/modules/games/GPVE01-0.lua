@@ -3,9 +3,7 @@
 local core = require("games.core")
 local memory = require("memory")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 game.memorymap[0x80005426] = { type = "byte", name = "pikmin.revision" }
 

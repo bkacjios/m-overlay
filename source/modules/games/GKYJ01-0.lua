@@ -1,8 +1,8 @@
 -- Kirby's Airride (NTSC-J v1.0)
 
-local game = {
-	memorymap = {}
-}
+local core = require("games.core")
+
+local game = core.newGame()
 
 local addr = 0x80585B64
 local off = 0x44

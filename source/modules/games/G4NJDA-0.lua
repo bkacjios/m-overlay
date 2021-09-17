@@ -2,9 +2,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 local polling_addresses = {
 	0x80222D40,

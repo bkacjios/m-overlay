@@ -1,8 +1,8 @@
 -- Super Smash Bros. Melee (NTSC v1.0) / Dairantou Smash Brothers DX (Japan v1.0)
 
-local game = {
-	memorymap = {}
-}
+local core = require("games.core")
+
+local game = core.newGame()
 
 local controllers = {
 	[1] = 0x804BFE2C + 0x44 * 0,

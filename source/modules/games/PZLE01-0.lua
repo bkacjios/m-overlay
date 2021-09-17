@@ -10,13 +10,13 @@ local controllerLocations = { -- these could be pointers, i'm not sure yet
 	z2 = 0x800CA6A0,
 }
 
-local game = {
-	memorymap = {
-		[0x80BDA3CB] = { type = "u8", name = "oot.ucode" },
-		[0x80CB033B] = { type = "u8", name = "mm.ucode" },
-		[0x80080644] = { type = "u8", name = "z1.qfc"},
-		[0x800A0544] = { type = "u8", name = "z2.qfc"},
-	}
+local game = core.newGame()
+
+game.memorymap = {
+	[0x80BDA3CB] = { type = "u8", name = "oot.ucode" },
+	[0x80CB033B] = { type = "u8", name = "mm.ucode" },
+	[0x80080644] = { type = "u8", name = "z1.qfc"},
+	[0x800A0544] = { type = "u8", name = "z2.qfc"},
 }
 
 for gamename, addr in pairs(controllerLocations) do

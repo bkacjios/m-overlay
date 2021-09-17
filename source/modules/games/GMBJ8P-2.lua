@@ -2,9 +2,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 local addr = 0x801F10C0
 local offset = 0x3C

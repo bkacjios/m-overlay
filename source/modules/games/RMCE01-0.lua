@@ -4,9 +4,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 local ptr_addr = 0x809B8F4C --> addr + 0x08 -> addr + 0x0A -> the controller structs
 local ctrl_offset = 0xB0

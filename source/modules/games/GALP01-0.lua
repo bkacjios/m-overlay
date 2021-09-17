@@ -1,8 +1,8 @@
 -- Super Smash Bros. Melee (PAL)
 
-local game = {
-	memorymap = {}
-}
+local core = require("games.core")
+
+local game = core.newGame()
 
 local controllers = {
 	[1] = 0x804B302C + 0x44 * 0,

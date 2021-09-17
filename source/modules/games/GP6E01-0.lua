@@ -4,9 +4,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 local addr = 0x802BFFD0
 

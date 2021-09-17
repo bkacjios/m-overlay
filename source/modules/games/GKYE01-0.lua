@@ -1,8 +1,8 @@
 -- Kirby Air Ride (NTSC 1.0)
 
-local game = {
-	memorymap = {}
-}
+local core = require("games.core")
+
+local game = core.newGame()
 
 local addr = 0x8058B0E4
 local off = 0x44

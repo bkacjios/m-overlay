@@ -129,7 +129,6 @@ function love.load(args, unfilteredArg)
 			-- Running through sublime text
 			_SUBLIME_TEXT = true
 			log.color = false
-			PANEL_SETTINGS:Toggle()
 		end
 
 		if portn then -- A port number was specified..

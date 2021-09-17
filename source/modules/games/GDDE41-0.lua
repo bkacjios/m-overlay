@@ -2,11 +2,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
-
-core.loadGenericControllerMap(0x8029F8D8, game)
+local game = core.newGame(0x8029F8D8)
 
 function game.translateJoyStick(x, y)
 	x = x/80

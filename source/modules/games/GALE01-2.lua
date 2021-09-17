@@ -1,8 +1,8 @@
 -- Super Smash Bros. Melee (NTSC v1.2) / Dairantou Smash Brothers DX (Japan v1.2)
 
-local game = {
-	memorymap = {}
-}
+local core = require("games.core")
+
+local game = core.newGame()
 
 -- Controls/Saves the volume levels of the game
 game.memorymap[0x8045C384] = { type = "s8", name = "volume.slider" } -- Scale is (-100 to 100)

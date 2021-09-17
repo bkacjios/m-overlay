@@ -2,9 +2,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 -- Pointer to a struct that contains the controller data
 local game_data_loc = 0x804576FC

@@ -1,41 +1,41 @@
--- Super Smash Bros. Brawl (NTSC v1.01)
+-- Super Smash Bros. Brawl (PAL v1.01)
 
-local game = {
-	memorymap = {}
-}
+local core = require("games.core")
+
+local game = core.newGame()
 
 --[[
 Brawl seems to have 4 addresses dedicated to controller input values, each address polling around 15fps.
 If you poll all four addresses for the controller values, you get 60fps input!
 
 Structure:
-	Polling Address 1 [0x805BA480]
-		Port 1 [0x805BA480 + 0x40 * 0]
-		Port 2 [0x805BA480 + 0x40 * 1]
-		Port 3 [0x805BA480 + 0x40 * 2]
-		Port 4 [0x805BA480 + 0x40 * 3]
-	Polling Address 2 [0x805BA680]
-		Port 1 [0x805BA680 + 0x40 * 0]
-		Port 2 [0x805BA680 + 0x40 * 1]
-		Port 3 [0x805BA680 + 0x40 * 2]
-		Port 4 [0x805BA680 + 0x40 * 3]
-	Polling Address 3 [0x805BA880]
-		Port 1 [0x805BA880 + 0x40 * 0]
-		Port 2 [0x805BA880 + 0x40 * 1]
-		Port 3 [0x805BA880 + 0x40 * 2]
-		Port 4 [0x805BA880 + 0x40 * 3]
-	Polling Address 4 [0x805BAA80]
-		Port 1 [0x805BAA80 + 0x40 * 0]
-		Port 2 [0x805BAA80 + 0x40 * 1]
-		Port 3 [0x805BAA80 + 0x40 * 2]
-		Port 4 [0x805BAA80 + 0x40 * 3]
+	Polling Address 1 [0x805BB680]
+		Port 1 [0x805BB680 + 0x40 * 0]
+		Port 2 [0x805BB680 + 0x40 * 1]
+		Port 3 [0x805BB680 + 0x40 * 2]
+		Port 4 [0x805BB680 + 0x40 * 3]
+	Polling Address 2 [0x805BB880]
+		Port 1 [0x805BB880 + 0x40 * 0]
+		Port 2 [0x805BB880 + 0x40 * 1]
+		Port 3 [0x805BB880 + 0x40 * 2]
+		Port 4 [0x805BB880 + 0x40 * 3]
+	Polling Address 3 [0x805BBA80]
+		Port 1 [0x805BBA80 + 0x40 * 0]
+		Port 2 [0x805BBA80 + 0x40 * 1]
+		Port 3 [0x805BBA80 + 0x40 * 2]
+		Port 4 [0x805BBA80 + 0x40 * 3]
+	Polling Address 4 [0x805BBC80]
+		Port 1 [0x805BBC80 + 0x40 * 0]
+		Port 2 [0x805BBC80 + 0x40 * 1]
+		Port 3 [0x805BBC80 + 0x40 * 2]
+		Port 4 [0x805BBC80 + 0x40 * 3]
 ]]
 
 local polling_addresses = {
-	0x805BA480,
-	0x805BA680,
-	0x805BA880,
-	0x805BAA80,
+	0x805BB680,
+	0x805BB880,
+	0x805BBA80,
+	0x805BBC80,
 }
 
 local controllers = {

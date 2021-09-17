@@ -2,9 +2,7 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
+local game = core.newGame()
 
 local controllers = {
 	[1] = 0x80145210 + 0x3C * 0,

@@ -1,7 +1,7 @@
 --[[
 -- Clone table format
-["CLONED GAME ID"] = {
-	[CLONE REVISION] = { id = "ORIGINAL GAME ID", version = REVISION }
+["CLONED_GAME_ID"] = {
+	[CLONE_REVISION] = { id = "ORIGINAL_GAME_ID", version = ORIGINAL_REVISION }
 }
 ]]
 
@@ -16,9 +16,14 @@ return {
 		[3] = { id = "GALE01", version = 2 }, -- SSBM SD Remix
 	},
 	["RSBE01"] = {
-		-- Brawl versions 1.0, 1.1 have the same memory locations for controller data as 1.2
-		[0] = { id = "RSBE01", version = 2 }, -- Super Smash Bros. Brawl (v1.0)
-		[1] = { id = "RSBE01", version = 2 }, -- Super Smash Bros. Brawl (v1.1)
+		-- Brawl versions 1.0, 1.1 have the same memory locations for controller data as 1.0
+		[1] = { id = "RSBE01", version = 0 }, -- Super Smash Bros. Brawl (NTSC-U v1.1)
+		[2] = { id = "RSBE01", version = 0 }, -- Super Smash Bros. Brawl (NTSC-U v1.2)
+	},
+	["RSBP01"] = {
+		-- Brawl versions 1.0, 1.1 have the same memory locations for controller data as 1.0
+		[1] = { id = "RSBP01", version = 0 }, -- Super Smash Bros. Brawl (PAL v1.1)
+		[2] = { id = "RSBP01", version = 0 }, -- Super Smash Bros. Brawl (PAL v1.2)
 	},
 	["G2ME0R"] = {
 		[0] = { id = "G2ME01", version = 0 }, -- Metroid Prime 2: Echoes Randomizer

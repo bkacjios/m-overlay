@@ -2,11 +2,4 @@
 
 local core = require("games.core")
 
-local game = {
-	memorymap = {}
-}
-
-core.loadGenericControllerMap(0x803C643C, game)
-core.loadGenericControllerMap(0x803C646C, game)
-
-return game
+return core.newGame(0x803C643C, 0x803C646C)
