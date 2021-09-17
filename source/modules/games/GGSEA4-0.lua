@@ -9,8 +9,8 @@ local abs = math.abs
 -- These functions seem to apply to many games
 
 function game.translateJoyStick(x, y)
-	x = x/128
-	y = y/128
+	x = x/127
+	y = y/127
 
 	local near = 1 - (abs(abs(x) - abs(y))) * 0.100
 

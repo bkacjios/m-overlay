@@ -53,10 +53,6 @@ function core.loadGenericControllerMap(addr, game)
 			}
 		end
 	end
-
-	game.translateJoyStick = core.translateJoyStick
-	game.translateCStick = core.translateJoyStick
-	game.translateTriggers = core.translateTriggers
 end
 
 local abs = math.abs

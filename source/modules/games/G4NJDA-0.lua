@@ -45,7 +45,7 @@ for _, polling_addr in ipairs(polling_addresses) do
 end
 
 function game.translateJoyStick(x, y)
-	return x/78, y/78
+	return x/100, y/100
 end
 
 game.translateTriggers = core.translateTriggers
