@@ -28,6 +28,9 @@ return {
 	["G2ME0R"] = {
 		[0] = { id = "G2ME01", version = 0 }, -- Metroid Prime 2: Echoes Randomizer
 	},
+	["G2ME1R"] = {
+		[0] = { id = "G2ME01", version = 0 }, -- Metroid Prime 2: Echoes Randomizer (Menu Mod)
+	},
 	["KHPE01"] = {
 		[0] = { id = "GKYE01", version = 0 }, -- Kirby Air Ride Hack Pack
 	},
