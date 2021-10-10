@@ -307,7 +307,7 @@ function SKIN:Paint(controller)
 
 	-- Draw L
 
-	if SETTINGS:IsSlippiReplay() then
+	if SETTINGS:IsSlippiReplay() and melee.isInGame() then
 		graphics.setLineStyle("smooth")
 		graphics.setLineWidth(4)
 

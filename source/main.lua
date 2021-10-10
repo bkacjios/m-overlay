@@ -349,10 +349,99 @@ function love.drawControllerOverlay()
 		if controller.plugged and controller.plugged ~= (memory.game.pluggedValue or 0x00) then
 			local sin = 128 + math.sin(love.timer.getTime()*2) * 128
 			graphics.setColor(255, 0, 0, sin)
-			graphics.easyDraw(DC_CON, 512-42-16, 256-42-16, 0, 42, 42)
+			graphics.easyDraw(DC_CON, 512-42-16, 256-42-42, 0, 42, 42)
 		end
 
 		overlay.draw(controller)
+
+		if PANEL_SETTINGS:GetDebuggingInputFlags() > 0 then
+			local x, y = memory.game.translateJoyStick(controller.joystick.x, controller.joystick.y)
+			local cx, cy = memory.game.translateCStick(controller.cstick.x, controller.cstick.y)
+			local a = 0
+			local l, r = 0, 0
+
+			local xoff = 0
+			
+			graphics.setFont(DEBUG_FONT)
+
+			if PANEL_SETTINGS:IsDebuggingTriggers() then
+				if PANEL_SETTINGS:IsSlippiReplay() and melee.isInGame() then
+					a = controller.analog and controller.analog.float or 0
+
+					local stra = ("A: % f"):format(a)
+
+					xoff = xoff + DEBUG_FONT:getWidth(stra) + 8
+
+					graphics.setColor(0, 0, 0, 255)
+					graphics.textOutline(stra, 2, 512 - xoff, 256 - 4 - 12)
+
+					graphics.setColor(255, 255, 255, 255)
+					graphics.print(stra, 512 - xoff, 256 - 4 - 12)
+				else
+					l, r = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
+
+					local strl = ("L: % f"):format(l)
+					local strr = ("R: % f"):format(r)
+
+					xoff = xoff + DEBUG_FONT:getWidth(strl) + 8
+
+					graphics.setColor(0, 0, 0, 255)
+					graphics.textOutline(strl, 2, 512 - xoff, 256 - 4 - 24)
+					graphics.textOutline(strr, 2, 512 - xoff, 256 - 4 - 12)
+
+					graphics.setColor(255, 255, 255, 255)
+					graphics.print(strl, 512 - xoff, 256 - 4 - 24)
+					graphics.print(strr, 512 - xoff, 256 - 4 - 12)
+				end
+			end
+
+			if PANEL_SETTINGS:IsDebuggingCStick() then
+				local strcx = ("CX: % .4f"):format(cx)
+				local strcy = ("CY: % .4f"):format(cy)
+
+				xoff = xoff + DEBUG_FONT:getWidth(strcx) + 8
+
+				graphics.setColor(0, 0, 0, 255)
+				graphics.textOutline(strcx, 2, 512 - xoff, 256 - 4 - 24)
+				graphics.textOutline(strcy, 2, 512 - xoff, 256 - 4 - 12)
+
+				graphics.setColor(255, 255, 255, 255)
+				graphics.print(strcx, 512 - xoff, 256 - 4 - 24)
+				graphics.print(strcy, 512 - xoff, 256 - 4 - 12)
+			end
+
+			if PANEL_SETTINGS:IsDebuggingJoystick() then
+				local strx = ("X: % .4f"):format(x)
+				local stry = ("Y: % .4f"):format(y)
+
+				xoff = xoff + DEBUG_FONT:getWidth(strx) + 8
+
+				graphics.setColor(0, 0, 0, 255)
+				graphics.textOutline(strx, 2, 512 - xoff, 256 - 4 - 24)
+				graphics.textOutline(stry, 2, 512 - xoff, 256 - 4 - 12)
+
+				graphics.setColor(255, 255, 255, 255)
+				graphics.print(strx, 512 - xoff, 256 - 4 - 24)
+				graphics.print(stry, 512 - xoff, 256 - 4 - 12)
+			end
+
+			if PANEL_SETTINGS:IsDebuggingButtons() then
+				local btts = ("B:  %X"):format(controller.buttons.pressed)
+
+				local yoff = 36
+
+				if xoff <= 0 then
+					yoff = 12
+					xoff = xoff + DEBUG_FONT:getWidth(btts) + 8
+				end
+
+				graphics.setColor(0, 0, 0, 255)
+				graphics.textOutline(btts, 2, 512 - xoff, 256 - 4 - yoff)
+
+				graphics.setColor(255, 255, 255, 255)
+				graphics.print(btts, 512 - xoff, 256 - 4 - yoff)
+			end
+		end
 	end
 end
 

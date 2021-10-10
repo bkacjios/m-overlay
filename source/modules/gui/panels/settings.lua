@@ -17,6 +17,12 @@ LOOPING_MENU = 1
 LOOPING_STAGE_TIMED = 2
 LOOPING_STAGE_ENDLESS = 4
 
+DEBUG_INPUT_NONE = 0
+DEBUG_INPUT_BUTTONS = 1
+DEBUG_INPUT_JOYSTICK = 2
+DEBUG_INPUT_C_STICK = 4
+DEBUG_INPUT_TRIGGERS = 8
+
 function PANEL:OnMouseMoved(x, y, dx, dy, istouch)
 	local px, py = self.MAIN:GetPos()
 	local pw, ph = self.MAIN:GetSize()
@@ -49,6 +55,15 @@ function PANEL:Settings()
 	self.MUSICPROBABILITY:SetSize(512, 256)
 	self.MUSICPROBABILITY:Center()
 	self.MUSICPROBABILITY:SetVisible(false)
+
+	self.DEBUG_INPUTS_CONFIG = self:Add("DebugInputs")
+	self.DEBUG_INPUTS_CONFIG:SetSize(156, 164)
+	self.DEBUG_INPUTS_CONFIG:Center()
+	self.DEBUG_INPUTS_CONFIG:SetVisible(false)
+	
+	self.DEBUG_INPUTS_CONFIG.OnClosed = function(this)
+		self.MAIN:SetVisible(true)
+	end	
 
 	self.MAIN = self:Add("TabbedPanel")
 	self.MAIN:SetSize(296 + 32, 196)
@@ -309,6 +324,19 @@ This is also the same directory you use to place all your music for Melee.]])
 		end
 	end
 
+	self.DEBUG_INPUTS = self.GENERAL.LEFT:Add("ButtonIcon")
+	self.DEBUG_INPUTS:SetText("Debug inputs")
+	self.DEBUG_INPUTS:Dock(DOCK_BOTTOM)
+	self.DEBUG_INPUTS:SetImage("textures/gui/cog.png")
+	self.DEBUG_INPUTS:SetTooltipTitle("DEBUG INPUTS")
+	self.DEBUG_INPUTS:SetTooltipBody([[Customize a visual display for debugging input values.]])
+
+	self.DEBUG_INPUTS.OnClick = function(this)
+		self.MAIN:SetVisible(false)
+		self.DEBUG_INPUTS_CONFIG:SetVisible(true)
+		self.DEBUG_INPUTS_CONFIG:BringToFront()
+	end
+
 	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
 	self.ABOUT:SetBackgroundColor(color_purple)
 
@@ -442,6 +470,7 @@ function PANEL:GetSaveTable()
 		["enable-dpad"] = self:IsDPadEnabled(),
 		["enable-start"] = self:IsStartEnabled(),
 		["debugging"] = self:IsDebugging(),
+		["debugging-input-flags"] = self:GetDebuggingInputFlags(),
 		["use-transparency"] = self:UseTransparency(),
 		["transparency"] = self:GetTransparency(),
 		["melee-music"] = self:PlayStageMusic(),
@@ -532,6 +561,30 @@ end
 
 function PANEL:IsDebugging()
 	return self.DEBUG and self.DEBUG:IsToggled() or false
+end
+
+function PANEL:GetDebuggingInputFlags()
+	return self.DEBUG_INPUTS_CONFIG:GetValue()
+end
+
+function PANEL:IsDebuggingInput(flag)
+	return bit.band(self.DEBUG_INPUTS_CONFIG:GetValue(), flag) == flag
+end
+
+function PANEL:IsDebuggingButtons()
+	return self:IsDebuggingInput(DEBUG_INPUT_BUTTONS)
+end
+
+function PANEL:IsDebuggingJoystick()
+	return self:IsDebuggingInput(DEBUG_INPUT_JOYSTICK)
+end
+
+function PANEL:IsDebuggingCStick()
+	return self:IsDebuggingInput(DEBUG_INPUT_C_STICK)
+end
+
+function PANEL:IsDebuggingTriggers()
+	return self:IsDebuggingInput(DEBUG_INPUT_TRIGGERS)
 end
 
 function PANEL:GetTransparency()
@@ -643,6 +696,7 @@ function PANEL:LoadSettings()
 	if self.DEBUG then
 		self.DEBUG:SetToggled(love.hasConsole() or settings["debugging"] or false)
 	end
+	self.DEBUG_INPUTS_CONFIG:SetValue(settings["debugging-input-flags"])
 	self.TRANSPARENCY:SetValue(settings["transparency"])
 	self.SLIPPI.MODE:SetValue(settings["slippi-mode"])
 	self.MELEE.MUSIC:SetToggled(settings["melee-music"], true)

@@ -57,3 +57,7 @@ function PANEL:SetValue(value)
 		self:OnValueChanged(value) -- Manual call
 	end
 end
+
+function PANEL:OnValueChanged(value)
+	-- OVERRIDE
+end
