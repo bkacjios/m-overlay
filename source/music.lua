@@ -493,7 +493,7 @@ function music.loadPlaylistForStage(stageid, name)
 					local prob = music.PROBABILITY_SETTINGS["global"][filepath] or tonumber(string.match(filepath, ".-_(%d+)%.%w+$")) or 100
 
 					if prob > 100 then
-						log.warn("[MUSIC] Song %q has a probability greater than 100%", filepath)
+						log.warn("[MUSIC] Song %q has a probability greater than 100%%", filepath)
 					end
 
 					music.PROBABILITY_SETTINGS["global"][filepath] = prob
