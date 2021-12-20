@@ -19,4 +19,6 @@ function game.translateJoyStick(x, y)
 	return x + math.sin(angle) * mag * near * 0.25, y + math.cos(angle) * mag * near * 0.25
 end
 
+game.translateCStick = game.translateJoyStick
+
 return game
