@@ -327,7 +327,7 @@ This is also the same directory you use to place all your music for Melee.]])
 	self.DEBUG_INPUTS = self.GENERAL.LEFT:Add("ButtonIcon")
 	self.DEBUG_INPUTS:SetText("Debug inputs")
 	self.DEBUG_INPUTS:Dock(DOCK_BOTTOM)
-	self.DEBUG_INPUTS:SetImage("textures/gui/cog.png")
+	self.DEBUG_INPUTS:SetImage("textures/gui/joystick.png")
 	self.DEBUG_INPUTS:SetTooltipTitle("DEBUG INPUTS")
 	self.DEBUG_INPUTS:SetTooltipBody([[Customize a visual display for debugging input values.]])
 
