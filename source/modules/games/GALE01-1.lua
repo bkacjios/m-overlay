@@ -41,6 +41,10 @@ function game.translateJoyStick(x, y)
 	return x, y
 end
 
+function game.translateCStick(x, y)
+	return x, y
+end
+
 function game.translateTriggers(l, r)
 	return l, r
 end
