@@ -67,6 +67,7 @@
 * Metroid Prime (NTSC-U v1.0, NTSC-U v1.2)
 * Metroid Prime 2 - Echoes (NTSC-U v1.0)
   - [Randomizer](https://github.com/randovania/randovania)
+* Pac-Man World 2 (NTSC-U v1.0)
 * Paper Mario - The Thousand-Year Door (NTSC-U v1.0, NTSC-J v1.0)
 * Kirby Air Ride (NTSC-U v1.0, NTSC-J v1.0)
   - [UnclePunch Hack Pack](https://www.kirbyairri.de/hpinfo.html)
