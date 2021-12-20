@@ -37,16 +37,8 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-function game.translateJoyStick(x, y)
-	return x, y
-end
-
-function game.translateCStick(x, y)
-	return x, y
-end
-
-function game.translateTriggers(l, r)
-	return l, r
-end
+game.translateJoyStick = function(x, y) return x, y end
+game.translateCStick = function(x, y) return x, y end
+game.translateTriggers = function(l, r) return l, r end
 
 return game

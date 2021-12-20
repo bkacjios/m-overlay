@@ -374,16 +374,8 @@ for port, addr in pairs(player_cursors_pointers) do
 	game.memorymap[addr] = { type = "pointer", name = ("player.%i.cursor"):format(port), struct = player_cursor_struct }
 end
 
-function game.translateJoyStick(x, y)
-	return x, y
-end
-
-function game.translateCStick(x, y)
-	return x, y
-end
-
-function game.translateTriggers(l, r)
-	return l, r
-end
+game.translateJoyStick = function(x, y) return x, y end
+game.translateCStick = function(x, y) return x, y end
+game.translateTriggers = function(l, r) return l, r end
 
 return game
