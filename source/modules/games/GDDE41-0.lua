@@ -10,4 +10,6 @@ function game.translateJoyStick(x, y)
 	return x, y
 end
 
+game.translateCStick = game.translateJoyStick
+
 return game

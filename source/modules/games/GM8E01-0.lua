@@ -36,7 +36,4 @@ end
 
 game.memorymap[game_data_loc] = controller_ptr
 
-game.translateJoyStick = core.translateJoyStick
-game.translateTriggers = core.translateTriggers
-
 return game

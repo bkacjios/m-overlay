@@ -11,6 +11,7 @@ function core.newGame(...)
 	local game = setmetatable({
 		memorymap = {},
 		translateJoyStick = core.translateJoyStick,
+		translateCStick = core.translateCStick,
 		translateTriggers = core.translateTriggers,
 	}, GAME)
 
@@ -63,13 +64,26 @@ function core.translateJoyStick(x, y)
 	x = x/72
 	y = y/72
 
-	local near = 1 - (abs(abs(x) - abs(y))) * 0.72
+	local near = 1 - (abs(abs(x) - abs(y)))
 
 	local angle = math.atan2(x, y)
 	local mag = math.sqrt(x*x + y*y)
 
 	-- Amplify the magnitute when x,y values are headed towards a diagonal
-	return x + math.sin(angle) * mag * near * 0.28, y + math.cos(angle) * mag * near * 0.28
+	return x + math.sin(angle) * mag * near * 0.25, y + math.cos(angle) * mag * near * 0.25
+end
+
+function core.translateCStick(x, y)
+	x = x/59
+	y = y/59
+
+	local near = 1 - (abs(abs(x) - abs(y)))
+
+	local angle = math.atan2(x, y)
+	local mag = math.sqrt(x*x + y*y)
+
+	-- Amplify the magnitute when x,y values are headed towards a diagonal
+	return x + math.sin(angle) * mag * near * 0.25, y + math.cos(angle) * mag * near * 0.25
 end
 
 local min = math.min

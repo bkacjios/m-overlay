@@ -47,9 +47,6 @@ for gamename, addr in pairs(controllerLocations) do
 			}
 		end
 	end
-
-	game.translateJoyStick = core.translateJoyStick
-	game.translateTriggers = core.translateTriggers
 end
 
 return game

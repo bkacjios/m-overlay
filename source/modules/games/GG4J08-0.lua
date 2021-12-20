@@ -2,4 +2,18 @@
 
 local core = require("games.core")
 
-return core.newGame(0x803C643C, 0x803C646C)
+local game = core.newGame(0x803C643C, 0x803C646C)
+
+function game.translateJoyStick(x, y)
+	x = x/56
+	y = y/56
+	return x, y
+end
+
+function game.translateCStick(x, y)
+	x = x/44
+	y = y/44
+	return x, y
+end
+
+return game

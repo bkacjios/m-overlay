@@ -54,6 +54,6 @@ game.translateCStick = function(x, y)
 	return x/44, y/44
 end
 
-game.translateTriggers = function(l, r) return l/127, r/127 end
+game.translateTriggers = function(l, r) return l/150, r/150 end
 
 return game

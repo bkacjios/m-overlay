@@ -41,7 +41,16 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-game.translateJoyStick = core.translateJoyStick
-game.translateTriggers = core.translateTriggers
+function game.translateJoyStick(x, y)
+	x = x/56
+	y = y/56
+	return x, y
+end
+
+function game.translateCStick(x, y)
+	x = x/44
+	y = y/44
+	return x, y
+end
 
 return game

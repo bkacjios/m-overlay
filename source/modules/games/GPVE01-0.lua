@@ -48,7 +48,4 @@ memory.hook("pikmin.revision", "Pikmin 2 - Load Version Speicific Offsets", func
 	memory.loadmap(controller_map)
 end)
 
-game.translateJoyStick = core.translateJoyStick
-game.translateTriggers = core.translateTriggers
-
 return game

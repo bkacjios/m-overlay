@@ -51,6 +51,7 @@ for port, address in ipairs(controllers) do
 end
 
 game.translateJoyStick = function(x, y) return x, y end
+game.translateCStick = function(x, y) return x, y end
 game.translateTriggers = function(l, r) return l, r end
 
 game.pluggedValue = 0x01 -- value the game sets the controller.plugged byte to

@@ -41,7 +41,4 @@ for port, address in ipairs(controllers) do
 	end
 end
 
-game.translateJoyStick = core.translateJoyStick
-game.translateTriggers = core.translateTriggers
-
 return game
