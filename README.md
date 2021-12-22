@@ -43,6 +43,7 @@
 
 * Billy Hatcher and the Giant Egg (NTSC-U)
 * Crazy Taxi (NTSC-U v1.0)
+* Custom Robo (NTSC-U v1.0)
 * Disney's Donald Duck Goin' Quackers (NTSC-U)
 * F-Zero GX (NTSC-U)
 * Gotcha Force (NTSC-U, PAL, NTSC-J)
