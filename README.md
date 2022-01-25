@@ -79,8 +79,10 @@
 * Super Monkey Ball 2 (NTSC-U v1.0)
   - Super Monkey Ball Gaiden
 * Rayman 3: Hoodlum Havoc (NTSC-U v1.0)
-* SpongeBob SquarePants: Battle for Bikini Bottom (NTSC v1.0)
-* The SpongeBob SquarePants Movie (NTSC v1.1, PAL v1.0)
+* SpongeBob SquarePants: Battle for Bikini Bottom (NTSC-U v1.0)
+* The SpongeBob SquarePants Movie (NTSC-U v1.1, PAL v1.0)
+* Super Mario Strikers (NTSC-U v1.0)
+* TimeSplitters 2 (NTSC-U v1.0)
 * Naruto - Gekitou Ninja Taisen! 4 (NTSC-J v1.0)
 * Need for Speed Underground 1 (NTSC-U v1.0)
 * Need for Speed Underground 2 (NTSC-U v1.0)
