@@ -736,7 +736,7 @@ function love.draw()
 	end
 end
 
-local FPS_LIMIT = 60
+local FPS_LIMIT = 59.94
 
 function love.run()
 	if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
