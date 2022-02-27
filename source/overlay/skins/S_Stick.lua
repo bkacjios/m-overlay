@@ -67,8 +67,8 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_LP.png"),
 		
 		POSITION = {
-			x = 256,
-			y = 10
+			x = 256 - 64 + 40,
+			y = 64 + 10
 		}
 	},	
 	
@@ -77,48 +77,48 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_RP.png"),
 		
 		POSITION = {
-			x = 12 + 128 + 256,
-			y = -10
+			x = 256 + 128 + 40,
+			y = 64
 		}
 	},	
 	
-	CUP = {
+	C_UP = {
 		OUTLINE = graphics.newImage("textures/buttons/SS/SS_CU.png"),
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_CUP.png"),
 		
 		POSITION = {
-			x = 12 + 64 + 256,
-			y = 30
-		}
-	},
-
-	CDOWN = {
-		OUTLINE = graphics.newImage("textures/buttons/SS/SS_CD.png"),
-		PRESSED = graphics.newImage("textures/buttons/SS/SS_CDP.png"),
-		
-		POSITION = {
-			x = 256,
-			y = 70
-		}
-	},
-
-	CLEFT = {
-		OUTLINE = graphics.newImage("textures/buttons/SS/SS_CL.png"),
-		PRESSED = graphics.newImage("textures/buttons/SS/SS_CLP.png"),
-		
-		POSITION = {
-			x = 256,
+			x = 256 + 40,
 			y = -10
 		}
 	},
 
-	CRIGHT = {
+	C_DOWN = {
+		OUTLINE = graphics.newImage("textures/buttons/SS/SS_CD.png"),
+		PRESSED = graphics.newImage("textures/buttons/SS/SS_CDP.png"),
+		
+		POSITION = {
+			x = 256 - 64 - 15,
+			y = 128 + 64 - 10
+		}
+	},
+
+	C_LEFT = {
+		OUTLINE = graphics.newImage("textures/buttons/SS/SS_CL.png"),
+		PRESSED = graphics.newImage("textures/buttons/SS/SS_CLP.png"),
+		
+		POSITION = {
+			x = 256 - 64 + 40,
+			y = 10
+		}
+	},
+
+	C_RIGHT = {
 		OUTLINE = graphics.newImage("textures/buttons/SS/SS_CR.png"),
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_CRP.png"),
 		
 		POSITION = {
-			x = 12 + 64 + 256 - 20,
-			y = 48
+			x = 256 + 64 + 40,
+			y = -10
 		}
 	},
 
@@ -127,8 +127,8 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_AP.png"),
 		
 		POSITION = {
-			x = 12 + 64 + 256,
-			y = 48
+			x = 256 - 64 + 35,
+			y = 128 + 10
 		}
 	},
 	B = {
@@ -136,8 +136,8 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_BP.png"),
 		
 		POSITION = {
-			x = 16 + 256,
-			y = 92
+			x = 256 + 64 + 40,
+			y = 64 - 10
 		}
 	},
 	X = {
@@ -145,8 +145,8 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_XP.png"),
 		
 		POSITION = {
-			x = 138 + 256,
-			y = 32
+			x = 256 + 128 + 40,
+			y = 0
 		}
 	},
 	Y = {
@@ -154,8 +154,8 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_YP.png"),
 		
 		POSITION = {
-			x = 60 + 256,
-			y = -16
+			x = 256 + 40,
+			y = 64 - 10
 		}
 	},
 	Z = {
@@ -163,8 +163,8 @@ local BUTTON_TEXTURES = {
 		PRESSED = graphics.newImage("textures/buttons/SS/SS_ZP.png"),
 		
 		POSITION = {
-			x = 128 + 256,
-			y = -32
+			x = 256 - 64 - 25,
+			y = 128 - 10
 		}
 	},
 	START = {
@@ -235,14 +235,19 @@ local function drawButtons(buttons, controller)
 		local texture = BUTTON_TEXTURES[button]
 		if texture then
 			if button ~= "START" or (button == "START" and SETTINGS:IsStartEnabled()) then
+				
 				local pos = texture.POSITION
 				graphics.setColor(texture.COLOR)
+				local analogr = (SETTINGS:IsSlippiReplay() and melee.isInGame() and controller.analog) and controller.analog.float or controller.analog.r
+				
 				if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
-					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 128, 128)
+					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 88, 88)
+				elseif button == "R" and memory.game.translateTriggers(analogr) > 0 then
+					graphics.easyDraw(BUTTON_TEXTURES.R.PRESSED, pos.x, pos.y, 0, 88, 88)
 				else
 					local text = SETTINGS:IsHighContrast() and texture.FILLED or texture.OUTLINE
 					if text then
-						graphics.easyDraw(text, pos.x, pos.y, 0, 128, 128)
+						graphics.easyDraw(text, pos.x, pos.y, 0, 88, 88)
 					end
 				end
 			end
@@ -311,169 +316,7 @@ function SKIN:Paint(controller)
 	perspective.quad(SETTINGS:IsHighContrast() and BUTTON_TEXTURES.JOYSTICK.FILLED or BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
 	perspective.off()
 
-	-- Draw C-Stick
-
-	local x, y = memory.game.translateCStick(controller.cstick.x, controller.cstick.y)
-
-	--[[if SETTINGS:IsDebugging() then
-		local strx = ("C_X: % f"):format(x)
-		local stry = ("C_Y: % f"):format(y)
-		graphics.setFont(DEBUG_FONT)
-
-		graphics.setColor(0, 0, 0, 255)
-		graphics.textOutline(strx, 2, 224, 256 - 4 - 24)
-		graphics.textOutline(stry, 2, 224, 256 - 4 - 12)
-
-		graphics.setColor(255, 255, 255, 255)
-		graphics.print(strx, 224, 256 - 4 - 24)
-		graphics.print(stry, 224, 256 - 4 - 12)
-	end]]
-
-	local vx, vy = x, 1 - y
-
-	local angle = math.atan2(x, y)
-	local mag = math.sqrt(x*x + y*y)
-
-	local far = mag * 12
-	local near = mag * 16
-
-	-- Make the rectangle look like its fading into the horizon
-
-	-- Top left
-	vertices[1][1] = far
-	-- Top right
-	vertices[2][1] = 128 - far
-
-	-- Bottom left
-	vertices[1][2] = near
-	-- Bottom right
-	vertices[2][2] = near
-
-	local rotated = transformVertices(vertices, 64 + 48 + 128 + (32 * vx), 64 + 18 + (32 * vy), angle, 64, 64)
-
-	graphics.setColor(255, 235, 0, 255)
-
-	graphics.easyDraw(SETTINGS:IsHighContrast() and BUTTON_TEXTURES.CSTICK.GATE_FILLED or BUTTON_TEXTURES.CSTICK.GATE, 48 + 128, 52, 0, 128, 128)
-
-	perspective.on()
-	perspective.quad(BUTTON_TEXTURES.CSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
-	perspective.off()
-
-	graphics.setColor(255, 255, 255, 255)
-
-	-- Draw L
-
-	if SETTINGS:IsSlippiReplay() and melee.isInGame() then
-		graphics.setLineStyle("smooth")
-		graphics.setLineWidth(4)
-
-		-- Draw outline
-		graphics.easyDraw(SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 108 + 6, 14, 0, 116, 24)
-
-		-- Draw L segment for button press
-		graphics.line(108 + 14 + 88, 20, 108 + 14 + 88, 20 + 12)
-
-		-- Draw R segment for button press
-		graphics.line(108 + 14 + 12, 20, 108 + 14 + 12, 20 + 12)
-
-		graphics.stencil(function()
-			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 108 + 14, 20, 100, 12, 6, 6)
-		end, "replace", 1)
-		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-			-- Analog
-
-			local analog = controller.analog and controller.analog.float or 0
-
-			if not melee.isInGame() then
-				local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
-				al = math.min(al, 1)
-				ar = math.min(ar, 1)
-				analog = math.max(al, ar)
-			end
-
-	 		-- L Button
-			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-				graphics.rectangle("fill", 108 + 14, 20, 12, 12)
-				analog = 1
-			end
-
-			-- R Button
-			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-				graphics.rectangle("fill", 108 + 14 + 12 + 76, 20, 12, 12)
-				analog = 1
-			end
-
-			local w = 76 * analog
-			graphics.rectangle("fill", 108 + 14 + 12 + 76/2 - (w/2), 20, w, 12)
-		graphics.setStencilTest()
-	else
-		local al, ar = memory.game.translateTriggers(controller.analog.l, controller.analog.r)
-		al = math.min(al, 1)
-		ar = math.min(ar, 1)
-
-		graphics.setLineStyle("smooth")
-		graphics.setLineWidth(4)
-
-		-- Draw L
-
-		-- Draw outline
-		graphics.easyDraw(SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 24 + 6, 14, 0, 116, 24)
-		-- Draw segment for button press
-		graphics.line(24 + 14 + 88, 20, 24 + 14 + 88, 20 + 12)
-
-		graphics.stencil(function()
-			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 24 + 14, 20, 100, 12, 6, 6)
-		end, "replace", 1)
-		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-	 		-- L Button
-			if bit.band(controller.buttons.pressed, BUTTONS.L) == BUTTONS.L then
-				graphics.rectangle("fill", 24 + 14 + 88, 20, 12, 12)
-				al = 1
-			end
-
-			-- L Analog
-			graphics.rectangle("fill", 24 + 14, 20, 88 * al, 12)
-		graphics.setStencilTest()
-
-		-- Draw R
-
-		-- Draw outline
-		graphics.easyDraw(SETTINGS:IsHighContrast() and ANALOG_FILLED or ANALOG, 48 + 128 + 6, 14, 0, 116, 24)
-		-- Draw segment for button press
-		graphics.line(48 + 128 + 14 + 12, 20, 48 + 128 + 14 + 12, 20 + 12)
-
-		graphics.stencil(function()
-			-- Create a rounded rectangle mask
-			graphics.rectangle("fill", 48 + 128 + 14, 20, 100, 12, 6, 6)
-		end, "replace", 1)
-		graphics.setStencilTest("greater", 0) -- Only draw within our rounded rectangle mask
-			-- R Button
-			if bit.band(controller.buttons.pressed, BUTTONS.R) == BUTTONS.R then
-				graphics.rectangle("fill", 48 + 128 + 14, 20, 12, 12)
-				ar = 1
-			end
-
-			-- R Analog
-			graphics.rectangle("fill", 48 + 128 + 14 + 12 + (88 * (1 - ar)), 20, 88 * ar, 12)
-		graphics.setStencilTest()
-		
-		--[[if SETTINGS:IsDebugging() then
-			local strl = ("L: %f"):format(al)
-			local strr = ("R: %f"):format(ar)
-			graphics.setFont(DEBUG_FONT)
-
-			graphics.setColor(0, 0, 0, 255)
-			graphics.textOutline(strl, 2, 340, 256 - 4 - 24)
-			graphics.textOutline(strr, 2, 340, 256 - 4 - 12)
-
-			graphics.setColor(255, 255, 255, 255)
-			graphics.print(strl, 340, 256 - 4 - 24)
-			graphics.print(strr, 340, 256 - 4 - 12)
-		end]]
-	end
-
+	
 	-- Draw buttons
 
 	if SETTINGS:IsDPadEnabled() then
