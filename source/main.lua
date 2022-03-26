@@ -281,13 +281,23 @@ function love.wheelmoved(x, y)
 	PORT_DISPLAY_OVERRIDE = nil
 end
 
+local DEBUG_SORT_KEYS
+
 function love.drawDeveloperInfo()
 	local stats = love.graphics.getStats()
 	stats.memory = collectgarbage("count")
+	stats.fps = love.timer.getFPS()
+
+	if not DEBUG_SORT_KEYS then
+		DEBUG_SORT_KEYS = table.keys(stats)
+		table.sort(DEBUG_SORT_KEYS)
+	end
 
 	graphics.setFont(DEBUG_FONT)
 	local i = 0
-	for stat, val in pairs(stats) do
+	for i, stat in ipairs(DEBUG_SORT_KEYS) do
+		local val = stats[stat]
+
 		local str
 
 		if stat == "memory" or stat == "texturememory" then
