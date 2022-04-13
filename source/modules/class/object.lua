@@ -33,6 +33,19 @@ function OBJECT:__index(key)
 	return nil
 end
 
+function OBJECT:instanceof(other)
+	local base = self
+
+	while base do
+		if base == rawget(other, "__baseclass") then
+			return true
+		end
+		base = rawget(base, "__baseclass")
+	end
+
+	return false
+end
+
 function OBJECT:super(method, ...)
 	local base = self
 

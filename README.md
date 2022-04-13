@@ -42,9 +42,11 @@
 ### Supported Gamecube games:
 
 * Billy Hatcher and the Giant Egg (NTSC-U)
+* Crash Bandicoot: The Wrath of Cortex (NTSC-U v1.0)
 * Crazy Taxi (NTSC-U v1.0)
 * Custom Robo (NTSC-U v1.0)
 * Disney's Donald Duck Goin' Quackers (NTSC-U)
+* Ed, Edd n Eddy: The Mis-Edventures (NTSC-U v1.0)
 * F-Zero GX (NTSC-U)
 * Gotcha Force (NTSC-U, PAL, NTSC-J)
 * Super Smash Bros. Melee (NTSC-U, PAL, NTSC-J)
@@ -60,6 +62,7 @@
 * The Legend of Zelda: Four Swords (NTSC-U v1.0, NTSC-J v1.0)
 * Super Mario Sunshine. (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0)
 * Luigi's Mansion (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0, PAL v1.1)
+* Mario Golf - Toadstool Tour (NTSC-U v1.0)
 * Mario Kart Double Dash! (NTSC v1.0)
 * Mario Party 4 (NTSC-U v1.1)
 * Mario Party 5 (NTSC-U v1.0)
@@ -80,6 +83,7 @@
 * Super Monkey Ball 2 (NTSC-U v1.0)
   - Super Monkey Ball Gaiden
 * Rayman 3: Hoodlum Havoc (NTSC-U v1.0)
+* Scooby-Doo: Night of 100 Frights (NTSC-U v1.0)
 * Smuggler's Run - Warzones (NTSC-U v1.0)
 * Sonic Adventure 2: Battle (NTSC-U v1.0)
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC-U v1.0)

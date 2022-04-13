@@ -110,6 +110,10 @@ do
 		cache = {}
 		return recursiveTableString(tbl)
 	end
+
+	function table.print(tbl)
+		print(table.tostring(tbl))
+	end
 end
 
 --[[local test = {
@@ -242,16 +246,25 @@ function table.sum(tbl)
 	return total
 end
 
-function table.random(tbl)
-	return tbl[math.random(1, #tbl)]
-end
-
-function table.randomkeyvalue(tbl)
+function table.keys(tbl)
 	local keys = {}
 	for k,v in pairs(tbl) do
 		table.insert(keys, k)
 	end
-	local key = keys[math.random(1, #keys)]
+	return keys
+end
+
+function table.random(tbl)
+	return tbl[math.random(1, #tbl)]
+end
+
+function table.randomkey(tbl)
+	local keys = table.keys(tbl)
+	return keys[math.random(1, #keys)]
+end
+
+function table.randomkeyvalue(tbl)
+	local key = table.randomkey(tbl)
 	return key, tbl[key]
 end
 
