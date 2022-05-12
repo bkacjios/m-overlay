@@ -63,7 +63,7 @@
 * Super Mario Sunshine. (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0)
 * Luigi's Mansion (NTSC-U v1.0, NTSC-J v1.0, PAL v1.0, PAL v1.1)
 * Mario Golf - Toadstool Tour (NTSC-U v1.0)
-* Mario Kart Double Dash! (NTSC v1.0)
+* Mario Kart Double Dash! (NTSC v1.0, PAL v1.0)
 * Mario Party 4 (NTSC-U v1.1)
 * Mario Party 5 (NTSC-U v1.0)
 * Mario Party 6 (NTSC-U v1.0)
