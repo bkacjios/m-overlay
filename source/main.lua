@@ -93,6 +93,7 @@ function love.updateTitle(str)
 		title = string.format("%s (Port %d)", str, overlay.getPort())
 	end
 	love.window.setTitle(title)
+	--love.window.setMode(1280, 720, nil)
 end
 
 function love.getTitleNoPort()
