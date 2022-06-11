@@ -84,7 +84,10 @@
 * Super Monkey Ball 2 (NTSC-U v1.0)
   - Super Monkey Ball Gaiden
 * Rayman 3: Hoodlum Havoc (NTSC-U v1.0)
-* Scooby-Doo: Night of 100 Frights (NTSC-U v1.0)
+* Scaler (NTSC-U V1.0)
+* Scooby-Doo: Night of 100 Frights (NTSC-U v1.0, NTSC-U v1.1, PAL-En, PAL-Fr, Pal-Ger)
+* Scooby-Doo! - Unmasked (NTSC-U v1.0, PAL v1.0)
+* Scooby-Doo! - Mystery Mayhem (NTSC-U v1.0, PAL v1.0)
 * Smuggler's Run - Warzones (NTSC-U v1.0)
 * Sonic Adventure 2: Battle (NTSC-U v1.0)
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC-U v1.0)
