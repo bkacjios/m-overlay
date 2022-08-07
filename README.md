@@ -79,7 +79,7 @@
 * Pikmin (NTSC-U v1.0, NTSC-U v1.1)
 * Pikmin 2 (NTSC-U v1.0, DEMO v1.0)
   - [Pikmin 251](https://www.youtube.com/watch?v=7ylu9ogW88w)
-* Pitfall The Lost Expedition (NTSC-U v1.0)
+* Pitfall The Lost Expedition (NTSC-U v1.0, FR v1.0)
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
 * Super Monkey Ball 2 (NTSC-U v1.0)
   - Super Monkey Ball Gaiden
@@ -89,7 +89,8 @@
 * Scooby-Doo! - Unmasked (NTSC-U v1.0, PAL v1.0)
 * Scooby-Doo! - Mystery Mayhem (NTSC-U v1.0, PAL v1.0)
 * Smuggler's Run - Warzones (NTSC-U v1.0)
-* Sonic Adventure 2: Battle (NTSC-U v1.0)
+* Sonic Adventure DX (PAL v1.1)
+* Sonic Adventure 2: Battle (NTSC-U v1.0, PAL v1.0)
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC-U v1.0)
 * The SpongeBob SquarePants Movie (NTSC-U v1.1, PAL v1.0)
 * Super Mario Strikers (NTSC-U v1.0)
