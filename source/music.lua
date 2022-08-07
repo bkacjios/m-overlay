@@ -447,7 +447,7 @@ memory.hook("match.info.result", "Melee - GAME kill music", function(result)
 end)
 
 memory.hook("controller.*.buttons.pressed", "Melee - Music skipper", function(port, pressed)
-	if PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
+	if not memory.isMelee() or PANEL_SETTINGS:IsBinding() or PANEL_SETTINGS:IsSlippiReplay() then return end -- Don't skip when the user is setting a button combination or when watching a replay
 	local skipMask = PANEL_SETTINGS:GetMusicSkipMask()
 	local muteMask = PANEL_SETTINGS:GetMusicMuteMask()
 	if port == overlay.getPort() then

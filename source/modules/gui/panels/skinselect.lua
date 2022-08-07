@@ -29,7 +29,7 @@ end
 
 function PANEL:UpdateSkins()
 	local numskins = 0
-	for skin, tbl in pairs(overlay.getSkins()) do
+	for id, skin in ipairs(overlay.getSkins()) do
 		local SKIN = self:Add("RadioBox")
 		SKIN:SetText(skin)
 		SKIN:DockMargin(1, 1, 1, 1)

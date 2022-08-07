@@ -327,4 +327,4 @@ function SKIN:Paint(controller)
 	drawButtons(BUTTONS, controller)
 end
 
-overlay.registerSkin("S_Stick", SKIN)
+overlay.registerSkin("S-Stick", SKIN)
