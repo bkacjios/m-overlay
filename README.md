@@ -112,6 +112,7 @@
 * Super Mario 64 (NTSC-U)
 * The Legend of Zelda: Ocarina of Time (NTSC-U, NTSC-J)
 * The Legend of Zelda: Majora's Mask (NTSC-U, NTSC-J)
+  - [Randomizer](https://github.com/ZoeyZolotova/mm-rando)
 * Paper Mario (NTSC-U)
 
 *More games can be supported upon request!*
