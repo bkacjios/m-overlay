@@ -162,6 +162,7 @@ function music.kill()
 	if music.PLAYING then
 		if music.PLAYING.STREAM then
 			if music.PLAYING.STREAM:isPlaying() then
+				log.debug("[MUSIC] Killed music")
 				music.PLAYING.STREAM:stop()
 				music.FINISHED = true
 			end

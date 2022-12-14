@@ -52,6 +52,8 @@ SCENE_MAIN_MENU = 0x01
 		SELECT_OPTIONS_ERASE_DATA = 0x05
 
 	MENU_ONLINE = 0x08
+		SELECT_ONLINE_RANKED = 0x00
+		SELECT_ONLINE_UNRANKED = 0x01
 		SELECT_ONLINE_DIRECT = 0x02
 		SELECT_ONLINE_TEAMS = 0x03
 		SELECT_ONLINE_LOGOUT = 0x05
@@ -240,11 +242,12 @@ SCENE_ALL_STAR_MODE = 0x05
 SCENE_DEBUG = 0x06
 SCENE_SOUND_TEST = 0x07
 
-SCENE_VS_UNKNOWN = 0x08 -- SLIPPI ONLINE
-	SCENE_VS_UNKNOWN_CSS = 0x00
-	SCENE_VS_UNKNOWN_SSS = 0x01
-	SCENE_VS_UNKNOWN_INGAME = 0x02
-	SCENE_VS_UNKNOWN_VERSUS = 0x04
+SCENE_VS_ONLINE = 0x08 -- SLIPPI ONLINE
+	SCENE_VS_ONLINE_CSS = 0x00
+	SCENE_VS_ONLINE_SSS = 0x01
+	SCENE_VS_ONLINE_INGAME = 0x02
+	SCENE_VS_ONLINE_VERSUS = 0x04
+	SCENE_VS_ONLINE_RANKED = 0x05
 
 SCENE_UNKOWN_1 = 0x09
 SCENE_CAMERA_MODE = 0x0A
@@ -1105,7 +1108,7 @@ local BEYOND_MELEE_SERIES = {
 }
 
 function melee.isNetplayGame()
-	return memory.scene.major == SCENE_VS_UNKNOWN and (memory.scene.minor == SCENE_VS_UNKNOWN_INGAME or memory.scene.minor == SCENE_VS_UNKNOWN_VERSUS)
+	return memory.scene.major == SCENE_VS_ONLINE and (memory.scene.minor == SCENE_VS_ONLINE_INGAME or memory.scene.minor == SCENE_VS_ONLINE_VERSUS)
 end
 
 function melee.isTeams()
@@ -1124,7 +1127,7 @@ function melee.isSinglePlayerGame()
 			major == SCENE_EVENT_MATCH or major == SCENE_CLASSIC_MODE or
 			major == SCENE_ADVENTURE_MODE or major == SCENE_TARGET_TEST or
 			(major >= SCENE_HOME_RUN_CONTEST and major <= SCENE_CRUEL_MELEE) or
-			major == SCENE_VS_UNKNOWN
+			major == SCENE_VS_ONLINE
 end
 
 function melee.isBTTStage(id)
@@ -1215,7 +1218,7 @@ function melee.isInGame()
 	if PANEL_SETTINGS:IsSlippiReplay() and memory.scene.major == SCENE_START_MATCH then
 		return memory.scene.minor == SCENE_START_MATCH_INGAME
 	end
-	if memory.scene.major == SCENE_VS_MODE or memory.scene.major == SCENE_VS_UNKNOWN then
+	if memory.scene.major == SCENE_VS_MODE or memory.scene.major == SCENE_VS_ONLINE then
 		return memory.scene.minor == SCENE_VS_INGAME
 	end
 	if memory.scene.major >= SCENE_TRAINING_MODE and memory.scene.major <= SCENE_STAMINA_MODE or memory.scene.major == SCENE_FIXED_CAMERA_MODE then
@@ -1275,8 +1278,11 @@ function melee.isInMenus()
 	if memory.scene.major == SCENE_MAIN_MENU then
 		return true
 	end
-	if memory.scene.major == SCENE_VS_MODE or memory.scene.major == SCENE_VS_UNKNOWN then
+	if memory.scene.major == SCENE_VS_MODE then
 		return memory.scene.minor == SCENE_VS_CSS or memory.scene.minor == SCENE_VS_SSS
+	end
+	if memory.scene.major == SCENE_VS_ONLINE then
+		return memory.scene.minor == SCENE_VS_ONLINE_CSS or memory.scene.minor == SCENE_VS_ONLINE_SSS or memory.scene.minor == SCENE_VS_ONLINE_RANKED 
 	end
 	if memory.scene.major >= SCENE_TRAINING_MODE and memory.scene.major <= SCENE_STAMINA_MODE or memory.scene.major == SCENE_FIXED_CAMERA_MODE then
 		return memory.scene.minor == SCENE_TRAINING_CSS or memory.scene.minor == SCENE_TRAINING_SSS
