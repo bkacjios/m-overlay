@@ -163,7 +163,7 @@ memory.hook("scene.major", "Slippi Auto Port Switcher", function(major)
 		log.debug("[AUTOPORT] Forcing port %d in menus", overlay.getPort())
 	end
 
-	if melee.matchFinsihed() then
+	if melee.matchFinished() then
 		opponentName = ""
 		opponentElo = ""
 		opponentRank = ""

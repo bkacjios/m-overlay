@@ -1198,7 +1198,7 @@ function melee.getStageSeries(id)
 	return STAGE_SERIES[id]
 end
 
-function melee.matchFinsihed()
+function melee.matchFinished()
 	return memory.match.info.finished == true
 end
 

@@ -176,7 +176,7 @@ end
 local MATCH_SOFT_END = false
 
 function music.shouldPlayMusic()
-	return melee.isInMenus() or (melee.isInGame() and not melee.matchFinsihed() and not MATCH_SOFT_END)
+	return melee.isInMenus() or (melee.isInGame() and not melee.matchFinished() and not MATCH_SOFT_END)
 end
 
 function music.onLoopChange(mode)
