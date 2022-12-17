@@ -87,9 +87,12 @@ local CODE = { -- Konami code
 	0x0200, 0x0100, 0x1000
 }]]
 
-local opponentName = "";
-local opponentRank = "";
-local opponentElo = "";
+local playerName = ""
+local playerRank = ""
+local playerElo = 0
+local opponentName = ""
+local opponentRank = ""
+local opponentElo = 0
 
 local portless_title = ""
 function love.updateTitle(str)
@@ -165,7 +168,7 @@ memory.hook("scene.major", "Slippi Auto Port Switcher", function(major)
 
 	if melee.matchFinished() then
 		opponentName = ""
-		opponentElo = ""
+		opponentElo = 0
 		opponentRank = ""
 	end
 end)
@@ -174,16 +177,24 @@ memory.hook("scene.minor", "Slippi Auto Port Switcher", function(minor)
 	-- SCENE_VS_ONLINE = Slippi online
 	if memory.scene.major == SCENE_VS_ONLINE and PANEL_SETTINGS:IsSlippiNetplay() then
 		-- update info:
-		local code
+		local opponentCode
 		if memory.slippi.local_player.index == 0 then
-			code = memory.slippi.players[2].code
+			playerCode = memory.slippi.players[1].code
+			opponentCode = memory.slippi.players[2].code
 		else	
-			code = memory.slippi.players[1].code
+			playerCode = memory.slippi.players[2].code
+			opponentCode = memory.slippi.players[1].code
 		end
-		-- 2. make request to slippi.gg/user/
-		stats = grabUserStats(code)
-		opponentName = stats[1]
-		opponentElo = stats[2]
+		
+		playerStats = grabUserStats(playerCode)
+		opponentStats = grabUserStats(opponentCode)
+
+		playerName = playerStats[1]
+		playerElo = playerStats[2]
+		playerRank = getRank(playerElo, false)
+
+		opponentName = opponentStats[1]
+		opponentElo = opponentStats[2]
 		opponentRank = getRank(opponentElo, false)
 
 		if minor == SCENE_VS_ONLINE_CSS or menu == SCENE_VS_ONLINE_SSS then
@@ -391,8 +402,14 @@ function love.drawControllerOverlay()
 		overlay.draw(controller)
 		-- graphics.textOutline(string.format("%s %s", opponentName, opponentRank), .5, 400, 200) -- maybe add outline
 		graphics.setColor(255, 0, 0, 255)
-		local nametemp = string.format("%s\n%s %s", opponentName, opponentElo, opponentRank)
-		graphics.print(nametemp, 400, 200)
+		local playerLabel = string.format("%s\n%s (%d)", playerName, playerRank, playerElo)
+		local opponentLabel = string.format("%s\n(%d) %s", opponentName, opponentElo, opponentRank)
+		if playerElo > 0 then
+			graphics.print(playerLabel, 10, 200)
+		end
+		if opponentElo > 0 then
+			graphics.printf(opponentLabel, 300, 200, 200, "right")
+		end
 
 		if PANEL_SETTINGS:GetDebuggingInputFlags() > 0 then
 			local x, y = memory.game.translateJoyStick(controller.joystick.x, controller.joystick.y)
