@@ -30,7 +30,7 @@ local music = require("music")
 
 local color = require("util.color")
 local gui = require("gui")
-
+local web = require("web")
 local ease = require("ease")
 
 local graphics = love.graphics
