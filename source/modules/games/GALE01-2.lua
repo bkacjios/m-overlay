@@ -143,7 +143,7 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 			struct = {
 				[0x00] = { type = "u8", name = "connection_state" },					-- 1
 				[0x01] = { type = "bool", name = "local_player.ready" },				-- 1
-				[0x02] = { type = "u8", name = "remote_player.ready" },					-- 1
+				[0x02] = { type = "bool", name = "remote_player.ready" },				-- 1
 				[0x03] = { type = "u8", name = "local_player.index", debug = true },	-- 1
 				[0x04] = { type = "u8", name = "remote_player.index" },					-- 1
 				[0x05] = { type = "u32", name = "rng_offset" },							-- 4
@@ -154,15 +154,15 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 				[0x0D] = { type = "u32", name = "vs.left_names" },						-- 4
 				[0x11] = { type = "u32", name = "vs.right_names" },						-- 4
 				[0x15] = { type = "string-jis", len = 31, name = "local_player.name" },	-- 31
-				[0x34] = { type = "string-jis", len = 31, name = "players.1.name" },		-- 31
-				[0x53] = { type = "string-jis", len = 31, name = "players.2.name" },		-- 31
-				[0x72] = { type = "string-jis", len = 31, name = "players.3.name" },		-- 31
-				[0x91] = { type = "string-jis", len = 31, name = "players.4.name" },		-- 31
+				[0x34] = { type = "string-jis", len = 31, name = "players.1.name", debug = true },	-- 31
+				[0x53] = { type = "string-jis", len = 31, name = "players.2.name", debug = true },	-- 31
+				[0x72] = { type = "string-jis", len = 31, name = "players.3.name" },	-- 31
+				[0x91] = { type = "string-jis", len = 31, name = "players.4.name" },	-- 31
 				[0xB0] = { type = "string-jis", len = 31, name = "opponent.name" },		-- 31
-				[0xCF] = { type = "string-jis", len = 10, name = "players.1.code" },		-- 10
-				[0xD9] = { type = "string-jis", len = 10, name = "players.2.code" },		-- 10
-				[0xE3] = { type = "string-jis", len = 10, name = "players.3.code" },		-- 10
-				[0xED] = { type = "string-jis", len = 10, name = "players.4.code" },		-- 10
+				[0xCF] = { type = "string-jis", len = 10, name = "players.1.code", debug = true },	-- 10
+				[0xD9] = { type = "string-jis", len = 10, name = "players.2.code", debug = true },	-- 10
+				[0xE3] = { type = "string-jis", len = 10, name = "players.3.code" },	-- 10
+				[0xED] = { type = "string-jis", len = 10, name = "players.4.code" },	-- 10
 				[0xF7] = { type = "string", len = 29, name = "players.1.uuid" },		-- 29
 				[0x114] = { type = "string", len = 29, name = "players.2.uuid" },		-- 29
 				[0x131] = { type = "string", len = 29, name = "players.3.uuid" },		-- 29
