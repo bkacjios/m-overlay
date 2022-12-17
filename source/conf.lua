@@ -38,5 +38,5 @@ function love.conf(t)
 	t.modules.touch = false             -- Enable the touch module (boolean)
 	t.modules.video = false             -- Enable the video module (boolean)
 	t.modules.window = true             -- Enable the window module (boolean)
-	t.modules.thread = false            -- Enable the thread module (boolean)
+	t.modules.thread = true            -- Enable the thread module (boolean)
 end
