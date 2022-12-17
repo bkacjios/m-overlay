@@ -224,26 +224,29 @@ memory.hook("player.*.character", "Show port on character select", function(port
 	end
 end)
 
-local snd = love.audio.newSource("sounds/main7b.wav", "static")
+do
+	local snd = love.audio.newSource("sounds/blip.ogg", "static")
 
-memory.hook("controller.*.buttons.pressed", "Konami code check", function(port, pressed)
-	if pressed == 0x0 or port ~= overlay.getPort() then return end
-	local pos = CODE_POSITION[port]
-	if CODE[pos] == pressed then
-		CODE_POSITION[port] = pos + 1
-		if pos >= #CODE then
-			CODE_ENTERED = not CODE_ENTERED
-			snd:setVolume(0.25)
-			snd:setPitch(CODE_ENTERED and 1 or 0.75)
-			snd:play()
-			log.warn("[KONAMI] %s developer stats..", CODE_ENTERED and "Showing" or "Hiding")
+	memory.hook("controller.*.buttons.pressed", "Konami code check", function(port, pressed)
+		if pressed == 0x0 or port ~= overlay.getPort() then return end
+		local pos = CODE_POSITION[port]
+		if CODE[pos] == pressed then
+			CODE_POSITION[port] = pos + 1
+			if pos >= #CODE then
+				CODE_ENTERED = not CODE_ENTERED
+				snd:setVolume(0.25)
+				snd:setPitch(CODE_ENTERED and 1 or 0.75)
+				snd:play()
+				log.warn("[KONAMI] %s developer stats..", CODE_ENTERED and "Showing" or "Hiding")
+			end
+		else
+			CODE_POSITION[port] = 1
 		end
-	else
-		CODE_POSITION[port] = 1
-	end
-end)
+	end)
+end
 
 function love.update(dt)
+	web.update()
 	music.update()
 	memory.update() -- Look for Dolphin.exe
 	notification.update(8, 0)
