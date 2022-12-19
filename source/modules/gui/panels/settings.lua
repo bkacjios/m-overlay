@@ -12,6 +12,8 @@ SLIPPI_OFF = 1
 SLIPPI_NETPLAY = 2
 SLIPPI_REPLAY = 3
 
+SHOW_RANKED_DETAILS = 1
+
 LOOPING_NONE = 0
 LOOPING_MENU = 1
 LOOPING_STAGE_TIMED = 2
@@ -115,7 +117,7 @@ function PANEL:Settings()
 	self.SLIPPI.MODE = self.SLIPPI.RIGHT:Add("RadioPanel")
 	self.SLIPPI.MODE:SetText("Slippi mode")
 	self.SLIPPI.MODE:DockMargin(0,0,0,0)
-	self.SLIPPI.MODE:Dock(DOCK_FILL)
+	self.SLIPPI.MODE:Dock(DOCK_TOP)
 	self.SLIPPI.MODE:SetWidth(100)
 
 	local off = self.SLIPPI.MODE:AddOption(SLIPPI_OFF, "Off: Other games", true)
@@ -136,6 +138,15 @@ WARNING: This tricks M'Overlay into thinking Melee is being played when an inval
 	self.SLIPPI.MODE.OnSelectOption = function(this, num)
 		self.SLIPPI.ICON:SetImage(num == SLIPPI_OFF and "textures/slippi.png" or "textures/slippi_filled.png")
 	end
+	
+	self.SLIPPI.RANKED = self.SLIPPI.RIGHT:Add("CheckBox")
+	self.SLIPPI.RANKED:SetText("Ranked Details")
+	self.SLIPPI.RANKED:DockMargin(0,0,0,0)
+	self.SLIPPI.RANKED:Dock(DOCK_BOTTOM)
+	self.SLIPPI.RANKED:SetWidth(100)
+	self.SLIPPI.RANKED:SetTooltipParent(self.SLIPPI.RANKED)
+	self.SLIPPI.RANKED:SetTooltipTitle("Show Ranked Details")
+	self.SLIPPI.RANKED:SetTooltipBody("[[Shows player and opponent slippi.gg leaderboard elo and league ranks]]")
 
 	self.MELEE.MUSIC = self.MELEE.LEFT:Add("CheckBox")
 	self.MELEE.MUSIC:SetText("Enable music")
@@ -529,6 +540,10 @@ end
 
 function PANEL:GetSlippiMode()
 	return self.SLIPPI.MODE:GetOption()
+end
+
+function PANEL:IsShowRanksEnabled()
+	return self.SLIPPI.RANKED:IsToggled()
 end
 
 function PANEL:IsSlippiNetplay()

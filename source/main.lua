@@ -17,7 +17,6 @@ require("console")
 require("errorhandler")
 require("extensions.love")
 require('ranks')
-require('stats')
 
 local log = require("log")
 local melee = require("melee")
@@ -28,6 +27,8 @@ local notification = require("notification")
 local overlay = require("overlay")
 local music = require("music")
 
+local json = require("serializer.json")
+local web = require("web")
 local color = require("util.color")
 local gui = require("gui")
 local web = require("web")
@@ -93,6 +94,41 @@ local playerElo = 0
 local opponentName = ""
 local opponentRank = ""
 local opponentElo = 0
+
+function grabUserStats(userCode, isOpponent)
+	-- userCode: 'xxx#123'
+	local body = json.encode({
+		operationName = "AccountManagementPageQuery", 
+		variables = {
+			cc = string.format("%s", userCode),
+			uid = string.format("%s", userCode)
+		}, 
+		query = "fragment userProfilePage on User {\n  fbUid\n  displayName\n  connectCode {\n    code\n    __typename\n  }\n  status\n  activeSubscription {\n    level\n    hasGiftSub\n    __typename\n  }\n  rankedNetplayProfile {\n    id\n    ratingOrdinal\n    ratingUpdateCount\n    wins\n    losses\n    dailyGlobalPlacement\n    dailyRegionalPlacement\n    continent\n    characters {\n      id\n      character\n      gameCount\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nquery AccountManagementPageQuery($cc: String!, $uid: String!) {\n  getUser(fbUid: $uid) {\n    ...userProfilePage\n    __typename\n  }\n  getConnectCode(code: $cc) {\n    user {\n      ...userProfilePage\n      __typename\n    }\n    __typename\n  }\n}\n"
+	})
+	print(body)
+
+	local res = web.post(
+		'https://gql-gateway-dot-slippi.uc.r.appspot.com/graphql',
+		body,
+		{
+			["Content-Type"] = "application/json",
+			["Content-Length"] = string.len(body)
+		},
+		function(event)
+			data = json.decode(event.response)
+			if data.data and data.data.getConnectCode.user.displayName then
+				if isOpponent then
+					opponentElo = data.data.getConnectCode.user.rankedNetplayProfile.ratingOrdinal
+					opponentRank = getRank(opponentElo, false)
+					opponentName = data.data.getConnectCode.user.displayName
+				else
+					playerElo = data.data.getConnectCode.user.rankedNetplayProfile.ratingOrdinal
+					playerRank = getRank(playerElo, false)
+					playerName = data.data.getConnectCode.user.displayName
+				end
+			end
+		end)
+end
 
 local portless_title = ""
 function love.updateTitle(str)
@@ -186,16 +222,10 @@ memory.hook("scene.minor", "Slippi Auto Port Switcher", function(minor)
 			opponentCode = memory.slippi.players[1].code
 		end
 		
-		playerStats = grabUserStats(playerCode)
-		opponentStats = grabUserStats(opponentCode)
-
-		playerName = playerStats[1]
-		playerElo = playerStats[2]
-		playerRank = getRank(playerElo, false)
-
-		opponentName = opponentStats[1]
-		opponentElo = opponentStats[2]
-		opponentRank = getRank(opponentElo, false)
+		if PANEL_SETTINGS:IsShowRanksEnabled() then
+			grabUserStats(playerCode, false)
+			grabUserStats(opponentCode, true)
+		end
 
 		if minor == SCENE_VS_ONLINE_CSS or menu == SCENE_VS_ONLINE_SSS then
 			-- Switch back to whatever controller is controlling port 1, when not in a match
@@ -405,13 +435,15 @@ function love.drawControllerOverlay()
 		overlay.draw(controller)
 		-- graphics.textOutline(string.format("%s %s", opponentName, opponentRank), .5, 400, 200) -- maybe add outline
 		graphics.setColor(255, 0, 0, 255)
-		local playerLabel = string.format("%s\n%s (%d)", playerName, playerRank, playerElo)
-		local opponentLabel = string.format("%s\n(%d) %s", opponentName, opponentElo, opponentRank)
-		if playerElo > 0 then
-			graphics.print(playerLabel, 10, 200)
-		end
-		if opponentElo > 0 then
-			graphics.printf(opponentLabel, 300, 200, 200, "right")
+		if PANEL_SETTINGS:IsShowRanksEnabled() then
+			local playerLabel = string.format("%s\n%s (%d)", playerName, playerRank, playerElo)
+			local opponentLabel = string.format("%s\n(%d) %s", opponentName, opponentElo, opponentRank)
+			if playerElo > 0 then
+				graphics.print(playerLabel, 10, 200)
+			end
+			if opponentElo > 0 then
+				graphics.printf(opponentLabel, 300, 200, 200, "right")
+			end
 		end
 
 		if PANEL_SETTINGS:GetDebuggingInputFlags() > 0 then
