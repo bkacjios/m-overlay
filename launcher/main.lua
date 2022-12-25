@@ -2,6 +2,7 @@ local downloader = require("downloader")
 
 function love.load(args, unfilteredArgs)
 	if love.filesystem.mount("application.love", "") then
+		_LAUNCHER = true
 		package.loaded.ssl = nil
 		package.loaded.https = nil
 		package.loaded.downloader = nil

@@ -5,6 +5,7 @@ local json = require("serializer.json")
 local notification = require("notification")
 local music = require("music")
 local overlay = require("overlay")
+local updater = require("updater")
 
 require("extensions.math")
 
@@ -340,15 +341,20 @@ This is also the same directory you use to place all your music for Melee.]])
 	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
 	self.ABOUT:SetBackgroundColor(color_purple)
 
-	local updater = require("updater")
-
 	self.ABOUT.LEFT = self.ABOUT:Add("Panel")
 	self.ABOUT.LEFT:SetDrawPanel(false)
 	self.ABOUT.LEFT:Dock(DOCK_LEFT)
 	self.ABOUT.LEFT:SetWidth(160)
 
-	self.ABOUT.LEFT.Paint = function(this, w, h)
-		updater.draw(w,h)
+	if _LAUNCHER then
+		self.ABOUT.LEFT.Paint = function(this, w, h)
+			updater.draw(w,h)
+		end
+	else
+		local ICON = self.ABOUT.LEFT:Add("Image")
+		ICON:Dock(DOCK_FILL)
+		ICON:DockMargin(32, 32, 32, 32)
+		ICON:SetImage("textures/icon.png")
 	end
 
 	self.ABOUT.RIGHT = self.ABOUT:Add("Panel")
@@ -365,13 +371,15 @@ This is also the same directory you use to place all your music for Melee.]])
 		love.system.openURL(("https://github.com/bkacjios/m-overlay/releases/tag/v%s"):format(love.getMOverlayVersion()))
 	end
 
-	local UPDATE = self.ABOUT.RIGHT:Add("ButtonIcon")
-	UPDATE:SetImage("textures/gui/wrench.png")
-	UPDATE:SetText("Check for update")
-	UPDATE:Dock(DOCK_TOP)
+	if _LAUNCHER then
+		local UPDATE = self.ABOUT.RIGHT:Add("ButtonIcon")
+		UPDATE:SetImage("textures/gui/wrench.png")
+		UPDATE:SetText("Check for update")
+		UPDATE:Dock(DOCK_TOP)
 
-	function UPDATE:OnClick()
-		updater.check()
+		function UPDATE:OnClick()
+			updater.check()
+		end
 	end
 
 	self.ABOUT.SOCIALS = self.ABOUT.RIGHT:Add("Panel")

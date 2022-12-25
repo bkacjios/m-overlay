@@ -12,13 +12,21 @@ local DOWNLOADED = 0
 
 local STATUS = ""
 
-local function splitVersion(tag)
+local function versionNumber(tag)
 	-- Split into: major, minor, revision, hotfix
 	if not tag then
-		return 0, 0, 0, 0, ""
+		return -1
 	end
-	local maj, min, rev, hot = tag:match("v?(%d+)%.(%d+)%.(%d+)(%a?)")
-	return tonumber(maj), tonumber(min), tonumber(rev), hot
+	local maj, min, rev, hot = tag:lower():match("v?(%d+)%.(%d+)%.(%d+)(%a?)")
+	if not maj then
+		return -1
+	end
+	local hotfix = 0
+	if hot and #hot > 0 then
+		-- 97 = a
+		hotfix = string.byte(hot) - 96
+	end
+	return (tonumber(maj) * 10000) + (tonumber(min) * 1000) + (tonumber(rev) * 100) + hotfix
 end
 
 do
@@ -54,11 +62,9 @@ do
 end
 
 function updater.check()
-	local version = love.getMOverlayVersion()
+	local version = versionNumber(love.getMOverlayVersion())
 
-	if version == "0.0.0" then return end
-
-	local maj, min, rev, hot = splitVersion(version)
+	if version <= 0 then return end
 
 	STATUS = "Checking for update.."
 
@@ -66,8 +72,8 @@ function updater.check()
 		if event.success and event.code == 200 then
 			local response = json.decode(event.response)
 			if (response.tag_name) then
-				local rmaj, rmin, rrev, rhot = splitVersion(response.tag_name)
-				if rmaj > maj or rmin > min or rev > rrev or rhot > hot then
+				local updateVersion = versionNumber(response.tag_name)
+				if updateVersion > 0 and updateVersion > version then
 					log.warn("[UPDATER] Application update available")
 					for id, asset in pairs(response.assets) do
 						if asset.name == "application.love" then

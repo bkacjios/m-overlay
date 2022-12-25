@@ -14,7 +14,7 @@
 ;#define AppBuild
 ;#define AppVersion GetVersionComponents("build/x64/m-overlay-x64.exe", AppMajor, AppMinor, AppRevision, AppBuild)
 ;#define AppVersion Str(AppMajor) + "." + Str(AppMinor) + "." + Str(AppRevision)
-#define AppVersion 2.1.0
+#define AppVersion "2.1.0"
 PrivilegesRequired=lowest
 DisableWelcomePage=no
 AppName={#AppName}
