@@ -11,7 +11,7 @@
   - Installer: [m-overlay-x64-installer.exe](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-installer.exe)
   - Portable: [m-overlay-x64-portable.zip](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-portable.zip)
 * Linux ([LÖVE 11.3](https://love2d.org/) - x64)
-  - Love2D: [m-overlay-x64.love](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-installer.love)
+  - Love2D: [m-overlay-x64-installer.love](https://github.com/bkacjios/m-overlay/releases/latest/download/m-overlay-x64-installer.love)
 * macOS
   - [Currently unsupported and probably never will be](https://github.com/bkacjios/m-overlay/issues/97)
 
