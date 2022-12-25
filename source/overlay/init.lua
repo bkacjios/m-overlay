@@ -1,5 +1,4 @@
 local overlay = {
-	m_tSkinList = {},
 	m_tRegisteredSkins = {},
 	m_fDisplayPortTime = 0,
 }
@@ -55,12 +54,15 @@ end
 
 function overlay.registerSkin(name, tbl)
 	overlay.m_tRegisteredSkins[name] = tbl
-	table.insert(overlay.m_tSkinList, name)
-	table.sort(overlay.m_tSkinList)
 end
 
 function overlay.getSkins()
-	return overlay.m_tSkinList
+	local skins = {}
+	for name, skin in pairs(overlay.m_tRegisteredSkins) do
+		table.insert(skins, name)
+	end
+	table.sort(skins)
+	return skins
 end
 
 do

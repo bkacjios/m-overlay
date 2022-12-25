@@ -8,12 +8,14 @@
 
 [Setup]
 #define AppName "M'Overlay"
-#define AppMajor
-#define AppMinor
-#define AppRevision
-#define AppBuild
-#define AppVersion GetVersionComponents("build/x64/m-overlay-x64.exe", AppMajor, AppMinor, AppRevision, AppBuild)
-#define AppVersion Str(AppMajor) + "." + Str(AppMinor) + "." + Str(AppRevision)
+;#define AppMajor
+;#define AppMinor
+;#define AppRevision
+;#define AppBuild
+;#define AppVersion GetVersionComponents("build/x64/m-overlay-x64.exe", AppMajor, AppMinor, AppRevision, AppBuild)
+;#define AppVersion Str(AppMajor) + "." + Str(AppMinor) + "." + Str(AppRevision)
+#define AppVersion 2.1.0
+PrivilegesRequired=lowest
 DisableWelcomePage=no
 AppName={#AppName}
 AppId={#AppName}
@@ -42,7 +44,7 @@ ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 LicenseFile=build/x64/license.txt
 
-[Files]                                
+[Files]
 Source: "build/x64/license.txt"; DestDir: "{app}"; DestName: "license.txt"; Flags: ignoreversion
 Source: "build/x64/m-overlay-x64.exe"; DestDir: "{app}"; DestName: "m-overlay-x64.exe"; Flags: ignoreversion
 Source: "build/x64/love.dll"; DestDir: "{app}"; DestName: "love.dll"; Flags: ignoreversion
@@ -52,9 +54,8 @@ Source: "build/x64/msvcp120.dll"; DestDir: "{app}"; DestName: "msvcp120.dll"; Fl
 Source: "build/x64/msvcr120.dll"; DestDir: "{app}"; DestName: "msvcr120.dll"; Flags: ignoreversion
 Source: "build/x64/OpenAL32.dll"; DestDir: "{app}"; DestName: "OpenAL32.dll"; Flags: ignoreversion
 Source: "build/x64/SDL2.dll"; DestDir: "{app}"; DestName: "SDL2.dll"; Flags: ignoreversion
-
-[InstallDelete]
-Type: files; Name: {app}\m-overlay-64.exe
+Source: "build/x64/ssl.dll"; DestDir: "{app}"; DestName: "ssl.dll"; Flags: ignoreversion
+Source: "build/application.love"; DestDir: "{userappdata}/m-overlay"; DestName: "application.love"; Flags: ignoreversion
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; \
@@ -67,3 +68,65 @@ Name: "{commondesktop}\{#AppName}"; Filename: "{app}\m-overlay-x64.exe"; \
 
 [Run]
 Filename: {app}\m-overlay-x64.exe; Description: "Launch {#AppName}"; Flags: postinstall shellexec skipifsilent nowait
+
+[Code]
+
+{ ///////////////////////////////////////////////////////////////////// }
+function GetUninstallString(): String;
+var
+  sUnInstPath: String;
+  sUnInstallString: String;
+begin
+  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\M''Overlay_is1');
+  sUnInstallString := '';
+  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
+    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+  Result := sUnInstallString;
+end;
+
+
+{ ///////////////////////////////////////////////////////////////////// }
+function IsUpgrade(): Boolean;
+begin
+  Result := (GetUninstallString() <> '');
+end;
+
+
+{ ///////////////////////////////////////////////////////////////////// }
+function UnInstallOldVersion(): Integer;
+var
+  sUnInstallString: String;
+  iResultCode: Integer;
+begin
+{ Return Values: }
+{ 1 - uninstall string is empty }
+{ 2 - error executing the UnInstallString }
+{ 3 - successfully executed the UnInstallString }
+
+  { default return value }
+  Result := 0;
+
+  { get the uninstall string of the old app }
+  sUnInstallString := GetUninstallString();
+  if sUnInstallString <> '' then begin
+    sUnInstallString := RemoveQuotes(sUnInstallString);
+    if Exec(sUnInstallString, '/VERYSILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+      Result := 3
+    else
+      Result := 2;
+  end else
+    Result := 1;
+end;
+
+{ ///////////////////////////////////////////////////////////////////// }
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if (CurStep=ssInstall) then
+  begin
+    if (IsUpgrade()) then
+    begin
+      MsgBox('M''Overlay has changed install directories, so the old version will be uninstalled first. Your config files and music will remain untouched.', mbInformation, MB_OK);
+      UnInstallOldVersion();
+    end;
+  end;
+end;

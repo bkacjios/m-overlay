@@ -31,6 +31,9 @@ local gui = require("gui")
 
 local ease = require("ease")
 
+local web = require("web")
+local downloader = require("downloader")
+
 local graphics = love.graphics
 local newImage = graphics.newImage
 
@@ -211,6 +214,7 @@ end
 
 function love.update(dt)
 	web.update()
+	downloader.update()
 	music.update()
 	memory.update() -- Look for Dolphin.exe
 	notification.update(8, 0)
@@ -802,4 +806,6 @@ end
 function love.quit()
 	PANEL_SETTINGS:OnClosed()
 	gui.shutdown()
+	web.close()
+	downloader.close()
 end

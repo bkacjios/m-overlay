@@ -27,11 +27,11 @@ SET INSTALLER_DIR=.\installer
 SET BUILD_DIR=.\build
 SET BUILD_OUTPUT_DIR=%BUILD_DIR%\%BIT%
 SET SOURCE_DIR=.\source
+SET LAUNCHER_DIR=.\launcher
 SET RELEASES_DIR=.\releases
 SET TOOLS_DIR=.\tools
 
 if not exist %BUILD_DIR% mkdir %BUILD_DIR%
-if not exist %RELEASES_DIR% mkdir %RELEASES_DIR%
 if not exist %BUILD_OUTPUT_DIR% mkdir %BUILD_OUTPUT_DIR%
 
 SET BRANCH=dirty
@@ -54,7 +54,9 @@ IF "%VERSION:~0,1%"=="v" (
 	SET VERSION=%VERSION:~1%
 )
 
-echo %VERSION% > "%SOURCE_DIR%\version.txt"
+if not exist %RELEASES_DIR%\%VERSION% mkdir %RELEASES_DIR%\%VERSION%
+
+echo %VERSION% > %SOURCE_DIR%\version.txt
 
 REM Get GIT branch
 FOR /F "tokens=* USEBACKQ" %%F IN (`git -C %SOURCE_DIR% rev-parse --abbrev-ref HEAD`) DO (
@@ -66,21 +68,26 @@ SET PATH=%PATH%;%INNO_SETUP_DIR%;%TOOLS_DIR%
 SET EXE_NAME=%NAME%-%BIT%.exe
 SET EXE_PATH=%BUILD_OUTPUT_DIR%\%EXE_NAME%
 
-SET ZIP="%RELEASES_DIR%\%VERSION%\%NAME%-%BIT%.love"
-REM SET ZIP=%BUILD_DIR%\%NAME%.love
+SET APPLICATION_LOVE=%BUILD_DIR%\application.love
+SET LAUNCHER_LOVE=%BUILD_DIR%\%NAME%-%BIT%-installer.love
 
-echo Zipping files in %SOURCE_DIR% into %ZIP%
+echo Zipping files in %SOURCE_DIR% into %APPLICATION_LOVE%
 
-if exist %ZIP% del %ZIP%
+if exist %APPLICATION_LOVE% del %APPLICATION_LOVE%
 
 REM timeout /t 3 /nobreak
 
-7z a -tzip -mx=9 -xr!*.git -xr!*.dll %ZIP% "%SOURCE_DIR%\*"
+7z a -tzip -mx=9 -xr!*.git -xr!*.dll %APPLICATION_LOVE% "%SOURCE_DIR%\*"
+7z a -tzip -mx=9 -xr!*.git -xr!*.dll %LAUNCHER_LOVE% "%LAUNCHER_DIR%\*"
+
+copy %APPLICATION_LOVE% %RELEASES_DIR%\%VERSION% /y
+copy %LAUNCHER_LOVE% %RELEASES_DIR%\%VERSION% /y
 
 echo Copying LOVE2D binaries and license to %BUILD_OUTPUT_DIR%
 copy %LOVE_DIR%\license.txt %BUILD_OUTPUT_DIR%
 xcopy /d %LOVE_DIR%\*.dll %BUILD_OUTPUT_DIR% /y
 xcopy /d %SOURCE_DIR%\*.dll %BUILD_OUTPUT_DIR% /y
+del %BUILD_OUTPUT_DIR%\sqlite3.dll
 
 echo Copying love.exe %BUILD_DIR%
 copy /b %LOVE_DIR%\love.exe+,, %BUILD_DIR%
@@ -93,16 +100,16 @@ rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "InternalName" "%NAME%-%B
 rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "OriginalFilename" "%EXE_NAME%"
 
 REM We have to merge AFTER rcedit, since rcedit destroys the merged data
-echo Merging love.exe + %ZIP% into %EXE_PATH%
-copy /b "%BUILD_DIR%\love.exe"+%ZIP% %EXE_PATH%
+echo Merging love.exe + %LAUNCHER_LOVE% into %EXE_PATH%
+copy /b "%BUILD_DIR%\love.exe"+%LAUNCHER_LOVE% %EXE_PATH%
 
-SET ZIP="%RELEASES_DIR%\%VERSION%\%NAME%-%BIT%-portable.zip"
+SET PORTABLE_ZIP="%RELEASES_DIR%\%VERSION%\%NAME%-%BIT%-portable.zip"
 
 REM Remove old zip if it exists
-if exist %ZIP% del %ZIP%
+if exist %PORTABLE_ZIP% del %PORTABLE_ZIP%
 
 REM Create a release zip
-7z a -tzip -mx=9 %ZIP% "%BUILD_OUTPUT_DIR%\*"
+7z a -tzip -mx=9 %PORTABLE_ZIP% "%BUILD_OUTPUT_DIR%\*"
 
 if exist %INNO_SETUP_DIR% (
 	echo Building installer

@@ -3,6 +3,8 @@
 local color = require("util.color")
 
 local env = {
+	love = love,
+
 	-- QOL Stuff
 	audio	= love.audio,
 	data	= love.data,

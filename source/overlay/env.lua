@@ -8,6 +8,8 @@ local melee = require("melee")
 local gui = require("gui")
 
 local env = {
+	love = love,
+
 	-- QOL Stuff
 	graphics = love.graphics,
 	timer = love.timer,

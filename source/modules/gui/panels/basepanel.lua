@@ -2,6 +2,8 @@ local PANEL = class.create("BasePanel")
 
 require("extensions.table")
 
+local log = require("log")
+
 PANEL:ACCESSOR("Interacted", "m_bInteracted", false)
 PANEL:ACCESSOR("Hovered", "m_bHovered", false)
 PANEL:ACCESSOR("Visible", "m_bVisible", true)
@@ -9,8 +11,8 @@ PANEL:ACCESSOR("Focusable", "m_bFocusable", true)
 PANEL:ACCESSOR("Validated", "m_bValidated", false)
 
 function PANEL:BasePanel()
+	--self.m_tChildren = setmetatable({}, {__mode = "v"})
 	self.m_tChildren = {}
-	self.m_tOrphans = {}
 	self.m_iWorldPosX = 0
 	self.m_iWorldPosY = 0
 	self.m_fScaleX = 1
@@ -210,7 +212,6 @@ function PANEL:Remove()
 	if parent then
 		parent:OnChildRemoved(self)
 	end
-
 	self.m_bDeleted = true
 	self:OnRemoved()
 	self:Clear()
@@ -257,6 +258,7 @@ function PANEL:CleanupOrphans()
 	for key, child in reversedipairs(self.m_tChildren) do
 		child:CleanupOrphans()
 		if child.m_bOrphaned then
+			log.warn("[GUI] %s is now an orphan and will continue to remain in memory", child)
 			table.remove(self.m_tChildren, key)
 		end
 	end
@@ -268,7 +270,10 @@ function PANEL:CleanupDeleted()
 		child:CleanupDeleted()
 		if child.m_bDeleted then
 			didDelete = true
+
 			table.remove(self.m_tChildren, key)
+			child.__baseclass = nil
+			child.m_pParent = nil
 			child = nil
 		end
 	end
@@ -278,14 +283,14 @@ function PANEL:CleanupDeleted()
 end
 
 function PANEL:SetParent(parent)
-	if self.m_pParent then
-		self:MarkAsOrphan()
-	end
 	self.m_pParent = parent
 	if parent then
 		table.insert(parent.m_tChildren, self)
-		parent:OnChildAdded(self)
 		self:SetZPos(#parent.m_tChildren)
+		parent:OnChildAdded(self)
+	else
+		-- No parent? Mark as an orphan for abandonment
+		self:MarkAsOrphan()
 	end
 end
 

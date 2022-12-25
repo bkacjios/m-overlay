@@ -340,26 +340,38 @@ This is also the same directory you use to place all your music for Melee.]])
 	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
 	self.ABOUT:SetBackgroundColor(color_purple)
 
+	local updater = require("updater")
+
+	self.ABOUT.LEFT = self.ABOUT:Add("Panel")
+	self.ABOUT.LEFT:SetDrawPanel(false)
+	self.ABOUT.LEFT:Dock(DOCK_LEFT)
+	self.ABOUT.LEFT:SetWidth(160)
+
+	self.ABOUT.LEFT.Paint = function(this, w, h)
+		updater.draw(w,h)
+	end
+
 	self.ABOUT.RIGHT = self.ABOUT:Add("Panel")
 	self.ABOUT.RIGHT:SetDrawPanel(false)
 	self.ABOUT.RIGHT:Dock(DOCK_RIGHT)
 	self.ABOUT.RIGHT:SetWidth(160)
 
-	local ICON = self.ABOUT:Add("Image")
-	ICON:SetImage("textures/icon.png")
-	ICON:SetPos(24, 0)
-	ICON:SetSize(96, 96)
-	ICON:CenterVertical()
-
 	local VERSION = self.ABOUT.RIGHT:Add("ButtonIcon")
 	VERSION:SetImage("textures/gui/link.png")
-	VERSION:SetText(love.getMOverlayVersion())
-	VERSION:SetTextAlignmentX("center")
+	VERSION:SetText(love.getMOverlayVersion() .. " changelog")
 	VERSION:Dock(DOCK_TOP)
-	VERSION:SetFont("fonts/melee-bold.otf", 12)
 
 	function VERSION:OnClick()
-		love.system.openURL(("https://github.com/bkacjios/m-overlay/tree/v%s"):format(love.getMOverlayVersion()))
+		love.system.openURL(("https://github.com/bkacjios/m-overlay/releases/tag/v%s"):format(love.getMOverlayVersion()))
+	end
+
+	local UPDATE = self.ABOUT.RIGHT:Add("ButtonIcon")
+	UPDATE:SetImage("textures/gui/wrench.png")
+	UPDATE:SetText("Check for update")
+	UPDATE:Dock(DOCK_TOP)
+
+	function UPDATE:OnClick()
+		updater.check()
 	end
 
 	self.ABOUT.SOCIALS = self.ABOUT.RIGHT:Add("Panel")

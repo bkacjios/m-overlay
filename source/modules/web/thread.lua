@@ -1,5 +1,5 @@
---local https = require("https") -- TODO: include LuaSec in installer
-local http = require("socket.http")
+local https = require("https")
+--local http = require("socket.http")
 
 local ltn12 = require("ltn12")
 
@@ -10,6 +10,8 @@ local progress_channel = love.thread.getChannel("web-progress")
 while true do
 	-- wait for a request to arrive
 	local demand = requests_channel:demand()
+
+	if demand == false then break end
 
 	local id, request = demand.id, demand.request
 
@@ -22,7 +24,7 @@ while true do
 	end
 
 	-- Get code, and header response
-	local status, code, header = http.request(request)
+	local status, code, header = https.request(request)
 
 	if status then
 		-- request was successful

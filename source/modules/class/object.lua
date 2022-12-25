@@ -3,10 +3,11 @@ local class = require("class")
 local OBJECT = {}
 
 function OBJECT:__call(...)
-	if not self[self.__constructor] then
+	local constructor = rawget(self, rawget(self, "__constructor"))
+	if not constructor then
 		return error(string.format("can not create object for class '%s' (no constructor)", self))
 	end
-	self[self.__constructor](self, ...)
+	constructor(self, ...)
 	return self
 end
 
@@ -87,7 +88,13 @@ function OBJECT:getClass()
 end
 
 function OBJECT:__tostring()
-	return string.format("%s::%s", self.__baseclass or "", self.__classname)
+	local classtree = ""
+	local base = self
+	while base do
+		classtree = base.__classname .. "::" .. classtree
+		base = base.__baseclass
+	end
+	return string.format("%s%p", classtree, self)
 end
 
 local object = {}

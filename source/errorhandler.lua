@@ -1,14 +1,19 @@
 local utf8 = require("utf8")
 local log = require("log")
 
-local function error_printer(msg, layer)
-	log.error((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
-end
-
 function love.errorhandler(msg)
-	msg = tostring(msg)
+	love.filesystem.createDirectory("crashlog")
 
-	error_printer(msg, 2)
+	local sanitizedmsg = {}
+	for char in msg:gmatch(utf8.charpattern) do
+		table.insert(sanitizedmsg, char)
+	end
+	sanitizedmsg = table.concat(sanitizedmsg)
+
+	local trace = debug.traceback(sanitizedmsg, 3)
+	log.error(trace)
+
+	local f = love.filesystem.newFile(os.date("crashlog/crash-%Y%m%d-%H%M%S.txt"), "a")
 
 	if not love.window or not love.graphics or not love.event then
 		return
@@ -43,38 +48,20 @@ function love.errorhandler(msg)
 
 	love.graphics.setColor(255, 255, 255)
 
-	local trace = debug.traceback()
-
 	love.graphics.origin()
 
-	local sanitizedmsg = {}
-	for char in msg:gmatch(utf8.charpattern) do
-		table.insert(sanitizedmsg, char)
-	end
-	sanitizedmsg = table.concat(sanitizedmsg)
-
 	local err = {}
-
-	table.insert(err, "Error\n")
-	table.insert(err, sanitizedmsg)
 
 	if #sanitizedmsg ~= #msg then
 		table.insert(err, "Invalid UTF-8 string in error message.")
 	end
 
-	table.insert(err, "\n")
-
-	for l in trace:gmatch("(.-)\n") do
-		if not l:match("boot.lua") then
-			l = l:gsub("stack traceback:", "Traceback\n")
-			table.insert(err, l)
-		end
-	end
+	table.insert(err, trace)
 
 	local p = table.concat(err, "\n")
 
-	p = p:gsub("\t", "")
-	p = p:gsub("%[string \"(.-)\"%]", "%1")
+	f:write(p)
+	f:close()
 
 	local function draw()
 		if not love.graphics.isActive() then return end
