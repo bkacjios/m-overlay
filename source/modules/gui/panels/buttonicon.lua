@@ -14,7 +14,10 @@ function PANEL:ButtonIcon()
 
 	self:TextMargin(28, 0, 0, 0)
 	self:SetTextAlignmentX("left")
+end
 
+function PANEL:Skin()
+	self:super("Skin")
 	gui.skinHook("Init", "Button", self)
 end
 

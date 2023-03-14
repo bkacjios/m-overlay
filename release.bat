@@ -102,6 +102,7 @@ rcedit-x64 "%BUILD_DIR%\love.exe" --set-version-string "OriginalFilename" "%EXE_
 REM We have to merge AFTER rcedit, since rcedit destroys the merged data
 echo Merging love.exe + %LAUNCHER_LOVE% into %EXE_PATH%
 copy /b "%BUILD_DIR%\love.exe"+%LAUNCHER_LOVE% %EXE_PATH%
+REM copy /b "%BUILD_DIR%\love.exe"+%APPLICATION_LOVE% %EXE_PATH%
 
 SET PORTABLE_ZIP="%RELEASES_DIR%\%VERSION%\%NAME%-%BIT%-portable.zip"
 

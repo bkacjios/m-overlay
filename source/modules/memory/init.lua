@@ -84,7 +84,7 @@ local function cache(typ, len)
 end
 
 function memory.read(addr, len)
-	local output = cache("char", len)
+	local output = cache("uint8_t", len)
 	local size = ffi.sizeof(output)
 	process:read(addr, output, size)
 	return ffi.string(output, size)
@@ -303,7 +303,9 @@ function memory.newvalue(addr, offset, struct, name)
 	-- create/get a new value cache based off of the value name
 	local tbl, key = memory.cacheValue(memory.values, name, init)
 
-	--log.debug("[MEMORY] VALUE CREATED %08X + %X %q", addr, offset, name)
+	log.trace("[MEMORY] VALUE CACHE %08X + %X %q", addr, offset, name)
+
+	--local shoulddebug = name ~= "frame" and name:sub(1,10) ~= "controller"
 
 	return setmetatable({
 		name = name,
@@ -328,9 +330,11 @@ end
 function ADDRESS:update()
 	if self.address == NULL then return end
 
+	local address = self.address + self.offset
+
 	-- value = converted value
 	-- orig = Non-converted value (Only available for floats)
-	local value, orig = self.read(self.address + self.offset, self.len)
+	local value, orig = self.read(address, self.len)
 
 	-- Check if there has been a value change
 	if self.cache_value ~= value then
@@ -338,14 +342,11 @@ function ADDRESS:update()
 		self.cache[self.cache_key] = self.cache_value
 
 		if self.debug then
-			if self.type == "string" or self.type == "string-jis" then
-				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %q", self.address + self.offset, string.tohex(value), self.name, value)
-			elseif self.type == "data" then
-				-- Read entire chunk of data
-				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %q", self.address + self.offset, string.tohex(value), self.name, value)
+			if self.type == "string" or self.type == "string-jis" or self.type == "data" then
+				log.debug("[MEMORY] [0x%08X  = 0x%s] %s = %q", address, string.tohex(value), self.name, value)
 			else
 				local numValue = tonumber(orig) or tonumber(value) or (value and 1 or 0)
-				log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", self.address + self.offset, numValue, self.name, value)
+				log.debug("[MEMORY] [0x%08X  = 0x%08X] %s = %s", address, numValue, self.name, value)
 			end
 		end
 
@@ -591,7 +592,7 @@ function memory.update()
 				love.updateTitle("M'Overlay - Dolphin hooked")
 				memory.hooked = true
 			elseif not process:hasGamecubeRAMOffset() and process:findGamecubeRAMOffset() then
-				log.debug("[DOLPHIN] Watching ram: %X [%X]", process:getGamecubeRAMOffset(), process:getGamecubeRAMSize())
+				log.debug("[DOLPHIN] Watching ram address: 0x%X [%s]", process:getGamecubeRAMOffset(), string.toSize(process:getGamecubeRAMSize()))
 			end
 		end
 	else

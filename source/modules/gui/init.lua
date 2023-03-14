@@ -4,7 +4,7 @@ local gui = {
 	m_pHoveredPanel = nil,
 	m_pFocusedPanel = nil,
 	m_pTooltip = nil,
-	m_strSkin = "default",
+	m_strSkin = "dark",
 }
 
 DOCK_NONE = 0
@@ -124,6 +124,7 @@ end
 
 function gui.setSkin(str)
 	gui.m_strSkin = str
+	gui.m_pWorldPanel:CallAll("SetAppliedSkin", false)
 end
 
 function gui.getSkin()
@@ -283,7 +284,8 @@ end
 
 function gui.update(dt)
 	gui.m_pWorldPanel:ValidateLayout()
-	gui.m_pWorldPanel:CallAll("Think", dt)
+	gui.m_pWorldPanel:CallAllVisible("Think", dt)
+	gui.m_pWorldPanel:CallAllVisible("ApplySkin")
 
 	local time = love.timer.getTime()
 
@@ -302,11 +304,9 @@ function gui.init()
 	gui.loadSkins("modules/gui/skins")
 	gui.loadClasses("modules/gui/panels")
 
-	gui.m_pWorldPanel = gui.create("Panel")
+	gui.m_pWorldPanel = gui.create("BasePanel")
 	gui.m_pWorldPanel:DockMargin(0, 0, 0, 0)
 	gui.m_pWorldPanel:DockPadding(0, 0, 0, 0)
-	gui.m_pWorldPanel:SetBGColor(color_blank)
-	gui.m_pWorldPanel:SetBorderColor(color_blank)
 	gui.m_pWorldPanel:SizeToScreen()
 	gui.m_pWorldPanel:InvalidateLayout()
 	gui.m_pWorldPanel:ValidateLayout()

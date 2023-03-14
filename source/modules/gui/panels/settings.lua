@@ -1,4 +1,4 @@
-local PANEL = class.create("Settings", "Panel")
+local PANEL = class.create("Settings", "BasePanel")
 
 local log = require("log")
 local json = require("serializer.json")
@@ -41,8 +41,6 @@ function PANEL:Settings()
 
 	self:DockMargin(0, 0, 0, 0)
 	self:SizeToScreen()
-	self:SetBackgroundColor(color_blank)
-	self:SetBorderColor(color_blank)
 
 	self.PORTSELECT = self:Add("PortSelect")
 	self.SKINSELECT = self:Add("SkinSelect")
@@ -97,16 +95,16 @@ function PANEL:Settings()
 
 	self.SLIPPI = self.MAIN:AddTab("Slippi", "textures/gui/slippi.png")
 
-	self.SLIPPI.ICON = self.SLIPPI:Add("Image")
-	self.SLIPPI.ICON:SetImage("textures/slippi.png")
-	self.SLIPPI.ICON:SetPos(4, 0)
-	self.SLIPPI.ICON:SetSize(155, 112)
-	self.SLIPPI.ICON:CenterVertical()
-
 	self.SLIPPI.LEFT = self.SLIPPI:Add("Panel")
 	self.SLIPPI.LEFT:SetWidth(160)
 	self.SLIPPI.LEFT:Dock(DOCK_LEFT)
 	self.SLIPPI.LEFT:SetDrawPanel(false)
+
+	self.SLIPPI.ICON = self.SLIPPI.LEFT:Add("Image")
+	self.SLIPPI.ICON:SetImage("textures/slippi.png")
+	self.SLIPPI.ICON:SetPos(2, 0)
+	self.SLIPPI.ICON:SetSize(155, 112)
+	self.SLIPPI.ICON:CenterVertical()
 
 	self.SLIPPI.RIGHT = self.SLIPPI:Add("Panel")
 	self.SLIPPI.RIGHT:SetWidth(160)
@@ -228,15 +226,15 @@ NOTE: This button is only usable when in a supported game.]])
 	self.PORTTITLE:SetTooltipTitle("PORT IN TITLE")
 	self.PORTTITLE:SetTooltipBody([[Show the current port number being displayed in the application title.]])
 
+	function self.PORTTITLE:OnToggle()
+		love.updateTitle(love.getTitleNoPort())
+	end
+
 	self.ALWAYSPORT = self.GENERAL.LEFT:Add("CheckBox")
 	self.ALWAYSPORT:SetText("Always show port")
 	self.ALWAYSPORT:Dock(DOCK_TOP)
 	self.ALWAYSPORT:SetTooltipTitle("ALWAYS SHOW PORT")
 	self.ALWAYSPORT:SetTooltipBody([[Always show the current port in the bottom left of the overlay window.]])
-
-	function self.PORTTITLE:OnToggle()
-		love.updateTitle(love.getTitleNoPort())
-	end
 
 	self.DPAD = self.GENERAL.RIGHT:Add("CheckBox")
 	self.DPAD:SetText("Show D-Pad")
@@ -339,7 +337,11 @@ This is also the same directory you use to place all your music for Melee.]])
 	end
 
 	self.ABOUT = self.MAIN:AddTab("About", "textures/icon.png")
-	self.ABOUT:SetBackgroundColor(color_purple)
+
+	self.ABOUT.Skin = function(this)
+		this:super("Skin")
+		this:SetBGColor(color_purple)
+	end
 
 	self.ABOUT.LEFT = self.ABOUT:Add("Panel")
 	self.ABOUT.LEFT:SetDrawPanel(false)
@@ -383,8 +385,19 @@ This is also the same directory you use to place all your music for Melee.]])
 	end
 
 	self.ABOUT.SOCIALS = self.ABOUT.RIGHT:Add("Panel")
-	self.ABOUT.SOCIALS:SetBGColor(color(215, 215, 215))
+	--self.ABOUT.SOCIALS:SetBGColor(color(215, 215, 215))
 	self.ABOUT.SOCIALS:Dock(DOCK_BOTTOM)
+
+	self.ABOUT.DARK = self.ABOUT.RIGHT:Add("CheckBox")
+	self.ABOUT.DARK:SetToggled(true)
+	self.ABOUT.DARK:SetText("Dark mode")
+	self.ABOUT.DARK:Dock(DOCK_BOTTOM)
+	self.ABOUT.DARK:SetTooltipTitle("DARK MODE")
+	self.ABOUT.DARK:SetTooltipBody([[Enables a dark mode on the settings UI.]])
+
+	function self.ABOUT.DARK:OnToggle(on)
+		gui.setSkin(on and "dark" or "default")
+	end
 
 	self.ABOUT.AUTHOR = self.ABOUT.SOCIALS:Add("Label")
 	self.ABOUT.AUTHOR:SetText("Made by /bkacjios")
@@ -499,6 +512,7 @@ function PANEL:GetSaveTable()
 		["melee-music-mute-buttons"] = self:GetMusicMuteMask(),
 		["melee-music-volume"] = self:GetVolume(),
 		["background-color"] = self:GetBackgroundColor():hexString(),
+		["dark-mode"] = self:IsDarkMode(),
 	}
 end
 
@@ -611,6 +625,10 @@ function PANEL:GetTransparency()
 	return self.TRANSPARENCY and self.TRANSPARENCY:GetValue() or nil
 end
 
+function PANEL:IsDarkMode()
+	return self.ABOUT.DARK:IsToggled()
+end
+
 function PANEL:OnClosed()
 	if not self:NeedsWrite() then return end -- Stop if we don't need to write any changes
 	self:SaveSettings()
@@ -697,7 +715,7 @@ function PANEL:LoadSettings()
 						updatedConfigSetting(settings, k, v, "melee-music-loop-flags", translate[v] or LOOPING_NONE)
 					end
 				else
-					log.debug("[CONFIG] Ignoring old setting config %q = %s", k, tostring(v))
+					log.debug("[CONFIG] Ignoring unused setting option %q = %s", k, tostring(v))
 				end
 			end
 		end
@@ -728,4 +746,5 @@ function PANEL:LoadSettings()
 		self.USE_TRANASPARENCY:SetToggled(settings["use-transparency"], true)
 	end
 	self.BACKGROUNDCOLOR:SetColor(color(settings["background-color"]))
+	self.ABOUT.DARK:SetToggled(settings["dark-mode"], true)
 end

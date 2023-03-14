@@ -19,3 +19,8 @@ function PANEL:GCBinderPanel()
 
 	self:InheritMethods(self.m_pBinder) -- Inherit all slider functions
 end
+
+function PANEL:Skin()
+	self:super("Skin")
+	gui.skinHook("Init", "SubPanel", self)
+end

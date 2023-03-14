@@ -337,7 +337,7 @@ local function loadTrack(songs, index)
 		return nil
 	end
 
-	return { STREAM = source, WAV = track_info.IS_WAV and wav.parse(filepath) or nil }
+	return { STREAM = source, WAV = track_info.IS_WAV and wav.parse(filepath) or nil, INFO = track_info }
 end
 
 function music.playNextTrack()
@@ -356,10 +356,11 @@ function music.playNextTrack()
 		music.PLAYING = loadTrack(songs, track_index)
 		
 		if music.PLAYING then
+			local path = music.PLAYING.INFO.FILEPATH
 			if music.PLAYLIST_ID == 0x0 then
-				log.info("[MUSIC] Playing track #%d for menu", track_id)
+				log.info("[MUSIC] Playing track #%d for menu (%q)", track_id, path)
 			else
-				log.info("[MUSIC] Playing track #%d for stage %q", track_id, melee.getStageName(music.PLAYLIST_ID))
+				log.info("[MUSIC] Playing track #%d for stage %q (%q)", track_id, melee.getStageName(music.PLAYLIST_ID), path)
 			end
 			music.setVolume(PANEL_SETTINGS:GetVolume())
 			music.LOOP = music.shouldLoop()

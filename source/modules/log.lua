@@ -4,16 +4,16 @@ love.filesystem.remove(LOG_FILE)
 
 local log = {
 	levels = {
-		{ name = "trace", color = "\27[34m" },
-		{ name = "debug", color = "\27[36m" },
-		{ name = "info", color = "\27[32m" },
-		{ name = "warn", color = "\27[33m" },
-		{ name = "error", color = "\27[31m" },
-		{ name = "fatal", color = "\27[35m" },
+		["trace"] = { priority = -1, color = "\27[34m" },
+		["debug"] = { priority = 0, color = "\27[36m" },
+		["info"] = { priority = 1, color = "\27[32m" },
+		["warn"] = { priority = 2, color = "\27[33m" },
+		["error"] = { priority = 3, color = "\27[31m" },
+		["fatal"] = { priority = 4, color = "\27[35m" },
 	},
 	color = true,
-	date = "%H:%M:%S",
-	level = "trace",
+	date_format = "%H:%M:%S",
+	level = "debug",
 	file = assert(love.filesystem.newFile(LOG_FILE, "a"))
 }
 
@@ -26,31 +26,48 @@ function log.setLevel(l)
 end
 
 local format = string.format
+local upper = string.upper
 
-for level, cfg in ipairs(log.levels) do
-	local upname = cfg.name:upper()
-	log[upname] = level
-
-	log[cfg.name] = function(text, ...)
-		if log[log.level:upper()] > log[upname] then return end
-
+do
+	local colorless
+	function log.print(text, ...)
 		if select("#", ...) > 0 then
 			text = format(text, ...)
 		end
 
-		local date = os.date(log.date)
-		local message = format("[%-5s - %s] %s", upname, date, text)
+		-- strip out unix colors
+		colorless = text:gsub("\x1b%[[%d;]+m", "")
 
 		if log.file then
-			log.file:write(string.format("%s\r\n", message))
-			log.file:flush()
+			log.file:write(colorless)
 		end
 
-		if log.color then
-			message = format("[%s%-5s\27[0m - %s] %s", cfg.color, upname, date, text)
-		end
+		-- write to stdout
+		io.stdout:write(log.color and text or colorless)
+	end
+end
 
-		print(message)
+function log.flush()
+	if log.file then
+		log.file:flush()
+	end
+	io.stdout:flush()
+end
+
+for level, info in pairs(log.levels) do
+	local filter = log.levels[log.level].priority
+	local stamp = function()
+		local date = os.date(log.date_format)
+		log.print(format("[%s%-5s\27[0m - %s] ", "\27[35m", level:upper(), date))
+	end
+	log[level] = function(text, ...)
+		if info.priority < filter then return end
+		stamp()
+		log.print(format("%s\n", text), ...)
+	end
+	log[level .. "Stamp"] = stamp
+	log[level .. "Enabled"] = function()
+		return info.priority >= filter
 	end
 end
 

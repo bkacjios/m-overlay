@@ -2,6 +2,7 @@ local ffi = require("ffi")
 local log = require("log")
 
 local format = string.format
+local tohex = string.tohex
 
 local cast = ffi.cast
 local cdef = ffi.cdef
@@ -284,29 +285,35 @@ function MEMORY:__gc()
 	self:close()
 end
 
-local regionptr = new("unsigned char*[1]", nil)
+local regionptr = new("ULONG_PTR*[1]")
 
-local NULL = cast("uint32_t", 0x00000000)
+local NULL = cast("ULONG_PTR", 0x00000000)
+local GC_RAM_SIZE = cast("ULONG_PTR", 0x2000000)
 
 function MEMORY:findGamecubeRAMOffset()
 	local info = MEMORY_BASIC_INFORMATION_PTR()[0]
 
-	local p = regionptr[0]
+	local address = regionptr[0]
 
-	while kernel.VirtualQueryEx(self.process_handle, p, info, sizeof(info)) == sizeof(info) do
-		p = p + info.RegionSize
+	-- Scan all virtual address spaces the process is using.
+	while kernel.VirtualQueryEx(self.process_handle, address, info, sizeof(info)) == sizeof(info) do
+		address = address + info.RegionSize / sizeof(info.RegionSize)
 
-		if (info.RegionSize >= 0x2000000 and info.Type == MEM_MAPPED) then
+		-- Dolphin stores the GameCube RAM address space in 32MB chunks.
+		-- Extended memory override can allow up to 64MB.
+		if (info.RegionSize >= GC_RAM_SIZE and info.RegionSize % GC_RAM_SIZE == 0 and info.Type == MEM_MAPPED) then
 			local wsinfo = PSAPI_WORKING_SET_EX_INFORMATION_PTR()[0]
 			wsinfo.VirtualAddress = info.BaseAddress
 
+			-- Retrieve extended information about the virtual address space
 			if psapi.QueryWorkingSetEx(self.process_handle, wsinfo, sizeof(wsinfo)) == 1 then
 				local flags = tonumber(wsinfo.VirtualAttributes.Flags)
 
 				local base = cast("ULONG_PTR", info.BaseAddress)
 				local region = cast("ULONG_PTR", info.RegionSize)
 
-				if band(flags, lshift(1, 0)) == 1 and cast("uint32_t", info.BaseAddress) ~= NULL then -- Check if the Valid flag is set
+				-- Check that the VirtualAttributes flags contains VALID and the base address is not null
+				if band(flags, lshift(1, 0)) == 1 and cast("ULONG_PTR", info.BaseAddress) ~= NULL then
 					--log.debug("%08X %x", tonumber(base), tonumber(region))
 					self.dolphin_base_addr = base
 					self.dolphin_addr_size = region
@@ -347,8 +354,8 @@ function MEMORY:read(addr, output, size)
 	local success = kernel.ReadProcessMemory(self.process_handle, raddr, output, size, memread)
 	if not success then
 		log.debug("[MEMORY] Failed reading from address [%08X] ERROR #%d", CAST_ADDR, tonumber(kernel.GetLastError()))
-	--else
-	--	log.debug("[MEMORY] read 0x%X size 0x%X bytes from 0x%08X = %q", tonumber(memread[0]), size, tonumber(CAST_ADDR), tohex(ffi.string(output, memread[0])))
+	else
+	 	log.trace("[MEMORY] Read 0x%X size 0x%X bytes from 0x%08X = %q", tonumber(memread[0]), size, tonumber(CAST_ADDR), string(output, memread[0]))
 	end
 	return success and memread[0] == size
 end
@@ -357,7 +364,7 @@ local memwritten = ffi.new("SIZE_T[1]")
 
 function MEMORY:write(addr, input, size)
 	if not self:hasProcess() or not self:hasGamecubeRAMOffset() then return false end
-	local waddr = cast("LPVOID", self.dolphin_base_addr + (addr % 0x80000000))
+	local waddr = cast("LPVOID", self.dolphin_base_addr + (addr % GC_RAM_START))
 	local success = kernel.WriteProcessMemory(self.process_handle, waddr, input, size, memwritten)
 	if not success then
 		log.debug("[MEMORY] Failed writing to address [%08X = %08X] ERROR #%d", addr, tonumber(input), tonumber(kernel.GetLastError()))

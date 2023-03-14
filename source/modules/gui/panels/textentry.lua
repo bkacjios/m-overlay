@@ -6,10 +6,12 @@ function PANEL:TextEntryContext()
 	self:super() -- Initialize baseclass
 	self:DisableScissor()
 	self:SetVisible(false)
+	self:DockPadding(2,2,2,2)
 
 	self.COPY = self:Add("Button")
 	self.COPY:Dock(DOCK_TOP)
 	self.COPY:SetText("Copy")
+	self.COPY:DockMargin(0, 0, 0, 2)
 
 	self.COPY.OnClick = function(this)
 		self.m_pTextEntry:Copy()
@@ -18,6 +20,7 @@ function PANEL:TextEntryContext()
 	self.PASTE = self:Add("Button")
 	self.PASTE:Dock(DOCK_TOP)
 	self.PASTE:SetText("Paste")
+	self.PASTE:DockMargin(0, 0, 0, 2)
 
 	self.PASTE.OnClick = function(this)
 		self.m_pTextEntry:Paste()

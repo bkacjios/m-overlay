@@ -26,6 +26,11 @@ function PANEL:SliderPanel()
 	end
 end
 
+function PANEL:Skin()
+	self:super("Skin")
+	gui.skinHook("Init", "SubPanel", self)
+end
+
 function PANEL:PerformLayout()
 end
 

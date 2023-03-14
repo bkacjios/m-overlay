@@ -18,6 +18,11 @@ function PANEL:RadioPanel()
 	self.OPTIONS = {}
 end
 
+function PANEL:Skin()
+	self:super("Skin")
+	gui.skinHook("Init", "SubPanel", self)
+end
+
 function PANEL:AddOption(id, label, active)
 	local option = self:Add("RadioBox")
 	option:SetText(label)

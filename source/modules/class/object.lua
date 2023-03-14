@@ -3,12 +3,31 @@ local class = require("class")
 local OBJECT = {}
 
 function OBJECT:__call(...)
-	local constructor = rawget(self, rawget(self, "__constructor"))
+	local class = rawget(self, "class")
+	local classname = rawget(class, "classname")
+	local constructor = rawget(class, classname)
 	if not constructor then
-		return error(string.format("can not create object for class '%s' (no constructor)", self))
+		-- constructor doesn't exist, error
+		return error(string.format("can not create object for class '%s' (no constructor)", classname))
 	end
+	-- call our constructor method
 	constructor(self, ...)
+	-- return the object
 	return self
+end
+
+local function recursiveIndex(class, key)
+	local value = rawget(class, key)
+	if value ~= nil then
+		return value
+	else
+		class = rawget(class, "class")
+		if class then
+			-- Check the inherited class
+			return recursiveIndex(class, key)
+		end
+	end
+	return nil
 end
 
 function OBJECT:__index(key)
@@ -19,82 +38,106 @@ function OBJECT:__index(key)
 		return meta_index
 	end
 
-	-- Try the base class next
-	local base = rawget(self, "__baseclass")
-	if base then
-		-- Only do the lookup once to prevent infinite __index calls
-		local value = base[key]
-		if value ~= nil then
-			-- Only return if not nil
-			return value
-		end
-	end
+	-- Get our "self" class structure
+	local class = rawget(self, "__self")
 
-	-- Welp, nothing to find
-	return nil
+	-- Recursive lookup down the class line
+	return recursiveIndex(class, key)
 end
 
 function OBJECT:instanceof(other)
-	local base = self
+	local class = rawget(self, "class")
+	local name
+	local tp = type(other)
 
-	while base do
-		if base == rawget(other, "__baseclass") then
-			return true
-		end
-		base = rawget(base, "__baseclass")
+	if tp == "table" then
+		-- User passed another object, get the classname
+		name = rawget(rawget(self, "class"), "classname")
+	elseif tp == "string" then
+		-- User passed the classname
+		name = other
 	end
 
+	-- Handle invalid arguments
+	if not name then return error(string.format("unexpected argument #2 (string or object expected, got %s", tp)) end
+
+	while class do
+		-- Loop through the class tree and see if any match
+		if class:getName() == name then
+			return true
+		end
+		class = rawget(class, "class")
+	end
+
+	-- Nothing found
 	return false
 end
 
 function OBJECT:super(method, ...)
-	local base = self
+	local this = rawget(self, "__self")
+	local class = rawget(this, "class")
 
-	-- Attempt to determine the base via the current scope of the call
-	for i=1, self.__superscope do
-		base = rawget(base, "__baseclass")
+	-- Error if the scope of the super call has no inheritance (AKA the main class)
+	if not class then return error("attempted to call method 'super' in class with no baseclass") end
+
+	-- Use the method name or the class name (for constructor) if nil
+	method = method or class.classname
+
+	-- Recursively lookup the method starting at our "self" class
+	local func = recursiveIndex(class, method)
+
+	if func == nil or type(func) ~= "function" then
+		-- Method doesn't exist, throw an error
+		return error(string.format("attempted to call method '%s' (a %s value)", method, type(func)))
 	end
 
-	-- Error if the scope of the call has no baseclass (AKA the main class)
-	if not base then return error("attempted to call method 'super' in class with no baseclass") end
-
-	local call = method or base.__constructor
-
-	if base[call] == nil then
-		return error(string.format("attempted to call method '%s' (a nil value)", call))
-	end
-
-	-- +1 to the scope
-	self.__superscope = self.__superscope + 1
+	-- The "self" is now inside the inherited class structure
+	rawset(self, "__self", class)
 
 	-- Call the method
-	-- This can trigger another super call, so thats why we need __superscope
-	local ret = base[call](self, ...)
+	-- This can trigger another super call, so thats why we need "self" as our defined scope
+	local ret = func(self, ...)
 
-	-- -1 from the scope
-	self.__superscope = self.__superscope - 1
+	-- The "self" is back to the main class structure
+	rawset(self, "__self", this)
 
-	-- return super return
+	-- return whatever our method returned
 	return ret
 end
 
 function OBJECT:getBaseClass()
-	return self.__baseclass
+	return rawget(rawget(self, "class"), "class")
 end
 
 function OBJECT:getClass()
-	local super = getmetatable(self)
-	return (super ~= OBJECT and super or nil)
+	return rawget(self, "class")
+end
+
+function OBJECT:type()
+	return "object"
 end
 
 function OBJECT:__tostring()
-	local classtree = ""
-	local base = self
-	while base do
-		classtree = base.__classname .. "::" .. classtree
-		base = base.__baseclass
-	end
-	return string.format("%s%p", classtree, self)
+	return string.format("%s: %p", rawget(rawget(self, "class"), "classname"), self)
+end
+
+local CLASS = {}
+CLASS.__index = CLASS
+
+function CLASS:getBaseClass()
+	return rawget(self, "class")
+end
+
+function CLASS:getName()
+	return rawget(self, "classname")
+end
+
+function OBJECT:type()
+	return "class"
+end
+
+function CLASS:__tostring()
+	return string.format("Class[%q]: %p", self:getName(), self)
 end
 
 local object = {}
@@ -118,26 +161,26 @@ do
 		return _copy(object)
 	end
 
-	local function createObject(name)
-		local main = class.getStruct(name)
-		local base = class.getBaseClassname(name)
-		local obj = setmetatable(copy(main), OBJECT)
+	local function createObjectClass(name)
+		local main = class.get(name)
+		local base = class.getBase(name)
+		local struct = setmetatable(copy(main), CLASS)
 		if base then
-			obj.__baseclass = createObject(base)
+			struct.class = createObjectClass(base)
 		end
-		return obj
+		return struct
 	end
 
 	function object.new(name, ...)
-		if not class.getStruct(name) then
+		if not class.get(name) then
 			return error(("failed to create object for unknown class '%s'"):format(name)) 
 		end
 
-		-- Create a copy of the struct, with metatable and all
-		local obj = createObject(name)
+		-- Create a copy of the class structure, with metatable and all
+		local obj = setmetatable({class=createObjectClass(name)}, OBJECT)
 
-		-- Set values that are unique to this instance
-		obj.__superscope = 1
+		-- Set our current "self" to our class structure
+		obj.__self = obj.class
 
 		-- Return our new object and call constructor
 		return obj(...)

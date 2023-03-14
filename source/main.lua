@@ -141,9 +141,15 @@ function love.load(args, unfilteredArg)
 		end
 	end
 
-	log.debug(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
-	log.debug("%s (%s)", _VERSION, jit.version)
 	log.debug("M'Overlay (%s)", love.getMOverlayVersion())
+	log.debug(string.format("Love2D %d.%d.%d - %s", love.getVersion()))
+	log.debug("%s (%s - %s)", _VERSION, jit.version, jit.arch)
+	log.debug("System: %s", jit.os)
+
+	local renderer, version, vendor, device = love.graphics.getRendererInfo()
+
+	log.debug("Renderer: %s (%s)", renderer, version)
+	log.debug("Graphics: %s (%s)", vendor, device)
 end
 
 memory.hook("menu.player_one_port", "Controller port that is acting as player 1", function(port)

@@ -3,8 +3,7 @@ local PANEL = class.create("ToolTip", "BasePanel")
 PANEL:ACCESSOR("Enabled", "m_bEnabled", true)
 PANEL:ACCESSOR("ArrowX", "m_iArrowX", 0)
 PANEL:ACCESSOR("ArrowY", "m_iArrowY", 0)
-
-PANEL.ToolTipColor = color(240, 240, 240)
+PANEL:ACCESSOR("TooltipColor", "m_cTooltipColor", color(240, 240, 240))
 
 function PANEL:ToolTip()
 	self:super() -- Initialize our baseclass
@@ -16,7 +15,10 @@ function PANEL:ToolTip()
 	self.m_pTitle = self:Add("Label")
 	self.m_pTitle:Dock(DOCK_TOP)
 	self.m_pTitle:SetLineHeight(0.75)
-	self.m_pTitle:SetTextColor(color_red)
+
+	self.m_pTitle.Skin = function(this)
+		gui.skinHook("Init", "TooltipTitle", this)
+	end
 
 	self.m_pBody = self:Add("Label")
 	self.m_pBody:Dock(DOCK_FILL)
@@ -25,6 +27,14 @@ function PANEL:ToolTip()
 	self.m_pBody:SetLineHeight(0.75)
 	self.m_pBody:SetPos(8, 16+24)
 	self.m_pBody:SetSize(236, 228)
+
+	self.m_pBody.Skin = function(this)
+		gui.skinHook("Init", "TooltipBody", this)
+	end
+end
+
+function PANEL:Skin()
+	gui.skinHook("Init", "Tooltip", self)
 end
 
 function PANEL:SetArrowPos(x, y)
@@ -56,7 +66,7 @@ function PANEL:Paint(w, h)
 	local s1 = 5.65685424949 -- sqrt(4^2+4^2)
 	local s2 = 7.07106781187 -- sqrt(5^2+5^2)
 
-	graphics.setColor(self.ToolTipColor)
+	graphics.setColor(self.m_cTooltipColor)
 
 	graphics.push()
 	graphics.translate(self:GetArrowPos()) -- move relative (0,0) to (x,y)
@@ -65,10 +75,10 @@ function PANEL:Paint(w, h)
 	graphics.setColor(color_black)
 	graphics.rectangle("fill", -s2/2, -s2/2, s2, s2) -- draw rectangle centered around relative (0,0)
 
-	graphics.setColor(self.ToolTipColor)
+	graphics.setColor(self.m_cTooltipColor)
 	graphics.rectangle("fill", -s1/2, -s1/2, s1, s1) -- draw rectangle centered around relative (0,0)
 	graphics.pop()
 
-	graphics.setColor(self.ToolTipColor)
+	graphics.setColor(self.m_cTooltipColor)
 	graphics.roundRect(5, 5, w-10, h-10, 4)
 end

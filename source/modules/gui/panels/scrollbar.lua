@@ -99,17 +99,16 @@ end
 function PANEL:SetScroll(scrll)
 	if not self.m_bEnabled then self.m_iScroll = 0 return end
 
+	-- Clamp the scroll position between 0 and the canvas height
 	self.m_iScroll = math.clamp(scrll, 0, self.m_iCanvasSize)
 
-	self:InvalidateLayout()
+	-- Manually perform a layout to position our gripper
+	self:PerformLayout()
 
-	-- If our parent has a OnVScroll function use that, if
-	-- not then invalidate layout (which can be pretty slow)
+	-- If our parent has a OnVScroll function use that
 	local func = self:GetParent().OnVScroll
 	if func then
 		func(self:GetParent(), self:GetOffset())
-	else
-		self:GetParent():InvalidateLayout()
 	end
 end
 
@@ -129,19 +128,17 @@ end
 
 function PANEL:OnMousePressed(x, y, but)
 	if but ~= 1 then return end
-	local PageSize = self.m_iBarSize
+	local pageSize = self.m_iBarSize
 	if y > self.m_pScrollGrip.m_iPosY then
-		self:SetScroll(self:GetScroll() + PageSize)
+		self:SetScroll(self:GetScroll() + pageSize)
 	else
-		self:SetScroll(self:GetScroll() - PageSize)
+		self:SetScroll(self:GetScroll() - pageSize)
 	end
 	return true
 end
 
 function PANEL:OnMouseReleased(x, y, but)
 	self.m_bDragging = false
-	self.DraggingCanvas = nil
-	self.m_pScrollGrip.Depressed = false
 end
 
 function PANEL:Grip(panel)
@@ -152,8 +149,7 @@ function PANEL:Grip(panel)
 	local px, py = panel:GetPos()
 
 	self.m_bDragging = true
-	self.HoldPos = my - py
-	self.m_pScrollGrip.Depressed = true
+	self.m_iHoldPos = my - py
 end
 
 function PANEL:Think(dt)
@@ -163,7 +159,7 @@ function PANEL:Think(dt)
 	local trackSize = self:GetHeight() - self:GetWidth() * 2 - self.m_pScrollGrip:GetHeight()
 
 	local mx, my = love.mouse.getPosition()
-	my = (my - self.HoldPos - self.m_pUpButton:GetHeight()) / trackSize
+	my = (my - self.m_iHoldPos - self.m_pUpButton:GetHeight()) / trackSize
 
 	self:SetScroll(my * self.m_iCanvasSize)
 end

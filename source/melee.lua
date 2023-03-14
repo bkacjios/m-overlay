@@ -857,7 +857,12 @@ function melee.isPortCPU(port)
 end
 
 function melee.getPlayerColor(port)
-	return melee.isPortEnabled(port) and (PLAYER_COLORS[port] or color_white) or TEAM_COLORS[0x04]
+	if melee.isPortCPU(port) then
+		return TEAM_COLORS[0x04] or color_white
+	elseif melee.isPortEnabled(port) then
+		return PLAYER_COLORS[port] or color_white
+	end
+	return TEAM_COLORS[0x04] or color_white
 end
 
 local STAGE_SERIES = {

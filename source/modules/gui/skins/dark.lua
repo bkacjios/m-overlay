@@ -1,21 +1,21 @@
-local SKIN = gui.newSkin("default")
+local SKIN = gui.newSkin("dark")
 
-SKIN.Background = color(255, 255, 255)
+SKIN.Background = color(41, 45, 48)
 
-SKIN.PanelBackground = color(200, 200, 200)
-SKIN.PanelBorder = color(165, 165, 165)
+SKIN.PanelBackground = color(59, 63, 69)
+SKIN.PanelBorder = color(35, 37, 41)
 SKIN.PanelFocused = color(0, 162, 232)
 
-SKIN.SubPanelBackground = color(215, 215, 215)
+SKIN.SubPanelBackground = color(72, 77, 84)
 
 SKIN.FrameBorder = color(100, 100, 100)
 SKIN.FrameControlBar = color(225, 225, 225)
 SKIN.FrameFocusedControlBar = color(0, 162, 232)
 
-SKIN.ButtonBackground = color(235, 235, 235)
+SKIN.ButtonBackground = color(82, 89, 97)
 SKIN.ButtonDisabled = color(100, 100, 100, 100)
-SKIN.ButtonPressed = color(153, 217, 234)
-SKIN.ButtonHover = color(220, 242, 248)
+SKIN.ButtonPressed = color(0, 135, 195, 100)
+SKIN.ButtonHover = color(104, 112, 122)
 
 SKIN.ButtonClosePressed = color(243, 105, 113)
 SKIN.ButtonCloseHover = color(248, 167, 171)
@@ -27,20 +27,20 @@ SKIN.ScrollBarGrip = color(235, 235, 235)
 SKIN.ScrollBarGripPressed = color(96, 96, 96, 255)
 SKIN.ScrollBarGripHover = color(166, 166, 166, 255)
 
-SKIN.CheckboxBorder = color(100, 100, 100)
+SKIN.CheckboxBorder = color(35, 37, 41)
 SKIN.CheckboxOff = color(200, 200, 200)
 SKIN.CheckboxOn = color(0, 162, 232)
 
 SKIN.TabActiveColor = color(0, 0, 0, 75)
 
-SKIN.LabelTextColor = color(0, 0, 0)
-SKIN.LabelShadowColor = color(100, 100, 100, 100)
+SKIN.LabelTextColor = color(255, 255, 255)
+SKIN.LabelShadowColor = color(0, 0, 0, 100)
 
 SKIN.ToolTipTitleColor = color(0, 178, 255)
-SKIN.ToolTipTitleShadowColor = color(100, 100, 100, 100)
+SKIN.ToolTipTitleShadowColor = color(0, 0, 0, 100)
 
-SKIN.ToolTipBodyColor = color(0, 0, 0)
-SKIN.ToolTipBodyShadowColor = color(100, 100, 100, 100)
+SKIN.ToolTipBodyColor = color(255, 255, 255)
+SKIN.ToolTipBodyShadowColor = color(0, 0, 0, 100)
 
 SKIN.CheckImage = graphics.newImage("textures/gui/checkmark.png")
 
@@ -115,16 +115,16 @@ function SKIN:InitExitButton(panel)
 end
 
 function SKIN:PaintButton(panel, w, h)
-	local color = self.ButtonBackground
+	graphics.setColor(self.ButtonBackground)
+	graphics.rectangle("fill", 0, 0, w, h)
 
 	if panel:IsPressed() then
-		color = panel:GetPressedColor() or self.ButtonPressed
+		graphics.setColor(panel:GetPressedColor() or self.ButtonPressed)
+		graphics.rectangle("fill", 0, 0, w, h)
 	elseif panel:IsHovered() then
-		color = panel:GetHoveredColor() or self.ButtonHover
+		graphics.setColor(panel:GetHoveredColor() or self.ButtonHover)
+		graphics.rectangle("fill", 0, 0, w, h)
 	end
-
-	graphics.setColor(color)
-	graphics.rectangle("fill", 0, 0, w, h)
 
 	graphics.setLineStyle("rough")
 	graphics.setLineWidth(1)
@@ -143,14 +143,14 @@ function SKIN:PaintTab(panel, w, h)
 	end
 
 	graphics.setColor(panel:GetBorderColor() or self.PanelBorder)
-	graphics.roundRect(0, 0, w, h+8, 8)
+	graphics.roundRect(0, 0, w, h+4, 4)
 
 	graphics.setColor(color)
-	graphics.roundRect(1, 1, w-2, h+6, 8)
+	graphics.roundRect(1, 1, w-2, h+3, 4)
 
 	if panel:IsActive() then
 		graphics.setColor(panel:GetActiveColor() or self.TabActiveColor)
-		graphics.roundRect(1, 1, w-2, h+6, 8)
+		graphics.roundRect(1, 1, w-2, h+3, 4)
 	end
 end
 
@@ -240,11 +240,11 @@ function SKIN:InitTooltip(tooltip)
 end
 
 function SKIN:InitTooltipTitle(title)
-	title:SetShadowColor(self.ToolTipTitleShadowColor)
+	title:SetShadowColor(self.LabelShadowColor)
 	title:SetTextColor(self.ToolTipTitleColor)
 end
 
 function SKIN:InitTooltipBody(body)
-	body:SetShadowColor(self.ToolTipBodyShadowColor)
+	body:SetShadowColor(self.LabelShadowColor)
 	body:SetTextColor(self.ToolTipBodyColor)
 end

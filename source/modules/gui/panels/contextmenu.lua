@@ -5,6 +5,8 @@ function PANEL:ContextMenu()
 
 	self.m_tEntries = {}
 
+	self:DockPadding(0,0,0,0)
+
 	self:SetWidth(128 + 32)
 	self:MakePopup()
 end

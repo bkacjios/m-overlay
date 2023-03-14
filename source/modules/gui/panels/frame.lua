@@ -16,8 +16,6 @@ function PANEL:Frame()
 	self.m_pClose = self:Add("Button")
 	self.m_pClose:SetText("x")
 	
-	gui.skinHook("Init", "ExitButton", self.m_pClose)
-	
 	self.m_pClose.OnClick = function(this, but)
 		self:OnClosed()
 		if self.m_bHideOnClose then
@@ -26,6 +24,10 @@ function PANEL:Frame()
 			self:Remove()
 		end
 	end
+end
+
+function PANEL:Skin()
+	gui.skinHook("Init", "ExitButton", self.m_pClose)
 end
 
 function PANEL:SetTitle(s)

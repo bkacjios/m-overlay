@@ -85,8 +85,8 @@ local player_static_struct = {
 	[0x046] = { type = "u8", name = "color" },
 	[0x047] = { type = "u8", name = "team" },
 	--[0x048] = { type = "u8", name = "index" },
-	--[0x049] = { type = "u8", name = "cpu_level", debug = true },
-	--[0x04A] = { type = "u8", name = "cpu_type", debug = true }, -- 4 = 20XX, 22 = normalish, 19 = Alt Normal
+	[0x049] = { type = "u8", name = "cpu_level" },
+	[0x04A] = { type = "u8", name = "cpu_type" }, -- 4 = 20XX, 22 = normalish, 19 = Alt Normal
 }
 
 for id, address in ipairs(player_static_addresses) do
@@ -153,16 +153,16 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 				[0x0C] = { type = "u8", name = "chatmsg.index" },						-- 1
 				[0x0D] = { type = "u32", name = "vs.left_names" },						-- 4
 				[0x11] = { type = "u32", name = "vs.right_names" },						-- 4
-				[0x15] = { type = "string-jis", len = 31, name = "local_player.name" },	-- 31
-				[0x34] = { type = "string-jis", len = 31, name = "players.1.name" },	-- 31
-				[0x53] = { type = "string-jis", len = 31, name = "players.2.name" },	-- 31
-				[0x72] = { type = "string-jis", len = 31, name = "players.3.name" },	-- 31
-				[0x91] = { type = "string-jis", len = 31, name = "players.4.name" },	-- 31
-				[0xB0] = { type = "string-jis", len = 31, name = "opponent.name" },		-- 31
-				[0xCF] = { type = "string-jis", len = 10, name = "players.1.code" },	-- 10
-				[0xD9] = { type = "string-jis", len = 10, name = "players.2.code" },	-- 10
-				[0xE3] = { type = "string-jis", len = 10, name = "players.3.code" },	-- 10
-				[0xED] = { type = "string-jis", len = 10, name = "players.4.code" },	-- 10
+				-- [0x15] = { type = "string-jis", len = 31, name = "local_player.name" },	-- 31
+				-- [0x34] = { type = "string-jis", len = 31, name = "players.1.name" },	-- 31
+				-- [0x53] = { type = "string-jis", len = 31, name = "players.2.name" },	-- 31
+				-- [0x72] = { type = "string-jis", len = 31, name = "players.3.name" },	-- 31
+				-- [0x91] = { type = "string-jis", len = 31, name = "players.4.name" },	-- 31
+				-- [0xB0] = { type = "string-jis", len = 31, name = "opponent.name" },		-- 31
+				-- [0xCF] = { type = "string-jis", len = 10, name = "players.1.code" },	-- 10
+				-- [0xD9] = { type = "string-jis", len = 10, name = "players.2.code" },	-- 10
+				-- [0xE3] = { type = "string-jis", len = 10, name = "players.3.code" },	-- 10
+				-- [0xED] = { type = "string-jis", len = 10, name = "players.4.code" },	-- 10
 				[0xF7] = { type = "string", len = 29, name = "players.1.uuid" },		-- 29
 				[0x114] = { type = "string", len = 29, name = "players.2.uuid" },		-- 29
 				[0x131] = { type = "string", len = 29, name = "players.3.uuid" },		-- 29
@@ -204,6 +204,7 @@ local player_select_external = {
 for id, address in ipairs(player_select_external_addresses) do
 	for offset, name in pairs(player_select_external) do
 		game.memorymap[address + offset] = {
+			debug = true,
 			type = "u8",
 			name = ("player.%i.select.%s"):format(id, name),
 		}
@@ -220,7 +221,7 @@ local player_card_addresses = {
 local player_card = {
 	[0x00] = "team",
 	[0x01] = "mode",
-	--[0x02] = "mode", -- Duplicate?
+	--[0x02] = "mode2", -- Duplicate?
 	[0x03] = "skin",
 	[0x04] = "character",
 	[0x05] = "hovered",

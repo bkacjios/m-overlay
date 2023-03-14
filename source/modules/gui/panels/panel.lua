@@ -1,9 +1,8 @@
 local PANEL = class.create("Panel", "BasePanel")
 
 PANEL:ACCESSOR("Enabled", "m_bEnabled", true)
-PANEL:ACCESSOR("BorderColor", "m_cBorderColor")
-PANEL:ACCESSOR("BackgroundColor", "m_cBackgroundColor")
-PANEL:ACCESSOR("BGColor", "m_cBackgroundColor")
+PANEL:ACCESSOR("BorderColor", "m_cBorderColor", color(165, 165, 165))
+PANEL:ACCESSOR({"BGColor","BackgroundColor"}, "m_cBackgroundColor", color(200, 200, 200))
 PANEL:ACCESSOR("TooltipTitle", "m_strTooltipTitle")
 PANEL:ACCESSOR("TooltipBody", "m_strTooltipBody")
 PANEL:ACCESSOR("TooltipParent", "m_pTooltipParent")
@@ -11,6 +10,9 @@ PANEL:ACCESSOR("DrawPanel", "m_bDrawPanel", true)
 
 function PANEL:Panel()
 	self:super() -- Initialize our baseclass
+end
+
+function PANEL:Skin()
 	gui.skinHook("Init", "Panel", self)
 end
 

@@ -30,6 +30,11 @@ function PANEL:Label()
 	self:SetText(self.m_sText)
 end
 
+function PANEL:Skin()
+	self:super("Skin")
+	gui.skinHook("Init", "Label", self)
+end
+
 function PANEL:TextMargin(left, top, right, bottom)
 	self.m_tTextMargins.left = left
 	self.m_tTextMargins.top = top

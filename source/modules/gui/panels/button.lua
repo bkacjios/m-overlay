@@ -12,7 +12,10 @@ function PANEL:Button()
 
 	self:SetTextAlignmentX("center")
 	self:SetText("Button")
+end
 
+function PANEL:Skin()
+	self:super("Skin")
 	gui.skinHook("Init", "Button", self)
 end
 

@@ -31,7 +31,9 @@ function PANEL:HorizontalSelect()
 	function self.m_pButRight:OnClick()
 		self:GetParent():SelectRight()
 	end
+end
 
+function PANEL:Skin()
 	gui.skinHook("Init", "HorizontalSelect", self)
 end
 

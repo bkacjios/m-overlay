@@ -3,44 +3,53 @@ local class = {
 	inherits = {},
 }
 
-function ACCESSOR(object, name, internal, default)
+function ACCESSOR(object, field, internal, default)
 	if not object then
 		return error("attempt to call ACCESSOR on a nil value")
 	end
 	object[internal] = default
+
+	local getter = function(this) return this[internal] end
+	local setter = function(this, value) this[internal] = value end
+
 	if type(default) == "boolean" then
-		object["Is" .. name] = function(this) return this[internal] end
+		object["Is" .. field] = getter
 	end
-	object["Get" .. name] = function(this) return this[internal] end
-	object["Set" .. name] = function(this, value) this[internal] = value end
+	object["Get" .. field] = getter
+	object["Set" .. field] = setter
 end
 
-local CLASS = {}
-CLASS.__index = CLASS
+local STRUCT = {}
+STRUCT.__index = STRUCT
 
-function CLASS:ACCESSOR(name, internal, default)
-	return ACCESSOR(self, name, internal, default)
+function STRUCT:ACCESSOR(field, internal, default)
+	if type(field) == "table" then
+		for k,v in pairs(field) do
+			ACCESSOR(self, v, internal, default)
+		end
+	elseif type(field) == "string" then
+		ACCESSOR(self, field, internal, default)
+	end
 end
 
-function CLASS:extends(basename)
-	class.inherits[self.__classname] = basename
+function STRUCT:extends(basename)
+	class.inherits[self.classname] = basename
 	return self
 end
 
 function class.create(classname, basename)
 	local struct = {}
-	struct.__classname = classname
-	struct.__constructor = classname
+	struct.classname = classname
 	class.structs[classname] = struct
 	class.inherits[classname] = basename
-	return setmetatable(struct, CLASS)
+	return setmetatable(struct, STRUCT)
 end
 
-function class.getStruct(classname)
+function class.get(classname)
 	return class.structs[classname]
 end
 
-function class.getBaseClassname(classname)
+function class.getBase(classname)
 	return class.inherits[classname]
 end
 
