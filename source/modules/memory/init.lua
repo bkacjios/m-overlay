@@ -253,11 +253,11 @@ local TYPES_READ = {
 	["data"] = memory.read,
 	["string"] = function(addr, len)
 		local value = memory.read(addr, len)
-		return value:match("(.-)%z+")
+		return value:match("(.-)%z*")
 	end,
 	["string-jis"] = function(addr, len)
 		local value = memory.read(addr, len)
-		return convertJisStr(value:match("(.-)%z+") or value)
+		return convertJisStr(value:match("(.-)%z*") or value)
 	end,
 }
 

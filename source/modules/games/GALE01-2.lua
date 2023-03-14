@@ -163,13 +163,13 @@ game.memorymap[CSSDT_BUF_ADDR] = {
 				-- [0xD9] = { type = "string-jis", len = 10, name = "players.2.code" },	-- 10
 				-- [0xE3] = { type = "string-jis", len = 10, name = "players.3.code" },	-- 10
 				-- [0xED] = { type = "string-jis", len = 10, name = "players.4.code" },	-- 10
-				[0xF7] = { type = "string", len = 29, name = "players.1.uuid" },		-- 29
-				[0x114] = { type = "string", len = 29, name = "players.2.uuid" },		-- 29
-				[0x131] = { type = "string", len = 29, name = "players.3.uuid" },		-- 29
-				[0x14E] = { type = "string", len = 29, name = "players.4.uuid" },		-- 29
-				[0x16B] = { type = "string", len = 241, name = "error_msg" },			-- 241
-				[0x25C] = { type = "data", len = 241, name = "game_info" },				-- 241
-				[0x34D] = { type = "data", len = 51, name = "match_id" },				-- 51
+				-- [0xF7] = { type = "string", len = 29, name = "players.1.uuid", debug = true },		-- 29
+				-- [0x114] = { type = "string", len = 29, name = "players.2.uuid", debug = true },		-- 29
+				-- [0x131] = { type = "string", len = 29, name = "players.3.uuid", debug = true },		-- 29
+				-- [0x14E] = { type = "string", len = 29, name = "players.4.uuid", debug = true },		-- 29
+				-- [0x16B] = { type = "string", len = 241, name = "error_msg", debug = true },			-- 241
+				-- [0x25C] = { type = "data", len = 241, name = "game_info", debug = true },				-- 241
+				-- [0x34D] = { type = "data", len = 51, name = "match_id", debug = true },				-- 51
 			}
 		},
 	}
