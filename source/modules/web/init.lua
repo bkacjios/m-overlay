@@ -6,6 +6,7 @@ local REQUESTS = {}
 local THREAD_POOL_SIZE = 3
 
 local THREAD = love.thread.newThread("modules/web/thread.lua")
+THREAD:start()
 
 -- these two channels are used to send requests and progress updates back and forth
 local requests_channel = love.thread.getChannel("web-requests")
