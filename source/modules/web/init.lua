@@ -64,9 +64,6 @@ end
 
 function web.close()
 	requests_channel:push(false) -- false ends the thread loop
-	if THREAD:isRunning() then
-		THREAD:wait()
-	end
 end
 
 return web

@@ -58,7 +58,7 @@ for level, info in pairs(log.levels) do
 	local filter = log.levels[log.level].priority
 	local stamp = function()
 		local date = os.date(log.date_format)
-		log.print(format("[%s%-5s\27[0m - %s] ", "\27[35m", level:upper(), date))
+		log.print(format("[%s%-5s\27[0m - %s] ", info.color, level:upper(), date))
 	end
 	log[level] = function(text, ...)
 		if info.priority < filter then return end

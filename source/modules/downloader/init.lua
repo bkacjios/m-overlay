@@ -53,9 +53,6 @@ end
 
 function downloader.close()
 	requests_channel:push(false)
-	if THREAD:isRunning() then
-		THREAD:wait()
-	end
 end
 
 return downloader
