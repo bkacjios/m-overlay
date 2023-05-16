@@ -79,7 +79,7 @@
 * Pikmin (NTSC-U v1.0, NTSC-U v1.1)
 * Pikmin 2 (NTSC-U v1.0, DEMO v1.0)
   - [Pikmin 251](https://www.youtube.com/watch?v=7ylu9ogW88w)
-* Pitfall The Lost Expedition (NTSC-U v1.0, FR v1.0)
+* Pitfall The Lost Expedition (NTSC-U v1.0, FR v1.0, PAL v1.0, DE v1.0)
 * Super Monkey Ball (NTSC-U v1.0, NTSC-J v1.2, PAL v1.0)
 * Super Monkey Ball 2 (NTSC-U v1.0)
   - Super Monkey Ball Gaiden
@@ -105,6 +105,7 @@
   - [Project M](https://en.wikipedia.org/wiki/Project_M)
   - [P+](https://projectplusgame.com/)
 * Mario Kart Wii (NTSC-U v1.0)
+* Pitfall The Big Adventure (NTSC-U v1.0, PAL v1.0)
 * The Legend of Zelda: Twilight Princess (NTSC-U v1.0)
 
 ### Supported VC games:
