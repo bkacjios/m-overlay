@@ -24,6 +24,14 @@ function PANEL:MusicFileSlider()
 	self:SetTextFormat("%d%%")
 end
 
+function PANEL:SetValue(value)
+	self.m_pSlider:SetValue(value)
+end
+
+function PANEL:GetValue()
+	return self.m_pSlider:GetValue()
+end
+
 function PANEL:SetFileName(str)
 	self.m_pFileName:SetText(str)
 end

@@ -3,9 +3,17 @@ local PANEL = class.create("ScrollPanel", "Panel")
 function PANEL:ScrollPanel()	
 	self:super() -- Initialize our baseclass
 	self:DockPadding(0,0,0,0)
+	self:SetBGColor(color(215, 0, 0))
 
 	self.m_pCanvas = self:Add("Panel")
 	self.m_pCanvas:SetBGColor(color(215, 215, 215))
+
+	self.m_pCanvas.PerformLayout = function(this)
+		this:SizeToChildren(false, true)
+		if self.m_bNoSizing and this:GetHeight() < self:GetHeight() then
+			this:SetPos(0, (self:GetHeight()-this:GetHeight()) * 0.5)
+		end
+	end
 	
 	-- Create the scroll bar
 	self.m_pVBar = self:Add("ScrollBar")
@@ -41,10 +49,6 @@ function PANEL:InnerWidth()
 end
 
 function PANEL:Rebuild()
-	self:GetCanvas():SizeToChildren(false, true)
-	if self.m_bNoSizing and self:GetCanvas():GetHeight() < self:GetHeight() then
-		self:GetCanvas():SetPos(0, (self:GetHeight()-self:GetCanvas():GetHeight()) * 0.5)
-	end
 end
 
 function PANEL:OnMouseWheeled(x, y)
@@ -83,8 +87,7 @@ function PANEL:PerformLayout()
 
 	self.m_pCanvas:SetPos(0, ypos)
 	self.m_pCanvas:SetWidth(wide)
-
-	self:Rebuild()
+	self.m_pCanvas:InvalidateLayout()
 end
 
 function PANEL:SetScroll(scroll)
