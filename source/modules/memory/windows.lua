@@ -209,6 +209,7 @@ local valid_process_names = {
 	["Citrus Dolphin.exe"] = true,
 	["DolphinWx.exe"] = true,
 	["DolphinQt2.exe"] = true,
+	["Project Rio.exe"] = true,
 }
 
 do
