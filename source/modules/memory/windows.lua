@@ -206,6 +206,7 @@ end
 local valid_process_names = {
 	["Dolphin.exe"] = true,
 	["Slippi Dolphin.exe"] = true,
+	["Slippi_Dolphin.exe"] = true,
 	["Citrus Dolphin.exe"] = true,
 	["DolphinWx.exe"] = true,
 	["DolphinQt2.exe"] = true,
