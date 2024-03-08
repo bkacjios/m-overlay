@@ -1,4 +1,4 @@
--- Naruto - Gekitou Ninja Taisen! 4 (JP v1.0)
+-- Naruto - Super Clash of Ninja 4
 
 local core = require("games.core")
 
