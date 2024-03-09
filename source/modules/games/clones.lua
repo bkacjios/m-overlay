@@ -53,5 +53,8 @@ return {
 	},
     ["GM2EGD"] = {
         [0] = { id = "GM2E8P", version = 0 }, -- Super Monkey Ball Gaiden
+    },
+    ["SG4JDA"] = {
+        [0] = { id = "G4NJDA", version = 0 }, -- Naruto: Super Clash of Ninja 4
     }
 }

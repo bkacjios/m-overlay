@@ -96,6 +96,7 @@
 * Super Mario Strikers (NTSC-U v1.0)
 * TimeSplitters 2 (NTSC-U v1.0)
 * Naruto - Gekitou Ninja Taisen! 4 (NTSC-J v1.0)
+  - [Naruto: Super Clash of Ninja 4](https://gnt4.online/scon4/)
 * Need for Speed Underground 1 (NTSC-U v1.0)
 * Need for Speed Underground 2 (NTSC-U v1.0)
 
