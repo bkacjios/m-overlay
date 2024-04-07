@@ -7,9 +7,7 @@ local game = core.newGame()
 local polling_addresses = {
 	0x80222D40,
 	0x80222D74,
-	0x80222DA8,
-	0x80222DDC,
-	0x80222E10,
+	0x80222DA8
 }
 
 local controllers = {
