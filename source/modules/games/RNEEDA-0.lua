@@ -10,10 +10,10 @@ local polling_addresses = {
 }
 
 local controllers = {
-	[1] = 0x40 * 0,
-	[2] = 0x40 * 1,
-	[3] = 0x40 * 2,
-	[4] = 0x40 * 3,
+	[1] = 0xC * 0,
+	[2] = 0xC * 1,
+	[3] = 0xC * 2,
+	[4] = 0xC * 3,
 }
 
 local controller_struct = {
