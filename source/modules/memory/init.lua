@@ -233,6 +233,9 @@ local function convertJisStr(str)
 	return niceStr
 end
 
+-- Captures all characters up to any amount of NULL characters
+local STRING_PATTERN = "^(.-)%z-$"
+
 local TYPES_READ = {
 	["bool"] = memory.readBool,
 
@@ -253,11 +256,11 @@ local TYPES_READ = {
 	["data"] = memory.read,
 	["string"] = function(addr, len)
 		local value = memory.read(addr, len)
-		return value:match("(.-)%z-")
+		return value:match(STRING_PATTERN)
 	end,
 	["string-jis"] = function(addr, len)
 		local value = memory.read(addr, len)
-		return convertJisStr(value:match("^(.-)%z-$") or value)
+		return convertJisStr(value:match(STRING_PATTERN) or value)
 	end,
 }
 
