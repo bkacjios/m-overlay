@@ -4,51 +4,6 @@ local ANALOG = graphics.newImage("textures/buttons/analog-outline.png")
 local ANALOG_FILLED = graphics.newImage("textures/buttons/analog-filled.png")
 
 local BUTTON_TEXTURES = {
-	DPAD = {
-		GATE = graphics.newImage("textures/buttons/d-pad-gate.png"),
-		GATE_FILLED = graphics.newImage("textures/buttons/d-pad-gate-filled.png"),
-		POSITION = {
-			x = 100,
-			y = 128,
-		},
-	},
-
-	DPAD_LEFT = {
-		PRESSED = graphics.newImage("textures/buttons/d-pad-pressed-left.png"),
-
-		POSITION = {
-			x = 108,
-			y = 144,
-		},
-	},
-
-	DPAD_RIGHT = {
-		PRESSED = graphics.newImage("textures/buttons/d-pad-pressed-right.png"),
-
-		POSITION = {
-			x = 108,
-			y = 144,
-		},
-	},
-
-	DPAD_UP = {
-		PRESSED = graphics.newImage("textures/buttons/d-pad-pressed-up.png"),
-
-		POSITION = {
-			x = 108,
-			y = 144,
-		},
-	},
-
-	DPAD_DOWN = {
-		PRESSED = graphics.newImage("textures/buttons/d-pad-pressed-down.png"),
-
-		POSITION = {
-			x = 108,
-			y = 144,
-		},
-	},
-
 	JOYSTICK = {
 		GATE = graphics.newImage("textures/buttons/SS/SS_Gate.png"),
 		GATE_FILLED = graphics.newImage("textures/buttons/SS/SS_Gate.png"),
@@ -166,16 +121,6 @@ local BUTTON_TEXTURES = {
 			x = 256 - 64 - 25,
 			y = 128 - 10
 		}
-	},
-	START = {
-		OUTLINE = graphics.newImage("textures/buttons/start-outline.png"),
-		FILLED = graphics.newImage("textures/buttons/start-filled.png"),
-		PRESSED = graphics.newImage("textures/buttons/start-pressed.png"),
-		
-		POSITION = {
-			x = 256,
-			y = 26
-		}
 	}
 }
 
@@ -234,21 +179,18 @@ local function drawButtons(buttons, controller)
 	for button, flag in pairs(buttons) do
 		local texture = BUTTON_TEXTURES[button]
 		if texture then
-			if button ~= "START" or (button == "START" and SETTINGS:IsStartEnabled()) then
-				
-				local pos = texture.POSITION
-				graphics.setColor(texture.COLOR)
-				local analogr = (SETTINGS:IsSlippiReplay() and melee.isInGame() and controller.analog) and controller.analog.float or controller.analog.r
-				
-				if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
-					graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 88, 88)
-				elseif button == "R" and memory.game.translateTriggers(analogr) > 0 and memory.game.translateTriggers(analogr) < 0.5 then
-					graphics.easyDraw(BUTTON_TEXTURES.R.PRESSED, pos.x, pos.y, 0, 88, 88)
-				else
-					local text = SETTINGS:IsHighContrast() and texture.FILLED or texture.OUTLINE
-					if text then
-						graphics.easyDraw(text, pos.x, pos.y, 0, 88, 88)
-					end
+			local pos = texture.POSITION
+			graphics.setColor(texture.COLOR)
+			local analogr = (SETTINGS:IsSlippiReplay() and melee.isInGame() and controller.analog) and controller.analog.float or controller.analog.r
+			
+			if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
+				graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 88, 88)
+			elseif button == "R" and memory.game.translateTriggers(analogr) > 0 and memory.game.translateTriggers(analogr) < 0.5 then
+				graphics.easyDraw(BUTTON_TEXTURES.R.PRESSED, pos.x, pos.y, 0, 88, 88)
+			else
+				local text = SETTINGS:IsHighContrast() and texture.FILLED or texture.OUTLINE
+				if text then
+					graphics.easyDraw(text, pos.x, pos.y, 0, 88, 88)
 				end
 			end
 		end
@@ -316,14 +258,7 @@ function SKIN:Paint(controller)
 	perspective.quad(SETTINGS:IsHighContrast() and BUTTON_TEXTURES.JOYSTICK.FILLED or BUTTON_TEXTURES.JOYSTICK.STICK, rotated[1], rotated[2], rotated[3], rotated[4])
 	perspective.off()
 
-	
 	-- Draw buttons
-
-	if SETTINGS:IsDPadEnabled() then
-		graphics.easyDraw(SETTINGS:IsHighContrast() and BUTTON_TEXTURES.DPAD.GATE_FILLED or BUTTON_TEXTURES.DPAD.GATE, 108, 144, 0, 128, 128)
-		drawButtons(DPAD, controller)
-	end
-
 	drawButtons(BUTTONS, controller)
 end
 
