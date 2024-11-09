@@ -97,6 +97,7 @@
 * SpongeBob SquarePants: Battle for Bikini Bottom (NTSC-U v1.0)
 * The SpongeBob SquarePants Movie (NTSC-U v1.1, PAL v1.0)
 * Super Mario Strikers (NTSC-U v1.0)
+* SSX Tricky (NTSC-U v1.0)
 * TimeSplitters 2 (NTSC-U v1.0)
 * Naruto - Clash of Ninja Revolution 3 (NTSC-U v1.0, PAL v1.0)
 * Naruto - Gekitou Ninja Taisen! 4 (NTSC-J v1.0)
