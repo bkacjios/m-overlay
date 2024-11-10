@@ -182,7 +182,7 @@ local function drawButtons(buttons, controller)
 			local pos = texture.POSITION
 			graphics.setColor(texture.COLOR)
 			local analogr = (SETTINGS:IsSlippiReplay() and melee.isInGame() and controller.analog) and controller.analog.float or controller.analog
-			local tl, tr = memory.game.translateTriggers(0, analogr)
+			local tl, tr = memory.game.translateTriggers(0, analogr and analogr.r or 0)
 
 			if texture.PRESSED and bit.band(controller.buttons.pressed, flag) == flag then -- Check if the button is pressed
 				graphics.easyDraw(texture.PRESSED, pos.x, pos.y, 0, 88, 88)
