@@ -63,5 +63,8 @@ return {
     },
     ["GUPR8P"] = {
         [2] = { id = "GUPE8P", version = 0 }, -- Shadow Reloaded 1.2
+    },
+	["GMSE04"] = {
+        [3] = { id = "GMSE01", version = 0 }, -- Super Mario Eclipse
     }
 }
