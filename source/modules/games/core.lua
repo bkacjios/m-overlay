@@ -35,7 +35,7 @@ function core.loadGenericControllerMap(addr, game)
 	}
 
 	local controller_struct = {
-		[0x0] = { type = "short",	name = "controller.%d.buttons.pressed" },
+		[0x0] = { type = "u16",	name = "controller.%d.buttons.pressed" },
 		[0x2] = { type = "sbyte",	name = "controller.%d.joystick.x" },
 		[0x3] = { type = "sbyte",	name = "controller.%d.joystick.y" },
 		[0x4] = { type = "sbyte",	name = "controller.%d.cstick.x" },
