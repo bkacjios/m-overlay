@@ -51,20 +51,20 @@ return {
 	["PIKE25"] = {
 		[0] = { id = "GPVE01", version = 0 }, -- Pikmin 251
 	},
-    ["GM2EGD"] = {
-        [0] = { id = "GM2E8P", version = 0 }, -- Super Monkey Ball Gaiden
-    },
-    ["SG4JDA"] = {
-        [0] = { id = "G4NJDA", version = 0 }, -- Naruto: Super Clash of Ninja 4
-    },
-    ["GUPX8P"] = {
-        [0] = { id = "GUPE8P", version = 0 }, -- Shadow SX: Speedrunner's Cut (v1.0)
-        [1] = { id = "GUPE8P", version = 0 }, -- Shadow SX: Speedrunner's Cut (v1.1)
-    },
-    ["GUPR8P"] = {
-        [2] = { id = "GUPE8P", version = 0 }, -- Shadow Reloaded 1.2
-    },
+	["GM2EGD"] = {
+		[0] = { id = "GM2E8P", version = 0 }, -- Super Monkey Ball Gaiden
+	},
+	["SG4JDA"] = {
+		[0] = { id = "G4NJDA", version = 0 }, -- Naruto: Super Clash of Ninja 4
+	},
+	["GUPX8P"] = {
+		[0] = { id = "GUPE8P", version = 0 }, -- Shadow SX: Speedrunner's Cut (v1.0)
+		[1] = { id = "GUPE8P", version = 0 }, -- Shadow SX: Speedrunner's Cut (v1.1)
+	},
+	["GUPR8P"] = {
+		[2] = { id = "GUPE8P", version = 0 }, -- Shadow Reloaded 1.2
+	},
 	["GMSE04"] = {
-        [3] = { id = "GMSE01", version = 0 }, -- Super Mario Eclipse
-    }
+		[3] = { id = "GMSE01", version = 0 }, -- Super Mario Eclipse
+	}
 }
