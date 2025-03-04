@@ -99,6 +99,7 @@
 * The SpongeBob SquarePants Movie (NTSC-U v1.1, PAL v1.0)
 * Super Mario Strikers (NTSC-U v1.0)
 * SSX Tricky (NTSC-U v1.0)
+* Tales of Symphonia (NTSC-U v1.0, JP v1.0, PAL-EN v1.0, PAL-FR v1.0, PAL-DE v1.0, PAL-SP v1.0, PAL-IT v1.0)
 * TimeSplitters 2 (NTSC-U v1.0)
 * Naruto - Clash of Ninja Revolution 3 (NTSC-U v1.0, PAL v1.0)
 * Naruto - Gekitou Ninja Taisen! 4 (NTSC-J v1.0)
